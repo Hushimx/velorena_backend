@@ -11,11 +11,6 @@ class AdminController extends Controller
      * Show admin dashboard
      */
 
-    public function __construct()
-    {
-        $this->middleware('auth:admin');
-    }
-
     public function index()
     {
         return view('admin.dashboard');

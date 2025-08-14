@@ -2,46 +2,54 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
-
-    use AuthenticatesUsers;
-
-    protected $redirectTo = '/home';
-
-    public function __construct()
-    {
-        $this->middleware('guest')->except('logout');
-        $this->middleware('auth')->only('logout');
-    }
-
+    /**
+     * Show the user login form.
+     */
     public function showLoginForm()
     {
-        return view('admin.auth.login');
+        return view('auth.login'); // Regular user login view
     }
 
+    /**
+     * Handle user login request.
+     */
     public function login(Request $request)
     {
-        $this->validate($request, [
+        $request->validate([
             'email' => 'required|email',
-            'password' => 'required|min:6'
+            'password' => 'required|min:8',
         ]);
 
-        if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password], $request->remember)) {
-            return redirect()->intended(route('admin.dashboard'));
+        if (Auth::attempt(
+            $request->only('email', 'password'),
+            $request->boolean('remember')
+        )) {
+            $request->session()->regenerate();
+            return redirect()->intended(route('home'));
         }
 
-        return redirect()->back()->withInput($request->only('email', 'remember'));
+        throw ValidationException::withMessages([
+            'email' => __('auth.failed'),
+        ]);
     }
 
-    public function logout()
+    /**
+     * Log out the user.
+     */
+    public function logout(Request $request)
     {
-        Auth::guard('admin')->logout();
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return redirect('/');
     }
 }

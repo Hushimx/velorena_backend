@@ -28,7 +28,7 @@ class LoginController extends Controller
         ]);
 
         if (Auth::guard('admin')->attempt($credentials)) {
-            return redirect()->intended(route('admin.dashboard'));
+            return redirect()->route('admin.dashboard')->with('status', 'Logged in successfully');
         }
 
         return back()->withErrors([
@@ -44,6 +44,6 @@ class LoginController extends Controller
         Auth::guard('admin')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/');
+        return redirect('/admin/login')->with('status', 'Logged out successfully');
     }
 }
