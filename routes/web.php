@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Middleware\RedirectIfNotAdmin;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\Auth\RegisterController;
@@ -16,6 +17,7 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 // Admin Auth Routes
 Route::prefix('admin')->group(function () {
+    Route::redirect('/', '/admin/dashboard');
     // Public routes (accessible without auth)
     Route::middleware('guest:admin')->group(function () {
         Route::get('login', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -23,7 +25,7 @@ Route::prefix('admin')->group(function () {
     });
 
     // Protected routes (require admin auth)
-    Route::middleware('auth:admin')->group(function () {
+    Route::middleware(RedirectIfNotAdmin::class)->group(function () {
         Route::post('logout', [LoginController::class, 'logout'])->name('admin.logout');
         Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     });
