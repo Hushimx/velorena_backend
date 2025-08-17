@@ -24,9 +24,9 @@ Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     });
 
-    // Registration Routes...
-    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('admin.register');
-    Route::post('/register', [RegisterController::class, 'register']);
+    // Registration Routes... commented since no need for admins to register
+    // Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('admin.register');
+    // Route::post('/register', [RegisterController::class, 'register']);
 
     // Password Reset Routes...
     Route::get('/password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('admin.password.request');
