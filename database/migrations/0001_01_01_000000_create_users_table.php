@@ -13,8 +13,20 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->enum('client_type', ['individual', 'company'])->default('individual');
+            $table->string('full_name')->nullable(); // Required if individual
+            $table->string('company_name')->nullable(); // Required if company
+            $table->string('contact_person')->nullable(); // Contact person if company
             $table->string('email')->unique();
+            $table->string('phone')->nullable();
+            $table->text('address')->nullable();
+            $table->string('city')->nullable();
+            $table->string('country')->nullable();
+            $table->string('vat_number')->nullable(); // For companies
+            $table->string('cr_number')->nullable(); // Commercial registration number for companies
+            $table->string('cr_document_path')->nullable(); // Commercial registration document file path
+            $table->string('vat_document_path')->nullable(); // VAT certificate file path
+            $table->text('notes')->nullable(); // General notes
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
