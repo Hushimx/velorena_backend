@@ -10,4 +10,4 @@ Auth::routes();
 Route::redirect('/', '/home');
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-require __DIR__ . '\admin_routes.php';
+require __DIR__ . '/admin_routes.php';
