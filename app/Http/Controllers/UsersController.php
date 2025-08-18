@@ -4,9 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 
 class UsersController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:admin');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -36,7 +42,8 @@ class UsersController extends Controller
      */
     public function show(string $id)
     {
-        return "show user";
+        $user = User::findOrFail($id);
+        return view('admin.dashboard.users.show', compact('user'));
     }
 
     /**
@@ -44,7 +51,7 @@ class UsersController extends Controller
      */
     public function edit(string $id)
     {
-        $user = User::find($id);
+        $user = User::findOrFail($id);
         return view('admin.dashboard.users.edit', compact('user'));
     }
 
@@ -61,6 +68,15 @@ class UsersController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $user = User::findOrFail($id);
+            $user->delete();
+            
+            return redirect()->route('admin.users.index')
+                ->with('success', trans('users.user_deleted_successfully'));
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', trans('users.error_deleting_user'));
+        }
     }
 }
