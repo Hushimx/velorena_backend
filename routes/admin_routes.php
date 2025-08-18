@@ -1,13 +1,12 @@
 <?php
 
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\RedirectIfNotAdmin;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\Auth\LoginController;
-use App\Http\Controllers\Admin\Auth\RegisterController;
 use App\Http\Controllers\Admin\Auth\ResetPasswordController;
 use App\Http\Controllers\Admin\Auth\ForgotPasswordController;
+use App\Http\Controllers\UsersController;
 
 // Admin Auth Routes
 Route::prefix('admin')->group(function () {
@@ -33,4 +32,10 @@ Route::prefix('admin')->group(function () {
     Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('admin.password.email');
     Route::get('/password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('admin.password.reset');
     Route::post('/password/reset', [ResetPasswordController::class, 'reset'])->name('admin.password.update');
+
+    // Route::get('/users', [UsersController::class, 'index'])->name('admin.users');
+    // Route::get('/users', [UsersController::class, 'index'])->name('admin.users');
+    Route::name('admin.')->group(function () {
+        Route::resource('users', UsersController::class);
+    });
 });
