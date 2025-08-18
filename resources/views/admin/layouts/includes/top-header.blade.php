@@ -6,7 +6,7 @@
             <i class="fas fa-bars text-xl"></i>
         </button>
 
-        @include('admin.layouts.lang-switcher')
+        @include('admin.layouts.includes.lang-switcher')
 
         <h1 class="text-xl font-bold text-gray-800">@yield('title', 'الرئيسية')</h1>
         <div class="flex items-center relative">
