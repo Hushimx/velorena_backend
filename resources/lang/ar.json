@@ -1,4 +1,10 @@
 {
     "Email Address": "البريد الالكترونى",
-    "Password": "كلمه المرور"
+    "Password": "كلمه المرور",
+    "name": "الاسم",
+    "actions": "الإجراءات",
+    "show": "عرض",
+    "created at": "تاريخ الانشاء",
+    "created since": "انشات منذ",
+    "back": "رجوع"
 }

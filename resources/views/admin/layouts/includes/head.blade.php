@@ -110,7 +110,6 @@
         /* Main Content */
         main {
             background: #f4f6fb;
-            border-radius: 1.5rem 0 0 0;
             min-height: 100vh;
         }
 

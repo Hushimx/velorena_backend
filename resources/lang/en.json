@@ -1,4 +1,10 @@
 {
     "Email Address": "Email Address",
-    "Password": "Password"
+    "name": "Name",
+    "created at": "Created At",
+    "actions": "Actions",
+    "Password": "Password",
+    "show": "Show",
+    "created since": "Created Since",
+    "back": "Back"
 }
