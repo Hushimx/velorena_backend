@@ -68,12 +68,22 @@
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
                                 {{ $user->created_at->diffForHumans() }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                <a href="{{ route('admin.users.show', $user) }}"
-                                    class="text-green-600 hover:text-green-900">
-                                    <i class="fas fa-eye mx-2"></i>
-                                    {{ trans('show') }}
-                                </a>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center justify-center space-x-4">
+                                    <!-- View Button -->
+                                    <a href="{{ route('admin.users.show', $user) }}"
+                                        class="inline-flex items-center px-3 ml-2 py-1.5 border border-transparent text-xs font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 transition duration-150 ease-in-out">
+                                        <i class="fas fa-eye ml-1.5"></i>
+                                        <span>{{ trans('show') }}</span>
+                                    </a>
+
+                                    <!-- Edit Button -->
+                                    <a href="{{ route('admin.users.edit', $user) }}"
+                                        class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 transition duration-150 ease-in-out">
+                                        <i class="fas fa-pen ml-1.5"></i>
+                                        <span>{{ trans('edit') }}</span>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @empty

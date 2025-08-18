@@ -7,5 +7,6 @@ return [
     "no_users_exist" => "لا يوجد مستخدمين",
     "add new user" => "اضف مستخدم جديد",
     "manage_users" => "أدارة المستخدمين",
-    "create_user" => "اضف مستخدم جديد"
+    "create_user" => "اضف مستخدم جديد",
+    "edit_user" => "تعديل بيانات المستخدم ",
 ];

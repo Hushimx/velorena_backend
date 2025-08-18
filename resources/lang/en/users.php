@@ -8,5 +8,6 @@ return [
     "users_search_placeholder" => "Search For User",
     "add new user" => "Add New User",
     "manage_users" => "Manage Users",
-    "create_user" => "Create User"
+    "create_user" => "Create User",
+    "edit_user" => "Edit User",
 ];

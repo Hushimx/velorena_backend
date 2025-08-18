@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class UsersController extends Controller
@@ -43,7 +44,8 @@ class UsersController extends Controller
      */
     public function edit(string $id)
     {
-        return view('admin.dashboard.users.edit');
+        $user = User::find($id);
+        return view('admin.dashboard.users.edit', compact('user'));
     }
 
     /**
