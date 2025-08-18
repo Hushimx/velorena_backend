@@ -99,5 +99,6 @@ return [
     "account_management" => "Account Management",
     "download_document" => "Download Document",
     "coming_soon" => "Coming Soon",
+    "error_deleting_user" => "An error occurred while deleting the user. Please try again.",
     "orders_feature_coming_soon" => "Orders feature will be available soon. This section will display user orders and rental history.",
 ];

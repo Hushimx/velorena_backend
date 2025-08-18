@@ -98,5 +98,6 @@ return [
     "account_management" => "إدارة الحساب",
     "download_document" => "تحميل الوثيقة",
     "coming_soon" => "قريباً",
+    "error_deleting_user" => "حدث خطأ أثناء حذف المستخدم. يرجى المحاولة مرة أخرى.",
     "orders_feature_coming_soon" => "ميزة الطلبات ستكون متاحة قريباً. هذا القسم سيعرض طلبات المستخدم وتاريخ الإيجار.",
 ];

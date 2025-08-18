@@ -72,8 +72,12 @@ class UsersTable extends Component
     {
         $users = User::query()
             ->when($this->search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('full_name', 'like', "%{$search}%")
+                        ->orWhere('company_name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%");
+                });
             })
             ->orderBy('created_at', 'desc')
             ->paginate(10);
