@@ -20,5 +20,6 @@
 
 
         {{-- create form --}}
+        <livewire:create-user />
     </div>
 @endsection
