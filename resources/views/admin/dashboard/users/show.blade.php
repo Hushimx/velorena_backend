@@ -26,7 +26,8 @@
                         <i class="fas fa-edit ml-2"></i>
                         {{ trans('users.edit_user') }}
                     </a>
-                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline-block" id="deleteUserForm">
+                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline-block"
+                        id="deleteUserForm">
                         @csrf
                         @method('DELETE')
                         <button type="button" onclick="confirmDelete()"
