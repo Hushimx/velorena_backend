@@ -18,7 +18,7 @@
         .sidebar {
             background: #ffffff;
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-            border-radius: 1.5rem 0 0 1.5rem;
+            border-left: 1px solid #eee;
         }
 
         .sidebar-link {
@@ -26,7 +26,7 @@
             align-items: center;
             gap: 0.75rem;
             padding: 0.85rem 1.25rem;
-            border-radius: 0.75rem;
+            border-radius: 6px;
             font-size: 1rem;
             font-weight: 500;
             color: #6b7280;
@@ -67,7 +67,6 @@
             background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%);
             color: #fff;
             font-weight: bold;
-            border-radius: 0.75rem;
             transition: background 0.2s;
         }
 

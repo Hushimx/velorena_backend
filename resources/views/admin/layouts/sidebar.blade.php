@@ -9,12 +9,14 @@
         </button>
     </div>
     <nav class="mt-4 flex-1 px-2 space-y-1">
-        <a href="#" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+        <a href="{{ route('admin.dashboard') }}"
+            class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
             <i class="fas fa-home"></i>
             <span>الرئيسية</span>
         </a>
 
-        <a href="#" class="sidebar-link">
+        <a href="{{ route('admin.users.index') }}"
+            class="sidebar-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}">
             <i class="fas fa-user"></i>
             <span>Users</span>
         </a>

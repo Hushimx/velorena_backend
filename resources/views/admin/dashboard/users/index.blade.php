@@ -1,6 +1,6 @@
-@extends('lender.layouts.app')
+@extends('admin.layouts.app')
 
-@section('title', 'عروضي')
+@section('pageTitle', 'Admin | Users')
 
 @section('content')
     <div class="space-y-6">
@@ -10,7 +10,7 @@
                 <h1 class="text-2xl font-bold text-gray-900">عروضي</h1>
                 <p class="text-gray-600">إدارة جميع عروض الإيجار الخاصة بك</p>
             </div>
-            <a href="{{ route('lender.listings.create') }}"
+            <a href="{{ route('admin.users.create') }}"
                 class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
                 <i class="fas fa-plus"></i>
                 <span>إضافة عرض جديد</span>
@@ -18,9 +18,6 @@
         </div>
 
         <!-- Listings Table -->
-        @livewire('lender-listings-table')
-    </div>
-    <div>
-
+        @livewire('users-table')
     </div>
 @endsection
