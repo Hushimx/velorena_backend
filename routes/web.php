@@ -41,5 +41,6 @@ Route::group(
         })->name('docs');
 
         require __DIR__ . '/admin_routes.php';
+        require __DIR__ . '/designer_routes.php';
     }
 );

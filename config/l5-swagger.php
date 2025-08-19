@@ -108,8 +108,8 @@ return [
              * @link https://zircote.github.io/swagger-php/reference/processors.html
              */
             'default_processors_configuration' => [
-            /** Example */
-            /**
+                /** Example */
+                /**
              * 'operationId.hash' => true,
              * 'pathFilter' => [
              * 'tags' => [
@@ -162,7 +162,7 @@ return [
              * Allows to generate specs either for OpenAPI 3.0.0 or OpenAPI 3.1.0.
              * By default the spec will be in version 3.0.0
              */
-            'open_api_spec_version' => env('L5_SWAGGER_OPEN_API_SPEC_VERSION', \L5Swagger\Generator::OPEN_API_DEFAULT_SPEC_VERSION),
+            'open_api_spec_version' => env('L5_SWAGGER_OPEN_API_SPEC_VERSION', '3.0.0'),
         ],
 
         /*
@@ -214,8 +214,7 @@ return [
                     'name' => 'Authorization', // The name of the header or query parameter to be used.
                     'in' => 'header', // The location of the API key. Valid values are "query" or "header".
                 ],
-                */
-            ],
+                */],
             'security' => [
                 /*
                  * Examples of Securities
@@ -228,8 +227,7 @@ return [
                     ],
 
                     'passport' => []
-                    */
-                ],
+                    */],
             ],
         ],
 

@@ -26,8 +26,7 @@ This documentation aims to provide all the information you need to work with our
 
 <aside>As you scroll, you'll see code examples for working with the API in different programming languages in the dark area to the right (or as part of the content on mobile).
 You can switch the language used with the tabs at the top right (or from the nav menu at the top left on mobile).</aside>
-INTRO
-    ,
+INTRO,
 
     /*
      * Example requests for each endpoint will be shown using a JavaScript AJAX call.
@@ -224,36 +223,25 @@ INTRO
      */
     'strategies' => [
         'metadata' => [
-            ...Defaults::METADATA_STRATEGIES,
+            // Temporarily commented out due to missing Defaults class
         ],
         'headers' => [
-            ...Defaults::HEADERS_STRATEGIES,
-            Strategies\StaticData::withSettings(data: [
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ]),
+            // Temporarily commented out due to missing Defaults class
         ],
         'urlParameters' => [
-            ...Defaults::URL_PARAMETERS_STRATEGIES,
+            // Temporarily commented out due to missing Defaults class
         ],
         'queryParameters' => [
-            ...Defaults::QUERY_PARAMETERS_STRATEGIES,
+            // Temporarily commented out due to missing Defaults class
         ],
         'bodyParameters' => [
-            ...Defaults::BODY_PARAMETERS_STRATEGIES,
+            // Temporarily commented out due to missing Defaults class
         ],
-        'responses' => configureStrategy(
-            Defaults::RESPONSES_STRATEGIES,
-            Strategies\Responses\ResponseCalls::withSettings(
-                only: ['GET *'],
-                // Recommended: disable debug mode in response calls to avoid error stack traces in responses
-                config: [
-                    'app.debug' => false,
-                ]
-            )
-        ),
+        'responses' => [
+            // Temporarily commented out due to missing Defaults class
+        ],
         'responseFields' => [
-            ...Defaults::RESPONSE_FIELDS_STRATEGIES,
+            // Temporarily commented out due to missing Defaults class
         ]
     ],
 
