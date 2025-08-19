@@ -10,10 +10,25 @@ use Illuminate\Validation\ValidationException;
 class LoginController extends Controller
 {
     /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('guest')->except('logout');
+    }
+
+    /**
      * Show the user login form.
      */
     public function showLoginForm()
     {
+        // Additional check to ensure authenticated users are redirected
+        if (Auth::check()) {
+            return redirect()->route('home');
+        }
+
         return view('auth.login'); // Regular user login view
     }
 
@@ -32,7 +47,7 @@ class LoginController extends Controller
             $request->boolean('remember')
         )) {
             $request->session()->regenerate();
-            return redirect()->intended(route('home'));
+            return redirect()->intended(route('home'))->with('status', __('Logged in successfully'));
         }
 
         throw ValidationException::withMessages([

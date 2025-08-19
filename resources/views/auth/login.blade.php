@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل دخول</title>
+    <title>{{ __('User Login - velorena') }}</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -166,10 +166,10 @@
                     </div>
                 </div>
                 <h2 class="mt-4 text-center text-2xl font-bold text-gray-900 tracking-tight">
-                    تسجيل دخول المؤجر
+                    {{ __('User Login') }}
                 </h2>
                 <p class="mt-2 text-center text-sm text-gray-600">
-                    أدخل بيانات الاعتماد الخاصة بك للوصول إلى لوحة التحكم
+                    {{ __('Enter your credentials to access the admin dashboard') }}
                 </p>
             </div>
             <form class="mt-8 space-y-6" action="{{ route('login') }}" method="POST">
@@ -180,7 +180,7 @@
                             class="block text-sm font-medium text-gray-700 mb-1">{{ __('Email Address') }}</label>
                         <input id="email" name="email" type="email" required value="{{ old('email') }}"
                             class="@error('email') is-invalid @enderror input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
-                            placeholder="أدخل بريدك الإلكتروني">
+                            placeholder="{{ __('Enter your email address') }}">
                         @error('email')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -192,7 +192,7 @@
                             class="block text-sm font-medium text-gray-700 mb-1">{{ __('Password') }}</label>
                         <input id="password" name="password" type="password" required
                             class="@error('password') is-invalid @enderror input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
-                            placeholder="أدخل كلمة المرور">
+                            placeholder="{{ __('Enter your password') }}">
                         @error('password')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -230,7 +230,7 @@
                                     clip-rule="evenodd" />
                             </svg>
                         </span>
-                        تسجيل الدخول
+                        {{ __('Sign In') }}
                     </button>
                 </div>
             </form>
@@ -238,10 +238,10 @@
             <!-- Registration Link -->
             <div class="text-center mt-6">
                 <p class="text-sm text-gray-600">
-                    ليس لديك حساب؟
+                    {{ __('Don\'t have an account?') }}
                     <a href="{{ route('register') }}"
                         class="font-medium text-blue-800 hover:text-blue-600 transition-colors">
-                        إنشاء حساب جديد
+                        {{ __('Create new account') }}
                     </a>
                 </p>
             </div>

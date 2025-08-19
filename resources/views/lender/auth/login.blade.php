@@ -166,27 +166,28 @@
                     </div>
                 </div>
                 <h2 class="mt-4 text-center text-2xl font-bold text-gray-900 tracking-tight">
-                    تسجيل دخول المؤجر
+                    {{ __('Lender Login') }}
                 </h2>
                 <p class="mt-2 text-center text-sm text-gray-600">
-                    أدخل بيانات الاعتماد الخاصة بك للوصول إلى لوحة التحكم
+                    {{ __('Enter your credentials to access the dashboard') }}
                 </p>
             </div>
             <form class="mt-8 space-y-6" action="{{ route('lender.login') }}" method="POST">
                 @csrf
                 <div class="space-y-4">
                     <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">البريد
-                            الإلكتروني</label>
+                        <label for="email"
+                            class="block text-sm font-medium text-gray-700 mb-1">{{ __('Email') }}</label>
                         <input id="email" name="email" type="email" required value="{{ old('email') }}"
                             class="input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
-                            placeholder="أدخل بريدك الإلكتروني">
+                            placeholder="{{ __('Enter your email address') }}">
                     </div>
                     <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">كلمة المرور</label>
+                        <label for="password"
+                            class="block text-sm font-medium text-gray-700 mb-1">{{ __('Password') }}</label>
                         <input id="password" name="password" type="password" required
                             class="input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
-                            placeholder="أدخل كلمة المرور">
+                            placeholder="{{ __('Enter your password') }}">
                     </div>
                 </div>
 
@@ -219,7 +220,7 @@
                                     clip-rule="evenodd" />
                             </svg>
                         </span>
-                        تسجيل الدخول
+                        {{ __('Sign In') }}
                     </button>
                 </div>
             </form>
@@ -227,10 +228,10 @@
             <!-- Registration Link -->
             <div class="text-center mt-6">
                 <p class="text-sm text-gray-600">
-                    ليس لديك حساب؟
+                    {{ __('Don\'t have an account?') }}
                     <a href="{{ route('lender.register') }}"
                         class="font-medium text-blue-800 hover:text-blue-600 transition-colors">
-                        إنشاء حساب جديد
+                        {{ __('Create new account') }}
                     </a>
                 </p>
             </div>
