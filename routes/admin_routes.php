@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\Auth\ResetPasswordController;
 use App\Http\Controllers\Admin\Auth\ForgotPasswordController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\DesignersController;
 
 // Admin Auth Routes
 Route::prefix('admin')->group(function () {
@@ -32,6 +33,7 @@ Route::prefix('admin')->group(function () {
         // Users management routes
         Route::name('admin.')->group(function () {
             Route::resource('users', UsersController::class);
+            Route::resource('designers', DesignersController::class);
         });
     });
 });
