@@ -21,7 +21,8 @@
             <span>{{ trans('sidebar.users') }}</span>
         </a>
 
-        <a href="#" class="sidebar-link">
+        <a href="{{ route('admin.designers.index') }}"
+            class="sidebar-link {{ request()->routeIs('admin.designers.*') ? 'active' : '' }}">
             <i class="fas fa-user"></i>
             <span>{{ trans('sidebar.designers') }}</span>
         </a>
