@@ -4,9 +4,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>تسجيل كمالك - Jarak</title>
+    <title>تسجيل كمالك - فيلورينا</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body {
             font-family: 'Cairo', sans-serif;
@@ -214,14 +215,77 @@
     </div>
 
     <div class="relative min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <!-- Language Switcher -->
+        <div class="absolute top-4 right-4 z-10">
+            @php
+                use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
+                $current = LaravelLocalization::getCurrentLocale();
+            @endphp
+
+            <div x-data="{ open: false }" class="relative">
+                <!-- Trigger Button -->
+                <button @click="open = !open" type="button"
+                    class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    aria-haspopup="listbox" :aria-expanded="open">
+                    <span class="inline-flex items-center gap-2">
+                        <span class="text-xs rounded px-2 py-0.5 border">{{ strtoupper($current) }}</span>
+                        <span class="hidden sm:inline">
+                            {{ $current === 'ar' ? 'العربية' : 'English' }}
+                        </span>
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <!-- Dropdown -->
+                <div x-cloak x-show="open" @click.outside="open = false"
+                    class="absolute z-50 mt-2 w-40 rounded-xl border border-gray-200 bg-white shadow-lg"
+                    :class="{
+                        'right-0': '{{ LaravelLocalization::getCurrentLocaleDirection() }}'
+                        === 'rtl',
+                        'left-0': '{{ LaravelLocalization::getCurrentLocaleDirection() }}'
+                        === 'ltr'
+                    }">
+                    <ul class="py-1" role="listbox">
+                        @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
+                            @php
+                                $url = LaravelLocalization::getLocalizedURL($localeCode, null, [], true);
+                                $active = $localeCode === $current;
+                            @endphp
+
+                            <li>
+                                <a href="{{ $url }}" hreflang="{{ $localeCode }}" rel="alternate"
+                                    class="flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 @if ($active) font-semibold @endif">
+                                    <span class="flex items-center gap-2">
+                                        <span
+                                            class="text-xs rounded px-2 py-0.5 border">{{ strtoupper($localeCode) }}</span>
+                                        <span>{{ $properties['native'] ?? strtoupper($localeCode) }}</span>
+                                    </span>
+                                    @if ($active)
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
+                                            fill="currentColor">
+                                            <path fill-rule="evenodd"
+                                                d="M16.707 5.293a1 1 0 010 1.414l-7.364 7.364a1 1 0 01-1.414 0L3.293 10.435a1 1 0 111.414-1.414l3.222 3.222 6.657-6.657a1 1 0 011.414 0z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    @endif
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <!-- Header -->
         <div class="sm:mx-auto sm:w-full sm:max-w-md">
             <div class="flex justify-center">
                 <div class="text-center">
                     <h1
                         class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-green-500">
-                        Jarak</h1>
-                    <p class="text-sm text-gray-500 mt-1">منصة الإيجار الرائدة</p>
+                        {{ __('velorena') }}</h1>
                 </div>
             </div>
             <h2 class="mt-8 text-center text-3xl font-extrabold text-gray-900">
@@ -322,7 +386,8 @@
 
                     <!-- Personal Information Section -->
                     <div class="space-y-4">
-                        <h3 class="section-title text-lg font-bold border-b border-gray-200 pb-2">المعلومات الشخصية</h3>
+                        <h3 class="section-title text-lg font-bold border-b border-gray-200 pb-2">المعلومات الشخصية
+                        </h3>
 
                         <!-- Name -->
                         <div>
@@ -941,7 +1006,8 @@
 
             // Validate all required fields
             const requiredFields = ['name', 'email', 'phone', 'city', 'address', 'password',
-                'password_confirmation'];
+                'password_confirmation'
+            ];
             requiredFields.forEach(field => {
                 validateField(field);
                 const fieldElement = document.getElementById(field);

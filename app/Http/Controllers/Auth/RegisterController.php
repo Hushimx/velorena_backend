@@ -31,6 +31,18 @@ class RegisterController extends Controller
     protected $redirectTo = '/home';
 
     /**
+     * The user has been registered.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $user
+     * @return mixed
+     */
+    protected function registered($request, $user)
+    {
+        return redirect($this->redirectTo)->with('status', __('Account created successfully! Welcome to velorena.'));
+    }
+
+    /**
      * Create a new controller instance.
      *
      * @return void

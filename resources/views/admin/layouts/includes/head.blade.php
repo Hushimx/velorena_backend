@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 
 <head>
     <meta charset="UTF-8">
@@ -44,6 +44,12 @@
         .sidebar-link i {
             font-size: 1.25rem;
             margin-left: 0.5rem;
+        }
+
+        /* RTL Support */
+        [dir="rtl"] .sidebar-link i {
+            margin-left: 0;
+            margin-right: 0.5rem;
         }
 
         .sidebar .logo {
@@ -96,6 +102,12 @@
             margin-left: 0.75rem;
         }
 
+        /* RTL Support for profile name */
+        [dir="rtl"] .profile-name {
+            margin-left: 0;
+            margin-right: 0.75rem;
+        }
+
         .profile-status {
             position: absolute;
             bottom: 0;
@@ -125,7 +137,18 @@
                 transition: transform 0.3s ease-in-out;
             }
 
+            /* LTR Support for sidebar */
+            [dir="ltr"] .sidebar {
+                right: auto;
+                left: 0;
+                transform: translateX(-100%);
+            }
+
             .sidebar.sidebar-open {
+                transform: translateX(0);
+            }
+
+            [dir="ltr"] .sidebar.sidebar-open {
                 transform: translateX(0);
             }
 

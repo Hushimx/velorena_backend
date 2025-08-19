@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل دخول المقرض - Jarak</title>
+    <title>تسجيل دخول المقرض - فيلورينا</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body {
             font-family: 'Cairo', sans-serif;
@@ -90,22 +91,85 @@
 
 <body class="bg-gradient-to-br from-green-50 via-blue-50 to-green-100 min-h-screen"
     style="background: linear-gradient(135deg, var(--mint-green-light) 0%, rgba(0, 0, 128, 0.05) 50%, var(--mint-green-light) 100%);">
-    <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="min-h-screen flex items-center justify-center p-4 relative">
+        <!-- Language Switcher -->
+        <div class="absolute top-4 right-4 z-10">
+            @php
+                use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
+                $current = LaravelLocalization::getCurrentLocale();
+            @endphp
+
+            <div x-data="{ open: false }" class="relative">
+                <!-- Trigger Button -->
+                <button @click="open = !open" type="button"
+                    class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    aria-haspopup="listbox" :aria-expanded="open">
+                    <span class="inline-flex items-center gap-2">
+                        <span class="text-xs rounded px-2 py-0.5 border">{{ strtoupper($current) }}</span>
+                        <span class="hidden sm:inline">
+                            {{ $current === 'ar' ? 'العربية' : 'English' }}
+                        </span>
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <!-- Dropdown -->
+                <div x-cloak x-show="open" @click.outside="open = false"
+                    class="absolute z-50 mt-2 w-40 rounded-xl border border-gray-200 bg-white shadow-lg"
+                    :class="{
+                        'right-0': '{{ LaravelLocalization::getCurrentLocaleDirection() }}'
+                        === 'rtl',
+                        'left-0': '{{ LaravelLocalization::getCurrentLocaleDirection() }}'
+                        === 'ltr'
+                    }">
+                    <ul class="py-1" role="listbox">
+                        @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
+                            @php
+                                $url = LaravelLocalization::getLocalizedURL($localeCode, null, [], true);
+                                $active = $localeCode === $current;
+                            @endphp
+
+                            <li>
+                                <a href="{{ $url }}" hreflang="{{ $localeCode }}" rel="alternate"
+                                    class="flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 @if ($active) font-semibold @endif">
+                                    <span class="flex items-center gap-2">
+                                        <span
+                                            class="text-xs rounded px-2 py-0.5 border">{{ strtoupper($localeCode) }}</span>
+                                        <span>{{ $properties['native'] ?? strtoupper($localeCode) }}</span>
+                                    </span>
+                                    @if ($active)
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
+                                            fill="currentColor">
+                                            <path fill-rule="evenodd"
+                                                d="M16.707 5.293a1 1 0 010 1.414l-7.364 7.364a1 1 0 01-1.414 0L3.293 10.435a1 1 0 111.414-1.414l3.222 3.222 6.657-6.657a1 1 0 011.414 0z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    @endif
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <div class="max-w-md w-full space-y-8 p-10 form-card rounded-2xl card-shadow animate-fade-in">
             <div>
                 <div class="flex justify-center">
                     <div class="text-center">
                         <h1
                             class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-green-500 mb-2">
-                            Jarak</h1>
-                        <p class="text-sm text-gray-500">منصة الإيجار الرائدة</p>
+                            {{ __('velorena') }}</h1>
                     </div>
                 </div>
                 <h2 class="mt-4 text-center text-2xl font-bold text-gray-900 tracking-tight">
-                    تسجيل دخول المؤجر
+                    {{ __('Admin Login') }}
                 </h2>
                 <p class="mt-2 text-center text-sm text-gray-600">
-                    أدخل بيانات الاعتماد الخاصة بك للوصول إلى لوحة التحكم
+                    {{ __('Enter your credentials to access the admin dashboard') }}
                 </p>
             </div>
             <form class="mt-8 space-y-6" action="{{ route('admin.login') }}" method="POST">
@@ -116,7 +180,7 @@
                             class="block text-sm font-medium text-gray-700 mb-1">{{ __('Email Address') }}</label>
                         <input id="email" name="email" type="email" required value="{{ old('email') }}"
                             class="@error('email') is-invalid @enderror input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
-                            placeholder="أدخل بريدك الإلكتروني">
+                            placeholder="{{ __('Enter your email address') }}">
                         @error('email')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -128,7 +192,7 @@
                             class="block text-sm font-medium text-gray-700 mb-1">{{ __('Password') }}</label>
                         <input id="password" name="password" type="password" required
                             class="@error('password') is-invalid @enderror input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
-                            placeholder="أدخل كلمة المرور">
+                            placeholder="{{ __('Enter your password') }}">
                         @error('password')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -166,7 +230,7 @@
                                     clip-rule="evenodd" />
                             </svg>
                         </span>
-                        تسجيل الدخول
+                        {{ __('Sign In') }}
                     </button>
                 </div>
             </form>
