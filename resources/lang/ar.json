@@ -32,5 +32,11 @@
     "Create new account": "إنشاء حساب جديد",
     "Login": "تسجيل الدخول",
     "Enter your credentials to access the dashboard": "أدخل بيانات الاعتماد الخاصة بك للوصول إلى لوحة التحكم",
-    "Enter your password": "أدخل كلمة المرور"
+    "Designer Login - velorena": "تسجيل دخول المصمم - فيلورينا",
+    "Invalid credentials": "بيانات الاعتماد غير صحيحة",
+    "Logged in successfully": "تم تسجيل الدخول بنجاح",
+    "Create Designer Account - velorena": "إنشاء حساب مصمم - فيلورينا",
+    "velorena": "فيلورينا",
+    "العربية": "العربية",
+    "English": "English"
 }

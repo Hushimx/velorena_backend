@@ -40,11 +40,11 @@ class LoginController extends Controller
         ]);
 
         if (Auth::guard('designer')->attempt($credentials)) {
-            return redirect()->route('designer.dashboard')->with('status', 'Logged in successfully');
+            return redirect()->route('designer.dashboard')->with('status', __('Logged in successfully'));
         }
 
         return back()->withErrors([
-            'email' => 'Invalid credentials',
+            'email' => __('Invalid credentials'),
         ]);
     }
 
