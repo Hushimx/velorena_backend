@@ -94,7 +94,7 @@
                                     <a href="{{ route('admin.users.edit', $user) }}"
                                         class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 transition duration-150 ease-in-out">
                                         <i class="fas fa-pen ml-1.5"></i>
-                                        <span>{{ trans('edit') }}</span>
+                                        <span>{{ trans('Edit') }}</span>
                                     </a>
 
                                     <!-- Delete Button -->
