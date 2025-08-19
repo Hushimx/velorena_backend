@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Services\OtpService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -12,15 +11,54 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    protected $otpService;
-
-    public function __construct(OtpService $otpService)
+    public function __construct()
     {
-        $this->otpService = $otpService;
+        // OTP service removed for now
     }
 
     /**
      * Register a new user
+     * 
+     * @group Authentication
+     * 
+     * @bodyParam client_type string required The type of client (individual or company). Example: individual
+     * @bodyParam full_name string required The full name of the user (required for individual clients). Example: John Doe
+     * @bodyParam company_name string required The company name (required for company clients). Example: Acme Corp
+     * @bodyParam contact_person string required The contact person name (required for company clients). Example: Jane Smith
+     * @bodyParam email string required The email address. Example: john@example.com
+     * @bodyParam phone string The phone number. Example: +1234567890
+     * @bodyParam address string The address. Example: 123 Main St
+     * @bodyParam city string The city. Example: New York
+     * @bodyParam country string The country. Example: USA
+     * @bodyParam vat_number string The VAT number. Example: VAT123456
+     * @bodyParam cr_number string The CR number. Example: CR123456
+     * @bodyParam notes string Additional notes. Example: Important client
+     * @bodyParam password string required The password (minimum 8 characters). Example: password123
+     * @bodyParam password_confirmation string required Password confirmation. Example: password123
+     * 
+     * @response 201 {
+     *   "success": true,
+     *   "message": "User registered successfully",
+     *   "data": {
+     *     "user": {
+     *       "id": 1,
+     *       "client_type": "individual",
+     *       "full_name": "John Doe",
+     *       "company_name": null,
+     *       "email": "john@example.com",
+     *       "phone": "+1234567890"
+     *     },
+     *     "token": "1|abc123..."
+     *   }
+     * }
+     * 
+     * @response 422 {
+     *   "success": false,
+     *   "message": "Validation failed",
+     *   "errors": {
+     *     "email": ["The email field is required."]
+     *   }
+     * }
      */
     public function register(Request $request)
     {
@@ -52,9 +90,6 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password),
             ]);
 
-            // Send OTP for email verification
-            $otpResult = $this->otpService->sendOtp($user->email, 'email');
-
             // Generate token
             $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -64,7 +99,6 @@ class AuthController extends Controller
                 'data' => [
                     'user' => $user->only(['id', 'client_type', 'full_name', 'company_name', 'email', 'phone']),
                     'token' => $token,
-                    'otp_sent' => $otpResult['success'],
                 ],
             ], 201);
 
@@ -79,6 +113,40 @@ class AuthController extends Controller
 
     /**
      * Login user
+     * 
+     * @group Authentication
+     * 
+     * @bodyParam email string required The email address. Example: john@example.com
+     * @bodyParam password string required The password. Example: password123
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "Login successful",
+     *   "data": {
+     *     "user": {
+     *       "id": 1,
+     *       "client_type": "individual",
+     *       "full_name": "John Doe",
+     *       "company_name": null,
+     *       "email": "john@example.com",
+     *       "phone": "+1234567890"
+     *     },
+     *     "token": "1|abc123..."
+     *   }
+     * }
+     * 
+     * @response 401 {
+     *   "success": false,
+     *   "message": "Invalid credentials"
+     * }
+     * 
+     * @response 422 {
+     *   "success": false,
+     *   "message": "Validation failed",
+     *   "errors": {
+     *     "email": ["The email field is required."]
+     *   }
+     * }
      */
     public function login(Request $request)
     {
@@ -128,6 +196,14 @@ class AuthController extends Controller
 
     /**
      * Logout user
+     * 
+     * @group Authentication
+     * @authenticated
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "Logged out successfully"
+     * }
      */
     public function logout(Request $request)
     {
@@ -150,6 +226,33 @@ class AuthController extends Controller
 
     /**
      * Get user profile
+     * 
+     * @group User Profile
+     * @authenticated
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "user": {
+     *       "id": 1,
+     *       "client_type": "individual",
+     *       "full_name": "John Doe",
+     *       "company_name": null,
+     *       "contact_person": null,
+     *       "email": "john@example.com",
+     *       "phone": "+1234567890",
+     *       "address": "123 Main St",
+     *       "city": "New York",
+     *       "country": "USA",
+     *       "vat_number": null,
+     *       "cr_number": null,
+     *       "notes": null,
+     *       "created_at": "2024-01-01T00:00:00.000000Z",
+     *       "cr_document_url": null,
+     *       "vat_document_url": null
+     *     }
+     *   }
+     * }
      */
     public function profile(Request $request)
     {

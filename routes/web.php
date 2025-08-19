@@ -34,6 +34,11 @@ Route::group(
         Route::redirect('/', '/home');
         Route::get('/home', [HomeController::class, 'index'])->name('home');
         // Route::view('/success', "admin.auth.success");
+        
+        // API Documentation
+        Route::get('/docs', function () {
+            return view('vendor.scribe.index');
+        })->name('docs');
 
         require __DIR__ . '/admin_routes.php';
     }

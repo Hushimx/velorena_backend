@@ -18,6 +18,30 @@ class OtpController extends Controller
 
     /**
      * Send OTP
+     * 
+     * @group Authentication
+     * 
+     * @bodyParam identifier string required The email or phone number to send OTP to. Example: john@example.com
+     * @bodyParam type string required The type of OTP (email, sms, whatsapp, fake). Example: email
+     * @bodyParam expiry_minutes integer The expiry time in minutes (1-60). Example: 10
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "OTP sent successfully",
+     *   "data": {
+     *     "otp_id": "123",
+     *     "expires_at": "2024-01-01T00:10:00.000000Z",
+     *     "type": "email"
+     *   }
+     * }
+     * 
+     * @response 422 {
+     *   "success": false,
+     *   "message": "Validation failed",
+     *   "errors": {
+     *     "identifier": ["The identifier field is required."]
+     *   }
+     * }
      */
     public function sendOtp(Request $request)
     {
@@ -72,6 +96,34 @@ class OtpController extends Controller
 
     /**
      * Verify OTP
+     * 
+     * @group Authentication
+     * 
+     * @bodyParam identifier string required The email or phone number. Example: john@example.com
+     * @bodyParam code string required The 6-digit OTP code. Example: 123456
+     * @bodyParam type string required The type of OTP (email, sms, whatsapp, fake). Example: email
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "OTP verified successfully",
+     *   "data": {
+     *     "verified_at": "2024-01-01T00:05:00.000000Z",
+     *     "otp_id": "123"
+     *   }
+     * }
+     * 
+     * @response 400 {
+     *   "success": false,
+     *   "message": "Invalid OTP code"
+     * }
+     * 
+     * @response 422 {
+     *   "success": false,
+     *   "message": "Validation failed",
+     *   "errors": {
+     *     "code": ["The code field is required."]
+     *   }
+     * }
      */
     public function verifyOtp(Request $request)
     {
@@ -123,6 +175,30 @@ class OtpController extends Controller
 
     /**
      * Resend OTP
+     * 
+     * @group Authentication
+     * 
+     * @bodyParam identifier string required The email or phone number. Example: john@example.com
+     * @bodyParam type string required The type of OTP (email, sms, whatsapp, fake). Example: email
+     * @bodyParam expiry_minutes integer The expiry time in minutes (1-60). Example: 10
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "OTP resent successfully",
+     *   "data": {
+     *     "otp_id": "124",
+     *     "expires_at": "2024-01-01T00:10:00.000000Z",
+     *     "type": "email"
+     *   }
+     * }
+     * 
+     * @response 422 {
+     *   "success": false,
+     *   "message": "Validation failed",
+     *   "errors": {
+     *     "identifier": ["The identifier field is required."]
+     *   }
+     * }
      */
     public function resendOtp(Request $request)
     {
