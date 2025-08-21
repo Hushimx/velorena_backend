@@ -86,14 +86,14 @@
                                     <!-- View Button -->
                                     <a href="{{ route('admin.users.show', $user) }}"
                                         class="inline-flex items-center px-3 ml-2 py-1.5 border border-transparent text-xs font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 transition duration-150 ease-in-out">
-                                        <i class="fas fa-eye ml-1.5"></i>
+                                        <i class="fas fa-eye mx-1.5"></i>
                                         <span>{{ trans('show') }}</span>
                                     </a>
 
                                     <!-- Edit Button -->
                                     <a href="{{ route('admin.users.edit', $user) }}"
                                         class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 transition duration-150 ease-in-out">
-                                        <i class="fas fa-pen ml-1.5"></i>
+                                        <i class="fas fa-pen mx-1.5"></i>
                                         <span>{{ trans('Edit') }}</span>
                                     </a>
 
@@ -101,7 +101,7 @@
                                     <button wire:click="confirmDelete({{ $user->id }})"
                                         wire:key="delete-{{ $user->id }}"
                                         class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 transition duration-150 ease-in-out">
-                                        <i class="fas fa-trash ml-1.5"></i>
+                                        <i class="fas fa-trash mx-1.5"></i>
                                         <span>{{ trans('users.delete') }}</span>
                                     </button>
                                 </div>

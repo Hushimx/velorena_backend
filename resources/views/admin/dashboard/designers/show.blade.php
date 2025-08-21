@@ -121,8 +121,8 @@
                     <div class="space-y-3">
                         <a href="{{ route('admin.designers.edit', $designer) }}"
                             class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2 transition-colors">
-                            <i class="fas fa-edit"></i>
-                            <span>{{ trans('edit') }}</span>
+                            <i class="fas fa-edit mx-1.5"></i>
+                            {{ trans('Edit') }}
                         </a>
                         <form action="{{ route('admin.designers.destroy', $designer) }}" method="POST" class="w-full">
                             @csrf
@@ -130,8 +130,8 @@
                             <button type="submit"
                                 onclick="return confirm('{{ trans('designers.confirm_delete_designer') }}')"
                                 class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2 transition-colors">
-                                <i class="fas fa-trash"></i>
-                                <span>{{ trans('designers.delete_designer') }}</span>
+                                <i class="fas fa-trash mx-1.5"></i>
+                                {{ trans('designers.delete_designer') }}
                             </button>
                         </form>
                     </div>
