@@ -1,5 +1,6 @@
 @extends('admin.layouts.app')
 
+@section('pageTitle', 'Admin | Edit Product')
 @section('title', trans('products.edit_product'))
 
 @section('content')
