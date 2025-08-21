@@ -87,8 +87,8 @@
                 <div class="p-6">
                     <h3
                         class="text-lg font-semibold text-gray-900 mb-4 flex items-center group-hover:text-blue-600 transition-colors duration-300">
-                        <i class="fas fa-address-card text-blue-500 ml-2"></i>
-                        {{ trans('users.contact_information') }}
+                        <i class="fas fa-address-card text-blue-500"></i>
+                        <span class="mx-2">{{ trans('users.contact_information') }}</span>
                     </h3>
                     <div class="space-y-4">
                         <div class="flex items-start group/item">
@@ -124,8 +124,8 @@
                 <div class="p-6">
                     <h3
                         class="text-lg font-semibold text-gray-900 mb-4 flex items-center group-hover:text-blue-600 transition-colors duration-300">
-                        <i class="fas fa-user-shield text-blue-500 ml-2"></i>
-                        {{ trans('users.account_information') }}
+                        <i class="fas fa-user-shield text-blue-500"></i>
+                        <span class="mx-2">{{ trans('users.account_information') }}</span>
                     </h3>
                     <div class="space-y-4">
                         <div class="flex items-start group/item">
@@ -182,8 +182,8 @@
                         <div class="p-6">
                             <h3
                                 class="text-lg font-semibold text-gray-900 mb-4 flex items-center group-hover:text-blue-600 transition-colors duration-300">
-                                <i class="fas fa-user text-blue-500 ml-2"></i>
-                                {{ trans('users.personal_information') }}
+                                <i class="fas fa-user text-blue-500"></i>
+                                <span class="mx-2">{{ trans('users.personal_information') }}</span>
                             </h3>
                             <div class="space-y-4">
                                 <div class="flex items-start group/item">
@@ -208,8 +208,8 @@
                         <div class="p-6">
                             <h3
                                 class="text-lg font-semibold text-gray-900 mb-4 flex items-center group-hover:text-blue-600 transition-colors duration-300">
-                                <i class="fas fa-building text-blue-500 ml-2"></i>
-                                {{ trans('users.company_information') }}
+                                <i class="fas fa-building text-blue-500"></i>
+                                <span class="mx-2">{{ trans('users.company_information') }}</span>
                             </h3>
                             <div class="space-y-4">
                                 <div class="flex items-start group/item">
@@ -324,8 +324,8 @@
                     <div class="p-6">
                         <h3
                             class="text-lg font-semibold text-gray-900 mb-4 flex items-center group-hover:text-blue-600 transition-colors duration-300">
-                            <i class="fas fa-map-marker-alt text-blue-500 ml-2"></i>
-                            {{ trans('users.address_information') }}
+                            <i class="fas fa-map-marker-alt text-blue-500"></i>
+                            <span class="mx-2">{{ trans('users.address_information') }}</span>
                         </h3>
                         <div class="space-y-4">
                             <div class="flex items-start group/item">
@@ -398,8 +398,8 @@
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-xl font-bold">{{ trans('users.user_orders') }}</h2>
                 <span class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-600 rounded-lg">
-                    <i class="fas fa-clock ml-2"></i>
-                    {{ trans('users.coming_soon') }}
+                    <i class="fas fa-clock"></i>
+                    <span class="mx-2">{{ trans('users.coming_soon') }}</span>
                 </span>
             </div>
             <div class="text-center py-8">
