@@ -5,5 +5,6 @@ return [
     "control panel" => "لوحة التحكم",
     "users" => "المستخدمين",
     "designers" => "المصممين",
+    "products" => "المنتجات",
     "logout" => "تسجيل الخروج"
 ];

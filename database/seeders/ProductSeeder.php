@@ -7,6 +7,7 @@ use Illuminate\Database\Seeder;
 use App\Models\Product;
 use App\Models\ProductOption;
 use App\Models\OptionValue;
+use App\Models\Category;
 
 class ProductSeeder extends Seeder
 {
@@ -15,248 +16,518 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        // Business Cards Product
-        $businessCards = Product::create([
-            'category_id' => 1, // Business Cards category
-            'name' => 'Standard Business Cards',
-            'name_ar' => 'بطاقات عمل قياسية',
-            'description' => 'Professional business cards with various customization options',
-            'description_ar' => 'بطاقات عمل احترافية مع خيارات تخصيص متنوعة',
-            'base_price' => 50.00,
-            'is_active' => true,
-            'sort_order' => 1
-        ]);
+        // Create 25 products using the factory
+        $products = Product::factory(25)->create();
 
-        // Add options for business cards
-        $this->createBusinessCardOptions($businessCards);
+        // Add options and values to each product
+        foreach ($products as $product) {
+            $this->createProductOptions($product);
+        }
 
-        // Brochures Product
-        $brochures = Product::create([
-            'category_id' => 2, // Brochures & Catalogs category
-            'name' => 'Tri-Fold Brochures',
-            'name_ar' => 'كتيبات ثلاثية الطي',
-            'description' => 'Professional tri-fold brochures for marketing campaigns',
-            'description_ar' => 'كتيبات ثلاثية الطي احترافية لحملات التسويق',
-            'base_price' => 200.00,
-            'is_active' => true,
-            'sort_order' => 1
-        ]);
-
-        // Add options for brochures
-        $this->createBrochureOptions($brochures);
-
-        // Banners Product
-        $banners = Product::create([
-            'category_id' => 3, // Banners & Signs category
-            'name' => 'Roll-Up Banners',
-            'name_ar' => 'لافتات قابلة للطي',
-            'description' => 'Professional roll-up banners for events and exhibitions',
-            'description_ar' => 'لافتات قابلة للطي احترافية للمعارض والفعاليات',
-            'base_price' => 300.00,
-            'is_active' => true,
-            'sort_order' => 1
-        ]);
-
-        // Add options for banners
-        $this->createBannerOptions($banners);
+        // Create some specific products with detailed options
+        $this->createSpecificProducts();
     }
 
-    private function createBusinessCardOptions($product)
+    private function createProductOptions($product)
     {
-        // Paper Size Option
-        $sizeOption = ProductOption::create([
-            'product_id' => $product->id,
-            'name' => 'Paper Size',
-            'name_ar' => 'حجم الورق',
+        // Get random number of options (1-4) for each product
+        $numOptions = rand(1, 4);
+
+        for ($i = 1; $i <= $numOptions; $i++) {
+            $optionData = $this->getRandomOptionData($i);
+
+            $option = ProductOption::create([
+                'product_id' => $product->id,
+                'name' => $optionData['name'],
+                'name_ar' => $optionData['name_ar'],
+                'type' => 'select',
+                'is_required' => $optionData['is_required'],
+                'is_active' => true,
+                'sort_order' => $i
+            ]);
+
+            // Create values for this option
+            foreach ($optionData['values'] as $valueData) {
+                OptionValue::create([
+                    'product_option_id' => $option->id,
+                    'value' => $valueData['value'],
+                    'value_ar' => $valueData['value_ar'],
+                    'price_adjustment' => $valueData['price_adjustment'],
+                    'sort_order' => $valueData['sort_order']
+                ]);
+            }
+        }
+    }
+
+    private function getRandomOptionData($optionNumber)
+    {
+        $options = [
+            [
+                'name' => 'Size',
+                'name_ar' => 'الحجم',
+                'is_required' => true,
+                'values' => [
+                    ['value' => 'Small', 'value_ar' => 'صغير', 'price_adjustment' => 0, 'sort_order' => 1],
+                    ['value' => 'Medium', 'value_ar' => 'متوسط', 'price_adjustment' => 50, 'sort_order' => 2],
+                    ['value' => 'Large', 'value_ar' => 'كبير', 'price_adjustment' => 100, 'sort_order' => 3],
+                    ['value' => 'Extra Large', 'value_ar' => 'كبير جداً', 'price_adjustment' => 150, 'sort_order' => 4]
+                ]
+            ],
+            [
+                'name' => 'Color',
+                'name_ar' => 'اللون',
+                'is_required' => true,
+                'values' => [
+                    ['value' => 'Black', 'value_ar' => 'أسود', 'price_adjustment' => 0, 'sort_order' => 1],
+                    ['value' => 'White', 'value_ar' => 'أبيض', 'price_adjustment' => 10, 'sort_order' => 2],
+                    ['value' => 'Blue', 'value_ar' => 'أزرق', 'price_adjustment' => 15, 'sort_order' => 3],
+                    ['value' => 'Red', 'value_ar' => 'أحمر', 'price_adjustment' => 20, 'sort_order' => 4],
+                    ['value' => 'Green', 'value_ar' => 'أخضر', 'price_adjustment' => 25, 'sort_order' => 5]
+                ]
+            ],
+            [
+                'name' => 'Material',
+                'name_ar' => 'المادة',
+                'is_required' => false,
+                'values' => [
+                    ['value' => 'Standard', 'value_ar' => 'قياسي', 'price_adjustment' => 0, 'sort_order' => 1],
+                    ['value' => 'Premium', 'value_ar' => 'مميز', 'price_adjustment' => 75, 'sort_order' => 2],
+                    ['value' => 'Luxury', 'value_ar' => 'فاخر', 'price_adjustment' => 150, 'sort_order' => 3]
+                ]
+            ],
+            [
+                'name' => 'Warranty',
+                'name_ar' => 'الضمان',
+                'is_required' => false,
+                'values' => [
+                    ['value' => '1 Year', 'value_ar' => 'سنة واحدة', 'price_adjustment' => 0, 'sort_order' => 1],
+                    ['value' => '2 Years', 'value_ar' => 'سنتان', 'price_adjustment' => 50, 'sort_order' => 2],
+                    ['value' => '3 Years', 'value_ar' => '3 سنوات', 'price_adjustment' => 100, 'sort_order' => 3],
+                    ['value' => '5 Years', 'value_ar' => '5 سنوات', 'price_adjustment' => 200, 'sort_order' => 4]
+                ]
+            ],
+            [
+                'name' => 'Storage',
+                'name_ar' => 'التخزين',
+                'is_required' => false,
+                'values' => [
+                    ['value' => '64GB', 'value_ar' => '64 جيجابايت', 'price_adjustment' => 0, 'sort_order' => 1],
+                    ['value' => '128GB', 'value_ar' => '128 جيجابايت', 'price_adjustment' => 100, 'sort_order' => 2],
+                    ['value' => '256GB', 'value_ar' => '256 جيجابايت', 'price_adjustment' => 200, 'sort_order' => 3],
+                    ['value' => '512GB', 'value_ar' => '512 جيجابايت', 'price_adjustment' => 400, 'sort_order' => 4],
+                    ['value' => '1TB', 'value_ar' => '1 تيرابايت', 'price_adjustment' => 600, 'sort_order' => 5]
+                ]
+            ],
+            [
+                'name' => 'Connectivity',
+                'name_ar' => 'الاتصال',
+                'is_required' => false,
+                'values' => [
+                    ['value' => 'WiFi Only', 'value_ar' => 'واي فاي فقط', 'price_adjustment' => 0, 'sort_order' => 1],
+                    ['value' => 'WiFi + Bluetooth', 'value_ar' => 'واي فاي + بلوتوث', 'price_adjustment' => 30, 'sort_order' => 2],
+                    ['value' => 'WiFi + 4G', 'value_ar' => 'واي فاي + 4G', 'price_adjustment' => 150, 'sort_order' => 3],
+                    ['value' => 'WiFi + 5G', 'value_ar' => 'واي فاي + 5G', 'price_adjustment' => 300, 'sort_order' => 4]
+                ]
+            ],
+            [
+                'name' => 'Quantity',
+                'name_ar' => 'الكمية',
+                'is_required' => true,
+                'values' => [
+                    ['value' => '1 Piece', 'value_ar' => 'قطعة واحدة', 'price_adjustment' => 0, 'sort_order' => 1],
+                    ['value' => '5 Pieces', 'value_ar' => '5 قطع', 'price_adjustment' => 200, 'sort_order' => 2],
+                    ['value' => '10 Pieces', 'value_ar' => '10 قطع', 'price_adjustment' => 350, 'sort_order' => 3],
+                    ['value' => '20 Pieces', 'value_ar' => '20 قطعة', 'price_adjustment' => 600, 'sort_order' => 4]
+                ]
+            ],
+            [
+                'name' => 'Finish',
+                'name_ar' => 'الإنهاء',
+                'is_required' => false,
+                'values' => [
+                    ['value' => 'Standard', 'value_ar' => 'قياسي', 'price_adjustment' => 0, 'sort_order' => 1],
+                    ['value' => 'Matte', 'value_ar' => 'مطفي', 'price_adjustment' => 25, 'sort_order' => 2],
+                    ['value' => 'Glossy', 'value_ar' => 'لامع', 'price_adjustment' => 35, 'sort_order' => 3],
+                    ['value' => 'Premium', 'value_ar' => 'مميز', 'price_adjustment' => 75, 'sort_order' => 4]
+                ]
+            ]
+        ];
+
+        return $options[array_rand($options)];
+    }
+
+    private function createSpecificProducts()
+    {
+        // Create some specific products with detailed options
+        $this->createLaptopProduct();
+        $this->createSmartphoneProduct();
+        $this->createHeadphonesProduct();
+        $this->createGamingMouseProduct();
+        $this->createKeyboardProduct();
+    }
+
+    private function createLaptopProduct()
+    {
+        $laptop = Product::create([
+            'category_id' => Category::where('name', 'like', '%computer%')->first()->id ?? 1,
+            'name' => 'UltraBook Pro X1',
+            'name_ar' => 'ألترابوك برو إكس 1',
+            'description' => 'Premium ultrabook with the latest Intel processor and stunning display',
+            'description_ar' => 'ألترابوك مميز بأحدث معالج إنتل وشاشة مذهلة',
+            'base_price' => 1299.99,
+            'is_active' => true,
+            'sort_order' => 1,
+            'specifications' => [
+                'brand' => 'TechCorp',
+                'model' => 'UltraBook Pro X1',
+                'processor' => 'Intel Core i7-12700H',
+                'ram' => '16GB DDR4',
+                'storage' => '512GB NVMe SSD',
+                'display' => '15.6" 4K OLED',
+                'graphics' => 'Intel Iris Xe',
+                'battery' => '8 hours',
+                'weight' => '1.8kg',
+                'warranty' => '3 years'
+            ]
+        ]);
+
+        // Processor Option
+        $processorOption = ProductOption::create([
+            'product_id' => $laptop->id,
+            'name' => 'Processor',
+            'name_ar' => 'المعالج',
             'type' => 'select',
             'is_required' => true,
             'is_active' => true,
             'sort_order' => 1
         ]);
 
-        $sizeValues = [
-            ['value' => 'Standard (85x55mm)', 'value_ar' => 'قياسي (85x55مم)', 'price_adjustment' => 0, 'sort_order' => 1],
-            ['value' => 'Large (90x60mm)', 'value_ar' => 'كبير (90x60مم)', 'price_adjustment' => 10, 'sort_order' => 2],
-            ['value' => 'Square (55x55mm)', 'value_ar' => 'مربع (55x55مم)', 'price_adjustment' => 5, 'sort_order' => 3]
+        $processorValues = [
+            ['value' => 'Intel Core i5-12500H', 'value_ar' => 'إنتل كور آي 5-12500H', 'price_adjustment' => 0, 'sort_order' => 1],
+            ['value' => 'Intel Core i7-12700H', 'value_ar' => 'إنتل كور آي 7-12700H', 'price_adjustment' => 300, 'sort_order' => 2],
+            ['value' => 'Intel Core i9-12900H', 'value_ar' => 'إنتل كور آي 9-12900H', 'price_adjustment' => 600, 'sort_order' => 3]
         ];
 
-        foreach ($sizeValues as $value) {
-            OptionValue::create(array_merge($value, ['product_option_id' => $sizeOption->id]));
+        foreach ($processorValues as $value) {
+            OptionValue::create(array_merge($value, ['product_option_id' => $processorOption->id]));
         }
 
-        // Paper Type Option
-        $paperOption = ProductOption::create([
-            'product_id' => $product->id,
-            'name' => 'Paper Type',
-            'name_ar' => 'نوع الورق',
+        // RAM Option
+        $ramOption = ProductOption::create([
+            'product_id' => $laptop->id,
+            'name' => 'RAM',
+            'name_ar' => 'الذاكرة العشوائية',
             'type' => 'select',
             'is_required' => true,
             'is_active' => true,
             'sort_order' => 2
         ]);
 
-        $paperValues = [
-            ['value' => 'Standard (300gsm)', 'value_ar' => 'قياسي (300جم)', 'price_adjustment' => 0, 'sort_order' => 1],
-            ['value' => 'Premium (400gsm)', 'value_ar' => 'مميز (400جم)', 'price_adjustment' => 15, 'sort_order' => 2],
-            ['value' => 'Luxury (500gsm)', 'value_ar' => 'فاخر (500جم)', 'price_adjustment' => 25, 'sort_order' => 3]
+        $ramValues = [
+            ['value' => '8GB DDR4', 'value_ar' => '8 جيجابايت DDR4', 'price_adjustment' => 0, 'sort_order' => 1],
+            ['value' => '16GB DDR4', 'value_ar' => '16 جيجابايت DDR4', 'price_adjustment' => 150, 'sort_order' => 2],
+            ['value' => '32GB DDR4', 'value_ar' => '32 جيجابايت DDR4', 'price_adjustment' => 400, 'sort_order' => 3]
         ];
 
-        foreach ($paperValues as $value) {
-            OptionValue::create(array_merge($value, ['product_option_id' => $paperOption->id]));
+        foreach ($ramValues as $value) {
+            OptionValue::create(array_merge($value, ['product_option_id' => $ramOption->id]));
         }
 
-        // Finish Option
-        $finishOption = ProductOption::create([
-            'product_id' => $product->id,
-            'name' => 'Finish',
-            'name_ar' => 'الإنهاء',
+        // Storage Option
+        $storageOption = ProductOption::create([
+            'product_id' => $laptop->id,
+            'name' => 'Storage',
+            'name_ar' => 'التخزين',
+            'type' => 'select',
+            'is_required' => true,
+            'is_active' => true,
+            'sort_order' => 3
+        ]);
+
+        $storageValues = [
+            ['value' => '256GB NVMe SSD', 'value_ar' => '256 جيجابايت NVMe SSD', 'price_adjustment' => 0, 'sort_order' => 1],
+            ['value' => '512GB NVMe SSD', 'value_ar' => '512 جيجابايت NVMe SSD', 'price_adjustment' => 200, 'sort_order' => 2],
+            ['value' => '1TB NVMe SSD', 'value_ar' => '1 تيرابايت NVMe SSD', 'price_adjustment' => 400, 'sort_order' => 3],
+            ['value' => '2TB NVMe SSD', 'value_ar' => '2 تيرابايت NVMe SSD', 'price_adjustment' => 800, 'sort_order' => 4]
+        ];
+
+        foreach ($storageValues as $value) {
+            OptionValue::create(array_merge($value, ['product_option_id' => $storageOption->id]));
+        }
+    }
+
+    private function createSmartphoneProduct()
+    {
+        $smartphone = Product::create([
+            'category_id' => Category::where('name', 'like', '%phone%')->first()->id ?? 1,
+            'name' => 'Galaxy Ultra S24',
+            'name_ar' => 'جالاكسي ألترا إس 24',
+            'description' => 'Flagship smartphone with advanced camera system and powerful performance',
+            'description_ar' => 'هاتف ذكي راقي مع نظام كاميرا متقدم وأداء قوي',
+            'base_price' => 999.99,
+            'is_active' => true,
+            'sort_order' => 2,
+            'specifications' => [
+                'brand' => 'Samsung',
+                'model' => 'Galaxy Ultra S24',
+                'processor' => 'Snapdragon 8 Gen 3',
+                'ram' => '12GB LPDDR5X',
+                'storage' => '256GB UFS 4.0',
+                'display' => '6.8" Dynamic AMOLED 2X',
+                'camera' => '200MP + 12MP + 50MP',
+                'battery' => '5000mAh',
+                'charging' => '45W Fast Charging',
+                'warranty' => '2 years'
+            ]
+        ]);
+
+        // Storage Option
+        $storageOption = ProductOption::create([
+            'product_id' => $smartphone->id,
+            'name' => 'Storage',
+            'name_ar' => 'التخزين',
+            'type' => 'select',
+            'is_required' => true,
+            'is_active' => true,
+            'sort_order' => 1
+        ]);
+
+        $storageValues = [
+            ['value' => '128GB', 'value_ar' => '128 جيجابايت', 'price_adjustment' => 0, 'sort_order' => 1],
+            ['value' => '256GB', 'value_ar' => '256 جيجابايت', 'price_adjustment' => 100, 'sort_order' => 2],
+            ['value' => '512GB', 'value_ar' => '512 جيجابايت', 'price_adjustment' => 300, 'sort_order' => 3],
+            ['value' => '1TB', 'value_ar' => '1 تيرابايت', 'price_adjustment' => 600, 'sort_order' => 4]
+        ];
+
+        foreach ($storageValues as $value) {
+            OptionValue::create(array_merge($value, ['product_option_id' => $storageOption->id]));
+        }
+
+        // Color Option
+        $colorOption = ProductOption::create([
+            'product_id' => $smartphone->id,
+            'name' => 'Color',
+            'name_ar' => 'اللون',
+            'type' => 'select',
+            'is_required' => true,
+            'is_active' => true,
+            'sort_order' => 2
+        ]);
+
+        $colorValues = [
+            ['value' => 'Phantom Black', 'value_ar' => 'أسود شبح', 'price_adjustment' => 0, 'sort_order' => 1],
+            ['value' => 'Phantom White', 'value_ar' => 'أبيض شبح', 'price_adjustment' => 0, 'sort_order' => 2],
+            ['value' => 'Titanium Gray', 'value_ar' => 'رمادي تيتانيوم', 'price_adjustment' => 50, 'sort_order' => 3],
+            ['value' => 'Titanium Violet', 'value_ar' => 'بنفسجي تيتانيوم', 'price_adjustment' => 50, 'sort_order' => 4]
+        ];
+
+        foreach ($colorValues as $value) {
+            OptionValue::create(array_merge($value, ['product_option_id' => $colorOption->id]));
+        }
+    }
+
+    private function createHeadphonesProduct()
+    {
+        $headphones = Product::create([
+            'category_id' => Category::where('name', 'like', '%audio%')->first()->id ?? 1,
+            'name' => 'Noise Cancelling Pro',
+            'name_ar' => 'إلغاء الضوضاء برو',
+            'description' => 'Premium wireless headphones with active noise cancellation and exceptional sound quality',
+            'description_ar' => 'سماعات لاسلكية مميزة مع إلغاء ضوضاء نشط وجودة صوت استثنائية',
+            'base_price' => 299.99,
+            'is_active' => true,
+            'sort_order' => 3,
+            'specifications' => [
+                'brand' => 'AudioMax',
+                'model' => 'NC-Pro 500',
+                'driver_size' => '40mm',
+                'frequency_response' => '20Hz-20kHz',
+                'impedance' => '32Ω',
+                'battery_life' => '30 hours',
+                'noise_cancellation' => 'Active',
+                'connectivity' => 'Bluetooth 5.2',
+                'water_resistance' => 'IPX4',
+                'warranty' => '2 years'
+            ]
+        ]);
+
+        // Color Option
+        $colorOption = ProductOption::create([
+            'product_id' => $headphones->id,
+            'name' => 'Color',
+            'name_ar' => 'اللون',
+            'type' => 'select',
+            'is_required' => true,
+            'is_active' => true,
+            'sort_order' => 1
+        ]);
+
+        $colorValues = [
+            ['value' => 'Black', 'value_ar' => 'أسود', 'price_adjustment' => 0, 'sort_order' => 1],
+            ['value' => 'White', 'value_ar' => 'أبيض', 'price_adjustment' => 0, 'sort_order' => 2],
+            ['value' => 'Blue', 'value_ar' => 'أزرق', 'price_adjustment' => 25, 'sort_order' => 3],
+            ['value' => 'Rose Gold', 'value_ar' => 'ذهبي وردي', 'price_adjustment' => 50, 'sort_order' => 4]
+        ];
+
+        foreach ($colorValues as $value) {
+            OptionValue::create(array_merge($value, ['product_option_id' => $colorOption->id]));
+        }
+
+        // Warranty Option
+        $warrantyOption = ProductOption::create([
+            'product_id' => $headphones->id,
+            'name' => 'Extended Warranty',
+            'name_ar' => 'ضمان ممتد',
             'type' => 'select',
             'is_required' => false,
             'is_active' => true,
-            'sort_order' => 3
+            'sort_order' => 2
         ]);
 
-        $finishValues = [
-            ['value' => 'Standard', 'value_ar' => 'قياسي', 'price_adjustment' => 0, 'sort_order' => 1],
-            ['value' => 'UV Coating', 'value_ar' => 'طلاء بالأشعة فوق البنفسجية', 'price_adjustment' => 20, 'sort_order' => 2],
-            ['value' => 'Spot UV', 'value_ar' => 'طلاء موضعي بالأشعة فوق البنفسجية', 'price_adjustment' => 30, 'sort_order' => 3]
+        $warrantyValues = [
+            ['value' => '2 Years (Standard)', 'value_ar' => 'سنتان (قياسي)', 'price_adjustment' => 0, 'sort_order' => 1],
+            ['value' => '3 Years', 'value_ar' => '3 سنوات', 'price_adjustment' => 50, 'sort_order' => 2],
+            ['value' => '5 Years', 'value_ar' => '5 سنوات', 'price_adjustment' => 100, 'sort_order' => 3]
         ];
 
-        foreach ($finishValues as $value) {
-            OptionValue::create(array_merge($value, ['product_option_id' => $finishOption->id]));
+        foreach ($warrantyValues as $value) {
+            OptionValue::create(array_merge($value, ['product_option_id' => $warrantyOption->id]));
         }
     }
 
-    private function createBrochureOptions($product)
+    private function createGamingMouseProduct()
     {
-        // Size Option
-        $sizeOption = ProductOption::create([
-            'product_id' => $product->id,
-            'name' => 'Size',
-            'name_ar' => 'الحجم',
+        $mouse = Product::create([
+            'category_id' => Category::where('name', 'like', '%gaming%')->first()->id ?? 1,
+            'name' => 'Pro Gaming Mouse X1',
+            'name_ar' => 'ماوس ألعاب برو إكس 1',
+            'description' => 'High-performance gaming mouse with customizable RGB lighting and precision sensors',
+            'description_ar' => 'ماوس ألعاب عالي الأداء مع إضاءة RGB قابلة للتخصيص ومستشعرات دقيقة',
+            'base_price' => 89.99,
+            'is_active' => true,
+            'sort_order' => 4,
+            'specifications' => [
+                'brand' => 'GameZone',
+                'model' => 'Pro-X1',
+                'sensor' => 'PixArt PAW3395',
+                'dpi' => '26000',
+                'ips' => '650',
+                'acceleration' => '50G',
+                'buttons' => '7 programmable',
+                'rgb_lighting' => '16.8M colors',
+                'weight' => '75g',
+                'warranty' => '2 years'
+            ]
+        ]);
+
+        // DPI Option
+        $dpiOption = ProductOption::create([
+            'product_id' => $mouse->id,
+            'name' => 'DPI Range',
+            'name_ar' => 'نطاق DPI',
             'type' => 'select',
             'is_required' => true,
             'is_active' => true,
             'sort_order' => 1
         ]);
 
-        $sizeValues = [
-            ['value' => 'A4 (210x297mm)', 'value_ar' => 'A4 (210x297مم)', 'price_adjustment' => 0, 'sort_order' => 1],
-            ['value' => 'A5 (148x210mm)', 'value_ar' => 'A5 (148x210مم)', 'price_adjustment' => -50, 'sort_order' => 2],
-            ['value' => 'A3 (297x420mm)', 'value_ar' => 'A3 (297x420مم)', 'price_adjustment' => 100, 'sort_order' => 3]
+        $dpiValues = [
+            ['value' => 'Up to 16000 DPI', 'value_ar' => 'حتى 16000 DPI', 'price_adjustment' => 0, 'sort_order' => 1],
+            ['value' => 'Up to 26000 DPI', 'value_ar' => 'حتى 26000 DPI', 'price_adjustment' => 30, 'sort_order' => 2],
+            ['value' => 'Up to 32000 DPI', 'value_ar' => 'حتى 32000 DPI', 'price_adjustment' => 60, 'sort_order' => 3]
         ];
 
-        foreach ($sizeValues as $value) {
-            OptionValue::create(array_merge($value, ['product_option_id' => $sizeOption->id]));
+        foreach ($dpiValues as $value) {
+            OptionValue::create(array_merge($value, ['product_option_id' => $dpiOption->id]));
         }
 
-        // Paper Type Option
-        $paperOption = ProductOption::create([
-            'product_id' => $product->id,
-            'name' => 'Paper Type',
-            'name_ar' => 'نوع الورق',
+        // Color Option
+        $colorOption = ProductOption::create([
+            'product_id' => $mouse->id,
+            'name' => 'Color',
+            'name_ar' => 'اللون',
             'type' => 'select',
             'is_required' => true,
             'is_active' => true,
             'sort_order' => 2
         ]);
 
-        $paperValues = [
-            ['value' => 'Glossy (150gsm)', 'value_ar' => 'لامع (150جم)', 'price_adjustment' => 0, 'sort_order' => 1],
-            ['value' => 'Matte (150gsm)', 'value_ar' => 'مطفي (150جم)', 'price_adjustment' => 10, 'sort_order' => 2],
-            ['value' => 'Premium (200gsm)', 'value_ar' => 'مميز (200جم)', 'price_adjustment' => 30, 'sort_order' => 3]
+        $colorValues = [
+            ['value' => 'Black', 'value_ar' => 'أسود', 'price_adjustment' => 0, 'sort_order' => 1],
+            ['value' => 'White', 'value_ar' => 'أبيض', 'price_adjustment' => 10, 'sort_order' => 2],
+            ['value' => 'Pink', 'value_ar' => 'وردي', 'price_adjustment' => 15, 'sort_order' => 3]
         ];
 
-        foreach ($paperValues as $value) {
-            OptionValue::create(array_merge($value, ['product_option_id' => $paperOption->id]));
-        }
-
-        // Quantity Option
-        $quantityOption = ProductOption::create([
-            'product_id' => $product->id,
-            'name' => 'Quantity',
-            'name_ar' => 'الكمية',
-            'type' => 'select',
-            'is_required' => true,
-            'is_active' => true,
-            'sort_order' => 3
-        ]);
-
-        $quantityValues = [
-            ['value' => '100 pieces', 'value_ar' => '100 قطعة', 'price_adjustment' => 0, 'sort_order' => 1],
-            ['value' => '250 pieces', 'value_ar' => '250 قطعة', 'price_adjustment' => 150, 'sort_order' => 2],
-            ['value' => '500 pieces', 'value_ar' => '500 قطعة', 'price_adjustment' => 250, 'sort_order' => 3],
-            ['value' => '1000 pieces', 'value_ar' => '1000 قطعة', 'price_adjustment' => 400, 'sort_order' => 4]
-        ];
-
-        foreach ($quantityValues as $value) {
-            OptionValue::create(array_merge($value, ['product_option_id' => $quantityOption->id]));
+        foreach ($colorValues as $value) {
+            OptionValue::create(array_merge($value, ['product_option_id' => $colorOption->id]));
         }
     }
 
-    private function createBannerOptions($product)
+    private function createKeyboardProduct()
     {
-        // Size Option
-        $sizeOption = ProductOption::create([
-            'product_id' => $product->id,
-            'name' => 'Size',
-            'name_ar' => 'الحجم',
+        $keyboard = Product::create([
+            'category_id' => Category::where('name', 'like', '%keyboard%')->first()->id ?? 1,
+            'name' => 'Mechanical Gaming Keyboard',
+            'name_ar' => 'لوحة مفاتيح ألعاب ميكانيكية',
+            'description' => 'Premium mechanical keyboard with customizable switches and RGB backlighting',
+            'description_ar' => 'لوحة مفاتيح ميكانيكية مميزة مع مفاتيح قابلة للتخصيص وإضاءة خلفية RGB',
+            'base_price' => 149.99,
+            'is_active' => true,
+            'sort_order' => 5,
+            'specifications' => [
+                'brand' => 'KeyMaster',
+                'model' => 'Mech-Gaming Pro',
+                'switches' => 'Cherry MX',
+                'layout' => 'Full-size',
+                'keys' => '104 keys',
+                'backlight' => 'RGB',
+                'connectivity' => 'USB-C',
+                'material' => 'Aluminum',
+                'warranty' => '2 years'
+            ]
+        ]);
+
+        // Switch Type Option
+        $switchOption = ProductOption::create([
+            'product_id' => $keyboard->id,
+            'name' => 'Switch Type',
+            'name_ar' => 'نوع المفتاح',
             'type' => 'select',
             'is_required' => true,
             'is_active' => true,
             'sort_order' => 1
         ]);
 
-        $sizeValues = [
-            ['value' => '85x200cm', 'value_ar' => '85x200سم', 'price_adjustment' => 0, 'sort_order' => 1],
-            ['value' => '100x200cm', 'value_ar' => '100x200سم', 'price_adjustment' => 50, 'sort_order' => 2],
-            ['value' => '120x200cm', 'value_ar' => '120x200سم', 'price_adjustment' => 100, 'sort_order' => 3]
+        $switchValues = [
+            ['value' => 'Cherry MX Red', 'value_ar' => 'شيري إم إكس أحمر', 'price_adjustment' => 0, 'sort_order' => 1],
+            ['value' => 'Cherry MX Blue', 'value_ar' => 'شيري إم إكس أزرق', 'price_adjustment' => 0, 'sort_order' => 2],
+            ['value' => 'Cherry MX Brown', 'value_ar' => 'شيري إم إكس بني', 'price_adjustment' => 0, 'sort_order' => 3],
+            ['value' => 'Cherry MX Silent', 'value_ar' => 'شيري إم إكس صامت', 'price_adjustment' => 25, 'sort_order' => 4]
         ];
 
-        foreach ($sizeValues as $value) {
-            OptionValue::create(array_merge($value, ['product_option_id' => $sizeOption->id]));
+        foreach ($switchValues as $value) {
+            OptionValue::create(array_merge($value, ['product_option_id' => $switchOption->id]));
         }
 
-        // Material Option
-        $materialOption = ProductOption::create([
-            'product_id' => $product->id,
-            'name' => 'Material',
-            'name_ar' => 'المادة',
+        // Layout Option
+        $layoutOption = ProductOption::create([
+            'product_id' => $keyboard->id,
+            'name' => 'Layout',
+            'name_ar' => 'التخطيط',
             'type' => 'select',
             'is_required' => true,
             'is_active' => true,
             'sort_order' => 2
         ]);
 
-        $materialValues = [
-            ['value' => 'Vinyl', 'value_ar' => 'فينيل', 'price_adjustment' => 0, 'sort_order' => 1],
-            ['value' => 'Fabric', 'value_ar' => 'قماش', 'price_adjustment' => 30, 'sort_order' => 2],
-            ['value' => 'Premium Vinyl', 'value_ar' => 'فينيل مميز', 'price_adjustment' => 20, 'sort_order' => 3]
+        $layoutValues = [
+            ['value' => 'Full-size (104 keys)', 'value_ar' => 'حجم كامل (104 مفتاح)', 'price_adjustment' => 0, 'sort_order' => 1],
+            ['value' => 'Tenkeyless (87 keys)', 'value_ar' => 'بدون أرقام (87 مفتاح)', 'price_adjustment' => -20, 'sort_order' => 2],
+            ['value' => 'Compact (60 keys)', 'value_ar' => 'مدمج (60 مفتاح)', 'price_adjustment' => -40, 'sort_order' => 3]
         ];
 
-        foreach ($materialValues as $value) {
-            OptionValue::create(array_merge($value, ['product_option_id' => $materialOption->id]));
-        }
-
-        // Stand Option
-        $standOption = ProductOption::create([
-            'product_id' => $product->id,
-            'name' => 'Stand',
-            'name_ar' => 'الحامل',
-            'type' => 'select',
-            'is_required' => false,
-            'is_active' => true,
-            'sort_order' => 3
-        ]);
-
-        $standValues = [
-            ['value' => 'No Stand', 'value_ar' => 'بدون حامل', 'price_adjustment' => 0, 'sort_order' => 1],
-            ['value' => 'Basic Stand', 'value_ar' => 'حامل أساسي', 'price_adjustment' => 80, 'sort_order' => 2],
-            ['value' => 'Premium Stand', 'value_ar' => 'حامل مميز', 'price_adjustment' => 150, 'sort_order' => 3]
-        ];
-
-        foreach ($standValues as $value) {
-            OptionValue::create(array_merge($value, ['product_option_id' => $standOption->id]));
+        foreach ($layoutValues as $value) {
+            OptionValue::create(array_merge($value, ['product_option_id' => $layoutOption->id]));
         }
     }
 }

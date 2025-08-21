@@ -1,6 +1,56 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<style>
+    /* Simple Toggle Switch */
+    .toggle-switch {
+        appearance: none;
+        width: 50px;
+        height: 24px;
+        background-color: #d1d5db;
+        border-radius: 12px;
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .toggle-switch:checked {
+        background-color: #059669;
+    }
+
+    .toggle-switch::before {
+        content: '';
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background-color: white;
+        top: 3px;
+        left: 3px;
+        transition: transform 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-switch:checked::before {
+        transform: translateX(26px);
+    }
+
+    .toggle-switch:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.3);
+    }
+
+    /* Form Input Focus Effects */
+    .form-input:focus {
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    }
+
+    /* File Upload Area Hover Effect */
+    .file-upload-area:hover {
+        border-color: #059669;
+        background-color: #f0fdf4;
+    }
+</style>
 <script>
     // Sidebar toggle functionality
     function toggleSidebar() {
