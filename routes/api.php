@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\OtpController;
 use App\Http\Controllers\Api\DocumentController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ProductOptionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +36,18 @@ Route::prefix('auth')->group(function () {
     Route::post('/resend-otp', [OtpController::class, 'resendOtp']);
 });
 
+// Public product and category routes
+Route::prefix('categories')->group(function () {
+    Route::get('/', [CategoryController::class, 'index']);
+    Route::get('/{category}', [CategoryController::class, 'show']);
+});
+
+Route::prefix('products')->group(function () {
+    Route::get('/', [ProductController::class, 'index']);
+    Route::get('/{product}', [ProductController::class, 'show']);
+    Route::get('/{product}/options', [ProductOptionController::class, 'index']);
+});
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
@@ -42,4 +57,34 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/documents/upload', [DocumentController::class, 'uploadDocument']);
     Route::delete('/documents/delete', [DocumentController::class, 'deleteDocument']);
     Route::get('/documents/info', [DocumentController::class, 'getDocumentInfo']);
+    
+    // Admin/Designer routes for managing categories and products
+    Route::prefix('admin')->group(function () {
+        // Categories management
+        Route::prefix('categories')->group(function () {
+            Route::post('/', [CategoryController::class, 'store']);
+            Route::put('/{category}', [CategoryController::class, 'update']);
+            Route::delete('/{category}', [CategoryController::class, 'destroy']);
+        });
+        
+        // Products management
+        Route::prefix('products')->group(function () {
+            Route::post('/', [ProductController::class, 'store']);
+            Route::put('/{product}', [ProductController::class, 'update']);
+            Route::delete('/{product}', [ProductController::class, 'destroy']);
+            
+            // Product options management
+            Route::prefix('{product}/options')->group(function () {
+                Route::post('/', [ProductOptionController::class, 'store']);
+                Route::get('/{option}', [ProductOptionController::class, 'show']);
+                Route::put('/{option}', [ProductOptionController::class, 'update']);
+                Route::delete('/{option}', [ProductOptionController::class, 'destroy']);
+                
+                // Option values management
+                Route::post('/{option}/values', [ProductOptionController::class, 'addValue']);
+                Route::put('/{option}/values/{value}', [ProductOptionController::class, 'updateValue']);
+                Route::delete('/{option}/values/{value}', [ProductOptionController::class, 'removeValue']);
+            });
+        });
+    });
 });

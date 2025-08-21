@@ -13,6 +13,14 @@ return new class extends Migration
     {
         Schema::create('product_options', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->string('name'); // e.g., "Paper Size", "Paper Type", "Color"
+            $table->string('name_ar')->nullable(); // Arabic name
+            $table->string('type')->default('select'); // select, radio, checkbox, text, number
+            $table->boolean('is_required')->default(false);
+            $table->boolean('is_active')->default(true);
+            $table->integer('sort_order')->default(0);
+            $table->json('additional_data')->nullable(); // For any additional configuration
             $table->timestamps();
         });
     }

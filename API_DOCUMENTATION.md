@@ -1,119 +1,525 @@
-# Velorena API Documentation
+# Velorena Backend API Documentation
 
-## Overview
+## Products and Categories API
 
-This project uses **Scribe** to automatically generate beautiful API documentation from your Laravel routes and controllers.
+This document describes the API endpoints for managing products, categories, and product options for the printing company.
 
-## Accessing the Documentation
-
-### Local Development
-- **HTML Documentation**: http://localhost:8000/docs
-- **Postman Collection**: http://localhost:8000/docs/collection.json
-- **OpenAPI Spec**: http://localhost:8000/docs/openapi.yaml
-
-### Production
-- **HTML Documentation**: https://yourdomain.com/docs
-- **Postman Collection**: https://yourdomain.com/docs/collection.json
-- **OpenAPI Spec**: https://yourdomain.com/docs/openapi.yaml
-
-## Features
-
-✅ **Interactive Documentation**: Test API endpoints directly from the browser
-✅ **Authentication Support**: Bearer token authentication
-✅ **Request/Response Examples**: Real examples with proper formatting
-✅ **Postman Collection**: Import directly into Postman
-✅ **OpenAPI Specification**: Compatible with Swagger UI and other tools
-✅ **Automatic Updates**: Regenerates when you run the command
-
-## Current API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - Register a new user
-- `POST /api/auth/login` - Login user
-- `POST /api/auth/logout` - Logout user (authenticated)
-- `POST /api/auth/send-otp` - Send OTP
-- `POST /api/auth/verify-otp` - Verify OTP
-- `POST /api/auth/resend-otp` - Resend OTP
-
-### User Profile
-- `GET /api/profile` - Get user profile (authenticated)
-- `PUT /api/profile` - Update user profile (authenticated)
-
-### Documents
-- `POST /api/documents/upload` - Upload document (authenticated)
-- `DELETE /api/documents/delete` - Delete document (authenticated)
-- `GET /api/documents/info` - Get document info (authenticated)
-
-## Regenerating Documentation
-
-To update the documentation after making changes to your API:
-
-```bash
-php artisan scribe:generate
+## Base URL
+```
+http://localhost:8000/api
 ```
 
-## Configuration
+## Authentication
+Most endpoints require authentication using Laravel Sanctum. Include the Bearer token in the Authorization header:
+```
+Authorization: Bearer {your_token}
+```
 
-The documentation is configured in `config/scribe.php`. Key settings:
+---
 
-- **Routes**: Only API routes under `/api/*` are documented
-- **Authentication**: Bearer token authentication is configured
-- **Groups**: Endpoints are grouped by functionality (Authentication, User Profile, etc.)
-- **Output**: Static HTML files generated in `public/docs/`
+## Categories API
 
-## Adding Documentation to New Endpoints
+### Get All Categories
+**GET** `/categories`
 
-To add documentation to new endpoints, add docblock comments to your controller methods:
+**Query Parameters:**
+- `is_active` (boolean, optional): Filter by active status
+- `search` (string, optional): Search by name (English or Arabic)
 
-```php
-/**
- * @group Authentication
- * 
- * @bodyParam email string required The email address. Example: user@example.com
- * @bodyParam password string required The password. Example: password123
- * 
- * @response 200 {
- *   "success": true,
- *   "message": "Login successful"
- * }
- */
-public function login(Request $request)
+**Response:**
+```json
 {
-    // Your code here
+  "success": true,
+  "data": {
+    "current_page": 1,
+    "data": [
+      {
+        "id": 1,
+        "name": "Business Cards",
+        "name_ar": "بطاقات عمل",
+        "description": "Professional business cards for companies and individuals",
+        "description_ar": "بطاقات عمل احترافية للشركات والأفراد",
+        "image": null,
+        "is_active": true,
+        "sort_order": 1,
+        "created_at": "2025-01-21T12:00:00.000000Z",
+        "updated_at": "2025-01-21T12:00:00.000000Z"
+      }
+    ],
+    "per_page": 15,
+    "total": 5
+  }
 }
 ```
 
-## Troubleshooting
+### Get Category by ID
+**GET** `/categories/{id}`
 
-### Database Transaction Errors
-If you see database transaction errors during generation, make sure:
-1. Your database is running
-2. Database connection is properly configured
-3. You have the necessary tables and data
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "Business Cards",
+    "name_ar": "بطاقات عمل",
+    "description": "Professional business cards for companies and individuals",
+    "description_ar": "بطاقات عمل احترافية للشركات والأفراد",
+    "image": null,
+    "is_active": true,
+    "sort_order": 1,
+    "products": [
+      {
+        "id": 1,
+        "name": "Standard Business Cards",
+        "name_ar": "بطاقات عمل قياسية",
+        "base_price": "50.00"
+      }
+    ]
+  }
+}
+```
 
-### Missing Endpoints
-If endpoints are missing from documentation:
-1. Check that they match the route patterns in `config/scribe.php`
-2. Ensure they have proper docblock comments
-3. Verify the routes are accessible
+### Create Category (Admin/Designer)
+**POST** `/admin/categories`
 
-## Benefits of Scribe
+**Headers:**
+```
+Authorization: Bearer {token}
+Content-Type: application/json
+```
 
-- **Zero Configuration**: Works out of the box
-- **Beautiful UI**: Modern, responsive interface
-- **Interactive Testing**: Test APIs directly from docs
-- **Automatic Discovery**: Scans routes and controllers automatically
-- **Multiple Formats**: HTML, Postman, OpenAPI
-- **Active Development**: Well-maintained with regular updates
+**Request Body:**
+```json
+{
+  "name": "New Category",
+  "name_ar": "فئة جديدة",
+  "description": "Category description",
+  "description_ar": "وصف الفئة",
+  "image": "path/to/image.jpg",
+  "is_active": true,
+  "sort_order": 1
+}
+```
 
-## Comparison with Other Tools
+### Update Category (Admin/Designer)
+**PUT** `/admin/categories/{id}`
 
-| Feature | Scribe | L5-Swagger | Laravel OpenAPI |
-|---------|--------|------------|-----------------|
-| Setup Difficulty | ⭐⭐⭐⭐⭐ (Easiest) | ⭐⭐⭐⭐ | ⭐⭐⭐ |
-| Customization | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| UI Quality | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
-| Learning Curve | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
-| Maintenance | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
+**Headers:**
+```
+Authorization: Bearer {token}
+Content-Type: application/json
+```
 
-**Scribe is recommended for its ease of use and beautiful output.**
+**Request Body:**
+```json
+{
+  "name": "Updated Category",
+  "is_active": false
+}
+```
+
+### Delete Category (Admin/Designer)
+**DELETE** `/admin/categories/{id}`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+---
+
+## Products API
+
+### Get All Products
+**GET** `/products`
+
+**Query Parameters:**
+- `category_id` (integer, optional): Filter by category
+- `is_active` (boolean, optional): Filter by active status
+- `search` (string, optional): Search by name (English or Arabic)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "current_page": 1,
+    "data": [
+      {
+        "id": 1,
+        "category_id": 1,
+        "name": "Standard Business Cards",
+        "name_ar": "بطاقات عمل قياسية",
+        "description": "Professional business cards with various customization options",
+        "description_ar": "بطاقات عمل احترافية مع خيارات تخصيص متنوعة",
+        "image": null,
+        "base_price": "50.00",
+        "is_active": true,
+        "sort_order": 1,
+        "specifications": null,
+        "category": {
+          "id": 1,
+          "name": "Business Cards",
+          "name_ar": "بطاقات عمل"
+        },
+        "options": [
+          {
+            "id": 1,
+            "name": "Paper Size",
+            "name_ar": "حجم الورق",
+            "type": "select",
+            "is_required": true,
+            "values": [
+              {
+                "id": 1,
+                "value": "Standard (85x55mm)",
+                "value_ar": "قياسي (85x55مم)",
+                "price_adjustment": "0.00"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Get Product by ID
+**GET** `/products/{id}`
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "category_id": 1,
+    "name": "Standard Business Cards",
+    "name_ar": "بطاقات عمل قياسية",
+    "description": "Professional business cards with various customization options",
+    "description_ar": "بطاقات عمل احترافية مع خيارات تخصيص متنوعة",
+    "image": null,
+    "base_price": "50.00",
+    "is_active": true,
+    "sort_order": 1,
+    "specifications": null,
+    "category": {
+      "id": 1,
+      "name": "Business Cards",
+      "name_ar": "بطاقات عمل"
+    },
+    "options": [
+      {
+        "id": 1,
+        "name": "Paper Size",
+        "name_ar": "حجم الورق",
+        "type": "select",
+        "is_required": true,
+        "values": [
+          {
+            "id": 1,
+            "value": "Standard (85x55mm)",
+            "value_ar": "قياسي (85x55مم)",
+            "price_adjustment": "0.00"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Create Product (Admin/Designer)
+**POST** `/admin/products`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "category_id": 1,
+  "name": "New Product",
+  "name_ar": "منتج جديد",
+  "description": "Product description",
+  "description_ar": "وصف المنتج",
+  "image": "path/to/image.jpg",
+  "base_price": 100.00,
+  "is_active": true,
+  "sort_order": 1,
+  "specifications": {
+    "dimensions": "100x200mm",
+    "weight": "50g"
+  }
+}
+```
+
+### Update Product (Admin/Designer)
+**PUT** `/admin/products/{id}`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "name": "Updated Product",
+  "base_price": 150.00
+}
+```
+
+### Delete Product (Admin/Designer)
+**DELETE** `/admin/products/{id}`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+---
+
+## Product Options API
+
+### Get Product Options
+**GET** `/products/{product_id}/options`
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "product_id": 1,
+      "name": "Paper Size",
+      "name_ar": "حجم الورق",
+      "type": "select",
+      "is_required": true,
+      "is_active": true,
+      "sort_order": 1,
+      "additional_data": null,
+      "values": [
+        {
+          "id": 1,
+          "product_option_id": 1,
+          "value": "Standard (85x55mm)",
+          "value_ar": "قياسي (85x55مم)",
+          "price_adjustment": "0.00",
+          "is_active": true,
+          "sort_order": 1
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Create Product Option (Admin/Designer)
+**POST** `/admin/products/{product_id}/options`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "name": "Paper Type",
+  "name_ar": "نوع الورق",
+  "type": "select",
+  "is_required": true,
+  "is_active": true,
+  "sort_order": 2,
+  "additional_data": {
+    "min_selections": 1,
+    "max_selections": 1
+  },
+  "values": [
+    {
+      "value": "Glossy",
+      "value_ar": "لامع",
+      "price_adjustment": 0.00,
+      "is_active": true,
+      "sort_order": 1
+    },
+    {
+      "value": "Matte",
+      "value_ar": "مطفي",
+      "price_adjustment": 10.00,
+      "is_active": true,
+      "sort_order": 2
+    }
+  ]
+}
+```
+
+### Update Product Option (Admin/Designer)
+**PUT** `/admin/products/{product_id}/options/{option_id}`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "name": "Updated Option Name",
+  "is_required": false
+}
+```
+
+### Delete Product Option (Admin/Designer)
+**DELETE** `/admin/products/{product_id}/options/{option_id}`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+### Add Option Value (Admin/Designer)
+**POST** `/admin/products/{product_id}/options/{option_id}/values`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "value": "Premium Paper",
+  "value_ar": "ورق مميز",
+  "price_adjustment": 25.00,
+  "is_active": true,
+  "sort_order": 3
+}
+```
+
+### Update Option Value (Admin/Designer)
+**PUT** `/admin/products/{product_id}/options/{option_id}/values/{value_id}`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "value": "Updated Value",
+  "price_adjustment": 30.00
+}
+```
+
+### Delete Option Value (Admin/Designer)
+**DELETE** `/admin/products/{product_id}/options/{option_id}/values/{value_id}`
+
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+---
+
+## Option Types
+
+The system supports the following option types:
+
+1. **select** - Dropdown selection (single choice)
+2. **radio** - Radio button selection (single choice)
+3. **checkbox** - Checkbox selection (multiple choices)
+4. **text** - Text input field
+5. **number** - Numeric input field
+
+---
+
+## Sample Data
+
+The system comes with pre-seeded data including:
+
+### Categories:
+- Business Cards (بطاقات عمل)
+- Brochures & Catalogs (كتيبات وكتالوجات)
+- Banners & Signs (لافتات وعلامات)
+- Stickers & Labels (ملصقات وتسميات)
+- Packaging (تغليف)
+
+### Products:
+- Standard Business Cards with options for paper size, type, and finish
+- Tri-Fold Brochures with options for size, paper type, and quantity
+- Roll-Up Banners with options for size, material, and stand
+
+---
+
+## Error Responses
+
+All endpoints return consistent error responses:
+
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": {
+    "field_name": [
+      "The field name field is required."
+    ]
+  }
+}
+```
+
+**Common HTTP Status Codes:**
+- `200` - Success
+- `201` - Created
+- `400` - Bad Request
+- `401` - Unauthorized
+- `404` - Not Found
+- `422` - Validation Error
+- `500` - Server Error
+
+---
+
+## Testing the API
+
+You can test the API using tools like:
+- Postman
+- Insomnia
+- cURL
+- Laravel's built-in API testing
+
+### Example cURL Commands:
+
+**Get all categories:**
+```bash
+curl -X GET "http://localhost:8000/api/categories"
+```
+
+**Get products in a category:**
+```bash
+curl -X GET "http://localhost:8000/api/products?category_id=1"
+```
+
+**Create a new category (requires authentication):**
+```bash
+curl -X POST "http://localhost:8000/api/admin/categories" \
+  -H "Authorization: Bearer {your_token}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Test Category",
+    "name_ar": "فئة تجريبية",
+    "description": "Test category description"
+  }'
+```
