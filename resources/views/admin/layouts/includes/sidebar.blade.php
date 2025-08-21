@@ -26,6 +26,12 @@
             <i class="fas fa-user"></i>
             <span>{{ trans('sidebar.designers') }}</span>
         </a>
+
+        <a href="{{ route('admin.products.index') }}"
+            class="sidebar-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
+            <i class="fas fa-box"></i>
+            <span>{{ trans('sidebar.products') }}</span>
+        </a>
     </nav>
     <div class="mt-auto mb-4 px-2">
         <form action="{{ route('admin.logout') }}" method="POST">
