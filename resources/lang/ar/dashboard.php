@@ -1,0 +1,207 @@
+<?php
+
+return [
+    // Dashboard
+    "dashboard" => "لوحة التحكم",
+    "welcome_back" => "مرحباً بعودتك",
+    "whats_happening" => "إليك ما يحدث في حسابك اليوم",
+    "profile_information" => "معلومات الملف الشخصي",
+    "quick_actions" => "إجراءات سريعة",
+    "recent_appointments" => "المواعيد الحديثة",
+    "no_appointments_yet" => "لا توجد مواعيد بعد",
+    "no_appointments_description" => "لم تحجز أي مواعيد بعد. ابدأ رحلتك بحجز استشارتك الأولى.",
+    "book_first_appointment" => "احجز موعدك الأول",
+    "view_all" => "عرض الكل",
+    "book_new_appointment" => "حجز موعد جديد",
+    "view_all_appointments" => "عرض جميع المواعيد",
+    "update_profile" => "تحديث الملف الشخصي",
+    "settings" => "الإعدادات",
+    "member_since" => "عضو منذ",
+    "last_updated" => "آخر تحديث",
+    "total_appointments" => "إجمالي المواعيد",
+    "pending" => "في الانتظار",
+    "confirmed" => "مؤكد",
+    "completed" => "مكتمل",
+    "cancelled" => "ملغي",
+    "rejected" => "مرفوض",
+
+    // My Appointments
+    "my_appointments" => "مواعيدي",
+    "manage_consultations" => "إدارة استشاراتك المجدولة مع المصممين الخبراء",
+
+    // Appointment Details
+    "appointment_details" => "تفاصيل الموعد",
+    "consultation_information" => "معلومات الاستشارة",
+    "view_consultation_details" => "عرض تفاصيل استشارتك",
+    "back_to_appointments" => "العودة إلى المواعيد",
+    "appointment_pending" => "الموعد في الانتظار",
+    "appointment_confirmed" => "الموعد مؤكد",
+    "consultation_completed" => "الاستشارة مكتملة",
+    "appointment_cancelled" => "الموعد ملغي",
+    "appointment_rejected" => "الموعد مرفوض",
+    "appointment_status" => "حالة الموعد",
+    "waiting_for_assignment" => "موعدك في انتظار تعيين مصمم",
+    "confirmed_by_designer" => "تم تأكيد موعدك من قبل المصمم",
+    "completed_successfully" => "تم إكمال استشارتك بنجاح",
+    "appointment_cancelled_desc" => "تم إلغاء هذا الموعد",
+    "rejected_by_designer" => "تم رفض هذا الموعد من قبل المصمم",
+    "status_information" => "معلومات حالة الموعد",
+
+    // Designer Information
+    "designer_information" => "معلومات المصمم",
+    "pending_assignment" => "في انتظار التعيين",
+    "designer_assigned_soon" => "سيتم تعيين مصمم لموعدك قريباً",
+
+    // Appointment Details
+    "appointment_details_title" => "تفاصيل الموعد",
+    "date" => "التاريخ",
+    "time" => "الوقت",
+    "duration" => "المدة",
+    "end_time" => "وقت الانتهاء",
+    "minutes" => "دقائق",
+    "not_set" => "غير محدد",
+    "booked" => "محجوز",
+
+    // Notes and Responses
+    "your_notes" => "ملاحظاتك",
+    "designer_response" => "رد المصمم",
+
+    // Timeline
+    "timeline" => "الجدول الزمني",
+    "booked" => "محجوز",
+    "accepted" => "مقبول",
+    "rejected" => "مرفوض",
+    "completed" => "مكتمل",
+
+    // Actions
+    "cancel_appointment" => "إلغاء الموعد",
+    "back_to_list" => "العودة إلى القائمة",
+    "book_new_appointment_action" => "حجز موعد جديد",
+    "confirm_cancel" => "هل أنت متأكد من إلغاء هذا الموعد؟",
+
+    // Designer Dashboard
+    "designer_dashboard" => "لوحة تحكم المصمم",
+    "live_appointments" => "المواعيد المباشرة",
+    "all_appointments" => "جميع المواعيد",
+    "appointments" => "المواعيد",
+    "appointments_dashboard" => "لوحة تحكم المواعيد",
+    "my_appointments" => "مواعيدي",
+    "manage_appointments" => "إدارة وعرض جميع استشاراتك المجدولة مع العملاء",
+
+    // Designer Dashboard Statistics
+    "available_to_claim" => "متاح للمطالبة",
+    "unassigned_appointments" => "المواعيد غير المعينة",
+    "todays_schedule" => "جدول اليوم",
+    "confirmed_appointments" => "المواعيد المؤكدة",
+    "upcoming" => "قادم",
+    "future_appointments" => "المواعيد المستقبلية",
+    "system_status" => "حالة النظام",
+    "real_time_updates" => "التحديثات المباشرة",
+    "live_updates_active" => "التحديثات المباشرة نشطة",
+    "real_time" => "مباشر",
+    "refresh" => "تحديث",
+
+    // Designer Dashboard Sections
+    "available_appointments" => "المواعيد المتاحة",
+    "available" => "متاح",
+    "todays_appointments" => "جدول اليوم",
+    "today" => "اليوم",
+    "upcoming_appointments" => "المواعيد القادمة",
+    "upcoming_count" => "قادم",
+
+    // Designer Actions
+    "claim" => "مطالبة",
+    "pass" => "تخطي",
+    "accept" => "قبول",
+    "reject" => "رفض",
+    "complete" => "إكمال",
+    "view_details" => "عرض التفاصيل",
+
+    // Designer Messages
+    "no_available_appointments" => "لا توجد مواعيد متاحة",
+    "all_appointments_claimed" => "تم المطالبة بجميع المواعيد أو معالجتها",
+    "no_appointments_today" => "لا توجد مواعيد اليوم",
+    "free_schedule_today" => "لديك جدول حر اليوم",
+    "no_upcoming_appointments" => "لا توجد مواعيد قادمة",
+    "no_future_appointments" => "لا توجد مواعيد مستقبلية مجدولة",
+
+    // Client Information
+    "client_information" => "معلومات العميل",
+    "client_notes" => "ملاحظات العميل",
+    "your_response" => "ردك",
+
+    // Filter and Search
+    "filter_appointments" => "تصفية المواعيد",
+    "all_statuses" => "جميع الحالات",
+    "filter" => "تصفية",
+    "clear" => "مسح",
+    "no_appointments_found" => "لم يتم العثور على مواعيد",
+    "no_appointments_matching_filters" => "لا توجد مواعيد تطابق معايير البحث الحالية. حاول تعديل معايير البحث.",
+
+    // Success Messages
+    "appointment_cancelled_success" => "تم إلغاء الموعد بنجاح",
+    "appointment_updated_success" => "تم تحديث الموعد بنجاح",
+    "appointment_created_success" => "تم إنشاء الموعد بنجاح",
+    "appointment_booked_success" => "تم حجز الموعد بنجاح! سيراجع المصمم طلبك.",
+    "appointment_accepted_success" => "تم قبول الموعد بنجاح.",
+    "appointment_rejected_success" => "تم رفض الموعد بنجاح.",
+    "appointment_completed_success" => "تم تحديد الموعد كمكتمل.",
+
+    // Error Messages
+    "appointment_cancel_error" => "حدث خطأ أثناء إلغاء الموعد",
+    "appointment_update_error" => "حدث خطأ أثناء تحديث الموعد",
+    "appointment_create_error" => "حدث خطأ أثناء إنشاء الموعد",
+    "appointment_cannot_cancel" => "لا يمكن إلغاء هذا الموعد.",
+    "time_slot_unavailable" => "هذه الفترة الزمنية غير متاحة. يرجى اختيار وقت آخر.",
+    "only_pending_can_accept" => "يمكن قبول المواعيد المعلقة فقط.",
+    "only_pending_can_reject" => "يمكن رفض المواعيد المعلقة فقط.",
+    "only_accepted_can_complete" => "يمكن إكمال المواعيد المقبولة أو المؤكدة فقط.",
+
+    // Appointment Booking
+    "book_appointment_description" => "احجز استشارة مع أحد مصممينا الخبراء",
+    "choose_preferred_time" => "اختر التاريخ والوقت المفضل لديك لاستشارة مدتها 15 دقيقة",
+    "select_date" => "اختر التاريخ",
+    "choose_meeting_time" => "اختر متى تريد الاجتماع",
+    "available_date" => "التاريخ المتاح",
+    "available_dates" => "التواريخ المتاحة",
+    "choose_time" => "اختر الوقت",
+    "pick_time_slot" => "اختر الفترة الزمنية المفضلة لديك",
+    "loading" => "جاري التحميل...",
+    "loading_time_slots" => "جاري تحميل الفترات الزمنية المتاحة...",
+    "no_available_slots" => "لا توجد فترات متاحة",
+    "date_fully_booked" => "هذا التاريخ محجوز بالكامل. يرجى اختيار تاريخ آخر.",
+    "additional_information" => "معلومات إضافية",
+    "tell_about_project" => "أخبرنا عن مشروعك (اختياري)",
+    "project_details" => "تفاصيل المشروع",
+    "project_placeholder" => "صف مشروعك، المتطلبات، أو أي أسئلة محددة تريد مناقشتها...",
+    "max_characters" => "الحد الأقصى 500 حرف",
+    "appointment_summary" => "ملخص الموعد",
+    "designer" => "المصمم",
+    "will_be_assigned" => "سيتم تعيينه بعد الحجز",
+    "fifteen_minutes" => "15 دقيقة",
+    "book_consultation" => "احجز استشارتي",
+    "booking_appointment" => "جاري حجز الموعد...",
+    "quick_easy" => "سريع وسهل",
+    "quick_easy_desc" => "احجز استشارتك بنقرات قليلة مع عمليةنا المبسطة.",
+    "secure_reliable" => "آمن وموثوق",
+    "secure_reliable_desc" => "بياناتك محمية بأمان على مستوى المؤسسات والتشفير.",
+    "expert_designers" => "مصممون خبراء",
+    "expert_designers_desc" => "تواصل مع محترفين معتمدين يقدمون نتائج استثنائية.",
+
+    // Common
+    "actions" => "الإجراءات",
+    "view" => "عرض",
+    "edit" => "تعديل",
+    "delete" => "حذف",
+    "save" => "حفظ",
+    "cancel" => "إلغاء",
+    "close" => "إغلاق",
+    "yes" => "نعم",
+    "no" => "لا",
+    "ok" => "حسناً",
+    "error" => "خطأ",
+    "success" => "نجح",
+    "warning" => "تحذير",
+    "info" => "معلومات",
+    "logout" => "تسجيل الخروج",
+];

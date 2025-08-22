@@ -18,7 +18,7 @@ class AppointmentController extends Controller
     public function create()
     {
         $designers = Designer::where('is_active', true)->get();
-        return view('appointments.create', compact('designers'));
+        return view('users.appointments.create', compact('designers'));
     }
 
     /**
@@ -39,7 +39,7 @@ class AppointmentController extends Controller
 
         // Check if time slot is available
         if (!Appointment::isTimeSlotAvailable($designerId, $date, $time)) {
-            return back()->withErrors(['appointment_time' => 'This time slot is not available. Please choose another time.']);
+            return back()->withErrors(['appointment_time' => trans('dashboard.time_slot_unavailable', ['default' => 'This time slot is not available. Please choose another time.'])]);
         }
 
         // Create the appointment
@@ -54,7 +54,7 @@ class AppointmentController extends Controller
         ]);
 
         return redirect()->route('appointments.index')
-            ->with('success', 'Appointment booked successfully! The designer will review your request.');
+            ->with('success', trans('dashboard.appointment_booked_success', ['default' => 'Appointment booked successfully! The designer will review your request.']));
     }
 
     /**
@@ -64,11 +64,10 @@ class AppointmentController extends Controller
     {
         $appointments = Appointment::with(['designer'])
             ->where('user_id', Auth::id())
-            ->orderBy('appointment_date', 'desc')
-            ->orderBy('appointment_time', 'desc')
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('appointments.index', compact('appointments'));
+        return view('users.appointments.index', compact('appointments'));
     }
 
     /**
@@ -84,7 +83,7 @@ class AppointmentController extends Controller
         // Load the designer relationship to avoid N+1 queries
         $appointment->load('designer', 'user');
 
-        return view('appointments.show', compact('appointment'));
+        return view('users.appointments.show', compact('appointment'));
     }
 
     /**
@@ -97,16 +96,19 @@ class AppointmentController extends Controller
         }
 
         if (!$appointment->canBeCancelled()) {
-            return back()->withErrors(['appointment' => 'This appointment cannot be cancelled.']);
+            return back()->withErrors(['appointment' => trans('dashboard.appointment_cannot_cancel', ['default' => 'This appointment cannot be cancelled.'])]);
         }
 
-        $appointment->cancel();
+        $appointment->update([
+            'status' => 'cancelled',
+            'cancelled_at' => now(),
+        ]);
 
-        return back()->with('success', 'Appointment cancelled successfully.');
+        return back()->with('success', trans('dashboard.appointment_cancelled_success'));
     }
 
     /**
-     * Get available time slots for a designer on a specific date
+     * Get available time slots for a specific date
      */
     public function getAvailableSlots(Request $request)
     {
@@ -115,142 +117,162 @@ class AppointmentController extends Controller
             'date' => 'required|date|after:today',
         ]);
 
-        $slots = Appointment::getAvailableTimeSlots(
-            $request->designer_id,
-            $request->date
-        );
+        $designerId = $request->designer_id;
+        $date = $request->date;
+        $availableSlots = Appointment::getAvailableTimeSlots($designerId, $date);
 
-        return response()->json(['slots' => $slots]);
+        return response()->json(['slots' => $availableSlots]);
     }
 
     /**
-     * Designer dashboard - show appointments for the logged-in designer
+     * Show designer's appointment dashboard
      */
     public function designerDashboard()
     {
         $designer = Auth::guard('designer')->user();
 
         if (!$designer) {
-            abort(403);
+            abort(403, 'Designer access required');
         }
 
-        $pendingAppointments = Appointment::with(['user'])
+        // Get today's appointments
+        $todayAppointments = Appointment::with('user')
             ->where('designer_id', $designer->id)
-            ->pending()
-            ->orderBy('appointment_date', 'asc')
-            ->orderBy('appointment_time', 'asc')
+            ->where('appointment_date', Carbon::today())
+            ->where('status', '!=', 'cancelled')
+            ->orderBy('appointment_time')
             ->get();
 
-        $todayAppointments = Appointment::with(['user'])
+        // Get upcoming appointments
+        $upcomingAppointments = Appointment::with('user')
             ->where('designer_id', $designer->id)
-            ->today()
-            ->whereIn('status', ['accepted', 'pending'])
-            ->orderBy('appointment_time', 'asc')
+            ->where('appointment_date', '>', Carbon::today())
+            ->where('status', '!=', 'cancelled')
+            ->orderBy('appointment_date')
+            ->orderBy('appointment_time')
+            ->limit(5)
             ->get();
 
-        $upcomingAppointments = Appointment::with(['user'])
+        // Get pending appointments
+        $pendingAppointments = Appointment::with('user')
             ->where('designer_id', $designer->id)
-            ->upcoming()
-            ->whereIn('status', ['accepted'])
-            ->orderBy('appointment_date', 'asc')
-            ->orderBy('appointment_time', 'asc')
-            ->limit(10)
+            ->where('status', 'pending')
+            ->orderBy('appointment_date')
+            ->orderBy('appointment_time')
+            ->limit(5)
             ->get();
+
+        // Get appointment statistics
+        $totalAppointments = Appointment::where('designer_id', $designer->id)->count();
+        $completedAppointments = Appointment::where('designer_id', $designer->id)->where('status', 'completed')->count();
+        $pendingCount = Appointment::where('designer_id', $designer->id)->where('status', 'pending')->count();
+        $cancelledCount = Appointment::where('designer_id', $designer->id)->where('status', 'cancelled')->count();
 
         return view('designer.appointments.dashboard', compact(
-            'pendingAppointments',
             'todayAppointments',
-            'upcomingAppointments'
+            'upcomingAppointments',
+            'pendingAppointments',
+            'totalAppointments',
+            'completedAppointments',
+            'pendingCount',
+            'cancelledCount'
         ));
     }
 
     /**
-     * Accept an appointment (designer action)
-     */
-    public function accept(Request $request, Appointment $appointment)
-    {
-        $designer = Auth::guard('designer')->user();
-
-        if (!$designer || $appointment->designer_id !== $designer->id) {
-            abort(403);
-        }
-
-        if (!$appointment->canBeAccepted()) {
-            return back()->withErrors(['appointment' => 'This appointment cannot be accepted.']);
-        }
-
-        $appointment->accept($request->designer_notes);
-
-        return back()->with('success', 'Appointment accepted successfully.');
-    }
-
-    /**
-     * Reject an appointment (designer action)
-     */
-    public function reject(Request $request, Appointment $appointment)
-    {
-        $designer = Auth::guard('designer')->user();
-
-        if (!$designer || $appointment->designer_id !== $designer->id) {
-            abort(403);
-        }
-
-        if (!$appointment->canBeRejected()) {
-            return back()->withErrors(['appointment' => 'This appointment cannot be rejected.']);
-        }
-
-        $appointment->reject($request->designer_notes);
-
-        return back()->with('success', 'Appointment rejected successfully.');
-    }
-
-    /**
-     * Complete an appointment (designer action)
-     */
-    public function complete(Appointment $appointment)
-    {
-        $designer = Auth::guard('designer')->user();
-
-        if (!$designer || $appointment->designer_id !== $designer->id) {
-            abort(403);
-        }
-
-        if (!$appointment->canBeCompleted()) {
-            return back()->withErrors(['appointment' => 'This appointment cannot be completed.']);
-        }
-
-        $appointment->complete();
-
-        return back()->with('success', 'Appointment marked as completed.');
-    }
-
-    /**
-     * Show all appointments for a designer (with filtering)
+     * Show designer's appointments list
      */
     public function designerAppointments(Request $request)
     {
         $designer = Auth::guard('designer')->user();
 
         if (!$designer) {
-            abort(403);
+            abort(403, 'Designer access required');
         }
 
-        $query = Appointment::with(['user'])
-            ->where('designer_id', $designer->id);
+        $status = $request->get('status', '');
+        $date = $request->get('date', '');
 
-        // Apply filters
-        if ($request->status) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->date) {
-            $query->where('appointment_date', $request->date);
-        }
-
-        $appointments = $query->orderBy('appointment_date', 'desc')
-            ->orderBy('appointment_time', 'desc')
+        $appointments = Appointment::with('user')
+            ->where('designer_id', $designer->id)
+            ->when($status, function ($query, $status) {
+                return $query->where('status', $status);
+            })
+            ->when($date, function ($query, $date) {
+                return $query->where('appointment_date', $date);
+            })
+            ->orderBy('created_at', 'desc')
             ->paginate(15);
 
-        return view('designer.appointments.index', compact('appointments'));
+        return view('designer.appointments.index', compact('appointments', 'status', 'date'));
+    }
+
+    /**
+     * Accept an appointment
+     */
+    public function accept(Appointment $appointment)
+    {
+        $designer = Auth::guard('designer')->user();
+
+        if (!$designer || $appointment->designer_id !== $designer->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($appointment->status !== 'pending') {
+            return back()->withErrors(['appointment' => 'Only pending appointments can be accepted.']);
+        }
+
+        $appointment->update([
+            'status' => 'accepted',
+            'accepted_at' => now(),
+        ]);
+
+        return back()->with('success', 'Appointment accepted successfully.');
+    }
+
+    /**
+     * Reject an appointment
+     */
+    public function reject(Appointment $appointment)
+    {
+        $designer = Auth::guard('designer')->user();
+
+        if (!$designer || $appointment->designer_id !== $designer->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($appointment->status !== 'pending') {
+            return back()->withErrors(['appointment' => 'Only pending appointments can be rejected.']);
+        }
+
+        $appointment->update([
+            'status' => 'rejected',
+            'rejected_at' => now(),
+        ]);
+
+        return back()->with('success', 'Appointment rejected successfully.');
+    }
+
+    /**
+     * Complete an appointment
+     */
+    public function complete(Appointment $appointment)
+    {
+        $designer = Auth::guard('designer')->user();
+
+        if (!$designer || $appointment->designer_id !== $designer->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        if (!in_array($appointment->status, ['accepted', 'confirmed'])) {
+            return back()->withErrors(['appointment' => 'Only accepted or confirmed appointments can be completed.']);
+        }
+
+        $appointment->update([
+            'status' => 'completed',
+            'completed_at' => now(),
+        ]);
+
+        return back()->with('success', 'Appointment marked as completed.');
     }
 }

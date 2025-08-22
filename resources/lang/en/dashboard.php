@@ -1,0 +1,207 @@
+<?php
+
+return [
+    // Dashboard
+    "dashboard" => "Dashboard",
+    "welcome_back" => "Welcome back",
+    "whats_happening" => "Here's what's happening with your account today",
+    "profile_information" => "Profile Information",
+    "quick_actions" => "Quick Actions",
+    "recent_appointments" => "Recent Appointments",
+    "no_appointments_yet" => "No appointments yet",
+    "no_appointments_description" => "You haven't booked any appointments yet. Start your journey by scheduling your first consultation.",
+    "book_first_appointment" => "Book Your First Appointment",
+    "view_all" => "View All",
+    "book_new_appointment" => "Book New Appointment",
+    "view_all_appointments" => "View All Appointments",
+    "update_profile" => "Update Profile",
+    "settings" => "Settings",
+    "member_since" => "Member Since",
+    "last_updated" => "Last Updated",
+    "total_appointments" => "Total Appointments",
+    "pending" => "Pending",
+    "confirmed" => "Confirmed",
+    "completed" => "Completed",
+    "cancelled" => "Cancelled",
+    "rejected" => "Rejected",
+
+    // My Appointments
+    "my_appointments" => "My Appointments",
+    "manage_consultations" => "Manage your scheduled consultations with expert designers",
+
+    // Appointment Details
+    "appointment_details" => "Appointment Details",
+    "consultation_information" => "Consultation Information",
+    "view_consultation_details" => "View your consultation details",
+    "back_to_appointments" => "Back to Appointments",
+    "appointment_pending" => "Appointment Pending",
+    "appointment_confirmed" => "Appointment Confirmed",
+    "consultation_completed" => "Consultation Completed",
+    "appointment_cancelled" => "Appointment Cancelled",
+    "appointment_rejected" => "Appointment Rejected",
+    "appointment_status" => "Appointment Status",
+    "waiting_for_assignment" => "Your appointment is waiting for designer assignment",
+    "confirmed_by_designer" => "Your appointment has been confirmed by the designer",
+    "completed_successfully" => "Your consultation has been completed successfully",
+    "appointment_cancelled_desc" => "This appointment has been cancelled",
+    "rejected_by_designer" => "This appointment has been rejected by the designer",
+    "status_information" => "Appointment status information",
+
+    // Designer Information
+    "designer_information" => "Designer Information",
+    "pending_assignment" => "Pending Assignment",
+    "designer_assigned_soon" => "A designer will be assigned to your appointment soon",
+
+    // Appointment Details
+    "appointment_details_title" => "Appointment Details",
+    "date" => "Date",
+    "time" => "Time",
+    "duration" => "Duration",
+    "end_time" => "End Time",
+    "minutes" => "minutes",
+    "not_set" => "Not set",
+    "booked" => "Booked",
+
+    // Notes and Responses
+    "your_notes" => "Your Notes",
+    "designer_response" => "Designer Response",
+
+    // Timeline
+    "timeline" => "Timeline",
+    "booked" => "Booked",
+    "accepted" => "Accepted",
+    "rejected" => "Rejected",
+    "completed" => "Completed",
+
+    // Actions
+    "cancel_appointment" => "Cancel Appointment",
+    "back_to_list" => "Back to List",
+    "book_new_appointment_action" => "Book New Appointment",
+    "confirm_cancel" => "Are you sure you want to cancel this appointment?",
+
+    // Designer Dashboard
+    "designer_dashboard" => "Designer Dashboard",
+    "live_appointments" => "Live Appointments",
+    "all_appointments" => "All Appointments",
+    "appointments" => "Appointments",
+    "appointments_dashboard" => "Appointments Dashboard",
+    "my_appointments" => "My Appointments",
+    "manage_appointments" => "Manage and view all your scheduled consultations with clients",
+
+    // Designer Dashboard Statistics
+    "available_to_claim" => "Available to Claim",
+    "unassigned_appointments" => "Unassigned appointments",
+    "todays_schedule" => "Today's Schedule",
+    "confirmed_appointments" => "Confirmed appointments",
+    "upcoming" => "Upcoming",
+    "future_appointments" => "Future appointments",
+    "system_status" => "System Status",
+    "real_time_updates" => "Real-time updates",
+    "live_updates_active" => "Live Updates Active",
+    "real_time" => "Real-time",
+    "refresh" => "Refresh",
+
+    // Designer Dashboard Sections
+    "available_appointments" => "Available Appointments",
+    "available" => "Available",
+    "todays_appointments" => "Today's Schedule",
+    "today" => "Today",
+    "upcoming_appointments" => "Upcoming Appointments",
+    "upcoming_count" => "Upcoming",
+
+    // Designer Actions
+    "claim" => "Claim",
+    "pass" => "Pass",
+    "accept" => "Accept",
+    "reject" => "Reject",
+    "complete" => "Complete",
+    "view_details" => "View Details",
+
+    // Designer Messages
+    "no_available_appointments" => "No Available Appointments",
+    "all_appointments_claimed" => "All appointments have been claimed or processed",
+    "no_appointments_today" => "No Appointments Today",
+    "free_schedule_today" => "You have a free schedule for today",
+    "no_upcoming_appointments" => "No Upcoming Appointments",
+    "no_future_appointments" => "No future appointments scheduled",
+
+    // Client Information
+    "client_information" => "Client Information",
+    "client_notes" => "Client Notes",
+    "your_response" => "Your Response",
+
+    // Filter and Search
+    "filter_appointments" => "Filter Appointments",
+    "all_statuses" => "All Statuses",
+    "filter" => "Filter",
+    "clear" => "Clear",
+    "no_appointments_found" => "No appointments found",
+    "no_appointments_matching_filters" => "You don't have any appointments matching your current filters. Try adjusting your search criteria.",
+
+    // Success Messages
+    "appointment_cancelled_success" => "Appointment cancelled successfully",
+    "appointment_updated_success" => "Appointment updated successfully",
+    "appointment_created_success" => "Appointment created successfully",
+    "appointment_booked_success" => "Appointment booked successfully! The designer will review your request.",
+    "appointment_accepted_success" => "Appointment accepted successfully.",
+    "appointment_rejected_success" => "Appointment rejected successfully.",
+    "appointment_completed_success" => "Appointment marked as completed.",
+
+    // Error Messages
+    "appointment_cancel_error" => "An error occurred while cancelling the appointment",
+    "appointment_update_error" => "An error occurred while updating the appointment",
+    "appointment_create_error" => "An error occurred while creating the appointment",
+    "appointment_cannot_cancel" => "This appointment cannot be cancelled.",
+    "time_slot_unavailable" => "This time slot is not available. Please choose another time.",
+    "only_pending_can_accept" => "Only pending appointments can be accepted.",
+    "only_pending_can_reject" => "Only pending appointments can be rejected.",
+    "only_accepted_can_complete" => "Only accepted or confirmed appointments can be completed.",
+
+    // Appointment Booking
+    "book_appointment_description" => "Schedule a consultation with one of our expert designers",
+    "choose_preferred_time" => "Choose your preferred date and time for a 15-minute consultation",
+    "select_date" => "Select Your Date",
+    "choose_meeting_time" => "Choose when you'd like to meet",
+    "available_date" => "Available Date",
+    "available_dates" => "Available dates",
+    "choose_time" => "Choose Your Time",
+    "pick_time_slot" => "Pick your preferred time slot",
+    "loading" => "Loading...",
+    "loading_time_slots" => "Loading available time slots...",
+    "no_available_slots" => "No Available Slots",
+    "date_fully_booked" => "This date is fully booked. Please select another date.",
+    "additional_information" => "Additional Information",
+    "tell_about_project" => "Tell us about your project (optional)",
+    "project_details" => "Project Details",
+    "project_placeholder" => "Describe your project, requirements, or any specific questions you'd like to discuss...",
+    "max_characters" => "Maximum 500 characters",
+    "appointment_summary" => "Appointment Summary",
+    "designer" => "Designer",
+    "will_be_assigned" => "Will be assigned after booking",
+    "fifteen_minutes" => "15 minutes",
+    "book_consultation" => "Book My Consultation",
+    "booking_appointment" => "Booking Appointment...",
+    "quick_easy" => "Quick & Easy",
+    "quick_easy_desc" => "Book your consultation in just a few clicks with our streamlined process.",
+    "secure_reliable" => "Secure & Reliable",
+    "secure_reliable_desc" => "Your data is protected with enterprise-grade security and encryption.",
+    "expert_designers" => "Expert Designers",
+    "expert_designers_desc" => "Connect with verified professionals who deliver exceptional results.",
+
+    // Common
+    "actions" => "Actions",
+    "view" => "View",
+    "edit" => "Edit",
+    "delete" => "Delete",
+    "save" => "Save",
+    "cancel" => "Cancel",
+    "close" => "Close",
+    "yes" => "Yes",
+    "no" => "No",
+    "ok" => "OK",
+    "error" => "Error",
+    "success" => "Success",
+    "warning" => "Warning",
+    "info" => "Information",
+    "logout" => "Logout",
+];

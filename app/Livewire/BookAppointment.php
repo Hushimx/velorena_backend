@@ -3,17 +3,15 @@
 namespace App\Livewire;
 
 use App\Models\Appointment;
-use App\Models\Designer;
-use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+use Carbon\Carbon;
 
 class BookAppointment extends Component
 {
     public $selectedDate;
     public $selectedTime;
     public $notes;
-    public $availableSlots = [];
-    public $loading = false;
 
     protected $rules = [
         'selectedDate' => 'required|date|after:today',
@@ -28,44 +26,27 @@ class BookAppointment extends Component
 
     public function updatedSelectedDate()
     {
-        $this->selectedTime = null;
-        $this->loadAvailableSlots();
-    }
-
-    public function loadAvailableSlots()
-    {
-        if (!$this->selectedDate) {
-            $this->availableSlots = [];
-            return;
+        if ($this->selectedDate) {
+            // Extract date and time from the selected date input
+            $this->extractDateTimeFromInput();
+        } else {
+            $this->selectedTime = null;
         }
-
-        $this->loading = true;
-
-        // Get general available time slots for the date (no specific designer)
-        $this->availableSlots = $this->getGeneralAvailableSlots($this->selectedDate);
-
-        $this->loading = false;
     }
 
-    private function getGeneralAvailableSlots($date)
+    private function extractDateTimeFromInput()
     {
-        $workingHours = [
-            'start' => '09:00',
-            'end' => '17:00'
-        ];
+        // Parse the selected datetime (format: Y-m-d\TH:i)
+        $dateTime = Carbon::parse($this->selectedDate);
 
-        $timeSlots = [];
-        $currentTime = \Carbon\Carbon::parse($workingHours['start']);
-        $endTime = \Carbon\Carbon::parse($workingHours['end']);
+        // Extract the date part
+        $this->selectedDate = $dateTime->format('Y-m-d');
 
-        while ($currentTime->lt($endTime)) {
-            $timeString = $currentTime->format('H:i');
-            $timeSlots[] = $timeString;
-            $currentTime->addMinutes(15);
-        }
-
-        return $timeSlots;
+        // Extract the time part
+        $this->selectedTime = $dateTime->format('H:i');
     }
+
+
 
     public function bookAppointment()
     {
@@ -83,22 +64,25 @@ class BookAppointment extends Component
         ]);
 
         // Reset form
-        $this->reset(['selectedDate', 'selectedTime', 'notes', 'availableSlots']);
+        $this->reset(['selectedDate', 'selectedTime', 'notes']);
+
+        // Dispatch event to notify other components about the new appointment
+        $this->dispatch('appointment-created', $appointment->id);
 
         // Show success message and redirect
-        session()->flash('success', 'Appointment booked successfully! A designer will be assigned to you soon.');
+        session()->flash('success', trans('dashboard.appointment_booked_success'));
 
         return redirect()->route('appointments.index');
     }
 
     public function getMinDateProperty()
     {
-        return now()->addDay()->format('Y-m-d');
+        return now()->addDay()->format('Y-m-d\TH:i');
     }
 
     public function getMaxDateProperty()
     {
-        return now()->addMonths(3)->format('Y-m-d');
+        return now()->addMonths(3)->format('Y-m-d\TH:i');
     }
 
     public function render()
