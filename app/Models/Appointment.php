@@ -22,7 +22,8 @@ class Appointment extends Model
         'designer_notes',
         'accepted_at',
         'rejected_at',
-        'completed_at'
+        'completed_at',
+        'cancelled_at'
     ];
 
     protected $casts = [
@@ -31,6 +32,7 @@ class Appointment extends Model
         'accepted_at' => 'datetime',
         'rejected_at' => 'datetime',
         'completed_at' => 'datetime',
+        'cancelled_at' => 'datetime',
     ];
 
     // Relationships

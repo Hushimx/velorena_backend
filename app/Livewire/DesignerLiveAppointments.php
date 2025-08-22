@@ -15,11 +15,13 @@ class DesignerLiveAppointments extends Component
     public $pendingCount = 0;
     public $todayCount = 0;
     public $refreshInterval = 5000; // 5 seconds
+    public $lastUpdate;
 
     protected $listeners = [
-        'echo:appointments,AppointmentCreated' => 'refreshAppointments',
-        'echo:appointments,AppointmentUpdated' => 'refreshAppointments',
-        'appointmentUpdated' => 'refreshAppointments'
+        'appointment-created' => 'refreshAppointments',
+        'appointment-accepted' => 'refreshAppointments',
+        'appointment-rejected' => 'refreshAppointments',
+        'appointment-completed' => 'refreshAppointments'
     ];
 
     public function mount()
@@ -29,12 +31,24 @@ class DesignerLiveAppointments extends Component
             abort(403);
         }
         $this->updateCounts();
+        $this->lastUpdate = now()->format('H:i:s');
     }
 
     public function refreshAppointments()
     {
         $this->updateCounts();
         $this->dispatch('appointments-refreshed');
+    }
+
+    public function manualRefresh()
+    {
+        $this->updateCounts();
+        $this->dispatch('appointments-refreshed');
+    }
+
+    public function testEvent()
+    {
+        $this->dispatch('appointment-created', 999);
     }
 
     public function updateCounts()
@@ -47,6 +61,8 @@ class DesignerLiveAppointments extends Component
             ->today()
             ->whereIn('status', ['accepted'])
             ->count();
+
+        $this->lastUpdate = now()->format('H:i:s');
     }
 
     public function acceptAppointment($appointmentId)
@@ -109,8 +125,7 @@ class DesignerLiveAppointments extends Component
         $unassignedAppointments = Appointment::with(['user'])
             ->whereNull('designer_id')
             ->pending()
-            ->orderBy('appointment_date', 'asc')
-            ->orderBy('appointment_time', 'asc')
+            ->orderBy('created_at', 'desc')
             ->get();
 
         // Show this designer's accepted appointments for today
@@ -118,7 +133,7 @@ class DesignerLiveAppointments extends Component
             ->where('designer_id', $this->designer->id)
             ->today()
             ->whereIn('status', ['accepted'])
-            ->orderBy('appointment_time', 'asc')
+            ->orderBy('created_at', 'desc')
             ->get();
 
         // Show this designer's upcoming accepted appointments
@@ -126,8 +141,7 @@ class DesignerLiveAppointments extends Component
             ->where('designer_id', $this->designer->id)
             ->upcoming()
             ->whereIn('status', ['accepted'])
-            ->orderBy('appointment_date', 'asc')
-            ->orderBy('appointment_time', 'asc')
+            ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
 
