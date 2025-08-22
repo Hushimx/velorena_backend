@@ -321,6 +321,10 @@
         .sidebar-toggle:hover {
             color: #198754;
         }
+
+        .toast-body {
+            width: 88%;
+        }
     </style>
 </head>
 
@@ -464,19 +468,19 @@
     <script>
         document.addEventListener('livewire:init', () => {
             Livewire.on('appointment-accepted', (appointmentId) => {
-                showNotification('Appointment accepted successfully!', 'success');
+                showNotification('{{ trans('dashboard.appointment_accepted_success') }}', 'success');
             });
 
             Livewire.on('appointment-rejected', (appointmentId) => {
-                showNotification('Appointment rejected successfully!', 'success');
+                showNotification('{{ trans('dashboard.appointment_rejected_success') }}', 'success');
             });
 
             Livewire.on('appointment-completed', (appointmentId) => {
-                showNotification('Appointment marked as completed!', 'success');
+                showNotification('{{ trans('dashboard.appointment_completed_success') }}', 'success');
             });
 
             Livewire.on('appointment-created', (appointmentId) => {
-                showNotification('New appointment available!', 'info');
+                showNotification('{{ trans('dashboard.new_appointment_available') }}', 'info');
             });
         });
 

@@ -146,6 +146,7 @@ return [
     "appointment_accepted_success" => "تم قبول الموعد بنجاح.",
     "appointment_rejected_success" => "تم رفض الموعد بنجاح.",
     "appointment_completed_success" => "تم تحديد الموعد كمكتمل.",
+    "new_appointment_available" => "موعد جديد متاح!",
 
     // Error Messages
     "appointment_cancel_error" => "حدث خطأ أثناء إلغاء الموعد",

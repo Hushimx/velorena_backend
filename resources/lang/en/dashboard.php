@@ -146,6 +146,7 @@ return [
     "appointment_accepted_success" => "Appointment accepted successfully.",
     "appointment_rejected_success" => "Appointment rejected successfully.",
     "appointment_completed_success" => "Appointment marked as completed.",
+    "new_appointment_available" => "New appointment available!",
 
     // Error Messages
     "appointment_cancel_error" => "An error occurred while cancelling the appointment",
