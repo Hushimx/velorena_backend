@@ -15,7 +15,7 @@
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
 
     <!-- Scripts -->
-    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body>
@@ -34,7 +34,18 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto">
-
+                        @auth
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('appointments.index') }}">
+                                    <i class="fas fa-calendar-alt me-1"></i>{{ __('Appointments') }}
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('appointments.create') }}">
+                                    <i class="fas fa-calendar-plus me-1"></i>{{ __('Book Appointment') }}
+                                </a>
+                            </li>
+                        @endauth
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -72,10 +83,20 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ url('/') }}">
+                                        <i class="fas fa-tachometer-alt me-2"></i>{{ __('Dashboard') }}
+                                    </a>
+                                    <a class="dropdown-item" href="{{ route('appointments.index') }}">
+                                        <i class="fas fa-calendar-alt me-2"></i>{{ __('My Appointments') }}
+                                    </a>
+                                    <a class="dropdown-item" href="{{ route('appointments.create') }}">
+                                        <i class="fas fa-calendar-plus me-2"></i>{{ __('Book Appointment') }}
+                                    </a>
+                                    <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                         onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
+                                        <i class="fas fa-sign-out-alt me-2"></i>{{ __('Logout') }}
                                     </a>
 
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">

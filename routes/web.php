@@ -34,7 +34,7 @@ Route::group(
         Route::redirect('/', '/home');
         Route::get('/home', [HomeController::class, 'index'])->name('home');
         // Route::view('/success', "admin.auth.success");
-        
+
         // API Documentation
         Route::get('/docs', function () {
             return view('vendor.scribe.index');
@@ -42,5 +42,15 @@ Route::group(
 
         require __DIR__ . '/admin_routes.php';
         require __DIR__ . '/designer_routes.php';
+
+        // Appointment routes
+        Route::middleware(['auth'])->group(function () {
+            Route::get('/appointments', [App\Http\Controllers\AppointmentController::class, 'index'])->name('appointments.index');
+            Route::get('/appointments/create', [App\Http\Controllers\AppointmentController::class, 'create'])->name('appointments.create');
+            Route::post('/appointments', [App\Http\Controllers\AppointmentController::class, 'store'])->name('appointments.store');
+            Route::get('/appointments/{appointment}', [App\Http\Controllers\AppointmentController::class, 'show'])->name('appointments.show');
+            Route::patch('/appointments/{appointment}/cancel', [App\Http\Controllers\AppointmentController::class, 'cancel'])->name('appointments.cancel');
+            Route::get('/appointments/slots', [App\Http\Controllers\AppointmentController::class, 'getAvailableSlots'])->name('appointments.slots');
+        });
     }
 );
