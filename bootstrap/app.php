@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'designer.guest' => \App\Http\Middleware\RedirectIfDesigner::class,
+            'designer.auth' => \App\Http\Middleware\RedirectIfNotDesigner::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

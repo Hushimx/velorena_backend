@@ -1,4 +1,8 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
 @import 'tailwindcss';
+
+/* Font Awesome Icons */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
