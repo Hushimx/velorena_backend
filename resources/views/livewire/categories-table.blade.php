@@ -12,14 +12,27 @@
         </div>
     @endif
 
+    <!-- Error Message -->
+    @if (session()->has('error'))
+        <div class="mb-4 p-4 bg-red-50 border border-red-100 text-red-700 rounded-md flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-red-500" viewBox="0 0 20 20"
+                fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clip-rule="evenodd" />
+            </svg>
+            <span class="px-2">{{ session('error') }}</span>
+        </div>
+    @endif
+
     <!-- Search and Filters -->
     <div class="mb-6 bg-white p-4 rounded-lg shadow-sm">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
                 <label for="search"
-                    class="block text-sm font-medium text-gray-700 mb-1">{{ trans('products.search') }}</label>
+                    class="block text-sm font-medium text-gray-700 mb-1">{{ trans('categories.search') }}</label>
                 <input type="text" wire:model.live.debounce.500ms="search" wire:key="search-input"
-                    placeholder="{{ trans('products.products_search_placeholder') }}"
+                    placeholder="{{ trans('categories.categories_search_placeholder') }}"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
             </div>
         </div>
@@ -31,96 +44,84 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th
-                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
-                            {{ trans('products.name') }}
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {{ trans('categories.name') }}
                         </th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {{ trans('products.category') }}
+                            {{ trans('categories.name_ar') }}
                         </th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {{ trans('products.base_price') }}
+                            {{ trans('categories.status') }}
                         </th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {{ trans('products.status') }}
-                        </th>
-                        <th
-                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
-                            {{ trans('products.created_at') }}
+                            {{ trans('categories.products_count') }}
                         </th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {{ trans('products.actions') }}
+                            {{ trans('categories.created_at') }}
+                        </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {{ trans('actions') }}
                         </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($products as $product)
-                        <tr class="hover:bg-gray-50" wire:key="product-row-{{ $product->id }}">
-                            <td class="p-3 whitespace-nowrap">
+                    @forelse($categories as $category)
+                        <tr class="hover:bg-gray-50" wire:key="category-row-{{ $category->id }}">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    @if ($product->image && file_exists(public_path($product->image)))
-                                        <a href="{{ asset($product->image) }}" class="glightbox"
-                                            data-gallery="product">
-                                            <img class="h-20 w-20 rounded-lg object-cover mx-3"
-                                                src="{{ asset($product->image) }}" alt="{{ $product->name }}">
-                                        </a>
+                                    @if ($category->image)
+                                        <img class="h-10 w-10 rounded-lg object-cover ml-3"
+                                            src="{{ asset($category->image) }}" alt="{{ $category->name }}">
                                     @else
                                         <div
-                                            class="h-20 w-20 rounded-lg bg-gray-200 flex items-center justify-center mx-3">
-                                            <i class="fas fa-box text-gray-400"></i>
+                                            class="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center ml-3">
+                                            <i class="fas fa-image text-gray-400"></i>
                                         </div>
                                     @endif
                                     <div>
-                                        <div class="text-sm font-medium text-gray-900">{{ $product->name }}</div>
+                                        <div class="text-sm font-medium text-gray-900">{{ $category->name }}</div>
                                         <div class="text-sm text-gray-500">
-                                            {{ Str::limit($product->description, 50) }}</div>
+                                            {{ Str::limit($category->description, 50) }}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="p-3 whitespace-nowrap text-center text-sm text-gray-900">
-                                {{ $product->category->name ?? trans('products.no_category') }}
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
+                                {{ $category->name_ar }}
                             </td>
-                            <td class="p-3 whitespace-nowrap text-center text-sm text-gray-900">
-                                {{ number_format($product->base_price, 2) }} {{ trans('products.currency') }}
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $category->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                    {{ $category->is_active ? trans('categories.active') : trans('categories.inactive') }}
+                                </span>
                             </td>
-                            <td class="p-3 whitespace-nowrap text-center">
-                                @if ($product->is_active)
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        {{ trans('products.active') }}
-                                    </span>
-                                @else
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                        {{ trans('products.inactive') }}
-                                    </span>
-                                @endif
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
+                                {{ $category->products_count ?? $category->products()->count() }}
                             </td>
-                            <td class="p-3 whitespace-nowrap text-center text-sm text-gray-500">
-                                {{ $product->created_at->format('Y-m-d') }}
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
+                                {{ $category->created_at->format('Y-m-d') }}
                             </td>
-                            <td class="p-3 whitespace-nowrap">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center justify-center space-x-4">
                                     <!-- View Button -->
-                                    <a href="{{ route('admin.products.show', $product) }}"
-                                        class="inline-flex items-center gap-2 px-3 mx-2 py-1.5 border border-transparent text-xs font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 transition duration-150 ease-in-out">
-                                        <i class="fas fa-eye"></i>
-                                        <span>{{ trans('products.show') }}</span>
+                                    <a href="{{ route('admin.categories.show', $category) }}"
+                                        class="inline-flex items-center px-3 ml-2 py-1.5 border border-transparent text-xs font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 transition duration-150 ease-in-out">
+                                        <i class="fas fa-eye mx-1.5"></i>
+                                        <span>{{ trans('show') }}</span>
                                     </a>
 
                                     <!-- Edit Button -->
-                                    <a href="{{ route('admin.products.edit', $product) }}"
-                                        class="inline-flex items-center gap-2 px-3 mx-2 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 transition duration-150 ease-in-out">
-                                        <i class="fas fa-pen"></i>
-                                        <span>{{ trans('products.edit') }}</span>
+                                    <a href="{{ route('admin.categories.edit', $category) }}"
+                                        class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 transition duration-150 ease-in-out">
+                                        <i class="fas fa-pen mx-1.5"></i>
+                                        <span>{{ trans('Edit') }}</span>
                                     </a>
 
                                     <!-- Delete Button -->
-                                    <button wire:click="confirmDelete({{ $product->id }})"
-                                        wire:key="delete-{{ $product->id }}"
-                                        class="inline-flex items-center gap-2 px-3 mx-2 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 transition duration-150 ease-in-out">
-                                        <i class="fas fa-trash"></i>
-                                        <span>{{ trans('products.delete') }}</span>
+                                    <button wire:click="confirmDelete({{ $category->id }})"
+                                        wire:key="delete-{{ $category->id }}"
+                                        class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 transition duration-150 ease-in-out">
+                                        <i class="fas fa-trash mx-1.5"></i>
+                                        <span>{{ trans('categories.delete') }}</span>
                                     </button>
                                 </div>
                             </td>
@@ -128,7 +129,7 @@
                     @empty
                         <tr>
                             <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                                {{ trans('products.no_products_exist') }}</td>
+                                {{ trans('categories.no_categories_exist') }}</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -137,7 +138,7 @@
 
         <!-- Pagination -->
         <div class="px-6 py-3 border-t border-gray-200">
-            {{ $products->links() }}
+            {{ $categories->links() }}
         </div>
 
     </div>
@@ -155,18 +156,19 @@
                         </svg>
                     </div>
                     <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">
-                        {{ trans('products.confirm_delete_title') }}</h3>
+                        {{ trans('categories.confirm_delete_title') }}</h3>
                     <div class="mt-2 px-7 py-3">
                         <p class="text-sm text-gray-500">
-                            {{ trans('products.confirm_delete_product') }}
+                            {{ trans('categories.confirm_delete_category') }}
                         </p>
                     </div>
                     <div class="items-center px-4 py-3">
-                        <button wire:click="deleteProduct" wire:loading.attr="disabled"
+                        <button wire:click="deleteCategory" wire:loading.attr="disabled"
                             wire:loading.class="opacity-50 cursor-not-allowed"
                             class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-24 mr-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 disabled:opacity-50">
-                            <span wire:loading.remove wire:target="deleteProduct">{{ trans('products.delete') }}</span>
-                            <span wire:loading wire:target="deleteProduct" class="inline-flex items-center">
+                            <span wire:loading.remove
+                                wire:target="deleteCategory">{{ trans('categories.delete') }}</span>
+                            <span wire:loading wire:target="deleteCategory" class="inline-flex items-center">
                                 <svg class="animate-spin h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none"
                                     viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10"
@@ -179,7 +181,7 @@
                         </button>
                         <button wire:click="cancelDelete" wire:loading.attr="disabled"
                             class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-24 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50">
-                            {{ trans('products.cancel') }}
+                            {{ trans('categories.cancel') }}
                         </button>
                     </div>
                 </div>

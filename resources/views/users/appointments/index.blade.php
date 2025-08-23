@@ -138,9 +138,8 @@
                             <!-- Notes -->
                             @if ($appointment->notes)
                                 <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                                    <h6 class="font-medium text-gray-900 mb-2 flex items-center">
-                                        <i
-                                            class="fas fa-sticky-note mr-2 text-blue-600"></i>{{ trans('dashboard.your_notes') }}
+                                    <h6 class="font-medium text-gray-900 mb-2 flex items-center gap-3">
+                                        <i class="fas fa-sticky-note text-blue-600"></i>{{ trans('dashboard.your_notes') }}
                                     </h6>
                                     <p class="text-sm text-gray-600">{{ Str::limit($appointment->notes, 100) }}</p>
                                 </div>

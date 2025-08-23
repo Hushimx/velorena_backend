@@ -6,6 +6,7 @@ return [
     "users" => "المستخدمين",
     "designers" => "المصممين",
     "products" => "المنتجات",
+    "categories" => "الفئات",
     "logout" => "تسجيل الخروج",
 
     // User Dashboard

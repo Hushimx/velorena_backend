@@ -30,12 +30,14 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
             <div class="px-6 py-6 border-b border-gray-100">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-4 gap-3">
                         <!-- Product Image -->
                         <div class="flex-shrink-0">
-                            @if ($product->image)
-                                <img src="{{ $product->image }}" alt="{{ $product->name }}"
-                                    class="w-20 h-20 rounded-xl object-cover shadow-md">
+                            @if ($product->image && file_exists(public_path($product->image)))
+                                <a href="{{ asset($product->image) }}" class="glightbox" data-gallery="product">
+                                    <img src="{{ asset($product->image) }}" alt="{{ $product->name }}"
+                                        class="w-20 h-20 rounded-xl object-cover shadow-md">
+                                </a>
                             @else
                                 <div
                                     class="w-20 h-20 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center shadow-md">
@@ -48,7 +50,7 @@
                         <div>
                             <h1 class="text-2xl font-bold text-gray-900">{{ $product->name }}</h1>
                             <p class="text-gray-600 mt-1">{{ $product->name_ar ?? trans('products.not_provided') }}</p>
-                            <div class="flex items-center mt-2 space-x-3">
+                            <div class="flex items-center mt-2 space-x-3 gap-3">
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $product->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                     <i class="fas fa-circle mr-2 text-xs"></i>
@@ -60,15 +62,15 @@
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="flex items-center space-x-3 mt-4 lg:mt-0">
+                    <div class="flex items-center space-x-3 mt-4 lg:mt-0 gap-3">
                         <a href="{{ route('admin.products.edit', $product) }}"
-                            class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-medium text-sm text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200">
-                            <i class="fas fa-edit mr-2"></i>
+                            class="inline-flex items-center gap-3 px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-medium text-sm text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200">
+                            <i class="fas fa-edit"></i>
                             {{ trans('products.edit_product') }}
                         </a>
                         <a href="{{ route('admin.products.index') }}"
-                            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg font-medium text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-200">
-                            <i class="fas fa-arrow-left mr-2"></i>
+                            class="inline-flex items-center gap-3 px-4 py-2 border border-gray-300 rounded-lg font-medium text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-200">
+                            <i class="fas fa-arrow-left"></i>
                             {{ trans('products.back_to_products') }}
                         </a>
                     </div>
@@ -83,8 +85,8 @@
                 <!-- Basic Information Card -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100">
                     <div class="px-6 py-4 border-b border-gray-100">
-                        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
-                            <i class="fas fa-info-circle mr-2 text-blue-500"></i>
+                        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-3">
+                            <i class="fas fa-info-circle text-blue-500"></i>
                             {{ trans('products.basic_information') }}
                         </h2>
                     </div>
@@ -276,14 +278,14 @@
                 @if ($product->image)
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100">
                         <div class="px-6 py-4 border-b border-gray-100">
-                            <h2 class="text-lg font-semibold text-gray-900 flex items-center">
-                                <i class="fas fa-image mr-2 text-pink-500"></i>
+                            <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-3">
+                                <i class="fas fa-image text-pink-500"></i>
                                 {{ trans('products.image') }}
                             </h2>
                         </div>
                         <div class="p-6">
                             <div class="relative group">
-                                <img src="{{ $product->image }}" alt="{{ $product->name }}"
+                                <img src="{{ asset($product->image) }}" alt="{{ $product->name }}"
                                     class="w-full h-64 object-cover rounded-lg shadow-md group-hover:shadow-lg transition duration-200">
                                 <div
                                     class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition duration-200 rounded-lg">

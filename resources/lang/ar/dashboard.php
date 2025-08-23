@@ -205,4 +205,8 @@ return [
     "warning" => "تحذير",
     "info" => "معلومات",
     "logout" => "تسجيل الخروج",
+    "view_products" => "عرض المنتجات",
+    "available_products" => "المنتجات المتاحة",
+    "browse_products" => "تصفح المنتجات",
+    "back_to_dashboard" => "العودة إلى لوحة التحكم",
 ];

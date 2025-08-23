@@ -72,4 +72,13 @@ return [
     "total_options" => "Total Options",
     "total_values" => "Total Values",
     "required_options" => "Required Options",
+    "products" => "Products",
+    "browse_our_products" => "Browse our collection of products",
+    "search_products_placeholder" => "Search products by name, description, or category...",
+    "all_categories" => "All Categories",
+    "view_details" => "View Details",
+    "no_products_found" => "No Products Found",
+    "no_products_found_description" => "Try adjusting your search or filter criteria to find what you're looking for.",
+    "add_to_favorites" => "Add to Favorites",
+    "related_products" => "Related Products",
 ];
