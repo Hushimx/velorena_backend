@@ -149,11 +149,11 @@
                             <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
                                 <label for="image"
                                     class="block text-sm font-semibold text-gray-700 mb-2">{{ trans('products.image') }}</label>
-                                @if ($product->image)
+                                @if ($product->image && file_exists(public_path($product->image)))
                                     <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
                                         <p class="text-sm text-gray-600 mb-2">{{ trans('products.current_image') }}:</p>
-                                        <img src="{{ $product->image }}" alt="{{ $product->name }}"
-                                            class="w-32 h-32 object-cover rounded-lg shadow-sm">
+                                        <img src="{{ asset($product->image) }}" alt="{{ $product->name }}"
+                                            class="w-32 h-auto object-cover rounded-lg shadow-sm">
                                     </div>
                                 @endif
                                 <div

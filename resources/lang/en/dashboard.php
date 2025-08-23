@@ -205,4 +205,8 @@ return [
     "warning" => "Warning",
     "info" => "Information",
     "logout" => "Logout",
+    "view_products" => "View Products",
+    "available_products" => "Available Products",
+    "browse_products" => "Browse Products",
+    "back_to_dashboard" => "Back to Dashboard",
 ];

@@ -13,6 +13,11 @@
                 <p class="text-gray-600">{{ trans('dashboard.whats_happening') }}</p>
             </div>
             <div class="flex space-x-3">
+                <a href="{{ route('user.products.index') }}"
+                    class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                    <i class="fas fa-box"></i>
+                    <span>{{ trans('dashboard.view_products') }}</span>
+                </a>
                 <a href="{{ route('appointments.create') }}"
                     class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
                     <i class="fas fa-calendar-plus"></i>
@@ -99,6 +104,23 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Available Products -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-orange-100 text-orange-600">
+                        <i class="fas fa-box text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">{{ trans('dashboard.available_products') }}</p>
+                        <p class="text-2xl font-semibold text-gray-900">
+                            <a href="{{ route('user.products.index') }}" class="hover:text-orange-600 transition-colors">
+                                {{ \App\Models\Product::where('is_active', true)->count() }}
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Main Content Grid -->
@@ -143,6 +165,11 @@
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-1 gap-3">
+                        <a href="{{ route('user.products.index') }}"
+                            class="flex items-center p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
+                            <i class="fas fa-box text-purple-600 mr-3"></i>
+                            <span class="font-medium text-purple-900">{{ trans('dashboard.browse_products') }}</span>
+                        </a>
                         <a href="{{ route('appointments.create') }}"
                             class="flex items-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
                             <i class="fas fa-calendar-plus text-blue-600 mr-3"></i>
@@ -158,11 +185,6 @@
                             <i class="fas fa-user-edit text-gray-600 mr-3"></i>
                             <span class="font-medium text-gray-900">{{ trans('dashboard.update_profile') }}</span>
                         </a>
-                        <a href="#"
-                            class="flex items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
-                            <i class="fas fa-cog text-gray-600 mr-3"></i>
-                            <span class="font-medium text-gray-900">{{ trans('dashboard.settings') }}</span>
-                        </a>
                     </div>
                 </div>
             </div>
@@ -175,7 +197,8 @@
                     <i class="fas fa-history text-purple-600 mr-2"></i>
                     {{ trans('dashboard.recent_appointments') }}
                 </h3>
-                <a href="{{ route('appointments.index') }}" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                <a href="{{ route('appointments.index') }}"
+                    class="text-blue-600 hover:text-blue-700 text-sm font-medium">
                     {{ trans('dashboard.view_all') }}
                 </a>
             </div>

@@ -63,6 +63,12 @@ class User extends Authenticatable
         ];
     }
 
+    // Relationships
+    public function orders(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
     /**
      * Get validation rules for user registration
      */

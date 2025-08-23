@@ -302,6 +302,12 @@
                     <i class="fas fa-calendar-plus"></i>
                     <span>{{ trans('sidebar.book_appointment') }}</span>
                 </a>
+
+                <a href="{{ route('user.products.index') }}"
+                    class="sidebar-link {{ request()->routeIs('user.products.*') ? 'active' : '' }}">
+                    <i class="fas fa-box"></i>
+                    <span>{{ trans('sidebar.products') }}</span>
+                </a>
             </nav>
             <div class="mt-auto mb-4 px-2">
                 <form action="{{ route('logout') }}" method="POST">

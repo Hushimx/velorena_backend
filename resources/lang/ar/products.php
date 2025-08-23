@@ -72,4 +72,13 @@ return [
     "total_options" => "إجمالي الخيارات",
     "total_values" => "إجمالي القيم",
     "required_options" => "الخيارات المطلوبة",
+    "products" => "المنتجات",
+    "browse_our_products" => "تصفح مجموعتنا من المنتجات",
+    "search_products_placeholder" => "البحث في المنتجات بالاسم أو الوصف أو الفئة...",
+    "all_categories" => "جميع الفئات",
+    "view_details" => "عرض التفاصيل",
+    "no_products_found" => "لم يتم العثور على منتجات",
+    "no_products_found_description" => "حاول تعديل البحث أو معايير التصفية للعثور على ما تبحث عنه.",
+    "add_to_favorites" => "إضافة إلى المفضلة",
+    "related_products" => "المنتجات ذات الصلة",
 ];

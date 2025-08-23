@@ -43,8 +43,21 @@ Route::group(
         require __DIR__ . '/admin_routes.php';
         require __DIR__ . '/designer_routes.php';
 
-        // Appointment routes
+        // User routes
         Route::middleware(['auth'])->group(function () {
+            // Products routes
+            Route::get('/products', function () {
+                return view('users.products.index');
+            })->name('user.products.index');
+
+            Route::get('/products/{product}', function (App\Models\Product $product) {
+                if (!$product->is_active) {
+                    abort(404);
+                }
+                return view('users.products.show', compact('product'));
+            })->name('user.products.show');
+
+            // Appointment routes
             Route::get('/appointments', [App\Http\Controllers\AppointmentController::class, 'index'])->name('appointments.index');
             Route::get('/appointments/create', [App\Http\Controllers\AppointmentController::class, 'create'])->name('appointments.create');
             Route::post('/appointments', [App\Http\Controllers\AppointmentController::class, 'store'])->name('appointments.store');

@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Category;
 
@@ -15,45 +14,45 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Business Cards',
-                'name_ar' => 'بطاقات عمل',
-                'description' => 'Professional business cards for companies and individuals',
-                'description_ar' => 'بطاقات عمل احترافية للشركات والأفراد',
+                'name' => 'Electronics',
+                'name_ar' => 'الإلكترونيات',
+                'description' => 'Electronic devices and gadgets',
+                'description_ar' => 'الأجهزة الإلكترونية والأدوات',
                 'is_active' => true,
-                'sort_order' => 1
+                'sort_order' => 1,
             ],
             [
-                'name' => 'Brochures & Catalogs',
-                'name_ar' => 'كتيبات وكتالوجات',
-                'description' => 'Marketing materials including brochures, catalogs, and flyers',
-                'description_ar' => 'مواد تسويقية تشمل الكتيبات والكتالوجات والنشرات',
+                'name' => 'Clothing',
+                'name_ar' => 'الملابس',
+                'description' => 'Fashion and clothing items',
+                'description_ar' => 'الأزياء والملابس',
                 'is_active' => true,
-                'sort_order' => 2
+                'sort_order' => 2,
             ],
             [
-                'name' => 'Banners & Signs',
-                'name_ar' => 'لافتات وعلامات',
-                'description' => 'Large format printing for banners, signs, and displays',
-                'description_ar' => 'طباعة كبيرة الحجم للافتات والعلامات والعروض',
+                'name' => 'Home & Garden',
+                'name_ar' => 'المنزل والحديقة',
+                'description' => 'Home improvement and garden supplies',
+                'description_ar' => 'تحسين المنزل ومستلزمات الحدائق',
                 'is_active' => true,
-                'sort_order' => 3
+                'sort_order' => 3,
             ],
             [
-                'name' => 'Stickers & Labels',
-                'name_ar' => 'ملصقات وتسميات',
-                'description' => 'Custom stickers, labels, and adhesive materials',
-                'description_ar' => 'ملصقات وتسميات مخصصة ومواد لاصقة',
+                'name' => 'Sports & Outdoors',
+                'name_ar' => 'الرياضة والهواء الطلق',
+                'description' => 'Sports equipment and outdoor gear',
+                'description_ar' => 'معدات رياضية ومعدات خارجية',
                 'is_active' => true,
-                'sort_order' => 4
+                'sort_order' => 4,
             ],
             [
-                'name' => 'Packaging',
-                'name_ar' => 'تغليف',
-                'description' => 'Custom packaging solutions and boxes',
-                'description_ar' => 'حلول تغليف مخصصة وصناديق',
+                'name' => 'Books & Media',
+                'name_ar' => 'الكتب والوسائط',
+                'description' => 'Books, movies, and media content',
+                'description_ar' => 'الكتب والأفلام والمحتوى الإعلامي',
                 'is_active' => true,
-                'sort_order' => 5
-            ]
+                'sort_order' => 5,
+            ],
         ];
 
         foreach ($categories as $category) {
