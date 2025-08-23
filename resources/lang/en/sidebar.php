@@ -7,6 +7,7 @@ return [
     "designers" => "Designers",
     "products" => "Products",
     "categories" => "Categories",
+    "orders" => "Orders",
     "logout" => "Logout",
 
     // User Dashboard

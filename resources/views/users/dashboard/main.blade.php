@@ -180,6 +180,11 @@
                             <i class="fas fa-calendar-alt text-green-600 mr-3"></i>
                             <span class="font-medium text-green-900">{{ trans('dashboard.view_all_appointments') }}</span>
                         </a>
+                        <a href="{{ route('user.orders.index') }}"
+                            class="flex items-center p-3 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors">
+                            <i class="fas fa-shopping-cart text-orange-600 mr-3"></i>
+                            <span class="font-medium text-orange-900">{{ trans('orders.my_orders') }}</span>
+                        </a>
                         <a href="#"
                             class="flex items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
                             <i class="fas fa-user-edit text-gray-600 mr-3"></i>

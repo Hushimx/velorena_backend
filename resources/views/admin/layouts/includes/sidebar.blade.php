@@ -38,6 +38,12 @@
             <i class="fas fa-tags"></i>
             <span>{{ trans('sidebar.categories') }}</span>
         </a>
+
+        <a href="{{ route('admin.orders.index') }}"
+            class="sidebar-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+            <i class="fas fa-shopping-cart"></i>
+            <span>{{ trans('sidebar.orders') }}</span>
+        </a>
     </nav>
     <div class="mt-auto mb-4 px-2">
         <form action="{{ route('admin.logout') }}" method="POST">

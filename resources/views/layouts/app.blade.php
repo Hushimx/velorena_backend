@@ -308,6 +308,12 @@
                     <i class="fas fa-box"></i>
                     <span>{{ trans('sidebar.products') }}</span>
                 </a>
+
+                <a href="{{ route('user.orders.index') }}"
+                    class="sidebar-link {{ request()->routeIs('user.orders.*') ? 'active' : '' }}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>{{ trans('orders.my_orders') }}</span>
+                </a>
             </nav>
             <div class="mt-auto mb-4 px-2">
                 <form action="{{ route('logout') }}" method="POST">
@@ -335,6 +341,13 @@
                     <h1 class="text-xl font-bold text-gray-800">@yield('title', trans('dashboard.dashboard'))</h1>
 
                     <div class="flex items-center space-x-4">
+                        <!-- Quick Orders Access -->
+                        <a href="{{ route('user.orders.index') }}"
+                            class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                            <i class="fas fa-shopping-cart text-blue-600"></i>
+                            <span class="hidden sm:inline">{{ trans('orders.my_orders') }}</span>
+                        </a>
+
                         <!-- Language Switcher -->
                         @php
                             use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -399,13 +412,45 @@
                         </div>
 
                         <!-- User Profile -->
-                        <div class="flex items-center relative">
+                        <div x-data="{ open: false }" class="flex items-center relative">
                             <span class="hidden sm:block profile-name">{{ Auth::user()->name }}</span>
                             <div class="relative ml-3">
-                                <img class="profile-img"
-                                    src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=3b82f6&color=fff"
-                                    alt="Profile Picture">
-                                <span class="profile-status"></span>
+                                <button @click="open = !open" class="focus:outline-none">
+                                    <img class="profile-img"
+                                        src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=3b82f6&color=fff"
+                                        alt="Profile Picture">
+                                    <span class="profile-status"></span>
+                                </button>
+
+                                <!-- Dropdown Menu -->
+                                <div x-cloak x-show="open" @click.outside="open = false"
+                                    class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50"
+                                    :class="{
+                                        'right-0': '{{ LaravelLocalization::getCurrentLocaleDirection() }}'
+                                        === 'rtl',
+                                        'left-0': '{{ LaravelLocalization::getCurrentLocaleDirection() }}'
+                                        === 'ltr'
+                                    }">
+                                    <a href="{{ route('user.orders.index') }}"
+                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-shopping-cart mr-2"></i>
+                                        {{ trans('orders.my_orders') }}
+                                    </a>
+                                    <a href="{{ route('appointments.index') }}"
+                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-calendar-alt mr-2"></i>
+                                        {{ trans('sidebar.my_appointments') }}
+                                    </a>
+                                    <div class="border-t border-gray-100"></div>
+                                    <form action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button type="submit"
+                                            class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                            <i class="fas fa-sign-out-alt mr-2"></i>
+                                            {{ trans('sidebar.logout') }}
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>

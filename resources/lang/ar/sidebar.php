@@ -7,6 +7,7 @@ return [
     "designers" => "المصممين",
     "products" => "المنتجات",
     "categories" => "الفئات",
+    "orders" => "الطلبات",
     "logout" => "تسجيل الخروج",
 
     // User Dashboard
