@@ -1,24 +1,211 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Velorena API",
-        "description": "API documentation for Velorena backend.",
+        "title": "Velorena API Documentation",
+        "description": "API documentation for Velorena Backend - Authentication and User Management",
+        "contact": {
+            "email": "admin@velorena.com"
+        },
         "version": "1.0.0"
     },
     "servers": [
         {
-            "url": "/",
-            "description": "Base server"
+            "url": "http://velorena_backend.test",
+            "description": "API Server"
         }
     ],
     "paths": {
+        "/api/auth/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a new user",
+                "description": "Register a new user with the provided information",
+                "operationId": "register",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "client_type",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "client_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "individual",
+                                            "company"
+                                        ],
+                                        "example": "individual"
+                                    },
+                                    "full_name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "company_name": {
+                                        "type": "string",
+                                        "example": "Acme Corp"
+                                    },
+                                    "contact_person": {
+                                        "type": "string",
+                                        "example": "Jane Smith"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1234567890"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "123 Main St"
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "New York"
+                                    },
+                                    "country": {
+                                        "type": "string",
+                                        "example": "USA"
+                                    },
+                                    "vat_number": {
+                                        "type": "string",
+                                        "example": "VAT123456"
+                                    },
+                                    "cr_number": {
+                                        "type": "string",
+                                        "example": "CR123456"
+                                    },
+                                    "notes": {
+                                        "type": "string",
+                                        "example": "Important client"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User registered successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "client_type": {
+                                                            "type": "string",
+                                                            "example": "individual"
+                                                        },
+                                                        "full_name": {
+                                                            "type": "string",
+                                                            "example": "John Doe"
+                                                        },
+                                                        "company_name": {
+                                                            "type": "string",
+                                                            "nullable": true
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "example": "john@example.com"
+                                                        },
+                                                        "phone": {
+                                                            "type": "string",
+                                                            "example": "+1234567890"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "1|abc123..."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation failed"
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "email": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The email field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/auth/login": {
             "post": {
                 "tags": [
-                    "Auth"
+                    "Authentication"
                 ],
-                "summary": "Login",
-                "operationId": "ad27a6e269d4ea300c98d872a8b3c53c",
+                "summary": "Login user",
+                "description": "Authenticate user with email and password",
+                "operationId": "login",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -32,12 +219,12 @@
                                     "email": {
                                         "type": "string",
                                         "format": "email",
-                                        "example": "user@example.com"
+                                        "example": "john@example.com"
                                     },
                                     "password": {
                                         "type": "string",
                                         "format": "password",
-                                        "example": "secret"
+                                        "example": "password123"
                                     }
                                 },
                                 "type": "object"
@@ -47,10 +234,937 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Successful login"
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login successful"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "client_type": {
+                                                            "type": "string",
+                                                            "example": "individual"
+                                                        },
+                                                        "full_name": {
+                                                            "type": "string",
+                                                            "example": "John Doe"
+                                                        },
+                                                        "company_name": {
+                                                            "type": "string",
+                                                            "nullable": true
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "example": "john@example.com"
+                                                        },
+                                                        "phone": {
+                                                            "type": "string",
+                                                            "example": "+1234567890"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "1|abc123..."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Invalid credentials"
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid credentials"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation failed"
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "email": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The email field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout user",
+                "description": "Logout the authenticated user and invalidate their token",
+                "operationId": "logout",
+                "responses": {
+                    "200": {
+                        "description": "Logged out successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/profile": {
+            "get": {
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Get user profile",
+                "description": "Get the authenticated user's profile information",
+                "operationId": "getProfile",
+                "responses": {
+                    "200": {
+                        "description": "User profile retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "client_type": {
+                                                            "type": "string",
+                                                            "example": "individual"
+                                                        },
+                                                        "full_name": {
+                                                            "type": "string",
+                                                            "example": "John Doe"
+                                                        },
+                                                        "company_name": {
+                                                            "type": "string",
+                                                            "nullable": true
+                                                        },
+                                                        "contact_person": {
+                                                            "type": "string",
+                                                            "nullable": true
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "example": "john@example.com"
+                                                        },
+                                                        "phone": {
+                                                            "type": "string",
+                                                            "example": "+1234567890"
+                                                        },
+                                                        "address": {
+                                                            "type": "string",
+                                                            "example": "123 Main St"
+                                                        },
+                                                        "city": {
+                                                            "type": "string",
+                                                            "example": "New York"
+                                                        },
+                                                        "country": {
+                                                            "type": "string",
+                                                            "example": "USA"
+                                                        },
+                                                        "vat_number": {
+                                                            "type": "string",
+                                                            "nullable": true
+                                                        },
+                                                        "cr_number": {
+                                                            "type": "string",
+                                                            "nullable": true
+                                                        },
+                                                        "notes": {
+                                                            "type": "string",
+                                                            "nullable": true
+                                                        },
+                                                        "created_at": {
+                                                            "type": "string",
+                                                            "format": "date-time",
+                                                            "example": "2024-01-01T00:00:00.000000Z"
+                                                        },
+                                                        "cr_document_url": {
+                                                            "type": "string",
+                                                            "nullable": true
+                                                        },
+                                                        "vat_document_url": {
+                                                            "type": "string",
+                                                            "nullable": true
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/categories": {
+            "get": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Get all active categories",
+                "description": "Retrieve a paginated list of active categories with optional search",
+                "operationId": "getCategories",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search categories by name (English or Arabic)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "business"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Number of items per page (default: 15, max: 100)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Categories retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Business Cards"
+                                                            },
+                                                            "name_ar": {
+                                                                "type": "string",
+                                                                "example": "بطاقات عمل"
+                                                            },
+                                                            "description": {
+                                                                "type": "string",
+                                                                "example": "Professional business cards for companies and individuals"
+                                                            },
+                                                            "description_ar": {
+                                                                "type": "string",
+                                                                "example": "بطاقات عمل احترافية للشركات والأفراد"
+                                                            },
+                                                            "image": {
+                                                                "type": "string",
+                                                                "nullable": true
+                                                            },
+                                                            "is_active": {
+                                                                "type": "boolean",
+                                                                "example": true
+                                                            },
+                                                            "sort_order": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "created_at": {
+                                                                "type": "string",
+                                                                "format": "date-time",
+                                                                "example": "2025-08-24T01:43:15.000000Z"
+                                                            },
+                                                            "updated_at": {
+                                                                "type": "string",
+                                                                "format": "date-time",
+                                                                "example": "2025-08-24T01:43:15.000000Z"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 15
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "from": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "to": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/categories/{category}": {
+            "get": {
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Get a specific category",
+                "description": "Retrieve detailed information about a specific category",
+                "operationId": "getCategory",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "description": "Category ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Category retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Business Cards"
+                                                },
+                                                "name_ar": {
+                                                    "type": "string",
+                                                    "example": "بطاقات عمل"
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "example": "Professional business cards for companies and individuals"
+                                                },
+                                                "description_ar": {
+                                                    "type": "string",
+                                                    "example": "بطاقات عمل احترافية للشركات والأفراد"
+                                                },
+                                                "image": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                },
+                                                "is_active": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "sort_order": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2025-08-24T01:43:15.000000Z"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2025-08-24T01:43:15.000000Z"
+                                                },
+                                                "products": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Standard Business Cards"
+                                                            },
+                                                            "name_ar": {
+                                                                "type": "string",
+                                                                "example": "بطاقات عمل قياسية"
+                                                            },
+                                                            "base_price": {
+                                                                "type": "string",
+                                                                "example": "50.00"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Category not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Category not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/products": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Get all active products",
+                "description": "Retrieve a paginated list of active products with optional filtering and search",
+                "operationId": "getProducts",
+                "parameters": [
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "Filter products by category ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search products by name (English or Arabic)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "business"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Number of items per page (default: 15, max: 100)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Products retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "category_id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Standard Business Cards"
+                                                            },
+                                                            "name_ar": {
+                                                                "type": "string",
+                                                                "example": "بطاقات عمل قياسية"
+                                                            },
+                                                            "description": {
+                                                                "type": "string",
+                                                                "example": "Professional business cards with various customization options"
+                                                            },
+                                                            "description_ar": {
+                                                                "type": "string",
+                                                                "example": "بطاقات عمل احترافية مع خيارات تخصيص متنوعة"
+                                                            },
+                                                            "image": {
+                                                                "type": "string",
+                                                                "nullable": true
+                                                            },
+                                                            "base_price": {
+                                                                "type": "string",
+                                                                "example": "50.00"
+                                                            },
+                                                            "is_active": {
+                                                                "type": "boolean",
+                                                                "example": true
+                                                            },
+                                                            "sort_order": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "specifications": {
+                                                                "type": "string",
+                                                                "nullable": true
+                                                            },
+                                                            "category": {
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer",
+                                                                        "example": 1
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string",
+                                                                        "example": "Business Cards"
+                                                                    },
+                                                                    "name_ar": {
+                                                                        "type": "string",
+                                                                        "example": "بطاقات عمل"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "options": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        },
+                                                                        "name": {
+                                                                            "type": "string",
+                                                                            "example": "Paper Size"
+                                                                        },
+                                                                        "name_ar": {
+                                                                            "type": "string",
+                                                                            "example": "حجم الورق"
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string",
+                                                                            "example": "select"
+                                                                        },
+                                                                        "is_required": {
+                                                                            "type": "boolean",
+                                                                            "example": true
+                                                                        },
+                                                                        "values": {
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "properties": {
+                                                                                    "id": {
+                                                                                        "type": "integer",
+                                                                                        "example": 1
+                                                                                    },
+                                                                                    "value": {
+                                                                                        "type": "string",
+                                                                                        "example": "Standard (85x55mm)"
+                                                                                    },
+                                                                                    "value_ar": {
+                                                                                        "type": "string",
+                                                                                        "example": "قياسي (85x55مم)"
+                                                                                    },
+                                                                                    "price_adjustment": {
+                                                                                        "type": "string",
+                                                                                        "example": "0.00"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 15
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 30
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "from": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "to": {
+                                                    "type": "integer",
+                                                    "example": 15
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/products/{product}": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Get a specific product",
+                "description": "Retrieve detailed information about a specific product including its options and values",
+                "operationId": "getProduct",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Product retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "category_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Standard Business Cards"
+                                                },
+                                                "name_ar": {
+                                                    "type": "string",
+                                                    "example": "بطاقات عمل قياسية"
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "example": "Professional business cards with various customization options"
+                                                },
+                                                "description_ar": {
+                                                    "type": "string",
+                                                    "example": "بطاقات عمل احترافية مع خيارات تخصيص متنوعة"
+                                                },
+                                                "image": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                },
+                                                "base_price": {
+                                                    "type": "string",
+                                                    "example": "50.00"
+                                                },
+                                                "is_active": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "sort_order": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "specifications": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2025-08-24T01:43:15.000000Z"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2025-08-24T01:43:15.000000Z"
+                                                },
+                                                "category": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Business Cards"
+                                                        },
+                                                        "name_ar": {
+                                                            "type": "string",
+                                                            "example": "بطاقات عمل"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "options": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Paper Size"
+                                                            },
+                                                            "name_ar": {
+                                                                "type": "string",
+                                                                "example": "حجم الورق"
+                                                            },
+                                                            "type": {
+                                                                "type": "string",
+                                                                "example": "select"
+                                                            },
+                                                            "is_required": {
+                                                                "type": "boolean",
+                                                                "example": true
+                                                            },
+                                                            "values": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        },
+                                                                        "value": {
+                                                                            "type": "string",
+                                                                            "example": "Standard (85x55mm)"
+                                                                        },
+                                                                        "value_ar": {
+                                                                            "type": "string",
+                                                                            "example": "قياسي (85x55مم)"
+                                                                        },
+                                                                        "price_adjustment": {
+                                                                            "type": "string",
+                                                                            "example": "0.00"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Product not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Product not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -60,15 +1174,38 @@
         "securitySchemes": {
             "bearerAuth": {
                 "type": "http",
-                "bearerFormat": "Token",
+                "bearerFormat": "JWT",
                 "scheme": "bearer"
+            },
+            "sanctum": {
+                "type": "apiKey",
+                "description": "Enter token in format (Bearer <token>)",
+                "name": "Authorization",
+                "in": "header"
             }
         }
     },
     "tags": [
         {
-            "name": "Auth",
-            "description": "Authentication endpoints"
+            "name": "Authentication",
+            "description": "Authentication"
+        },
+        {
+            "name": "User Profile",
+            "description": "User Profile"
+        },
+        {
+            "name": "Categories",
+            "description": "Categories"
+        },
+        {
+            "name": "Products",
+            "description": "Products"
+        }
+    ],
+    "security": [
+        {
+            "sanctum": []
         }
     ]
 }

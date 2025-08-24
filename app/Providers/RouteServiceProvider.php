@@ -35,6 +35,9 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
+
+            // Swagger documentation routes (no middleware)
+            Route::group([], base_path('routes/swagger.php'));
         });
     }
 }

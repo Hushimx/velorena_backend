@@ -7,7 +7,6 @@ use App\Http\Controllers\Api\OtpController;
 use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ProductController;
-use App\Http\Controllers\Api\ProductOptionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +21,44 @@ use App\Http\Controllers\Api\ProductOptionController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+// Test route
+Route::get('/test', function () {
+    return response()->json(['message' => 'API route working', 'timestamp' => now()]);
+});
+
+// Swagger documentation routes
+Route::get('/documentation', function () {
+    try {
+        // Check if documentation file exists
+        $docPath = storage_path('api-docs/api-docs.json');
+        if (!file_exists($docPath)) {
+            return response()->json([
+                'error' => 'API documentation not found. Please run: php artisan l5-swagger:generate'
+            ], 404);
+        }
+
+        // Serve the HTML file directly
+        return response()->file(public_path('swagger-ui.html'));
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Failed to load API documentation: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+Route::get('/documentation/json', function () {
+    $docPath = storage_path('api-docs/api-docs.json');
+    if (!file_exists($docPath)) {
+        return response()->json([
+            'error' => 'API documentation not found. Please run: php artisan l5-swagger:generate'
+        ], 404);
+    }
+    
+    return response()->file($docPath, [
+        'Content-Type' => 'application/json'
+    ]);
 });
 
 // Public routes
@@ -45,7 +82,6 @@ Route::prefix('categories')->group(function () {
 Route::prefix('products')->group(function () {
     Route::get('/', [ProductController::class, 'index']);
     Route::get('/{product}', [ProductController::class, 'show']);
-    Route::get('/{product}/options', [ProductOptionController::class, 'index']);
 });
 
 // Protected routes
@@ -57,34 +93,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/documents/upload', [DocumentController::class, 'uploadDocument']);
     Route::delete('/documents/delete', [DocumentController::class, 'deleteDocument']);
     Route::get('/documents/info', [DocumentController::class, 'getDocumentInfo']);
-    
-    // Admin/Designer routes for managing categories and products
-    Route::prefix('admin')->group(function () {
-        // Categories management
-        Route::prefix('categories')->group(function () {
-            Route::post('/', [CategoryController::class, 'store']);
-            Route::put('/{category}', [CategoryController::class, 'update']);
-            Route::delete('/{category}', [CategoryController::class, 'destroy']);
-        });
-        
-        // Products management
-        Route::prefix('products')->group(function () {
-            Route::post('/', [ProductController::class, 'store']);
-            Route::put('/{product}', [ProductController::class, 'update']);
-            Route::delete('/{product}', [ProductController::class, 'destroy']);
-            
-            // Product options management
-            Route::prefix('{product}/options')->group(function () {
-                Route::post('/', [ProductOptionController::class, 'store']);
-                Route::get('/{option}', [ProductOptionController::class, 'show']);
-                Route::put('/{option}', [ProductOptionController::class, 'update']);
-                Route::delete('/{option}', [ProductOptionController::class, 'destroy']);
-                
-                // Option values management
-                Route::post('/{option}/values', [ProductOptionController::class, 'addValue']);
-                Route::put('/{option}/values/{value}', [ProductOptionController::class, 'updateValue']);
-                Route::delete('/{option}/values/{value}', [ProductOptionController::class, 'removeValue']);
-            });
-        });
-    });
 });
