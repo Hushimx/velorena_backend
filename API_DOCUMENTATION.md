@@ -139,6 +139,18 @@ Authorization: Bearer {token}
 - `is_active` (boolean, optional): Filter by active status
 - `search` (string, optional): Search by name (English or Arabic)
 
+**Examples:**
+```bash
+# Get all products with options
+GET /api/products
+
+# Get products in a specific category
+GET /api/products?category_id=1
+
+# Search for products
+GET /api/products?search=business
+```
+
 **Response:**
 ```json
 {
@@ -286,152 +298,7 @@ Authorization: Bearer {token}
 
 ---
 
-## Product Options API
 
-### Get Product Options
-**GET** `/products/{product_id}/options`
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "product_id": 1,
-      "name": "Paper Size",
-      "name_ar": "حجم الورق",
-      "type": "select",
-      "is_required": true,
-      "is_active": true,
-      "sort_order": 1,
-      "additional_data": null,
-      "values": [
-        {
-          "id": 1,
-          "product_option_id": 1,
-          "value": "Standard (85x55mm)",
-          "value_ar": "قياسي (85x55مم)",
-          "price_adjustment": "0.00",
-          "is_active": true,
-          "sort_order": 1
-        }
-      ]
-    }
-  ]
-}
-```
-
-### Create Product Option (Admin/Designer)
-**POST** `/admin/products/{product_id}/options`
-
-**Headers:**
-```
-Authorization: Bearer {token}
-Content-Type: application/json
-```
-
-**Request Body:**
-```json
-{
-  "name": "Paper Type",
-  "name_ar": "نوع الورق",
-  "type": "select",
-  "is_required": true,
-  "is_active": true,
-  "sort_order": 2,
-  "additional_data": {
-    "min_selections": 1,
-    "max_selections": 1
-  },
-  "values": [
-    {
-      "value": "Glossy",
-      "value_ar": "لامع",
-      "price_adjustment": 0.00,
-      "is_active": true,
-      "sort_order": 1
-    },
-    {
-      "value": "Matte",
-      "value_ar": "مطفي",
-      "price_adjustment": 10.00,
-      "is_active": true,
-      "sort_order": 2
-    }
-  ]
-}
-```
-
-### Update Product Option (Admin/Designer)
-**PUT** `/admin/products/{product_id}/options/{option_id}`
-
-**Headers:**
-```
-Authorization: Bearer {token}
-Content-Type: application/json
-```
-
-**Request Body:**
-```json
-{
-  "name": "Updated Option Name",
-  "is_required": false
-}
-```
-
-### Delete Product Option (Admin/Designer)
-**DELETE** `/admin/products/{product_id}/options/{option_id}`
-
-**Headers:**
-```
-Authorization: Bearer {token}
-```
-
-### Add Option Value (Admin/Designer)
-**POST** `/admin/products/{product_id}/options/{option_id}/values`
-
-**Headers:**
-```
-Authorization: Bearer {token}
-Content-Type: application/json
-```
-
-**Request Body:**
-```json
-{
-  "value": "Premium Paper",
-  "value_ar": "ورق مميز",
-  "price_adjustment": 25.00,
-  "is_active": true,
-  "sort_order": 3
-}
-```
-
-### Update Option Value (Admin/Designer)
-**PUT** `/admin/products/{product_id}/options/{option_id}/values/{value_id}`
-
-**Headers:**
-```
-Authorization: Bearer {token}
-Content-Type: application/json
-```
-
-**Request Body:**
-```json
-{
-  "value": "Updated Value",
-  "price_adjustment": 30.00
-}
-```
-
-### Delete Option Value (Admin/Designer)
-**DELETE** `/admin/products/{product_id}/options/{option_id}/values/{value_id}`
-
-**Headers:**
-```
-Authorization: Bearer {token}
-```
 
 ---
 
@@ -444,6 +311,35 @@ The system supports the following option types:
 3. **checkbox** - Checkbox selection (multiple choices)
 4. **text** - Text input field
 5. **number** - Numeric input field
+
+---
+
+## API Design Best Practices
+
+### Simple and Clean Approach
+
+**✅ Current Implementation:**
+- **Always include options** - Products always come with their customization options
+- **Single API call** - No need for additional requests
+- **Better user experience** - All data available immediately
+- **Simpler frontend integration** - No complex state management
+
+### Why This Works for Printing Industry
+
+1. **Essential Data** - Options are crucial for product selection
+2. **Manageable Size** - Printing products typically have 3-10 options
+3. **Better UX** - Users see all customization choices immediately
+4. **Simpler Code** - No need to manage separate API calls
+
+### Response Structure
+
+**Product with options:** ~2-5KB (depending on number of options)
+
+**Perfect for:**
+- Product detail pages
+- Product catalogs
+- Mobile applications
+- Admin dashboards
 
 ---
 
@@ -507,9 +403,19 @@ You can test the API using tools like:
 curl -X GET "http://localhost:8000/api/categories"
 ```
 
+**Get all products (with options):**
+```bash
+curl -X GET "http://localhost:8000/api/products"
+```
+
 **Get products in a category:**
 ```bash
 curl -X GET "http://localhost:8000/api/products?category_id=1"
+```
+
+**Get a specific product (with options):**
+```bash
+curl -X GET "http://localhost:8000/api/products/1"
 ```
 
 **Create a new category (requires authentication):**

@@ -32,13 +32,6 @@ class CategoryController extends Controller
      *         required=false,
      *         @OA\Schema(type="integer", example=1)
      *     ),
-     *     @OA\Parameter(
-     *         name="limit",
-     *         in="query",
-     *         description="Number of items per page (default: 15, max: 100)",
-     *         required=false,
-     *         @OA\Schema(type="integer", example=15)
-     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Categories retrieved successfully",
@@ -88,11 +81,7 @@ class CategoryController extends Controller
             });
         }
 
-        // Get limit parameter with validation
-        $limit = $request->get('limit', 15);
-        $limit = min(max((int) $limit, 1), 100); // Ensure limit is between 1 and 100
-
-        $categories = $query->orderBy('sort_order')->orderBy('name')->paginate($limit);
+        $categories = $query->orderBy('sort_order')->orderBy('name')->paginate(15);
 
         return response()->json([
             'success' => true,

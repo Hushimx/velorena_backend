@@ -39,13 +39,6 @@ class ProductController extends Controller
      *         required=false,
      *         @OA\Schema(type="integer", example=1)
      *     ),
-     *     @OA\Parameter(
-     *         name="limit",
-     *         in="query",
-     *         description="Number of items per page (default: 15, max: 100)",
-     *         required=false,
-     *         @OA\Schema(type="integer", example=15)
-     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Products retrieved successfully",
@@ -131,14 +124,10 @@ class ProductController extends Controller
             });
         }
 
-        // Get limit parameter with validation
-        $limit = $request->get('limit', 15);
-        $limit = min(max((int) $limit, 1), 100); // Ensure limit is between 1 and 100
-
         $products = $query->with(['category', 'options.values'])
             ->orderBy('sort_order')
             ->orderBy('name')
-            ->paginate($limit);
+            ->paginate(15);
 
         return response()->json([
             'success' => true,

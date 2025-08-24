@@ -9,6 +9,28 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * @OA\Info(
+ *     version="1.0.0",
+ *     title="Velorena API Documentation",
+ *     description="API documentation for Velorena Backend - Authentication and User Management",
+ *     @OA\Contact(
+ *         email="admin@velorena.com"
+ *     )
+ * )
+ * 
+ * @OA\Server(
+ *     url=L5_SWAGGER_CONST_HOST,
+ *     description="API Server"
+ * )
+ * 
+ * @OA\SecurityScheme(
+ *     securityScheme="bearerAuth",
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="JWT"
+ * )
+ */
 class AuthController extends Controller
 {
     public function __construct()
@@ -19,46 +41,69 @@ class AuthController extends Controller
     /**
      * Register a new user
      * 
-     * @group Authentication
-     * 
-     * @bodyParam client_type string required The type of client (individual or company). Example: individual
-     * @bodyParam full_name string required The full name of the user (required for individual clients). Example: John Doe
-     * @bodyParam company_name string required The company name (required for company clients). Example: Acme Corp
-     * @bodyParam contact_person string required The contact person name (required for company clients). Example: Jane Smith
-     * @bodyParam email string required The email address. Example: john@example.com
-     * @bodyParam phone string The phone number. Example: +1234567890
-     * @bodyParam address string The address. Example: 123 Main St
-     * @bodyParam city string The city. Example: New York
-     * @bodyParam country string The country. Example: USA
-     * @bodyParam vat_number string The VAT number. Example: VAT123456
-     * @bodyParam cr_number string The CR number. Example: CR123456
-     * @bodyParam notes string Additional notes. Example: Important client
-     * @bodyParam password string required The password (minimum 8 characters). Example: password123
-     * @bodyParam password_confirmation string required Password confirmation. Example: password123
-     * 
-     * @response 201 {
-     *   "success": true,
-     *   "message": "User registered successfully",
-     *   "data": {
-     *     "user": {
-     *       "id": 1,
-     *       "client_type": "individual",
-     *       "full_name": "John Doe",
-     *       "company_name": null,
-     *       "email": "john@example.com",
-     *       "phone": "+1234567890"
-     *     },
-     *     "token": "1|abc123..."
-     *   }
-     * }
-     * 
-     * @response 422 {
-     *   "success": false,
-     *   "message": "Validation failed",
-     *   "errors": {
-     *     "email": ["The email field is required."]
-     *   }
-     * }
+     * @OA\Post(
+     *     path="/api/auth/register",
+     *     operationId="register",
+     *     tags={"Authentication"},
+     *     summary="Register a new user",
+     *     description="Register a new user with the provided information",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"client_type","email","password","password_confirmation"},
+     *             @OA\Property(property="client_type", type="string", enum={"individual","company"}, example="individual"),
+     *             @OA\Property(property="full_name", type="string", example="John Doe"),
+     *             @OA\Property(property="company_name", type="string", example="Acme Corp"),
+     *             @OA\Property(property="contact_person", type="string", example="Jane Smith"),
+     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *             @OA\Property(property="phone", type="string", example="+1234567890"),
+     *             @OA\Property(property="address", type="string", example="123 Main St"),
+     *             @OA\Property(property="city", type="string", example="New York"),
+     *             @OA\Property(property="country", type="string", example="USA"),
+     *             @OA\Property(property="vat_number", type="string", example="VAT123456"),
+     *             @OA\Property(property="cr_number", type="string", example="CR123456"),
+     *             @OA\Property(property="notes", type="string", example="Important client"),
+     *             @OA\Property(property="password", type="string", format="password", example="password123"),
+     *             @OA\Property(property="password_confirmation", type="string", format="password", example="password123")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="User registered successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="User registered successfully"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="user",
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="client_type", type="string", example="individual"),
+     *                     @OA\Property(property="full_name", type="string", example="John Doe"),
+     *                     @OA\Property(property="company_name", type="string", nullable=true),
+     *                     @OA\Property(property="email", type="string", example="john@example.com"),
+     *                     @OA\Property(property="phone", type="string", example="+1234567890")
+     *                 ),
+     *                 @OA\Property(property="token", type="string", example="1|abc123...")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation failed",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(property="email", type="array", @OA\Items(type="string", example="The email field is required."))
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function register(Request $request)
     {
@@ -114,39 +159,65 @@ class AuthController extends Controller
     /**
      * Login user
      * 
-     * @group Authentication
-     * 
-     * @bodyParam email string required The email address. Example: john@example.com
-     * @bodyParam password string required The password. Example: password123
-     * 
-     * @response 200 {
-     *   "success": true,
-     *   "message": "Login successful",
-     *   "data": {
-     *     "user": {
-     *       "id": 1,
-     *       "client_type": "individual",
-     *       "full_name": "John Doe",
-     *       "company_name": null,
-     *       "email": "john@example.com",
-     *       "phone": "+1234567890"
-     *     },
-     *     "token": "1|abc123..."
-     *   }
-     * }
-     * 
-     * @response 401 {
-     *   "success": false,
-     *   "message": "Invalid credentials"
-     * }
-     * 
-     * @response 422 {
-     *   "success": false,
-     *   "message": "Validation failed",
-     *   "errors": {
-     *     "email": ["The email field is required."]
-     *   }
-     * }
+     * @OA\Post(
+     *     path="/api/auth/login",
+     *     operationId="login",
+     *     tags={"Authentication"},
+     *     summary="Login user",
+     *     description="Authenticate user with email and password",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email","password"},
+     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="password123")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login successful",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Login successful"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="user",
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="client_type", type="string", example="individual"),
+     *                     @OA\Property(property="full_name", type="string", example="John Doe"),
+     *                     @OA\Property(property="company_name", type="string", nullable=true),
+     *                     @OA\Property(property="email", type="string", example="john@example.com"),
+     *                     @OA\Property(property="phone", type="string", example="+1234567890")
+     *                 ),
+     *                 @OA\Property(property="token", type="string", example="1|abc123...")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Invalid credentials",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Invalid credentials")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation failed",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(property="email", type="array", @OA\Items(type="string", example="The email field is required."))
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function login(Request $request)
     {
@@ -197,13 +268,22 @@ class AuthController extends Controller
     /**
      * Logout user
      * 
-     * @group Authentication
-     * @authenticated
-     * 
-     * @response 200 {
-     *   "success": true,
-     *   "message": "Logged out successfully"
-     * }
+     * @OA\Post(
+     *     path="/api/auth/logout",
+     *     operationId="logout",
+     *     tags={"Authentication"},
+     *     summary="Logout user",
+     *     description="Logout the authenticated user and invalidate their token",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Logged out successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Logged out successfully")
+     *         )
+     *     )
+     * )
      */
     public function logout(Request $request)
     {
@@ -227,32 +307,45 @@ class AuthController extends Controller
     /**
      * Get user profile
      * 
-     * @group User Profile
-     * @authenticated
-     * 
-     * @response 200 {
-     *   "success": true,
-     *   "data": {
-     *     "user": {
-     *       "id": 1,
-     *       "client_type": "individual",
-     *       "full_name": "John Doe",
-     *       "company_name": null,
-     *       "contact_person": null,
-     *       "email": "john@example.com",
-     *       "phone": "+1234567890",
-     *       "address": "123 Main St",
-     *       "city": "New York",
-     *       "country": "USA",
-     *       "vat_number": null,
-     *       "cr_number": null,
-     *       "notes": null,
-     *       "created_at": "2024-01-01T00:00:00.000000Z",
-     *       "cr_document_url": null,
-     *       "vat_document_url": null
-     *     }
-     *   }
-     * }
+     * @OA\Get(
+     *     path="/api/profile",
+     *     operationId="getProfile",
+     *     tags={"User Profile"},
+     *     summary="Get user profile",
+     *     description="Get the authenticated user's profile information",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="User profile retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="user",
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="client_type", type="string", example="individual"),
+     *                     @OA\Property(property="full_name", type="string", example="John Doe"),
+     *                     @OA\Property(property="company_name", type="string", nullable=true),
+     *                     @OA\Property(property="contact_person", type="string", nullable=true),
+     *                     @OA\Property(property="email", type="string", example="john@example.com"),
+     *                     @OA\Property(property="phone", type="string", example="+1234567890"),
+     *                     @OA\Property(property="address", type="string", example="123 Main St"),
+     *                     @OA\Property(property="city", type="string", example="New York"),
+     *                     @OA\Property(property="country", type="string", example="USA"),
+     *                     @OA\Property(property="vat_number", type="string", nullable=true),
+     *                     @OA\Property(property="cr_number", type="string", nullable=true),
+     *                     @OA\Property(property="notes", type="string", nullable=true),
+     *                     @OA\Property(property="created_at", type="string", format="date-time", example="2024-01-01T00:00:00.000000Z"),
+     *                     @OA\Property(property="cr_document_url", type="string", nullable=true),
+     *                     @OA\Property(property="vat_document_url", type="string", nullable=true)
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function profile(Request $request)
     {

@@ -7,6 +7,23 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+# Velorena Backend
+
+A Laravel-based backend API for the Velorena printing company management system.
+
+## API Documentation
+
+The API documentation is available at:
+- **Swagger UI**: `/api/documentation`
+- **Alternative route**: `/docs` (redirects to Swagger UI)
+
+The documentation is generated using L5-Swagger and includes:
+- Authentication endpoints (register, login, logout)
+- User profile management
+- Product and category management
+- Order management
+- Appointment booking
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
