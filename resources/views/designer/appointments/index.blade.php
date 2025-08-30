@@ -202,7 +202,7 @@
                                     </h6>
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <p class="mb-1 fw-semibold">{{ $appointment->user->name }}</p>
+                                            <p class="mb-1 fw-semibold">{{ $appointment->user->full_name }}</p>
                                             <p class="mb-0 small text-muted">{{ $appointment->user->email }}</p>
                                         </div>
                                         <div class="col-md-6">

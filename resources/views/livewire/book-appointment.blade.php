@@ -5,8 +5,8 @@
             <form wire:submit.prevent="bookAppointment">
                 <!-- Step 1: Date Selection -->
                 <div class="mb-6">
-                    <div class="flex items-center mb-4">
-                        <div class="bg-blue-100 rounded-full p-3 mr-4">
+                    <div class="flex items-center mb-4 gap-3">
+                        <div class="bg-blue-100 rounded-full p-3">
                             <i class="fas fa-calendar text-blue-600 text-lg"></i>
                         </div>
                         <div>
@@ -35,7 +35,7 @@
                             <div class="flex items-end">
                                 <small class="text-gray-500">
                                     {{ trans('dashboard.available_dates', ['default' => 'Available dates']) }}:
-                                    {{ \Carbon\Carbon::parse($this->minDate)->format('M j, Y') }} to
+                                    {{ \Carbon\Carbon::parse($this->minDate)->format('M j, Y g:i A') }} to
                                     {{ \Carbon\Carbon::parse($this->maxDate)->format('M j, Y') }}
                                 </small>
                             </div>
@@ -46,10 +46,10 @@
 
 
                 <!-- Step 3: Notes -->
-                @if ($selectedDate && $selectedTime)
+                @if ($selectedDate)
                     <div class="mb-6">
-                        <div class="flex items-center mb-4">
-                            <div class="bg-blue-100 rounded-full p-3 mr-4">
+                        <div class="flex items-center mb-4 gap-3">
+                            <div class="bg-blue-100 rounded-full p-3">
                                 <i class="fas fa-edit text-blue-600 text-lg"></i>
                             </div>
                             <div>
@@ -80,7 +80,7 @@
                 @endif
 
                 <!-- Appointment Summary -->
-                @if ($selectedDate && $selectedTime)
+                @if ($selectedDate)
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
                         <h5 class="font-semibold text-gray-900 mb-4 flex items-center">
                             <i class="fas fa-check-circle text-green-600 mr-2"></i>
@@ -119,8 +119,8 @@
                                     <small
                                         class="text-gray-500 text-sm">{{ trans('dashboard.time', ['default' => 'Time']) }}</small>
                                     <p class="font-semibold text-gray-900">
-                                        {{ \Carbon\Carbon::parse($selectedTime)->format('g:i A') }} -
-                                        {{ \Carbon\Carbon::parse($selectedTime)->addMinutes(15)->format('g:i A') }}
+                                        {{ \Carbon\Carbon::parse($selectedDate)->format('g:i A') }} -
+                                        {{ \Carbon\Carbon::parse($selectedDate)->addMinutes(15)->format('g:i A') }}
                                     </p>
                                 </div>
                             </div>
@@ -141,7 +141,7 @@
                 @endif
 
                 <!-- Submit Button -->
-                @if ($selectedDate && $selectedTime)
+                @if ($selectedDate)
                     <div class="text-center">
                         <button type="submit" wire:loading.attr="disabled" wire:target="bookAppointment"
                             class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white px-8 py-3 rounded-lg inline-flex items-center transition-colors duration-200 text-lg font-medium">

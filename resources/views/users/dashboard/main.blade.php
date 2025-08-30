@@ -6,25 +6,25 @@
 @section('content')
     <div class="space-y-6">
         <!-- Header -->
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-center gap-3">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">{{ trans('dashboard.welcome_back') }}, {{ Auth::user()->name }}!
                 </h1>
                 <p class="text-gray-600">{{ trans('dashboard.whats_happening') }}</p>
             </div>
-            <div class="flex space-x-3">
+            <div class="flex gap-3">
                 <a href="{{ route('user.products.index') }}"
-                    class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                    class="bg-purple-600 gap-2 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
                     <i class="fas fa-box"></i>
                     <span>{{ trans('dashboard.view_products') }}</span>
                 </a>
                 <a href="{{ route('appointments.create') }}"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                    class="bg-blue-600 gap-2 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
                     <i class="fas fa-calendar-plus"></i>
                     <span>{{ trans('dashboard.book_new_appointment') }}</span>
                 </a>
                 <a href="{{ route('appointments.index') }}"
-                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                    class="bg-green-600 gap-2 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
                     <i class="fas fa-calendar-alt"></i>
                     <span>{{ trans('dashboard.view_all_appointments') }}</span>
                 </a>
@@ -45,11 +45,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- Total Appointments -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div class="flex items-center">
+                <div class="flex items-center gap-3">
                     <div class="p-3 rounded-full bg-blue-100 text-blue-600">
                         <i class="fas fa-calendar-alt text-xl"></i>
                     </div>
-                    <div class="ml-4">
+                    <div>
                         <p class="text-sm font-medium text-gray-500">{{ trans('dashboard.total_appointments') }}</p>
                         <p class="text-2xl font-semibold text-gray-900">
                             <a href="{{ route('appointments.index') }}" class="hover:text-blue-600 transition-colors">
@@ -62,11 +62,11 @@
 
             <!-- Pending Appointments -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div class="flex items-center">
+                <div class="flex items-center gap-3">
                     <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
                         <i class="fas fa-clock text-xl"></i>
                     </div>
-                    <div class="ml-4">
+                    <div>
                         <p class="text-sm font-medium text-gray-500">{{ trans('dashboard.pending') }}</p>
                         <p class="text-2xl font-semibold text-gray-900">
                             {{ \App\Models\Appointment::where('user_id', Auth::id())->where('status', 'pending')->count() }}
@@ -77,11 +77,11 @@
 
             <!-- Accepted Appointments -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div class="flex items-center">
+                <div class="flex items-center gap-3">
                     <div class="p-3 rounded-full bg-green-100 text-green-600">
                         <i class="fas fa-check-circle text-xl"></i>
                     </div>
-                    <div class="ml-4">
+                    <div>
                         <p class="text-sm font-medium text-gray-500">{{ trans('dashboard.confirmed') }}</p>
                         <p class="text-2xl font-semibold text-gray-900">
                             {{ \App\Models\Appointment::where('user_id', Auth::id())->where('status', 'accepted')->count() }}
@@ -92,11 +92,11 @@
 
             <!-- Completed Appointments -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div class="flex items-center">
+                <div class="flex items-center gap-3">
                     <div class="p-3 rounded-full bg-purple-100 text-purple-600">
                         <i class="fas fa-check-double text-xl"></i>
                     </div>
-                    <div class="ml-4">
+                    <div>
                         <p class="text-sm font-medium text-gray-500">{{ trans('dashboard.completed') }}</p>
                         <p class="text-2xl font-semibold text-gray-900">
                             {{ \App\Models\Appointment::where('user_id', Auth::id())->where('status', 'completed')->count() }}
@@ -107,11 +107,11 @@
 
             <!-- Available Products -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div class="flex items-center">
+                <div class="flex items-center gap-3">
                     <div class="p-3 rounded-full bg-orange-100 text-orange-600">
                         <i class="fas fa-box text-xl"></i>
                     </div>
-                    <div class="ml-4">
+                    <div>
                         <p class="text-sm font-medium text-gray-500">{{ trans('dashboard.available_products') }}</p>
                         <p class="text-2xl font-semibold text-gray-900">
                             <a href="{{ route('user.products.index') }}" class="hover:text-orange-600 transition-colors">
@@ -128,26 +128,26 @@
             <!-- Profile Information -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-3">
                         <i class="fas fa-user text-blue-600 mr-2"></i>
                         {{ trans('dashboard.profile_information') }}
                     </h3>
                 </div>
                 <div class="p-6">
                     <div class="space-y-4">
-                        <div class="flex justify-between items-center">
+                        <div class="flex justify-between items-center gap-3">
                             <span class="text-sm font-medium text-gray-500">{{ trans('users.full_name') }}</span>
                             <span class="text-sm text-gray-900">{{ Auth::user()->name }}</span>
                         </div>
-                        <div class="flex justify-between items-center">
+                        <div class="flex justify-between items-center gap-3">
                             <span class="text-sm font-medium text-gray-500">{{ trans('users.email') }}</span>
                             <span class="text-sm text-gray-900">{{ Auth::user()->email }}</span>
                         </div>
-                        <div class="flex justify-between items-center">
+                        <div class="flex justify-between items-center gap-3">
                             <span class="text-sm font-medium text-gray-500">{{ trans('dashboard.member_since') }}</span>
                             <span class="text-sm text-gray-900">{{ Auth::user()->created_at->format('M d, Y') }}</span>
                         </div>
-                        <div class="flex justify-between items-center">
+                        <div class="flex justify-between items-center gap-3">
                             <span class="text-sm font-medium text-gray-500">{{ trans('dashboard.last_updated') }}</span>
                             <span class="text-sm text-gray-900">{{ Auth::user()->updated_at->format('M d, Y') }}</span>
                         </div>
@@ -158,36 +158,36 @@
             <!-- Quick Actions -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-                        <i class="fas fa-bolt text-green-600 mr-2"></i>
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-3">
+                        <i class="fas fa-bolt text-green-600"></i>
                         {{ trans('dashboard.quick_actions') }}
                     </h3>
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-1 gap-3">
                         <a href="{{ route('user.products.index') }}"
-                            class="flex items-center p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
-                            <i class="fas fa-box text-purple-600 mr-3"></i>
+                            class="flex items-center gap-2 p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
+                            <i class="fas fa-box text-purple-600"></i>
                             <span class="font-medium text-purple-900">{{ trans('dashboard.browse_products') }}</span>
                         </a>
                         <a href="{{ route('appointments.create') }}"
-                            class="flex items-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
-                            <i class="fas fa-calendar-plus text-blue-600 mr-3"></i>
+                            class="flex items-center gap-2 p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                            <i class="fas fa-calendar-plus text-blue-600"></i>
                             <span class="font-medium text-blue-900">{{ trans('dashboard.book_new_appointment') }}</span>
                         </a>
                         <a href="{{ route('appointments.index') }}"
-                            class="flex items-center p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
-                            <i class="fas fa-calendar-alt text-green-600 mr-3"></i>
+                            class="flex items-center gap-2 p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
+                            <i class="fas fa-calendar-alt text-green-600"></i>
                             <span class="font-medium text-green-900">{{ trans('dashboard.view_all_appointments') }}</span>
                         </a>
                         <a href="{{ route('user.orders.index') }}"
-                            class="flex items-center p-3 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors">
-                            <i class="fas fa-shopping-cart text-orange-600 mr-3"></i>
+                            class="flex items-center gap-2 p-3 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors">
+                            <i class="fas fa-shopping-cart text-orange-600"></i>
                             <span class="font-medium text-orange-900">{{ trans('orders.my_orders') }}</span>
                         </a>
                         <a href="#"
-                            class="flex items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
-                            <i class="fas fa-user-edit text-gray-600 mr-3"></i>
+                            class="flex items-center gap-2 p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                            <i class="fas fa-user-edit text-gray-600"></i>
                             <span class="font-medium text-gray-900">{{ trans('dashboard.update_profile') }}</span>
                         </a>
                     </div>
@@ -198,8 +198,8 @@
         <!-- Recent Appointments -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-                    <i class="fas fa-history text-purple-600 mr-2"></i>
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-3">
+                    <i class="fas fa-history text-purple-600"></i>
                     {{ trans('dashboard.recent_appointments') }}
                 </h3>
                 <a href="{{ route('appointments.index') }}"
@@ -219,8 +219,8 @@
                     <div class="space-y-4">
                         @foreach ($recentAppointments as $appointment)
                             <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                                <div class="flex items-center">
-                                    <div class="p-2 rounded-full bg-blue-100 text-blue-600 mr-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-2 rounded-full bg-blue-100 text-blue-600">
                                         <i class="fas fa-calendar"></i>
                                     </div>
                                     <div>
@@ -228,7 +228,7 @@
                                         <p class="text-sm text-gray-500">{{ $appointment->formatted_time }}</p>
                                     </div>
                                 </div>
-                                <div class="flex items-center space-x-3">
+                                <div class="flex items-center gap-3">
                                     <span
                                         class="inline-flex px-2 py-1 text-xs font-medium rounded-full
                                 @if ($appointment->status === 'pending') bg-yellow-100 text-yellow-800

@@ -292,7 +292,7 @@
                 </a>
 
                 <a href="{{ route('appointments.index') }}"
-                    class="sidebar-link {{ request()->routeIs('appointments.*') ? 'active' : '' }}">
+                    class="sidebar-link {{ request()->routeIs('appointments.index') || request()->routeIs('appointments.show') ? 'active' : '' }}">
                     <i class="fas fa-calendar-alt"></i>
                     <span>{{ trans('sidebar.my_appointments') }}</span>
                 </a>
@@ -340,7 +340,7 @@
 
                     <h1 class="text-xl font-bold text-gray-800">@yield('title', trans('dashboard.dashboard'))</h1>
 
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center gap-3">
                         <!-- Quick Orders Access -->
                         <a href="{{ route('user.orders.index') }}"
                             class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">

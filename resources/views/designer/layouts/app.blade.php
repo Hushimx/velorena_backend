@@ -403,7 +403,7 @@
                                         {{ $current === 'ar' ? 'العربية' : 'English' }}
                                     </span>
                                 </button>
-                                <ul class="dropdown-menu">
+                                <ul class="dropdown-menu py-0">
                                     @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
                                         @php
                                             $url = LaravelLocalization::getLocalizedURL($localeCode, null, [], true);
@@ -428,7 +428,7 @@
                             </div>
 
                             <!-- Designer Profile -->
-                            <div class="d-flex align-items-center">
+                            <div class="d-flex align-items-center gap-2">
                                 <div class="me-3 text-end">
                                     <div class="profile-name">{{ Auth::guard('designer')->user()->name }}</div>
                                     <div class="profile-role">Designer</div>

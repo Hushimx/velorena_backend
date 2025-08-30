@@ -110,7 +110,7 @@
                                             <i class="fas fa-user text-primary"></i>
                                         </div>
                                         <div>
-                                            <h6 class="fw-semibold mb-1">{{ $appointment->user->name }}</h6>
+                                            <h6 class="fw-semibold mb-1">{{ $appointment->user->full_name }}</h6>
                                             <p class="text-muted small mb-0">{{ $appointment->formatted_date }} at
                                                 {{ $appointment->formatted_time }}</p>
                                         </div>
@@ -172,7 +172,7 @@
                                             <i class="fas fa-user text-success"></i>
                                         </div>
                                         <div>
-                                            <h6 class="fw-semibold mb-1">{{ $appointment->user->name }}</h6>
+                                            <h6 class="fw-semibold mb-1">{{ $appointment->user->full_name }}</h6>
                                             <p class="text-muted small mb-0">{{ $appointment->formatted_time }} -
                                                 {{ $appointment->formatted_end_time }}</p>
                                         </div>
@@ -225,7 +225,7 @@
                                         <i class="fas fa-user text-info"></i>
                                     </div>
                                     <div>
-                                        <h6 class="fw-semibold mb-1">{{ $appointment->user->name }}</h6>
+                                        <h6 class="fw-semibold mb-1">{{ $appointment->user->full_name }}</h6>
                                         <p class="text-muted small mb-1">{{ $appointment->formatted_date }} at
                                             {{ $appointment->formatted_time }}</p>
                                         <span class="badge bg-info">{{ ucfirst($appointment->status) }}</span>

@@ -135,6 +135,37 @@
                                 </div>
                             </div>
 
+                            <!-- Linked Orders -->
+                            @if ($appointment->orders && $appointment->orders->count() > 0)
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                                    <h6 class="font-medium text-green-800 mb-3 flex items-center gap-3">
+                                        <i class="fas fa-shopping-cart text-green-600"></i>
+                                        {{ trans('dashboard.linked_orders', ['default' => 'Linked Orders']) }}
+                                        ({{ $appointment->orders->count() }})
+                                    </h6>
+                                    <div class="space-y-2">
+                                        @foreach ($appointment->orders as $order)
+                                            <div class="flex justify-between items-center bg-white rounded p-2">
+                                                <div class="flex items-center space-x-3">
+                                                    <span
+                                                        class="font-medium text-gray-900">{{ $order->order_number }}</span>
+                                                    <span class="text-sm text-gray-500">{{ $order->items->count() }}
+                                                        {{ trans('dashboard.items', ['default' => 'items']) }}</span>
+                                                </div>
+                                                <div class="text-right">
+                                                    <span
+                                                        class="font-semibold text-green-600">${{ number_format($order->total, 2) }}</span>
+                                                    @if ($order->pivot->notes)
+                                                        <div class="text-xs text-gray-500 mt-1">
+                                                            {{ Str::limit($order->pivot->notes, 50) }}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
                             <!-- Notes -->
                             @if ($appointment->notes)
                                 <div class="bg-gray-50 rounded-lg p-4 mb-4">
