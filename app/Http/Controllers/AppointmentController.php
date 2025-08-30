@@ -36,10 +36,8 @@ class AppointmentController extends Controller
             'appointment_time' => 'required|date_format:H:i',
             'duration_minutes' => 'integer|min:15|max:480', // 15 minutes to 8 hours
             'notes' => 'nullable|string|max:1000',
-            'order_ids' => 'required|array|min:1',
-            'order_ids.*' => 'exists:orders,id',
-            'order_notes' => 'nullable|array',
-            'order_notes.*' => 'nullable|string|max:500'
+            'order_id' => 'required|exists:orders,id',
+            'order_notes' => 'nullable|string|max:500'
         ]);
 
         if ($validator->fails()) {
@@ -74,24 +72,13 @@ class AppointmentController extends Controller
                 'appointment_time' => $time,
                 'duration_minutes' => $duration,
                 'notes' => $request->notes,
+                'order_id' => $request->order_id,
+                'order_notes' => $request->order_notes,
                 'status' => $designerId ? 'pending' : 'pending'
             ]);
 
-            // Link orders to appointment
-            $orderIds = $request->order_ids;
-            $orderNotes = $request->order_notes ?? [];
-
-            $pivotData = [];
-            foreach ($orderIds as $index => $orderId) {
-                $pivotData[$orderId] = [
-                    'notes' => $orderNotes[$index] ?? null
-                ];
-            }
-
-            $appointment->orders()->attach($pivotData);
-
             // Load relationships for response
-            $appointment->load(['user', 'designer', 'orders.items.product']);
+            $appointment->load(['user', 'designer', 'order.items.product']);
 
             DB::commit();
 
@@ -100,7 +87,6 @@ class AppointmentController extends Controller
                 'message' => 'Appointment created successfully',
                 'data' => [
                     'appointment' => $appointment,
-                    'linked_orders_count' => count($orderIds),
                     'total_products' => $appointment->getTotalProductsCount(),
                     'total_value' => $appointment->getTotalOrderValue()
                 ]
@@ -121,7 +107,7 @@ class AppointmentController extends Controller
      */
     public function index()
     {
-        $appointments = Appointment::with(['designer', 'orders.items.product'])
+        $appointments = Appointment::with(['designer', 'order.items.product'])
             ->where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->paginate(10);
@@ -142,8 +128,8 @@ class AppointmentController extends Controller
         $appointment->load([
             'user:id,full_name,email,phone',
             'designer:id,name,email,phone',
-            'orders.items.product',
-            'orders.items.product.options.values'
+            'order.items.product',
+            'order.items.product.options.values'
         ]);
 
         // If it's an API request, return JSON
@@ -155,7 +141,7 @@ class AppointmentController extends Controller
                     'products_summary' => $appointment->getProductsSummary(),
                     'total_products_count' => $appointment->getTotalProductsCount(),
                     'total_order_value' => $appointment->getTotalOrderValue(),
-                    'linked_orders_count' => $appointment->orders->count()
+                    'has_order' => $appointment->hasOrder()
                 ]
             ]);
         }
@@ -198,10 +184,8 @@ class AppointmentController extends Controller
             'notes' => 'nullable|string|max:1000',
             'designer_notes' => 'nullable|string|max:1000',
             'status' => 'sometimes|in:pending,accepted,rejected,completed,cancelled',
-            'order_ids' => 'sometimes|array',
-            'order_ids.*' => 'exists:orders,id',
-            'order_notes' => 'nullable|array',
-            'order_notes.*' => 'nullable|string|max:500'
+            'order_id' => 'sometimes|exists:orders,id',
+            'order_notes' => 'nullable|string|max:500'
         ]);
 
         if ($validator->fails()) {
@@ -238,32 +222,13 @@ class AppointmentController extends Controller
                 'duration_minutes',
                 'notes',
                 'designer_notes',
-                'status'
+                'status',
+                'order_id',
+                'order_notes'
             ]));
 
-            // Update linked orders if provided
-            if ($request->has('order_ids')) {
-                // Remove existing links
-                $appointment->orders()->detach();
-
-                // Add new links
-                if (!empty($request->order_ids)) {
-                    $orderIds = $request->order_ids;
-                    $orderNotes = $request->order_notes ?? [];
-
-                    $pivotData = [];
-                    foreach ($orderIds as $index => $orderId) {
-                        $pivotData[$orderId] = [
-                            'notes' => $orderNotes[$index] ?? null
-                        ];
-                    }
-
-                    $appointment->orders()->attach($pivotData);
-                }
-            }
-
             // Load relationships for response
-            $appointment->load(['user', 'designer', 'orders.items.product']);
+            $appointment->load(['user', 'designer', 'order.items.product']);
 
             DB::commit();
 
@@ -272,7 +237,6 @@ class AppointmentController extends Controller
                 'message' => 'Appointment updated successfully',
                 'data' => [
                     'appointment' => $appointment,
-                    'linked_orders_count' => $appointment->orders->count(),
                     'total_products' => $appointment->getTotalProductsCount(),
                     'total_value' => $appointment->getTotalOrderValue()
                 ]
@@ -379,8 +343,8 @@ class AppointmentController extends Controller
         $appointments = Appointment::where('designer_id', $designerId)
             ->with([
                 'user:id,full_name,email,phone',
-                'orders.items.product',
-                'orders.items.product.options.values'
+                'order.items.product',
+                'order.items.product.options.values'
             ])
             ->when($request->date, function ($query, $date) {
                 return $query->where('appointment_date', $date);
@@ -418,7 +382,7 @@ class AppointmentController extends Controller
         $appointments = $user->appointments()
             ->with([
                 'designer:id,name,email,phone',
-                'orders.items.product'
+                'order.items.product'
             ])
             ->when($request->status, function ($query, $status) {
                 return $query->where('status', $status);
@@ -506,101 +470,5 @@ class AppointmentController extends Controller
         ]);
 
         return back()->with('success', 'Appointment marked as completed.');
-    }
-
-    /**
-     * Link additional orders to an existing appointment
-     */
-    public function linkOrders(Request $request, Appointment $appointment): JsonResponse
-    {
-        $validator = Validator::make($request->all(), [
-            'order_ids' => 'required|array|min:1',
-            'order_ids.*' => 'exists:orders,id',
-            'order_notes' => 'nullable|array',
-            'order_notes.*' => 'nullable|string|max:500'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        try {
-            $orderIds = $request->order_ids;
-            $orderNotes = $request->order_notes ?? [];
-
-            $pivotData = [];
-            foreach ($orderIds as $index => $orderId) {
-                $pivotData[$orderId] = [
-                    'notes' => $orderNotes[$index] ?? null
-                ];
-            }
-
-            $appointment->orders()->attach($pivotData);
-
-            $appointment->load(['orders.items.product']);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Orders linked successfully',
-                'data' => [
-                    'appointment' => $appointment,
-                    'linked_orders_count' => $appointment->orders->count(),
-                    'total_products' => $appointment->getTotalProductsCount(),
-                    'total_value' => $appointment->getTotalOrderValue()
-                ]
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to link orders',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Unlink orders from an appointment
-     */
-    public function unlinkOrders(Request $request, Appointment $appointment): JsonResponse
-    {
-        $validator = Validator::make($request->all(), [
-            'order_ids' => 'required|array|min:1',
-            'order_ids.*' => 'exists:orders,id'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        try {
-            $appointment->orders()->detach($request->order_ids);
-
-            $appointment->load(['orders.items.product']);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Orders unlinked successfully',
-                'data' => [
-                    'appointment' => $appointment,
-                    'linked_orders_count' => $appointment->orders->count(),
-                    'total_products' => $appointment->getTotalProductsCount(),
-                    'total_value' => $appointment->getTotalOrderValue()
-                ]
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to unlink orders',
-                'error' => $e->getMessage()
-            ], 500);
-        }
     }
 }

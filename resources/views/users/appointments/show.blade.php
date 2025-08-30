@@ -173,6 +173,50 @@
                     </div>
                 @endif
 
+                <!-- Linked Order Information -->
+                @if ($appointment->order)
+                    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                        <h5 class="font-semibold text-gray-900 mb-3 flex items-center gap-3">
+                            <i
+                                class="fas fa-shopping-cart text-green-600 mr-2"></i>{{ trans('dashboard.linked_order', ['default' => 'Linked Order']) }}
+                        </h5>
+                        <div class="bg-white rounded p-3">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <span
+                                        class="text-sm font-medium text-gray-500">{{ trans('dashboard.order_number', ['default' => 'Order Number']) }}</span>
+                                    <p class="font-semibold text-gray-900">{{ $appointment->order->order_number }}</p>
+                                </div>
+                                <div>
+                                    <span
+                                        class="text-sm font-medium text-gray-500">{{ trans('dashboard.order_status', ['default' => 'Order Status']) }}</span>
+                                    <p class="font-semibold text-gray-900">
+                                        {{ trans('orders.' . $appointment->order->status) }}</p>
+                                </div>
+                                <div>
+                                    <span
+                                        class="text-sm font-medium text-gray-500">{{ trans('dashboard.order_total', ['default' => 'Order Total']) }}</span>
+                                    <p class="font-semibold text-gray-900">
+                                        ${{ number_format($appointment->order->total, 2) }}</p>
+                                </div>
+                                <div>
+                                    <span
+                                        class="text-sm font-medium text-gray-500">{{ trans('dashboard.items_count', ['default' => 'Items']) }}</span>
+                                    <p class="font-semibold text-gray-900">{{ $appointment->order->items->count() }}</p>
+                                </div>
+                            </div>
+
+                            @if ($appointment->order_notes)
+                                <div class="mt-4 pt-4 border-t border-gray-200">
+                                    <span
+                                        class="text-sm font-medium text-gray-500">{{ trans('dashboard.order_notes', ['default' => 'Order Notes']) }}</span>
+                                    <p class="text-gray-900 mt-1">{{ $appointment->order_notes }}</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Designer Response -->
                 @if ($appointment->designer_notes)
                     <div class="bg-gray-50 rounded-lg p-4 mb-6">

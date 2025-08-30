@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Carbon\Carbon;
 
 class Order extends Model
@@ -51,12 +51,10 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    // Relationship with appointments through pivot table
-    public function appointments(): BelongsToMany
+    // Relationship with appointment (one-to-one)
+    public function appointment(): HasOne
     {
-        return $this->belongsToMany(Appointment::class, 'appointment_orders')
-            ->withPivot('notes')
-            ->withTimestamps();
+        return $this->hasOne(Appointment::class);
     }
 
     // Generate unique order number

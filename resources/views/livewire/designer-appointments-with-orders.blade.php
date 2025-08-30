@@ -47,11 +47,11 @@
                     </div>
                 </div>
 
-                <!-- Linked Orders Summary -->
-                @if ($appointment->hasOrders())
+                <!-- Linked Order Summary -->
+                @if ($appointment->hasOrder())
                     <div class="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
                         <h4 class="font-semibold text-blue-800 mb-2">
-                            📦 Linked Orders ({{ $appointment->orders->count() }})
+                            📦 Linked Order
                         </h4>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                             <div>
@@ -63,8 +63,8 @@
                                 ${{ number_format($appointment->getTotalOrderValue(), 2) }}
                             </div>
                             <div>
-                                <span class="font-medium">Orders:</span>
-                                {{ $appointment->orders->pluck('order_number')->implode(', ') }}
+                                <span class="font-medium">Order:</span>
+                                {{ $appointment->order->order_number }}
                             </div>
                         </div>
                     </div>
@@ -94,24 +94,25 @@
                     <!-- Order Details -->
                     <div class="mb-4">
                         <h4 class="font-semibold mb-2">📋 Order Details:</h4>
-                        @foreach ($appointment->orders as $order)
+                        @if ($appointment->order)
                             <div class="border rounded p-3 mb-2">
                                 <div class="flex justify-between items-start mb-2">
                                     <div>
-                                        <span class="font-medium">Order #{{ $order->order_number }}</span>
-                                        <span class="text-sm text-gray-600">({{ $order->status }})</span>
+                                        <span class="font-medium">Order #{{ $appointment->order->order_number }}</span>
+                                        <span class="text-sm text-gray-600">({{ $appointment->order->status }})</span>
                                     </div>
-                                    <span class="font-medium">${{ number_format($order->total, 2) }}</span>
+                                    <span
+                                        class="font-medium">${{ number_format($appointment->order->total, 2) }}</span>
                                 </div>
 
-                                @if ($order->pivot->notes)
+                                @if ($appointment->order_notes)
                                     <p class="text-sm text-gray-600 mb-2">
-                                        <strong>Notes:</strong> {{ $order->pivot->notes }}
+                                        <strong>Notes:</strong> {{ $appointment->order_notes }}
                                     </p>
                                 @endif
 
                                 <div class="text-sm">
-                                    @foreach ($order->items as $item)
+                                    @foreach ($appointment->order->items as $item)
                                         <div class="flex justify-between py-1">
                                             <span>{{ $item->product->name ?? 'Unknown Product' }}
                                                 (x{{ $item->quantity }})
@@ -121,7 +122,7 @@
                                     @endforeach
                                 </div>
                             </div>
-                        @endforeach
+                        @endif
                     </div>
                 @else
                     <div class="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">

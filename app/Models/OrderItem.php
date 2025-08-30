@@ -57,7 +57,7 @@ class OrderItem extends Model
             $value = OptionValue::find($valueId);
 
             if ($option && $value) {
-                $formatted[] = $option->name . ': ' . $value->name;
+                $formatted[] = $option->name . ': ' . $value->value;
             }
         }
 

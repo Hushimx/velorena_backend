@@ -16,12 +16,14 @@ class Appointment extends Model
     protected $fillable = [
         'user_id',
         'designer_id',
+        'order_id',
         'appointment_date',
         'appointment_time',
         'duration_minutes',
         'status',
         'notes',
         'designer_notes',
+        'order_notes',
         'accepted_at',
         'rejected_at',
         'completed_at',
@@ -48,15 +50,13 @@ class Appointment extends Model
         return $this->belongsTo(Designer::class);
     }
 
-    // Relationship with orders through pivot table
-    public function orders(): BelongsToMany
+    // Relationship with order (one-to-one)
+    public function order(): BelongsTo
     {
-        return $this->belongsToMany(Order::class, 'appointment_orders')
-            ->withPivot('notes')
-            ->withTimestamps();
+        return $this->belongsTo(Order::class);
     }
 
-    // Get all products from all linked orders
+    // Get all products from the linked order
     public function products(): HasManyThrough
     {
         return $this->hasManyThrough(
@@ -64,12 +64,12 @@ class Appointment extends Model
             Order::class,
             'id', // Foreign key on orders table
             'order_id', // Foreign key on order_items table
-            'id', // Local key on appointments table
+            'order_id', // Local key on appointments table
             'id' // Local key on orders table
-        )->whereIn('order_id', $this->orders->pluck('id'));
+        );
     }
 
-    // Get all order items from all linked orders
+    // Get all order items from the linked order
     public function orderItems(): HasManyThrough
     {
         return $this->hasManyThrough(
@@ -77,9 +77,9 @@ class Appointment extends Model
             Order::class,
             'id', // Foreign key on orders table
             'order_id', // Foreign key on order_items table
-            'id', // Local key on appointments table
+            'order_id', // Local key on appointments table
             'id' // Local key on orders table
-        )->whereIn('order_id', $this->orders->pluck('id'));
+        );
     }
 
     // Check if appointment is unassigned
@@ -314,24 +314,21 @@ class Appointment extends Model
         return $timeSlots;
     }
 
-    // Helper methods for managing orders
+    // Helper methods for managing order
     public function linkOrder(Order $order, string $notes = null): void
     {
-        $this->orders()->attach($order->id, ['notes' => $notes]);
+        $this->update([
+            'order_id' => $order->id,
+            'order_notes' => $notes
+        ]);
     }
 
-    public function unlinkOrder(Order $order): void
+    public function unlinkOrder(): void
     {
-        $this->orders()->detach($order->id);
-    }
-
-    public function linkOrders(array $orderIds, array $notes = []): void
-    {
-        $pivotData = [];
-        foreach ($orderIds as $index => $orderId) {
-            $pivotData[$orderId] = ['notes' => $notes[$index] ?? null];
-        }
-        $this->orders()->attach($pivotData);
+        $this->update([
+            'order_id' => null,
+            'order_notes' => null
+        ]);
     }
 
     public function getTotalProductsCount(): int
@@ -341,12 +338,12 @@ class Appointment extends Model
 
     public function getTotalOrderValue(): float
     {
-        return $this->orders()->sum('total');
+        return $this->order ? $this->order->total : 0;
     }
 
-    public function hasOrders(): bool
+    public function hasOrder(): bool
     {
-        return $this->orders()->exists();
+        return !is_null($this->order_id);
     }
 
     public function getProductsSummary(): array

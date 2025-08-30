@@ -23,8 +23,8 @@ class BookAppointmentWithOrders extends Component
     public $appointment_time;
     public $duration_minutes = 15;
     public $notes;
-    public $selected_orders = [];
-    public $order_notes = [];
+    public $selected_order_id;
+    public $order_notes;
 
     public $available_time_slots = [];
     public $user_orders = [];
@@ -37,14 +37,12 @@ class BookAppointmentWithOrders extends Component
         'appointment_date' => 'required|date_format:Y-m-d\TH:i|after:now',
         'duration_minutes' => 'integer|min:15|max:480',
         'notes' => 'nullable|string|max:1000',
-        'selected_orders' => 'required|array|min:1',
-        'selected_orders.*' => 'exists:orders,id',
-        'order_notes.*' => 'nullable|string|max:500'
+        'selected_order_id' => 'required|exists:orders,id',
+        'order_notes' => 'nullable|string|max:500'
     ];
 
     protected $messages = [
-        'selected_orders.required' => 'Please select at least one order to link with this appointment.',
-        'selected_orders.min' => 'Please select at least one order to link with this appointment.',
+        'selected_order_id.required' => 'Please select an order to link with this appointment.',
         'appointment_date.required' => 'Please select a date and time for your appointment.',
         'appointment_date.date_format' => 'Please select a valid date and time.',
         'appointment_date.after' => 'Appointments must be scheduled for a future date and time.',
@@ -61,15 +59,11 @@ class BookAppointmentWithOrders extends Component
     {
         $query = Order::where('user_id', $this->user_id)
             ->whereIn('status', ['pending', 'confirmed'])
-            ->with(['items.product', 'appointments']);
+            ->with(['items.product', 'appointment']);
 
         // If not showing used orders, filter them out
         if (!$this->show_used_orders) {
-            $query->whereNotExists(function ($subQuery) {
-                $subQuery->select(DB::raw(1))
-                    ->from('appointment_orders')
-                    ->whereRaw('appointment_orders.order_id = orders.id');
-            });
+            $query->whereDoesntHave('appointment');
         }
 
         $this->user_orders = $query->get();
@@ -110,14 +104,9 @@ class BookAppointmentWithOrders extends Component
         $this->appointment_time = $time;
     }
 
-    public function toggleOrder($orderId)
+    public function selectOrder($orderId)
     {
-        if (in_array($orderId, $this->selected_orders)) {
-            $this->selected_orders = array_diff($this->selected_orders, [$orderId]);
-            unset($this->order_notes[$orderId]);
-        } else {
-            $this->selected_orders[] = $orderId;
-        }
+        $this->selected_order_id = $orderId;
     }
 
     public function toggleUsedOrders()
@@ -182,8 +171,7 @@ class BookAppointmentWithOrders extends Component
             Log::info('Booking appointment with data:', [
                 'user_id' => $this->user_id,
                 'appointment_date' => $this->appointment_date,
-                'selected_orders' => $this->selected_orders,
-                'selected_orders_count' => count($this->selected_orders),
+                'selected_order_id' => $this->selected_order_id,
                 'notes' => $this->notes
             ]);
 
@@ -198,12 +186,6 @@ class BookAppointmentWithOrders extends Component
             // Use database transaction
             DB::beginTransaction();
 
-            // Prepare order notes
-            $orderNotes = [];
-            foreach ($this->selected_orders as $orderId) {
-                $orderNotes[] = $this->order_notes[$orderId] ?? null;
-            }
-
             // Parse the datetime and extract date and time for database storage
             $dateTime = Carbon::parse($this->appointment_date);
             $appointmentDate = $dateTime->format('Y-m-d');
@@ -217,23 +199,15 @@ class BookAppointmentWithOrders extends Component
                 'appointment_time' => $appointmentTime,
                 'duration_minutes' => $this->duration_minutes,
                 'notes' => $this->notes,
+                'order_id' => $this->selected_order_id,
+                'order_notes' => $this->order_notes,
                 'status' => 'pending'
             ]);
-
-            // Link orders to appointment
-            $pivotData = [];
-            foreach ($this->selected_orders as $index => $orderId) {
-                $pivotData[$orderId] = [
-                    'notes' => $orderNotes[$index] ?? null
-                ];
-            }
-
-            $appointment->orders()->attach($pivotData);
 
             DB::commit();
 
             // Reset form
-            $this->reset(['appointment_date', 'appointment_time', 'notes', 'selected_orders', 'order_notes']);
+            $this->reset(['appointment_date', 'appointment_time', 'notes', 'selected_order_id', 'order_notes']);
             $this->loadUserOrders();
 
             // Show success message
@@ -258,17 +232,20 @@ class BookAppointmentWithOrders extends Component
         }
     }
 
-    public function getSelectedOrdersTotal()
+    public function getSelectedOrderTotal()
     {
-        return Order::whereIn('id', $this->selected_orders)->sum('total');
+        if ($this->selected_order_id) {
+            return Order::find($this->selected_order_id)->total ?? 0;
+        }
+        return 0;
     }
 
-    public function getSelectedOrdersProductsCount()
+    public function getSelectedOrderProductsCount()
     {
-        return Order::whereIn('id', $this->selected_orders)
-            ->withSum('items', 'quantity')
-            ->get()
-            ->sum('items_sum_quantity');
+        if ($this->selected_order_id) {
+            return Order::find($this->selected_order_id)->items->sum('quantity') ?? 0;
+        }
+        return 0;
     }
 
     public function render()
@@ -276,8 +253,8 @@ class BookAppointmentWithOrders extends Component
         return view('livewire.book-appointment-with-orders', [
             'user_orders' => $this->user_orders,
             'designers' => $this->designers,
-            'selected_orders_total' => $this->getSelectedOrdersTotal(),
-            'selected_orders_products_count' => $this->getSelectedOrdersProductsCount(),
+            'selected_order_total' => $this->getSelectedOrderTotal(),
+            'selected_order_products_count' => $this->getSelectedOrderProductsCount(),
             'show_used_orders' => $this->show_used_orders
         ]);
     }
