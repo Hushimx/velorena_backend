@@ -47,4 +47,12 @@ class Designer extends Authenticatable
         'password' => 'hashed',
         'is_active' => 'boolean',
     ];
+
+    /**
+     * Get the appointments for this designer
+     */
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
 }

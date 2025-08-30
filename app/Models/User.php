@@ -69,6 +69,11 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
+    public function appointments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
     /**
      * Get validation rules for user registration
      */

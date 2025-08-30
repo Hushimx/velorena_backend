@@ -363,9 +363,20 @@ class AppointmentController extends Controller
     /**
      * Show designer's appointments list
      */
-    public function designerAppointments(Request $request, Designer $designer): JsonResponse
+    public function designerAppointments(Request $request)
     {
-        $appointments = $designer->appointments()
+        // Get the authenticated designer (the middleware should have already verified this)
+        $authenticatedDesigner = Auth::guard('designer')->user();
+
+        // If no designer is authenticated, abort
+        if (!$authenticatedDesigner) {
+            abort(403, 'Designer authentication required');
+        }
+
+        // Use the authenticated designer's ID instead of the route parameter
+        $designerId = $authenticatedDesigner->id;
+
+        $appointments = Appointment::where('designer_id', $designerId)
             ->with([
                 'user:id,full_name,email,phone',
                 'orders.items.product',
@@ -381,17 +392,29 @@ class AppointmentController extends Controller
             ->orderBy('appointment_time')
             ->paginate($request->per_page ?? 15);
 
-        return response()->json([
-            'success' => true,
-            'data' => $appointments
-        ]);
+        // If it's an API request, return JSON
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $appointments
+            ]);
+        }
+
+        // For web requests, render the view
+        return view('designer.appointments.index', compact('appointments'));
     }
 
     /**
      * Show user's appointments
      */
-    public function userAppointments(Request $request, User $user): JsonResponse
+    public function userAppointments(Request $request, User $user)
     {
+        // Check if the authenticated user is accessing their own appointments
+        $authenticatedUser = Auth::user();
+        if (!$authenticatedUser || $authenticatedUser->id !== $user->id) {
+            abort(403, 'Unauthorized');
+        }
+
         $appointments = $user->appointments()
             ->with([
                 'designer:id,name,email,phone',
@@ -404,10 +427,16 @@ class AppointmentController extends Controller
             ->orderBy('appointment_time', 'desc')
             ->paginate($request->per_page ?? 15);
 
-        return response()->json([
-            'success' => true,
-            'data' => $appointments
-        ]);
+        // If it's an API request, return JSON
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $appointments
+            ]);
+        }
+
+        // For web requests, render the view
+        return view('users.appointments.index', compact('appointments'));
     }
 
     /**
