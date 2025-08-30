@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Carbon\Carbon;
 
 class Appointment extends Model
@@ -44,6 +46,40 @@ class Appointment extends Model
     public function designer(): BelongsTo
     {
         return $this->belongsTo(Designer::class);
+    }
+
+    // Relationship with orders through pivot table
+    public function orders(): BelongsToMany
+    {
+        return $this->belongsToMany(Order::class, 'appointment_orders')
+            ->withPivot('notes')
+            ->withTimestamps();
+    }
+
+    // Get all products from all linked orders
+    public function products(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            OrderItem::class,
+            Order::class,
+            'id', // Foreign key on orders table
+            'order_id', // Foreign key on order_items table
+            'id', // Local key on appointments table
+            'id' // Local key on orders table
+        )->whereIn('order_id', $this->orders->pluck('id'));
+    }
+
+    // Get all order items from all linked orders
+    public function orderItems(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            OrderItem::class,
+            Order::class,
+            'id', // Foreign key on orders table
+            'order_id', // Foreign key on order_items table
+            'id', // Local key on appointments table
+            'id' // Local key on orders table
+        )->whereIn('order_id', $this->orders->pluck('id'));
     }
 
     // Check if appointment is unassigned
@@ -276,5 +312,58 @@ class Appointment extends Model
         }
 
         return $timeSlots;
+    }
+
+    // Helper methods for managing orders
+    public function linkOrder(Order $order, string $notes = null): void
+    {
+        $this->orders()->attach($order->id, ['notes' => $notes]);
+    }
+
+    public function unlinkOrder(Order $order): void
+    {
+        $this->orders()->detach($order->id);
+    }
+
+    public function linkOrders(array $orderIds, array $notes = []): void
+    {
+        $pivotData = [];
+        foreach ($orderIds as $index => $orderId) {
+            $pivotData[$orderId] = ['notes' => $notes[$index] ?? null];
+        }
+        $this->orders()->attach($pivotData);
+    }
+
+    public function getTotalProductsCount(): int
+    {
+        return $this->orderItems()->sum('quantity');
+    }
+
+    public function getTotalOrderValue(): float
+    {
+        return $this->orders()->sum('total');
+    }
+
+    public function hasOrders(): bool
+    {
+        return $this->orders()->exists();
+    }
+
+    public function getProductsSummary(): array
+    {
+        $summary = [];
+        foreach ($this->orderItems as $item) {
+            $productName = $item->product->name ?? 'Unknown Product';
+            if (!isset($summary[$productName])) {
+                $summary[$productName] = [
+                    'quantity' => 0,
+                    'total_price' => 0,
+                    'unit_price' => $item->unit_price
+                ];
+            }
+            $summary[$productName]['quantity'] += $item->quantity;
+            $summary[$productName]['total_price'] += $item->total_price;
+        }
+        return $summary;
     }
 }

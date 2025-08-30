@@ -34,6 +34,6 @@
         </div>
 
         <!-- Livewire Component -->
-        @livewire('book-appointment')
+        @livewire('book-appointment-with-orders')
     </div>
 @endsection

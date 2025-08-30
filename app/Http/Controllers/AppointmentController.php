@@ -3,15 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
-use App\Models\Designer;
+use App\Models\Order;
 use App\Models\User;
+use App\Models\Designer;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
 class AppointmentController extends Controller
 {
-
     /**
      * Show the appointment booking form
      */
@@ -22,39 +25,95 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Store a new appointment
+     * Create a new appointment and link it with orders
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        $request->validate([
-            'designer_id' => 'required|exists:designers,id',
-            'appointment_date' => 'required|date|after:today',
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+            'designer_id' => 'nullable|exists:designers,id',
+            'appointment_date' => 'required|date|after_or_equal:today',
             'appointment_time' => 'required|date_format:H:i',
-            'notes' => 'nullable|string|max:500',
+            'duration_minutes' => 'integer|min:15|max:480', // 15 minutes to 8 hours
+            'notes' => 'nullable|string|max:1000',
+            'order_ids' => 'required|array|min:1',
+            'order_ids.*' => 'exists:orders,id',
+            'order_notes' => 'nullable|array',
+            'order_notes.*' => 'nullable|string|max:500'
         ]);
 
-        $designerId = $request->designer_id;
-        $date = $request->appointment_date;
-        $time = $request->appointment_time;
-
-        // Check if time slot is available
-        if (!Appointment::isTimeSlotAvailable($designerId, $date, $time)) {
-            return back()->withErrors(['appointment_time' => trans('dashboard.time_slot_unavailable', ['default' => 'This time slot is not available. Please choose another time.'])]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        // Create the appointment
-        $appointment = Appointment::create([
-            'user_id' => Auth::id(),
-            'designer_id' => $designerId,
-            'appointment_date' => $date,
-            'appointment_time' => $time,
-            'duration_minutes' => 15,
-            'status' => 'pending',
-            'notes' => $request->notes,
-        ]);
+        try {
+            DB::beginTransaction();
 
-        return redirect()->route('appointments.index')
-            ->with('success', trans('dashboard.appointment_booked_success', ['default' => 'Appointment booked successfully! The designer will review your request.']));
+            // Check if time slot is available
+            $designerId = $request->designer_id;
+            $date = $request->appointment_date;
+            $time = $request->appointment_time;
+            $duration = $request->duration_minutes ?? 15;
+
+            if ($designerId && !Appointment::isTimeSlotAvailable($designerId, $date, $time, $duration)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Selected time slot is not available'
+                ], 409);
+            }
+
+            // Create appointment
+            $appointment = Appointment::create([
+                'user_id' => $request->user_id,
+                'designer_id' => $designerId,
+                'appointment_date' => $date,
+                'appointment_time' => $time,
+                'duration_minutes' => $duration,
+                'notes' => $request->notes,
+                'status' => $designerId ? 'pending' : 'pending'
+            ]);
+
+            // Link orders to appointment
+            $orderIds = $request->order_ids;
+            $orderNotes = $request->order_notes ?? [];
+
+            $pivotData = [];
+            foreach ($orderIds as $index => $orderId) {
+                $pivotData[$orderId] = [
+                    'notes' => $orderNotes[$index] ?? null
+                ];
+            }
+
+            $appointment->orders()->attach($pivotData);
+
+            // Load relationships for response
+            $appointment->load(['user', 'designer', 'orders.items.product']);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Appointment created successfully',
+                'data' => [
+                    'appointment' => $appointment,
+                    'linked_orders_count' => count($orderIds),
+                    'total_products' => $appointment->getTotalProductsCount(),
+                    'total_value' => $appointment->getTotalOrderValue()
+                ]
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create appointment',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -62,7 +121,7 @@ class AppointmentController extends Controller
      */
     public function index()
     {
-        $appointments = Appointment::with(['designer'])
+        $appointments = Appointment::with(['designer', 'orders.items.product'])
             ->where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->paginate(10);
@@ -71,19 +130,27 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Show appointment details
+     * Get appointment details with linked orders and products
      */
-    public function show(Appointment $appointment)
+    public function show(Appointment $appointment): JsonResponse
     {
-        // Check if user owns this appointment or is the designer
-        if ($appointment->user_id !== Auth::id() && $appointment->designer_id !== Auth::user()->designer?->id) {
-            abort(403);
-        }
+        $appointment->load([
+            'user:id,name,email,phone',
+            'designer:id,name,email,phone',
+            'orders.items.product',
+            'orders.items.product.options.values'
+        ]);
 
-        // Load the designer relationship to avoid N+1 queries
-        $appointment->load('designer', 'user');
-
-        return view('users.appointments.show', compact('appointment'));
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'appointment' => $appointment,
+                'products_summary' => $appointment->getProductsSummary(),
+                'total_products_count' => $appointment->getTotalProductsCount(),
+                'total_order_value' => $appointment->getTotalOrderValue(),
+                'linked_orders_count' => $appointment->orders->count()
+            ]
+        ]);
     }
 
     /**
@@ -105,6 +172,109 @@ class AppointmentController extends Controller
         ]);
 
         return back()->with('success', trans('dashboard.appointment_cancelled_success'));
+    }
+
+    /**
+     * Update appointment and manage linked orders
+     */
+    public function update(Request $request, Appointment $appointment): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'designer_id' => 'nullable|exists:designers,id',
+            'appointment_date' => 'sometimes|date|after_or_equal:today',
+            'appointment_time' => 'sometimes|date_format:H:i',
+            'duration_minutes' => 'sometimes|integer|min:15|max:480',
+            'notes' => 'nullable|string|max:1000',
+            'designer_notes' => 'nullable|string|max:1000',
+            'status' => 'sometimes|in:pending,accepted,rejected,completed,cancelled',
+            'order_ids' => 'sometimes|array',
+            'order_ids.*' => 'exists:orders,id',
+            'order_notes' => 'nullable|array',
+            'order_notes.*' => 'nullable|string|max:500'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Check time slot availability if date/time is being changed
+            if ($request->has('appointment_date') || $request->has('appointment_time')) {
+                $designerId = $request->designer_id ?? $appointment->designer_id;
+                $date = $request->appointment_date ?? $appointment->appointment_date;
+                $time = $request->appointment_time ?? $appointment->appointment_time;
+                $duration = $request->duration_minutes ?? $appointment->duration_minutes;
+
+                if ($designerId && !Appointment::isTimeSlotAvailable($designerId, $date, $time, $duration, $appointment->id)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Selected time slot is not available'
+                    ], 409);
+                }
+            }
+
+            // Update appointment
+            $appointment->update($request->only([
+                'designer_id',
+                'appointment_date',
+                'appointment_time',
+                'duration_minutes',
+                'notes',
+                'designer_notes',
+                'status'
+            ]));
+
+            // Update linked orders if provided
+            if ($request->has('order_ids')) {
+                // Remove existing links
+                $appointment->orders()->detach();
+
+                // Add new links
+                if (!empty($request->order_ids)) {
+                    $orderIds = $request->order_ids;
+                    $orderNotes = $request->order_notes ?? [];
+
+                    $pivotData = [];
+                    foreach ($orderIds as $index => $orderId) {
+                        $pivotData[$orderId] = [
+                            'notes' => $orderNotes[$index] ?? null
+                        ];
+                    }
+
+                    $appointment->orders()->attach($pivotData);
+                }
+            }
+
+            // Load relationships for response
+            $appointment->load(['user', 'designer', 'orders.items.product']);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Appointment updated successfully',
+                'data' => [
+                    'appointment' => $appointment,
+                    'linked_orders_count' => $appointment->orders->count(),
+                    'total_products' => $appointment->getTotalProductsCount(),
+                    'total_value' => $appointment->getTotalOrderValue()
+                ]
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update appointment',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -182,29 +352,51 @@ class AppointmentController extends Controller
     /**
      * Show designer's appointments list
      */
-    public function designerAppointments(Request $request)
+    public function designerAppointments(Request $request, Designer $designer): JsonResponse
     {
-        $designer = Auth::guard('designer')->user();
-
-        if (!$designer) {
-            abort(403, 'Designer access required');
-        }
-
-        $status = $request->get('status', '');
-        $date = $request->get('date', '');
-
-        $appointments = Appointment::with('user')
-            ->where('designer_id', $designer->id)
-            ->when($status, function ($query, $status) {
-                return $query->where('status', $status);
-            })
-            ->when($date, function ($query, $date) {
+        $appointments = $designer->appointments()
+            ->with([
+                'user:id,name,email,phone',
+                'orders.items.product',
+                'orders.items.product.options.values'
+            ])
+            ->when($request->date, function ($query, $date) {
                 return $query->where('appointment_date', $date);
             })
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->when($request->status, function ($query, $status) {
+                return $query->where('status', $status);
+            })
+            ->orderBy('appointment_date')
+            ->orderBy('appointment_time')
+            ->paginate($request->per_page ?? 15);
 
-        return view('designer.appointments.index', compact('appointments', 'status', 'date'));
+        return response()->json([
+            'success' => true,
+            'data' => $appointments
+        ]);
+    }
+
+    /**
+     * Show user's appointments
+     */
+    public function userAppointments(Request $request, User $user): JsonResponse
+    {
+        $appointments = $user->appointments()
+            ->with([
+                'designer:id,name,email,phone',
+                'orders.items.product'
+            ])
+            ->when($request->status, function ($query, $status) {
+                return $query->where('status', $status);
+            })
+            ->orderBy('appointment_date', 'desc')
+            ->orderBy('appointment_time', 'desc')
+            ->paginate($request->per_page ?? 15);
+
+        return response()->json([
+            'success' => true,
+            'data' => $appointments
+        ]);
     }
 
     /**
@@ -274,5 +466,101 @@ class AppointmentController extends Controller
         ]);
 
         return back()->with('success', 'Appointment marked as completed.');
+    }
+
+    /**
+     * Link additional orders to an existing appointment
+     */
+    public function linkOrders(Request $request, Appointment $appointment): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'order_ids' => 'required|array|min:1',
+            'order_ids.*' => 'exists:orders,id',
+            'order_notes' => 'nullable|array',
+            'order_notes.*' => 'nullable|string|max:500'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $orderIds = $request->order_ids;
+            $orderNotes = $request->order_notes ?? [];
+
+            $pivotData = [];
+            foreach ($orderIds as $index => $orderId) {
+                $pivotData[$orderId] = [
+                    'notes' => $orderNotes[$index] ?? null
+                ];
+            }
+
+            $appointment->orders()->attach($pivotData);
+
+            $appointment->load(['orders.items.product']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Orders linked successfully',
+                'data' => [
+                    'appointment' => $appointment,
+                    'linked_orders_count' => $appointment->orders->count(),
+                    'total_products' => $appointment->getTotalProductsCount(),
+                    'total_value' => $appointment->getTotalOrderValue()
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to link orders',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Unlink orders from an appointment
+     */
+    public function unlinkOrders(Request $request, Appointment $appointment): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'order_ids' => 'required|array|min:1',
+            'order_ids.*' => 'exists:orders,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $appointment->orders()->detach($request->order_ids);
+
+            $appointment->load(['orders.items.product']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Orders unlinked successfully',
+                'data' => [
+                    'appointment' => $appointment,
+                    'linked_orders_count' => $appointment->orders->count(),
+                    'total_products' => $appointment->getTotalProductsCount(),
+                    'total_value' => $appointment->getTotalOrderValue()
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to unlink orders',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

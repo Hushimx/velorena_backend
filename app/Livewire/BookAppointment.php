@@ -14,8 +14,7 @@ class BookAppointment extends Component
     public $notes;
 
     protected $rules = [
-        'selectedDate' => 'required|date|after:today',
-        'selectedTime' => 'required|date_format:H:i',
+        'selectedDate' => 'required|date_format:Y-m-d\TH:i|after:now',
         'notes' => 'nullable|string|max:500',
     ];
 
@@ -36,14 +35,11 @@ class BookAppointment extends Component
 
     private function extractDateTimeFromInput()
     {
-        // Parse the selected datetime (format: Y-m-d\TH:i)
-        $dateTime = Carbon::parse($this->selectedDate);
-
-        // Extract the date part
-        $this->selectedDate = $dateTime->format('Y-m-d');
-
-        // Extract the time part
-        $this->selectedTime = $dateTime->format('H:i');
+        // The selectedDate field now contains the full datetime in Y-m-d\TH:i format
+        // We just need to validate that it's a valid datetime
+        if ($this->selectedDate) {
+            $dateTime = Carbon::parse($this->selectedDate);
+        }
     }
 
 
@@ -52,12 +48,17 @@ class BookAppointment extends Component
     {
         $this->validate();
 
+        // Parse the datetime and extract date and time for database storage
+        $dateTime = Carbon::parse($this->selectedDate);
+        $appointmentDate = $dateTime->format('Y-m-d');
+        $appointmentTime = $dateTime->format('H:i:s');
+
         // Create the appointment without a designer (will be assigned later)
         $appointment = Appointment::create([
             'user_id' => Auth::id(),
             'designer_id' => null, // No designer assigned yet
-            'appointment_date' => $this->selectedDate,
-            'appointment_time' => $this->selectedTime,
+            'appointment_date' => $appointmentDate,
+            'appointment_time' => $appointmentTime,
             'duration_minutes' => 15,
             'status' => 'pending',
             'notes' => $this->notes,
@@ -77,7 +78,7 @@ class BookAppointment extends Component
 
     public function getMinDateProperty()
     {
-        return now()->addDay()->format('Y-m-d\TH:i');
+        return now()->addMinutes(1)->format('Y-m-d\TH:i');
     }
 
     public function getMaxDateProperty()
