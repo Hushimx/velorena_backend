@@ -286,7 +286,7 @@
                 </button>
             </div>
             <nav class="mt-4 flex-1 px-2 space-y-1">
-                <a href="{{ url('/') }}" class="sidebar-link {{ request()->routeIs('/') ? 'active' : '' }}">
+                <a href="{{ route('home') }}" class="sidebar-link {{ request()->routeIs('home') ? 'active' : '' }}">
                     <i class="fas fa-home"></i>
                     <span>{{ trans('sidebar.main') }}</span>
                 </a>
