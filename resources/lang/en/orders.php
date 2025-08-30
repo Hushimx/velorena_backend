@@ -79,4 +79,12 @@ return [
     'enter_billing_address' => 'Enter billing address',
     'enter_notes' => 'Enter order notes',
     'not_provided' => 'Not provided',
+
+    // Add to Order
+    'add_to_order' => 'Add to Order',
+    'options' => 'Options',
+    'optional' => 'Optional',
+    'notes_placeholder' => 'Add any special instructions or notes for this item...',
+    'adding' => 'Adding...',
+    'product_added_to_order' => 'Product added to order successfully',
 ];

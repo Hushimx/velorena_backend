@@ -79,4 +79,12 @@ return [
     'enter_billing_address' => 'أدخل عنوان الفواتير',
     'enter_notes' => 'أدخل ملاحظات الطلب',
     'not_provided' => 'غير مقدم',
+
+    // Add to Order
+    'add_to_order' => 'إضافة إلى الطلب',
+    'options' => 'الخيارات',
+    'optional' => 'اختياري',
+    'notes_placeholder' => 'أضف أي تعليمات خاصة أو ملاحظات لهذا العنصر...',
+    'adding' => 'جاري الإضافة...',
+    'product_added_to_order' => 'تم إضافة المنتج إلى الطلب بنجاح',
 ];
