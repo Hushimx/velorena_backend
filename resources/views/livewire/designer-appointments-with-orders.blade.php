@@ -29,7 +29,7 @@
                             Appointment #{{ $appointment->id }}
                         </h3>
                         <p class="text-gray-600">
-                            {{ $appointment->user->name }} - {{ $appointment->user->email }}
+                            {{ $appointment->user->full_name }} - {{ $appointment->user->email }}
                         </p>
                         <p class="text-sm text-gray-500">
                             {{ $appointment->appointment_date->format('l, F j, Y') }} at

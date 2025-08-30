@@ -132,25 +132,36 @@ class AppointmentController extends Controller
     /**
      * Get appointment details with linked orders and products
      */
-    public function show(Appointment $appointment): JsonResponse
+    public function show(Appointment $appointment, Request $request)
     {
+        // Check if user owns this appointment
+        if ($appointment->user_id !== Auth::id()) {
+            abort(403);
+        }
+
         $appointment->load([
-            'user:id,name,email,phone',
+            'user:id,full_name,email,phone',
             'designer:id,name,email,phone',
             'orders.items.product',
             'orders.items.product.options.values'
         ]);
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'appointment' => $appointment,
-                'products_summary' => $appointment->getProductsSummary(),
-                'total_products_count' => $appointment->getTotalProductsCount(),
-                'total_order_value' => $appointment->getTotalOrderValue(),
-                'linked_orders_count' => $appointment->orders->count()
-            ]
-        ]);
+        // If it's an API request, return JSON
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'appointment' => $appointment,
+                    'products_summary' => $appointment->getProductsSummary(),
+                    'total_products_count' => $appointment->getTotalProductsCount(),
+                    'total_order_value' => $appointment->getTotalOrderValue(),
+                    'linked_orders_count' => $appointment->orders->count()
+                ]
+            ]);
+        }
+
+        // For web requests, render the view
+        return view('users.appointments.show', compact('appointment'));
     }
 
     /**
@@ -356,7 +367,7 @@ class AppointmentController extends Controller
     {
         $appointments = $designer->appointments()
             ->with([
-                'user:id,name,email,phone',
+                'user:id,full_name,email,phone',
                 'orders.items.product',
                 'orders.items.product.options.values'
             ])

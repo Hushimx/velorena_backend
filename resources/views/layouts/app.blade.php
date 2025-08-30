@@ -292,7 +292,7 @@
                 </a>
 
                 <a href="{{ route('appointments.index') }}"
-                    class="sidebar-link {{ request()->routeIs('appointments.*') ? 'active' : '' }}">
+                    class="sidebar-link {{ request()->routeIs('appointments.index') || request()->routeIs('appointments.show') ? 'active' : '' }}">
                     <i class="fas fa-calendar-alt"></i>
                     <span>{{ trans('sidebar.my_appointments') }}</span>
                 </a>

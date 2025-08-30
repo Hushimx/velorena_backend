@@ -74,7 +74,7 @@ class DesignerAppointmentsWithOrders extends Component
     {
         $appointments = Appointment::where('designer_id', $this->designer->id)
             ->with([
-                'user:id,name,email,phone',
+                'user:id,full_name,email,phone',
                 'orders.items.product',
                 'orders.items.product.options.values'
             ])
