@@ -36,7 +36,9 @@ Route::group(
 
         Auth::routes();
 
-        Route::redirect('/', '/home');
+        Route::get('/', function () {
+            return redirect()->route('home');
+        });
         Route::get('/home', [HomeController::class, 'index'])->name('home');
         // Route::view('/success', "admin.auth.success");
 
