@@ -51,8 +51,15 @@ class OrderItem extends Model
             return '';
         }
 
+        // Ensure options is an array
+        $options = is_array($this->options) ? $this->options : [];
+
+        if (empty($options)) {
+            return '';
+        }
+
         $formatted = [];
-        foreach ($this->options as $optionId => $valueId) {
+        foreach ($options as $optionId => $valueId) {
             $option = ProductOption::find($optionId);
             $value = OptionValue::find($valueId);
 
