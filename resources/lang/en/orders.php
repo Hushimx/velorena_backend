@@ -61,10 +61,20 @@ return [
     'order_deleted_successfully' => 'Order deleted successfully',
     'cannot_delete_non_pending_order' => 'Cannot delete order that is not pending',
     'delete_error' => 'Error deleting order',
+    'order_delete_failed' => 'Failed to delete order. Please try again.',
+    'order_item_deleted_successfully' => 'Item removed from order successfully',
+    'order_item_delete_failed' => 'Failed to remove item from order. Please try again.',
+    'cannot_delete_items_non_pending_order' => 'Cannot remove items from order that is not pending',
+    'order_item_not_found' => 'Order item not found',
+    'order_not_found' => 'Order not found',
+    'unauthorized_action' => 'You are not authorized to perform this action',
+    'no_items_in_order' => 'No items in this order',
+    'order_summary' => 'Order Summary',
 
     // Delete Confirmation
     'confirm_delete_title' => 'Confirm Delete',
     'confirm_delete_order' => 'Are you sure you want to delete this order? This action cannot be undone.',
+    'confirm_delete_order_item' => 'Are you sure you want to remove this item from the order? This action cannot be undone.',
     'cancel' => 'Cancel',
     'delete' => 'Delete',
 
@@ -79,4 +89,12 @@ return [
     'enter_billing_address' => 'Enter billing address',
     'enter_notes' => 'Enter order notes',
     'not_provided' => 'Not provided',
+
+    // Add to Order
+    'add_to_order' => 'Add to Order',
+    'options' => 'Options',
+    'optional' => 'Optional',
+    'notes_placeholder' => 'Add any special instructions or notes for this item...',
+    'adding' => 'Adding...',
+    'product_added_to_order' => 'Product added to order successfully',
 ];

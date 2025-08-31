@@ -156,68 +156,7 @@
                             {{ trans('orders.order_items') }} ({{ $order->items->count() }})
                         </h3>
 
-                        <div class="bg-gray-50 rounded-lg overflow-hidden">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-100">
-                                    <tr>
-                                        <th
-                                            class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            {{ trans('orders.product') }}
-                                        </th>
-                                        <th
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            {{ trans('orders.quantity') }}
-                                        </th>
-                                        <th
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            {{ trans('orders.unit_price') }}
-                                        </th>
-                                        <th
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            {{ trans('orders.total_price') }}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach ($order->items as $item)
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="flex items-center">
-                                                    @if ($item->product->image)
-                                                        <img class="h-10 w-10 rounded object-cover ml-3"
-                                                            src="{{ asset($item->product->image) }}"
-                                                            alt="{{ $item->product->name }}">
-                                                    @else
-                                                        <div
-                                                            class="h-10 w-10 rounded bg-gray-200 flex items-center justify-center ml-3">
-                                                            <i class="fas fa-image text-gray-400"></i>
-                                                        </div>
-                                                    @endif
-                                                    <div>
-                                                        <div class="text-sm font-medium text-gray-900">
-                                                            {{ $item->product->name }}</div>
-                                                        @if ($item->formatted_options)
-                                                            <div class="text-sm text-gray-500">
-                                                                {{ $item->formatted_options }}</div>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
-                                                {{ $item->quantity }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
-                                                {{ number_format($item->unit_price, 2) }} {{ trans('orders.currency') }}
-                                            </td>
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">
-                                                {{ number_format($item->total_price, 2) }} {{ trans('orders.currency') }}
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                        @livewire('order-items-manager', ['order' => $order])
                     </div>
                 </div>
             </div>

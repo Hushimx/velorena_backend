@@ -11,30 +11,62 @@
 
 A Laravel-based backend API for the Velorena printing company management system.
 
-## API Documentation
+## 📚 Documentation
+
+### 📖 Complete Documentation
+
+All project documentation is organized in the `docs/` folder:
+
+-   **[📋 Main Documentation](docs/README.md)** - Overview and navigation
+-   **[🔌 API Documentation](docs/api/README.md)** - API guides and references
+-   **[🌐 Web Documentation](docs/web/README.md)** - Web application guides
+
+### 🔌 API Documentation
 
 The API documentation is available at:
-- **Swagger UI**: `/api/documentation`
-- **Alternative route**: `/docs` (redirects to Swagger UI)
+
+-   **Swagger UI**: `/api/documentation`
+-   **Alternative route**: `/docs` (redirects to Swagger UI)
 
 The documentation is generated using L5-Swagger and includes:
-- Authentication endpoints (register, login, logout)
-- User profile management
-- Product and category management
-- Order management
-- Appointment booking
+
+-   Authentication endpoints (register, login, logout)
+-   User profile management
+-   Product and category management
+-   Order management
+-   Appointment booking
+
+### 📁 Documentation Structure
+
+```
+docs/
+├── README.md                    # Main documentation index
+├── api/                         # API Documentation
+│   ├── README.md               # API overview
+│   ├── API_DOCUMENTATION.md    # Complete API reference
+│   ├── API_ORDERS_DOCUMENTATION.md
+│   └── API_ORDERS_BEST_PRACTICES.md
+└── web/                         # Web Application Documentation
+    ├── README.md               # Web overview
+    ├── API_DOCUMENTATION.md
+    ├── APPOINTMENT_ORDERS_INTEGRATION.md
+    ├── FILE_UPLOAD_EXAMPLES.md
+    ├── FILTERS_DOCUMENTATION.md
+    ├── TRANSLATION_IMPROVEMENTS.md
+    └── USER_INTERFACE_CHANGES.md
+```
 
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   [Simple, fast routing engine](https://laravel.com/docs/routing).
+-   [Powerful dependency injection container](https://laravel.com/docs/container).
+-   Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+-   Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+-   Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+-   [Robust background job processing](https://laravel.com/docs/queues).
+-   [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
@@ -52,14 +84,14 @@ We would like to extend our thanks to the following sponsors for funding Laravel
 
 ### Premium Partners
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+-   **[Vehikl](https://vehikl.com)**
+-   **[Tighten Co.](https://tighten.co)**
+-   **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
+-   **[64 Robots](https://64robots.com)**
+-   **[Curotec](https://www.curotec.com/services/technologies/laravel)**
+-   **[DevSquad](https://devsquad.com/hire-laravel-developers)**
+-   **[Redberry](https://redberry.international/laravel-development)**
+-   **[Active Logic](https://activelogic.com)**
 
 ## Contributing
 

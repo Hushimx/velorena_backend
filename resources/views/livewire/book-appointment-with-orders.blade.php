@@ -70,9 +70,9 @@
                         </div>
                         <div>
                             <h4 class="font-semibold text-gray-900 mb-1">
-                                {{ trans('dashboard.select_orders', ['default' => 'Select Orders to Link']) }}</h4>
+                                {{ trans('dashboard.select_order', ['default' => 'Select Order to Link']) }}</h4>
                             <p class="text-gray-500 text-sm">
-                                {{ trans('dashboard.link_orders_description', ['default' => 'Choose which orders you want to discuss during this appointment']) }}
+                                {{ trans('dashboard.link_order_description', ['default' => 'Choose which order you want to discuss during this appointment']) }}
                             </p>
                         </div>
                     </div>
@@ -87,7 +87,7 @@
                                     </h5>
                                     <div class="flex items-center space-x-4">
                                         <div class="text-sm text-gray-500">
-                                            {{ trans('dashboard.select_orders_help', ['default' => 'Select orders to link with this appointment']) }}
+                                            {{ trans('dashboard.select_order_help', ['default' => 'Select an order to link with this appointment']) }}
                                         </div>
                                         <button type="button" wire:click="toggleUsedOrders"
                                             class="text-sm text-blue-600 hover:text-blue-800 underline">
@@ -100,35 +100,37 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
                                     @foreach ($user_orders as $order)
                                         @php
-                                            $isUsed = $order->appointments && $order->appointments->count() > 0;
+                                            $isUsed = $order->appointment;
                                         @endphp
-                                        <div
-                                            class="border rounded-lg p-4 hover:shadow-md transition-shadow
-                                            {{ in_array($order->id, $selected_orders) ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white' }}
-                                            {{ $isUsed ? 'opacity-75' : '' }}">
+                                        <div class="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer
+                                            {{ $selected_order_id == $order->id ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white' }}
+                                            {{ $isUsed ? 'opacity-75' : '' }}"
+                                            wire:click="selectOrder({{ $order->id }})">
                                             @if ($isUsed)
                                                 <div class="mb-2">
                                                     <span
                                                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                                         <i class="fas fa-link mr-1"></i>
-                                                        {{ trans('dashboard.already_linked_to', ['default' => 'Already linked to']) }}
-                                                        {{ $order->appointments->count() }}
-                                                        {{ trans_choice('dashboard.appointment', $order->appointments->count(), ['default' => 'appointment']) }}
+                                                        {{ trans('dashboard.already_linked_to_appointment', ['default' => 'Already linked to an appointment']) }}
                                                     </span>
                                                 </div>
                                             @endif
                                             <div class="flex items-start space-x-3">
-                                                <input type="checkbox" wire:model.live="selected_orders"
-                                                    value="{{ $order->id }}" id="order_{{ $order->id }}"
-                                                    class="mt-1 h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                                <div class="mt-1">
+                                                    <div
+                                                        class="w-4 h-4 rounded-full border-2 {{ $selected_order_id == $order->id ? 'bg-green-500 border-green-500' : 'border-gray-300' }} flex items-center justify-center">
+                                                        @if ($selected_order_id == $order->id)
+                                                            <div class="w-2 h-2 bg-white rounded-full"></div>
+                                                        @endif
+                                                    </div>
+                                                </div>
 
                                                 <div class="flex-1 min-w-0">
                                                     <div class="flex justify-between items-start mb-2">
                                                         <div>
-                                                            <label for="order_{{ $order->id }}"
-                                                                class="font-medium text-gray-900 cursor-pointer">
+                                                            <div class="font-medium text-gray-900">
                                                                 {{ $order->order_number }}
-                                                            </label>
+                                                            </div>
                                                             <p class="text-sm text-gray-500">
                                                                 {{ $order->created_at->format('M j, Y') }}
                                                             </p>
@@ -165,12 +167,12 @@
                                                     </div>
 
                                                     <!-- Order Notes Input -->
-                                                    @if (in_array($order->id, $selected_orders))
+                                                    @if ($selected_order_id == $order->id)
                                                         <div class="mt-3">
                                                             <label class="block text-xs font-medium text-gray-700 mb-1">
                                                                 {{ trans('dashboard.order_notes', ['default' => 'Notes for this order']) }}
                                                             </label>
-                                                            <textarea wire:model="order_notes.{{ $order->id }}" rows="2"
+                                                            <textarea wire:model="order_notes" rows="2"
                                                                 placeholder="{{ trans('dashboard.order_notes_placeholder', ['default' => 'Any specific notes about this order for the appointment...']) }}"
                                                                 class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"></textarea>
                                                         </div>
@@ -181,7 +183,7 @@
                                     @endforeach
                                 </div>
 
-                                @error('selected_orders')
+                                @error('selected_order_id')
                                     <div class="text-red-500 text-sm mt-2">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -206,31 +208,31 @@
                     </div>
                 </div>
 
-                <!-- Selected Orders Summary -->
-                @if (count($selected_orders) > 0)
+                <!-- Selected Order Summary -->
+                @if ($selected_order_id)
                     <div class="mb-6">
                         <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                             <h5 class="font-semibold text-green-800 mb-3 flex items-center">
                                 <i class="fas fa-check-circle text-green-600 mr-2"></i>
-                                {{ trans('dashboard.selected_orders_summary', ['default' => 'Selected Orders Summary']) }}
+                                {{ trans('dashboard.selected_order_summary', ['default' => 'Selected Order Summary']) }}
                             </h5>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                                 <div class="bg-white rounded p-3">
                                     <span
-                                        class="font-medium text-gray-700">{{ trans('dashboard.orders_selected', ['default' => 'Orders Selected']) }}:</span>
-                                    <span class="text-green-600 font-semibold">{{ count($selected_orders) }}</span>
+                                        class="font-medium text-gray-700">{{ trans('dashboard.order_selected', ['default' => 'Order Selected']) }}:</span>
+                                    <span class="text-green-600 font-semibold">1</span>
                                 </div>
                                 <div class="bg-white rounded p-3">
                                     <span
                                         class="font-medium text-gray-700">{{ trans('dashboard.total_products', ['default' => 'Total Products']) }}:</span>
                                     <span
-                                        class="text-green-600 font-semibold">{{ $selected_orders_products_count }}</span>
+                                        class="text-green-600 font-semibold">{{ $selected_order_products_count }}</span>
                                 </div>
                                 <div class="bg-white rounded p-3">
                                     <span
                                         class="font-medium text-gray-700">{{ trans('dashboard.total_value', ['default' => 'Total Value']) }}:</span>
                                     <span
-                                        class="text-green-600 font-semibold">${{ number_format($selected_orders_total, 2) }}</span>
+                                        class="text-green-600 font-semibold">${{ number_format($selected_order_total, 2) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -331,23 +333,23 @@
                             </div>
                         </div>
 
-                        <!-- Orders Summary in Appointment Summary -->
-                        @if (count($selected_orders) > 0)
+                        <!-- Order Summary in Appointment Summary -->
+                        @if ($selected_order_id)
                             <div class="mt-4 pt-4 border-t border-blue-200">
                                 <h6 class="font-medium text-gray-900 mb-3">
-                                    {{ trans('dashboard.linked_orders', ['default' => 'Orders to be Linked']) }}:
+                                    {{ trans('dashboard.linked_order', ['default' => 'Order to be Linked']) }}:
                                 </h6>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="bg-white rounded p-3">
                                         <span
-                                            class="text-sm text-gray-600">{{ trans('dashboard.orders_count', ['default' => 'Orders']) }}:</span>
-                                        <span class="font-semibold text-blue-600">{{ count($selected_orders) }}</span>
+                                            class="text-sm text-gray-600">{{ trans('dashboard.order_count', ['default' => 'Order']) }}:</span>
+                                        <span class="font-semibold text-blue-600">1</span>
                                     </div>
                                     <div class="bg-white rounded p-3">
                                         <span
                                             class="text-sm text-gray-600">{{ trans('dashboard.total_value', ['default' => 'Total Value']) }}:</span>
                                         <span
-                                            class="font-semibold text-blue-600">${{ number_format($selected_orders_total, 2) }}</span>
+                                            class="font-semibold text-blue-600">${{ number_format($selected_order_total, 2) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -356,7 +358,7 @@
                 @endif
 
                 <!-- Submit Button -->
-                @if ($appointment_date && count($selected_orders) > 0)
+                @if ($appointment_date && $selected_order_id)
                     <div class="text-center">
                         <button type="submit" wire:loading.attr="disabled" wire:target="bookAppointment"
                             class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white px-8 py-3 rounded-lg inline-flex items-center transition-colors duration-200 text-lg font-medium">
@@ -370,12 +372,12 @@
                             </div>
                         </button>
                     </div>
-                @elseif ($appointment_date && count($selected_orders) == 0)
+                @elseif ($appointment_date && !$selected_order_id)
                     <div class="text-center">
                         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                             <p class="text-yellow-800">
                                 <i class="fas fa-exclamation-triangle mr-2"></i>
-                                {{ trans('dashboard.select_orders_required', ['default' => 'Please select at least one order to link with this appointment.']) }}
+                                {{ trans('dashboard.select_order_required', ['default' => 'Please select an order to link with this appointment.']) }}
                             </p>
                         </div>
                     </div>

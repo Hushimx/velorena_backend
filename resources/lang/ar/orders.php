@@ -61,10 +61,20 @@ return [
     'order_deleted_successfully' => 'تم حذف الطلب بنجاح',
     'cannot_delete_non_pending_order' => 'لا يمكن حذف طلب غير في الانتظار',
     'delete_error' => 'خطأ في حذف الطلب',
+    'order_delete_failed' => 'فشل في حذف الطلب. يرجى المحاولة مرة أخرى.',
+    'order_item_deleted_successfully' => 'تم إزالة العنصر من الطلب بنجاح',
+    'order_item_delete_failed' => 'فشل في إزالة العنصر من الطلب. يرجى المحاولة مرة أخرى.',
+    'cannot_delete_items_non_pending_order' => 'لا يمكن إزالة العناصر من طلب غير في الانتظار',
+    'order_item_not_found' => 'عنصر الطلب غير موجود',
+    'order_not_found' => 'الطلب غير موجود',
+    'unauthorized_action' => 'غير مصرح لك بتنفيذ هذا الإجراء',
+    'no_items_in_order' => 'لا توجد عناصر في هذا الطلب',
+    'order_summary' => 'ملخص الطلب',
 
     // Delete Confirmation
     'confirm_delete_title' => 'تأكيد الحذف',
     'confirm_delete_order' => 'هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.',
+    'confirm_delete_order_item' => 'هل أنت متأكد من إزالة هذا العنصر من الطلب؟ لا يمكن التراجع عن هذا الإجراء.',
     'cancel' => 'إلغاء',
     'delete' => 'حذف',
 
@@ -79,4 +89,12 @@ return [
     'enter_billing_address' => 'أدخل عنوان الفواتير',
     'enter_notes' => 'أدخل ملاحظات الطلب',
     'not_provided' => 'غير مقدم',
+
+    // Add to Order
+    'add_to_order' => 'إضافة إلى الطلب',
+    'options' => 'الخيارات',
+    'optional' => 'اختياري',
+    'notes_placeholder' => 'أضف أي تعليمات خاصة أو ملاحظات لهذا العنصر...',
+    'adding' => 'جاري الإضافة...',
+    'product_added_to_order' => 'تم إضافة المنتج إلى الطلب بنجاح',
 ];
