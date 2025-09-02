@@ -17,25 +17,25 @@ class CategoryController extends Controller
      *     operationId="getCategories",
      *     tags={"Categories"},
      *     summary="Get all active categories",
-     *     description="Retrieve a paginated list of active categories with optional search",
+     *     description="Retrieve a paginated list of active categories with optional search functionality. Categories are sorted by sort_order and then by name.",
      *     @OA\Parameter(
      *         name="search",
      *         in="query",
-     *         description="Search categories by name (English or Arabic)",
+     *         description="Search categories by name in English or Arabic. Performs partial matching on category names.",
      *         required=false,
      *         @OA\Schema(type="string", example="business")
      *     ),
      *     @OA\Parameter(
      *         name="page",
      *         in="query",
-     *         description="Page number for pagination",
+     *         description="Page number for pagination. Starts from 1.",
      *         required=false,
      *         @OA\Schema(type="integer", example=1)
      *     ),
      *     @OA\Parameter(
      *         name="limit",
      *         in="query",
-     *         description="Number of items per page (default: 15, max: 100)",
+     *         description="Number of categories to return per page. Minimum: 1, Maximum: 100, Default: 15.",
      *         required=false,
      *         @OA\Schema(type="integer", example=15)
      *     ),
@@ -71,6 +71,15 @@ class CategoryController extends Controller
      *                 @OA\Property(property="from", type="integer", example=1),
      *                 @OA\Property(property="to", type="integer", example=5)
      *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to retrieve categories"),
+     *             @OA\Property(property="error", type="string", example="Internal server error")
      *         )
      *     )
      * )

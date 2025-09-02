@@ -17,32 +17,32 @@ class ProductController extends Controller
      *     operationId="getProducts",
      *     tags={"Products"},
      *     summary="Get all active products",
-     *     description="Retrieve a paginated list of active products with optional filtering and search",
+     *     description="Retrieve a paginated list of active products with optional filtering by category and search functionality. Products include their options and values for customization.",
      *     @OA\Parameter(
      *         name="category_id",
      *         in="query",
-     *         description="Filter products by category ID",
+     *         description="Filter products by specific category ID. Only products from this category will be returned.",
      *         required=false,
      *         @OA\Schema(type="integer", example=1)
      *     ),
      *     @OA\Parameter(
      *         name="search",
      *         in="query",
-     *         description="Search products by name (English or Arabic)",
+     *         description="Search products by name in English or Arabic. Performs partial matching on product names.",
      *         required=false,
      *         @OA\Schema(type="string", example="business")
      *     ),
      *     @OA\Parameter(
      *         name="page",
      *         in="query",
-     *         description="Page number for pagination",
+     *         description="Page number for pagination. Starts from 1.",
      *         required=false,
      *         @OA\Schema(type="integer", example=1)
      *     ),
      *     @OA\Parameter(
      *         name="limit",
      *         in="query",
-     *         description="Number of items per page (default: 15, max: 100)",
+     *         description="Number of products to return per page. Minimum: 1, Maximum: 100, Default: 15.",
      *         required=false,
      *         @OA\Schema(type="integer", example=15)
      *     ),
@@ -109,6 +109,15 @@ class ProductController extends Controller
      *                 @OA\Property(property="from", type="integer", example=1),
      *                 @OA\Property(property="to", type="integer", example=15)
      *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to retrieve products"),
+     *             @OA\Property(property="error", type="string", example="Internal server error")
      *         )
      *     )
      * )
