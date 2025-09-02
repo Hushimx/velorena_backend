@@ -51,20 +51,94 @@ class AuthController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"client_type","email","password","password_confirmation"},
-     *             @OA\Property(property="client_type", type="string", enum={"individual","company"}, example="individual"),
-     *             @OA\Property(property="full_name", type="string", example="John Doe"),
-     *             @OA\Property(property="company_name", type="string", example="Acme Corp"),
-     *             @OA\Property(property="contact_person", type="string", example="Jane Smith"),
-     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
-     *             @OA\Property(property="phone", type="string", example="+1234567890"),
-     *             @OA\Property(property="address", type="string", example="123 Main St"),
-     *             @OA\Property(property="city", type="string", example="New York"),
-     *             @OA\Property(property="country", type="string", example="USA"),
-     *             @OA\Property(property="vat_number", type="string", example="VAT123456"),
-     *             @OA\Property(property="cr_number", type="string", example="CR123456"),
-     *             @OA\Property(property="notes", type="string", example="Important client"),
-     *             @OA\Property(property="password", type="string", format="password", example="password123"),
-     *             @OA\Property(property="password_confirmation", type="string", format="password", example="password123")
+     *             @OA\Property(
+     *                 property="client_type", 
+     *                 type="string", 
+     *                 enum={"individual","company"}, 
+     *                 description="Type of client account - individual person or company",
+     *                 example="individual"
+     *             ),
+     *             @OA\Property(
+     *                 property="full_name", 
+     *                 type="string", 
+     *                 description="Full name of the individual or primary contact person",
+     *                 example="John Doe"
+     *             ),
+     *             @OA\Property(
+     *                 property="company_name", 
+     *                 type="string", 
+     *                 description="Company name (required if client_type is 'company')",
+     *                 example="Acme Corp"
+     *             ),
+     *             @OA\Property(
+     *                 property="contact_person", 
+     *                 type="string", 
+     *                 description="Name of the contact person for company accounts",
+     *                 example="Jane Smith"
+     *             ),
+     *             @OA\Property(
+     *                 property="email", 
+     *                 type="string", 
+     *                 format="email", 
+     *                 description="Valid email address for account login and communications",
+     *                 example="john@example.com"
+     *             ),
+     *             @OA\Property(
+     *                 property="phone", 
+     *                 type="string", 
+     *                 description="Phone number with country code for contact purposes",
+     *                 example="+1234567890"
+     *             ),
+     *             @OA\Property(
+     *                 property="address", 
+     *                 type="string", 
+     *                 description="Street address for billing and delivery purposes",
+     *                 example="123 Main St"
+     *             ),
+     *             @OA\Property(
+     *                 property="city", 
+     *                 type="string", 
+     *                 description="City name for billing and delivery purposes",
+     *                 example="New York"
+     *             ),
+     *             @OA\Property(
+     *                 property="country", 
+     *                 type="string", 
+     *                 description="Country name for billing and delivery purposes",
+     *                 example="USA"
+     *             ),
+     *             @OA\Property(
+     *                 property="vat_number", 
+     *                 type="string", 
+     *                 description="VAT registration number for tax purposes (optional)",
+     *                 example="VAT123456"
+     *             ),
+     *             @OA\Property(
+     *                 property="cr_number", 
+     *                 type="string", 
+     *                 description="Commercial registration number for business accounts (optional)",
+     *                 example="CR123456"
+     *             ),
+     *             @OA\Property(
+     *                 property="notes", 
+     *                 type="string", 
+     *                 description="Additional notes or special requirements for the account",
+     *                 example="Important client"
+     *             ),
+     *             @OA\Property(
+     *                 property="password", 
+     *                 type="string", 
+     *                 format="password", 
+     *                 description="Account password (minimum 8 characters)",
+     *                 example="password123"
+     *             ),
+     *             @OA\Property(
+     *                 property="password_confirmation", 
+     *                 type="string", 
+     *                 format="password", 
+     *                 description="Password confirmation (must match password field)",
+     *                 example="password123"
+     *             )
      *         )
      *     ),
      *     @OA\Response(
@@ -164,13 +238,25 @@ class AuthController extends Controller
      *     operationId="login",
      *     tags={"Authentication"},
      *     summary="Login user",
-     *     description="Authenticate user with email and password",
+     *     description="Authenticate user with email and password. Returns a Bearer token for API access.",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
      *             required={"email","password"},
-     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
-     *             @OA\Property(property="password", type="string", format="password", example="password123")
+     *             @OA\Property(
+     *                 property="email", 
+     *                 type="string", 
+     *                 format="email", 
+     *                 description="Registered email address for the account",
+     *                 example="john@example.com"
+     *             ),
+     *             @OA\Property(
+     *                 property="password", 
+     *                 type="string", 
+     *                 format="password", 
+     *                 description="Account password for authentication",
+     *                 example="password123"
+     *             )
      *         )
      *     ),
      *     @OA\Response(
@@ -282,6 +368,22 @@ class AuthController extends Controller
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Logged out successfully")
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Logout failed"),
+     *             @OA\Property(property="error", type="string", example="Internal server error")
+     *         )
      *     )
      * )
      */
@@ -344,6 +446,22 @@ class AuthController extends Controller
      *                 )
      *             )
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to get profile"),
+     *             @OA\Property(property="error", type="string", example="Internal server error")
+     *         )
      *     )
      * )
      */
@@ -377,6 +495,148 @@ class AuthController extends Controller
 
     /**
      * Update user profile
+     * 
+     * @OA\Put(
+     *     path="/api/profile",
+     *     operationId="updateProfile",
+     *     tags={"User Profile"},
+     *     summary="Update user profile",
+     *     description="Update the authenticated user's profile information. Only non-sensitive fields can be updated.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="client_type", 
+     *                 type="string", 
+     *                 enum={"individual","company"}, 
+     *                 description="Type of client account - individual person or company",
+     *                 example="individual"
+     *             ),
+     *             @OA\Property(
+     *                 property="full_name", 
+     *                 type="string", 
+     *                 description="Full name of the individual or primary contact person",
+     *                 example="John Doe"
+     *             ),
+     *             @OA\Property(
+     *                 property="company_name", 
+     *                 type="string", 
+     *                 description="Company name (required if client_type is 'company')",
+     *                 example="Acme Corp"
+     *             ),
+     *             @OA\Property(
+     *                 property="contact_person", 
+     *                 type="string", 
+     *                 description="Name of the contact person for company accounts",
+     *                 example="Jane Smith"
+     *             ),
+     *             @OA\Property(
+     *                 property="phone", 
+     *                 type="string", 
+     *                 description="Phone number with country code for contact purposes",
+     *                 example="+1234567890"
+     *             ),
+     *             @OA\Property(
+     *                 property="address", 
+     *                 type="string", 
+     *                 description="Street address for billing and delivery purposes",
+     *                 example="123 Main St"
+     *             ),
+     *             @OA\Property(
+     *                 property="city", 
+     *                 type="string", 
+     *                 description="City name for billing and delivery purposes",
+     *                 example="New York"
+     *             ),
+     *             @OA\Property(
+     *                 property="country", 
+     *                 type="string", 
+     *                 description="Country name for billing and delivery purposes",
+     *                 example="USA"
+     *             ),
+     *             @OA\Property(
+     *                 property="vat_number", 
+     *                 type="string", 
+     *                 description="VAT registration number for tax purposes (optional)",
+     *                 example="VAT123456"
+     *             ),
+     *             @OA\Property(
+     *                 property="cr_number", 
+     *                 type="string", 
+     *                 description="Commercial registration number for business accounts (optional)",
+     *                 example="CR123456"
+     *             ),
+     *             @OA\Property(
+     *                 property="notes", 
+     *                 type="string", 
+     *                 description="Additional notes or special requirements for the account",
+     *                 example="Important client"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Profile updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Profile updated successfully"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="user",
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="client_type", type="string", example="individual"),
+     *                     @OA\Property(property="full_name", type="string", example="John Doe"),
+     *                     @OA\Property(property="company_name", type="string", nullable=true),
+     *                     @OA\Property(property="contact_person", type="string", nullable=true),
+     *                     @OA\Property(property="email", type="string", example="john@example.com"),
+     *                     @OA\Property(property="phone", type="string", example="+1234567890"),
+     *                     @OA\Property(property="address", type="string", example="123 Main St"),
+     *                     @OA\Property(property="city", type="string", example="New York"),
+     *                     @OA\Property(property="country", type="string", example="USA"),
+     *                     @OA\Property(property="vat_number", type="string", nullable=true),
+     *                     @OA\Property(property="cr_number", type="string", nullable=true),
+     *                     @OA\Property(property="notes", type="string", nullable=true),
+     *                     @OA\Property(property="updated_at", type="string", format="date-time", example="2024-01-01T00:00:00.000000Z"),
+     *                     @OA\Property(property="cr_document_url", type="string", nullable=true),
+     *                     @OA\Property(property="vat_document_url", type="string", nullable=true)
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation failed",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(property="full_name", type="array", @OA\Items(type="string", example="The full name field is required."))
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to update profile"),
+     *             @OA\Property(property="error", type="string", example="Internal server error")
+     *         )
+     *     )
+     * )
      */
     public function updateProfile(Request $request)
     {

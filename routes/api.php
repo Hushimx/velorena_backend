@@ -30,38 +30,7 @@ Route::get('/test', function () {
     return response()->json(['message' => 'API route working', 'timestamp' => now()]);
 });
 
-// Swagger documentation routes
-Route::get('/documentation', function () {
-    try {
-        // Check if documentation file exists
-        $docPath = storage_path('api-docs/api-docs.json');
-        if (!file_exists($docPath)) {
-            return response()->json([
-                'error' => 'API documentation not found. Please run: php artisan l5-swagger:generate'
-            ], 404);
-        }
-
-        // Serve the HTML file directly
-        return response()->file(public_path('swagger-ui.html'));
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => 'Failed to load API documentation: ' . $e->getMessage()
-        ], 500);
-    }
-});
-
-Route::get('/documentation/json', function () {
-    $docPath = storage_path('api-docs/api-docs.json');
-    if (!file_exists($docPath)) {
-        return response()->json([
-            'error' => 'API documentation not found. Please run: php artisan l5-swagger:generate'
-        ], 404);
-    }
-
-    return response()->file($docPath, [
-        'Content-Type' => 'application/json'
-    ]);
-});
+// Swagger documentation routes are now handled by RouteServiceProvider
 
 // Public routes
 Route::prefix('auth')->group(function () {
