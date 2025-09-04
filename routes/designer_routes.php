@@ -34,11 +34,12 @@ Route::prefix('designer')->group(function () {
 
         // Appointment routes
         Route::name('designer.')->group(function () {
-            Route::get('/appointments', [App\Http\Controllers\AppointmentController::class, 'designerDashboard'])->name('appointments.dashboard');
             Route::get('/appointments/list', [App\Http\Controllers\AppointmentController::class, 'designerAppointments'])->name('appointments.index');
+            Route::get('/appointments/{appointment}', [App\Http\Controllers\AppointmentController::class, 'designerShow'])->name('appointments.show');
             Route::post('/appointments/{appointment}/accept', [App\Http\Controllers\AppointmentController::class, 'accept'])->name('appointments.accept');
             Route::post('/appointments/{appointment}/reject', [App\Http\Controllers\AppointmentController::class, 'reject'])->name('appointments.reject');
             Route::post('/appointments/{appointment}/complete', [App\Http\Controllers\AppointmentController::class, 'complete'])->name('appointments.complete');
+            Route::get('/appointments', [App\Http\Controllers\AppointmentController::class, 'designerDashboard'])->name('appointments.dashboard');
         });
     });
 

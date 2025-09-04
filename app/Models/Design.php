@@ -35,6 +35,13 @@ class Design extends Model
             ->withTimestamps();
     }
 
+    public function products(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class, 'product_designs')
+            ->withPivot('user_id', 'notes', 'priority')
+            ->withTimestamps();
+    }
+
     // Scopes
     public function scopeActive($query)
     {

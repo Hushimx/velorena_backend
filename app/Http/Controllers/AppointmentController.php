@@ -370,6 +370,34 @@ class AppointmentController extends Controller
     }
 
     /**
+     * Show designer's appointment details
+     */
+    public function designerShow(Appointment $appointment)
+    {
+        // Get the authenticated designer
+        $authenticatedDesigner = Auth::guard('designer')->user();
+
+        // If no designer is authenticated, abort
+        if (!$authenticatedDesigner) {
+            abort(403, 'Designer authentication required');
+        }
+
+        // Check if the appointment belongs to this designer
+        if ($appointment->designer_id !== $authenticatedDesigner->id) {
+            abort(403, 'You can only view your own appointments');
+        }
+
+        // Load the appointment with all necessary relationships
+        $appointment->load([
+            'user:id,full_name,email,phone',
+            'order.items.product',
+            'order.items.product.options.values'
+        ]);
+
+        return view('designer.appointments.show', compact('appointment'));
+    }
+
+    /**
      * Show user's appointments
      */
     public function userAppointments(Request $request, User $user)

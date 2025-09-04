@@ -204,6 +204,7 @@ class BookAppointmentWithOrders extends Component
                 'status' => 'pending'
             ]);
 
+
             DB::commit();
 
             // Reset form
@@ -247,6 +248,7 @@ class BookAppointmentWithOrders extends Component
         }
         return 0;
     }
+
 
     public function render()
     {

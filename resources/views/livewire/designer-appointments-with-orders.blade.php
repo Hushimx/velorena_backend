@@ -91,6 +91,62 @@
                         </div>
                     </div>
 
+                    <!-- Product Designs -->
+                    @php
+                        $productDesigns = collect();
+                        foreach ($appointment->order->items as $item) {
+                            $designs = $item->product->designsForUser($appointment->user_id)->get();
+                            if ($designs->count() > 0) {
+                                $productDesigns->push([
+                                    'product' => $item->product,
+                                    'designs' => $designs,
+                                ]);
+                            }
+                        }
+                    @endphp
+
+                    @if ($productDesigns->count() > 0)
+                        <div class="mb-4">
+                            <h4 class="font-semibold mb-3 flex items-center">
+                                <i class="fas fa-palette text-purple-600 mr-2"></i>
+                                🎨 Client's Design Inspirations:
+                            </h4>
+                            <div class="space-y-4">
+                                @foreach ($productDesigns as $productDesignData)
+                                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                        <h5 class="font-medium text-purple-800 mb-3">
+                                            {{ $productDesignData['product']->name }}
+                                        </h5>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                            @foreach ($productDesignData['designs'] as $productDesign)
+                                                <div class="bg-white rounded-lg p-3 border border-purple-200">
+                                                    <div class="flex items-start space-x-3">
+                                                        <img src="{{ $productDesign->design->thumbnail_url ?? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjY2NjY2NjIi8+PHRleHQgeD0iMzAiIHk9IjMwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiM2NjY2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5EZXNpZ248L3RleHQ+PC9zdmc+' }}"
+                                                            alt="{{ $productDesign->design->title }}"
+                                                            class="w-12 h-12 object-cover rounded">
+                                                        <div class="flex-1 min-w-0">
+                                                            <h6 class="font-medium text-gray-900 text-sm truncate">
+                                                                {{ $productDesign->design->title }}
+                                                            </h6>
+                                                            <p class="text-xs text-gray-500">
+                                                                Priority: {{ $productDesign->priority }}
+                                                            </p>
+                                                            @if ($productDesign->notes)
+                                                                <p class="text-xs text-gray-600 mt-1">
+                                                                    {{ Str::limit($productDesign->notes, 60) }}
+                                                                </p>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
                     <!-- Order Details -->
                     <div class="mb-4">
                         <h4 class="font-semibold mb-2">📋 Order Details:</h4>

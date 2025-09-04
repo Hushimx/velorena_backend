@@ -123,6 +123,66 @@
                                         </button>
                                     </div>
                                 </div>
+
+                                <!-- Selected Designs Display -->
+                                @php
+                                    $selectedDesigns = \App\Models\ProductDesign::where('user_id', auth()->id())
+                                        ->where('product_id', $item['product_id'] ?? 0)
+                                        ->with('design')
+                                        ->orderBy('priority')
+                                        ->get();
+                                @endphp
+
+                                @if ($selectedDesigns->count() > 0)
+                                    <div class="mt-3">
+                                        <h4 class="text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                            <i class="fas fa-palette text-purple-600 mr-1"></i>
+                                            {{ trans('cart.selected_designs', ['default' => 'Selected Designs']) }}
+                                            ({{ $selectedDesigns->count() }})
+                                        </h4>
+                                        <div class="flex flex-wrap gap-2 mb-2">
+                                            @foreach ($selectedDesigns as $productDesign)
+                                                <div
+                                                    class="flex items-center bg-purple-50 border border-purple-200 rounded-lg p-2">
+                                                    <img src="{{ $productDesign->design->thumbnail_url ?? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiBmaWxsPSIjY2NjY2NjIi8+PHRleHQgeD0iMTUiIHk9IjE1IiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iOCIgZmlsbD0iIzY2NjY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkQ8L3RleHQ+PC9zdmc+' }}"
+                                                        alt="{{ $productDesign->design->title }}"
+                                                        class="w-8 h-8 object-cover rounded mr-2">
+                                                    <div class="flex-1 min-w-0">
+                                                        <p class="text-xs font-medium text-gray-900 truncate"
+                                                            title="{{ $productDesign->design->title }}">
+                                                            {{ $productDesign->design->title }}
+                                                        </p>
+                                                        <div class="flex items-center">
+                                                            <span class="text-xs text-purple-600 font-medium">Priority
+                                                                {{ $productDesign->priority }}</span>
+                                                            @if ($productDesign->notes)
+                                                                <span class="text-xs text-gray-500 ml-2">•
+                                                                    {{ Str::limit($productDesign->notes, 20) }}</span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        <a href="{{ route('user.product.designs', ['product' => $item['product_id'] ?? 0]) }}"
+                                            class="inline-flex items-center text-xs text-purple-600 hover:text-purple-800 font-medium">
+                                            <i class="fas fa-edit mr-1"></i>
+                                            {{ trans('cart.edit_designs', ['default' => 'Edit Designs']) }}
+                                        </a>
+                                    </div>
+                                @else
+                                    <!-- Design Selection Button -->
+                                    <div class="mt-3">
+                                        <a href="{{ route('user.product.designs', ['product' => $item['product_id'] ?? 0]) }}"
+                                            class="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                                            <i class="fas fa-palette mr-2"></i>
+                                            {{ trans('cart.select_designs', ['default' => 'Select Designs']) }}
+                                        </a>
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            {{ trans('cart.select_designs_help', ['default' => 'Choose designs to inspire your product']) }}
+                                        </p>
+                                    </div>
+                                @endif
                             </div>
 
                             <!-- Price and Actions -->

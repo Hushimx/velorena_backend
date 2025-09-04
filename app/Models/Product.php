@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Product extends Model
@@ -38,5 +39,21 @@ class Product extends Model
     public function options(): HasMany
     {
         return $this->hasMany(ProductOption::class);
+    }
+
+    // Relationship with designs through product_designs pivot table
+    public function designs(): BelongsToMany
+    {
+        return $this->belongsToMany(Design::class, 'product_designs')
+            ->withPivot('user_id', 'notes', 'priority')
+            ->withTimestamps();
+    }
+
+    // Get designs for a specific user
+    public function designsForUser($userId)
+    {
+        return $this->designs()
+            ->wherePivot('user_id', $userId)
+            ->orderByPivot('priority');
     }
 }

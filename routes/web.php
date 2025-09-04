@@ -73,6 +73,12 @@ Route::group(
             // Orders routes
             Route::get('/orders', [App\Http\Controllers\UserOrderController::class, 'index'])->name('user.orders.index');
             Route::get('/orders/{order}', [App\Http\Controllers\UserOrderController::class, 'show'])->name('user.orders.show');
+
+            // Product Design Selection routes
+            Route::get('/products/{product}/designs', [App\Http\Controllers\ProductDesignController::class, 'index'])->name('user.product.designs');
+            Route::post('/products/{product}/designs', [App\Http\Controllers\ProductDesignController::class, 'store'])->name('user.product.designs.store');
+            Route::post('/products/{product}/designs/sync', [App\Http\Controllers\ProductDesignController::class, 'syncDesigns'])->name('user.product.designs.sync');
+            Route::delete('/products/{product}/designs/{design}', [App\Http\Controllers\ProductDesignController::class, 'destroy'])->name('user.product.designs.destroy');
         });
     }
 );
