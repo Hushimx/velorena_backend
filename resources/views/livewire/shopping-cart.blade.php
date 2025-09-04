@@ -109,10 +109,12 @@
                                     <label class="text-sm font-medium text-gray-700">
                                         {{ trans('cart.quantity') }}:
                                     </label>
-                                    <div class="flex items-center border border-gray-300 rounded-lg">
+                                    <div class="flex items-center border border-gray-300 rounded-lg"
+                                        wire:key="quantity-controls-{{ $item['product_id'] ?? 0 }}-{{ $item['quantity'] ?? 1 }}">
                                         <button
-                                            wire:click="updateQuantity({{ $item['product_id'] ?? 0 }}, {{ ($item['quantity'] ?? 1) - 1 }})"
-                                            class="px-3 py-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-l-lg">
+                                            wire:click="updateQuantity({{ $item['product_id'] ?? 0 }}, {{ max(1, ($item['quantity'] ?? 1) - 1) }})"
+                                            class="px-3 py-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-l-lg {{ ($item['quantity'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                            {{ ($item['quantity'] ?? 1) <= 1 ? 'disabled' : '' }}>
                                             <i class="fas fa-minus text-xs"></i>
                                         </button>
                                         <span class="px-4 py-1 text-center min-w-[3rem] font-medium">
@@ -254,7 +256,8 @@
                 </div>
 
                 <div class="mt-4 text-center">
-                    <a href="{{ route('user.products.index') }}" class="text-blue-600 hover:text-blue-800 font-medium">
+                    <a href="{{ route('user.products.index') }}"
+                        class="text-blue-600 hover:text-blue-800 font-medium">
                         <i class="fas fa-arrow-left mr-1"></i>
                         {{ trans('cart.continue_shopping') }}
                     </a>
@@ -403,21 +406,24 @@
 
             // Listen for clear cart event
             Livewire.on('clearCart', () => {
-                console.log('Clear cart event received');
                 window.clearCart();
             });
 
             // Listen for remove item event
-            Livewire.on('removeFromCart', (productId) => {
-                console.log('Remove item event received for product:', productId);
+            Livewire.on('removeFromCart', (event) => {
+                const [productId] = event;
                 window.removeFromCart(productId);
             });
 
             // Listen for update quantity event
-            Livewire.on('updateCartQuantity', (productId, quantity) => {
-                console.log('Update quantity event received for product:', productId, 'quantity:',
-                    quantity);
+            Livewire.on('updateCartQuantity', (event) => {
+                const [productId, quantity] = event;
                 window.updateCartQuantity(productId, quantity);
+
+                // Force a small delay to ensure localStorage is updated before refresh
+                setTimeout(() => {
+                    @this.$refresh();
+                }, 100);
             });
 
             // Use event delegation for remove buttons to handle dynamically added elements
@@ -427,7 +433,6 @@
                     const wireClick = button.getAttribute('wire:click');
                     const productId = wireClick.match(/removeItem\((\d+)\)/)?.[1];
                     if (productId) {
-                        console.log('Remove button clicked via delegation for product:', productId);
                         window.removeFromCart(productId);
                     }
                 }
@@ -493,7 +498,6 @@
             // Listen for design removal events (optional - the $refresh above should be enough)
             document.addEventListener('livewire:init', () => {
                 Livewire.on('design-removed', (event) => {
-                    console.log('Design removed event received:', event);
                     // The $refresh dispatch above should handle the refresh
                 });
             });

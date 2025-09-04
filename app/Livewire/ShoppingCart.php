@@ -46,11 +46,26 @@ class ShoppingCart extends Component
 
     public function updateQuantity($productId, $quantity)
     {
-        if ($quantity <= 0) {
-            $this->removeItem($productId);
+        // Validate productId
+        if (!$productId || $productId <= 0) {
+            session()->flash('error', trans('cart.invalid_product', ['default' => 'Invalid product.']));
             return;
         }
+
+        // Ensure quantity is at least 1
+        $quantity = max(1, $quantity);
+
+        // If quantity is 1 and user is trying to decrease, don't do anything
+        if ($quantity <= 0) {
+            session()->flash('error', trans('cart.quantity_minimum', ['default' => 'Minimum quantity is 1. Use remove button to delete item.']));
+            return;
+        }
+
+        // Dispatch event to update localStorage
         $this->dispatch('updateCartQuantity', $productId, $quantity);
+
+        // Refresh the component to sync with updated localStorage
+        $this->dispatch('$refresh');
     }
 
     public function clearCart()

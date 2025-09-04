@@ -55,4 +55,6 @@ return [
     'confirm_clear_cart' => 'Are you sure you want to clear all items from your cart? This action cannot be undone.',
     'confirm_remove_item' => 'Are you sure you want to remove :product from your cart?',
     'this_item' => 'this item',
+    'invalid_product' => 'Invalid product.',
+    'quantity_minimum' => 'Minimum quantity is 1. Use remove button to delete item.',
 ];
