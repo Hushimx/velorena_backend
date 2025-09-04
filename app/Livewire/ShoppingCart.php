@@ -179,6 +179,46 @@ class ShoppingCart extends Component
         return $items;
     }
 
+    public function removeDesignFromProduct($productId, $designId)
+    {
+        try {
+            // Get the design title before deletion for success message
+            $design = \App\Models\Design::find($designId);
+            $designTitle = $design ? $design->title : 'Design';
+
+            // Use direct deletion with count to verify success
+            $deleted = \App\Models\ProductDesign::where('user_id', Auth::id())
+                ->where('product_id', $productId)
+                ->where('design_id', $designId)
+                ->delete();
+
+            if ($deleted === 0) {
+                session()->flash('error', trans('cart.design_not_found', ['default' => 'Design not found or already removed.']));
+                return;
+            }
+
+            // Show success message
+            session()->flash('success', trans('cart.design_removed_success', ['default' => "Design ':design' removed successfully!", 'design' => $designTitle]));
+
+            // Just refresh the component without resetting cart data
+            $this->dispatch('$refresh');
+
+            // Dispatch custom event for frontend refresh
+            $this->dispatch('design-removed', [
+                'product_id' => $productId,
+                'design_id' => $designId
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error removing design from product: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+                'product_id' => $productId,
+                'design_id' => $designId,
+                'error' => $e->getMessage()
+            ]);
+            session()->flash('error', trans('cart.design_remove_failed', ['default' => 'Failed to remove design. Please try again.']));
+        }
+    }
+
     public function render()
     {
         return view('livewire.shopping-cart');

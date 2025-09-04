@@ -14,7 +14,9 @@
                     </p>
                 </div>
                 @if ($itemCount > 0)
-                    <button wire:click="clearCart" class="text-red-600 hover:text-red-800 font-medium flex items-center">
+                    <button wire:click="clearCart"
+                        wire:confirm="{{ trans('cart.confirm_clear_cart', ['default' => 'Are you sure you want to clear all items from your cart? This action cannot be undone.']) }}"
+                        class="text-red-600 hover:text-red-800 font-medium flex items-center">
                         <i class="fas fa-trash mr-2"></i>
                         {{ trans('cart.clear_cart') }}
                     </button>
@@ -126,6 +128,7 @@
 
                                 <!-- Selected Designs Display -->
                                 @php
+                                    // Force fresh query each time to avoid stale data after deletions
                                     $selectedDesigns = \App\Models\ProductDesign::where('user_id', auth()->id())
                                         ->where('product_id', $item['product_id'] ?? 0)
                                         ->with('design')
@@ -142,8 +145,8 @@
                                         </h4>
                                         <div class="flex flex-wrap gap-2 mb-2">
                                             @foreach ($selectedDesigns as $productDesign)
-                                                <div
-                                                    class="flex items-center bg-purple-50 border border-purple-200 rounded-lg p-2">
+                                                <div wire:key="design-{{ $productDesign->id }}-{{ $productDesign->product_id }}-{{ $productDesign->design_id }}"
+                                                    class="flex items-center bg-purple-50 border border-purple-200 rounded-lg p-2 group hover:bg-purple-100 transition-colors">
                                                     <img src="{{ $productDesign->design->thumbnail_url ?? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiBmaWxsPSIjY2NjY2NjIi8+PHRleHQgeD0iMTUiIHk9IjE1IiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iOCIgZmlsbD0iIzY2NjY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkQ8L3RleHQ+PC9zdmc+' }}"
                                                         alt="{{ $productDesign->design->title }}"
                                                         class="w-8 h-8 object-cover rounded mr-2">
@@ -153,7 +156,8 @@
                                                             {{ $productDesign->design->title }}
                                                         </p>
                                                         <div class="flex items-center">
-                                                            <span class="text-xs text-purple-600 font-medium">Priority
+                                                            <span
+                                                                class="text-xs text-purple-600 font-medium">{{ trans('cart.priority', ['default' => 'Priority']) }}
                                                                 {{ $productDesign->priority }}</span>
                                                             @if ($productDesign->notes)
                                                                 <span class="text-xs text-gray-500 ml-2">•
@@ -161,6 +165,13 @@
                                                             @endif
                                                         </div>
                                                     </div>
+                                                    <button
+                                                        wire:click="removeDesignFromProduct({{ $productDesign->product_id }}, {{ $productDesign->design_id }})"
+                                                        wire:confirm="{{ trans('cart.confirm_remove_design', ['default' => 'Are you sure you want to remove this design from :product?', 'product' => $item['product_name'] ?? trans('cart.this_product', ['default' => 'this product'])]) }}"
+                                                        class="ml-2 p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors opacity-0 group-hover:opacity-100"
+                                                        title="{{ trans('cart.remove_this_design', ['default' => 'Remove this design']) }}">
+                                                        <i class="fas fa-times text-xs"></i>
+                                                    </button>
                                                 </div>
                                             @endforeach
                                         </div>
@@ -191,6 +202,7 @@
                                     ${{ number_format($item['total_price'] ?? 0, 2) }}
                                 </div>
                                 <button wire:click="removeItem({{ $item['product_id'] ?? 0 }})"
+                                    wire:confirm="{{ trans('cart.confirm_remove_item', ['default' => 'Are you sure you want to remove this item from your cart?', 'product' => $item['product_name'] ?? trans('cart.this_item', ['default' => 'this item'])]) }}"
                                     class="text-red-600 hover:text-red-800 text-sm font-medium flex items-center">
                                     <i class="fas fa-trash mr-1"></i>
                                     {{ trans('cart.remove') }}
@@ -477,6 +489,14 @@
                     console.log('Manual cart set failed:', e);
                 }
             };
+
+            // Listen for design removal events (optional - the $refresh above should be enough)
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('design-removed', (event) => {
+                    console.log('Design removed event received:', event);
+                    // The $refresh dispatch above should handle the refresh
+                });
+            });
         });
     </script>
 </div>
