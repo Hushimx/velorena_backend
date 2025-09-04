@@ -29,10 +29,26 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         $this->routes(function () {
+            // Load API routes first
             Route::middleware('api')
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
 
+            // Add Swagger UI route
+            Route::get('api/docs', function () {
+                return response()->file(public_path('swagger-ui.html'));
+            })->name('l5-swagger.default.api');
+
+            // Add missing JSON route for Swagger UI
+            Route::get('api/documentation/json', function () {
+                $filePath = storage_path('api-docs/api-docs.json');
+                if (file_exists($filePath)) {
+                    return response()->file($filePath, ['Content-Type' => 'application/json']);
+                }
+                return response()->json(['error' => 'Documentation not found'], 404);
+            })->name('l5-swagger.default.docs.json');
+
+            // Load web routes last
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
         });

@@ -2,6 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
+/**
+ * @OA\Info(
+ *     title="Velorena API",
+ *     version="1.0.0",
+ *     description="API for Velorena Backend - Orders and Appointments Management",
+ *     @OA\Contact(
+ *         email="admin@velorena.com"
+ *     )
+ * )
+ */
+
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreAppointmentRequest;
 use App\Http\Requests\Api\UpdateAppointmentRequest;
@@ -14,6 +25,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * @OA\Tag(
+ *     name="Appointments",
+ *     description="API Endpoints for appointment management"
+ * )
+ */
 class AppointmentController extends Controller
 {
     public function __construct(
@@ -22,6 +39,83 @@ class AppointmentController extends Controller
 
     /**
      * Get user's appointments
+     * 
+     * @OA\Get(
+     *     path="/api/appointments",
+     *     summary="Get user's appointments",
+     *     description="Retrieve all appointments for the authenticated user with filtering, sorting, and pagination",
+     *     tags={"Appointments"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="Filter by appointment status",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"pending", "accepted", "rejected", "completed", "cancelled"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="designer_id",
+     *         in="query",
+     *         description="Filter by designer ID",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="date_from",
+     *         in="query",
+     *         description="Filter from date (YYYY-MM-DD)",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date")
+     *     ),
+     *     @OA\Parameter(
+     *         name="date_to",
+     *         in="query",
+     *         description="Filter to date (YYYY-MM-DD)",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date")
+     *     ),
+     *     @OA\Parameter(
+     *         name="search",
+     *         in="query",
+     *         description="Search in service type, description, or notes",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort_by",
+     *         in="query",
+     *         description="Sort field",
+     *         required=false,
+     *         @OA\Schema(type="string", default="appointment_date", enum={"appointment_date", "created_at", "status"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort_order",
+     *         in="query",
+     *         description="Sort direction",
+     *         required=false,
+     *         @OA\Schema(type="string", default="asc", enum={"asc", "desc"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Items per page",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=15, minimum=1, maximum=100)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Appointments retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="data", type="array", @OA\Items(type="object")),
+     *             @OA\Property(property="links", type="object"),
+     *             @OA\Property(property="meta", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     )
+     * )
      */
     public function index(Request $request): AppointmentCollection
     {
@@ -67,128 +161,46 @@ class AppointmentController extends Controller
         return new AppointmentCollection($appointments);
     }
 
-    /**
-     * Get designer's appointments
-     */
-    public function designerAppointments(Request $request): AppointmentCollection
-    {
-        $user = Auth::user();
 
-        $query = Appointment::where('designer_id', $user->id)
-            ->with(['user', 'order']);
 
-        // Apply filters
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
-        }
 
-        if ($request->has('date_from') && $request->date_from) {
-            $query->where('appointment_date', '>=', $request->date_from);
-        }
 
-        if ($request->has('date_to') && $request->date_to) {
-            $query->where('appointment_date', '<=', $request->date_to);
-        }
 
-        // Apply sorting
-        $sortBy = $request->get('sort_by', 'appointment_date');
-        $sortOrder = $request->get('sort_order', 'asc');
-        $query->orderBy($sortBy, $sortOrder);
-
-        // Pagination
-        $perPage = $request->get('per_page', 15);
-        $appointments = $query->paginate($perPage);
-
-        return new AppointmentCollection($appointments);
-    }
-
-    /**
-     * Get unassigned appointments (for designers to claim)
-     */
-    public function unassignedAppointments(Request $request): AppointmentCollection
-    {
-        $query = Appointment::whereNull('designer_id')
-            ->where('status', 'pending')
-            ->with(['user', 'order']);
-
-        // Apply filters
-        if ($request->has('service_type') && $request->service_type) {
-            $query->where('service_type', 'like', '%' . $request->service_type . '%');
-        }
-
-        if ($request->has('date_from') && $request->date_from) {
-            $query->where('appointment_date', '>=', $request->date_from);
-        }
-
-        if ($request->has('date_to') && $request->date_to) {
-            $query->where('appointment_date', '<=', $request->date_to);
-        }
-
-        // Apply sorting
-        $sortBy = $request->get('sort_by', 'appointment_date');
-        $sortOrder = $request->get('sort_order', 'asc');
-        $query->orderBy($sortBy, $sortOrder);
-
-        // Pagination
-        $perPage = $request->get('per_page', 15);
-        $appointments = $query->paginate($perPage);
-
-        return new AppointmentCollection($appointments);
-    }
-
-    /**
-     * Claim an unassigned appointment (for designers)
-     */
-    public function claimAppointment(Appointment $appointment): JsonResponse
-    {
-        try {
-            $user = Auth::user();
-
-            // Check if user is a designer
-            if (!$user->designer) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Only designers can claim appointments'
-                ], 403);
-            }
-
-            // Check if appointment is unassigned
-            if ($appointment->designer_id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Appointment is already assigned to a designer'
-                ], 400);
-            }
-
-            // Check if designer is available at this time
-            $this->appointmentService->checkDesignerAvailability(
-                $user->designer->id,
-                $appointment->appointment_date,
-                $appointment->appointment_time
-            );
-
-            // Claim the appointment
-            $appointment->update([
-                'designer_id' => $user->designer->id,
-                'status' => 'confirmed'
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Appointment claimed successfully',
-                'data' => new AppointmentResource($appointment->load(['designer', 'user', 'order']))
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to claim appointment',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
 
     /**
      * Get specific appointment details
+     * 
+     * @OA\Get(
+     *     path="/api/appointments/{appointment}",
+     *     summary="Get appointment details",
+     *     description="Retrieve detailed information about a specific appointment",
+     *     tags={"Appointments"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="appointment",
+     *         in="path",
+     *         description="Appointment ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Appointment retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Appointment retrieved successfully"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Unauthorized access to appointment"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Appointment not found"
+     *     )
+     * )
      */
     public function show(Appointment $appointment): JsonResponse
     {
@@ -211,6 +223,47 @@ class AppointmentController extends Controller
 
     /**
      * Create a new appointment
+     * 
+     * @OA\Post(
+     *     path="/api/appointments",
+     *     summary="Create new appointment",
+     *     description="Create a new appointment with optional designer assignment",
+     *     tags={"Appointments"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"appointment_date", "appointment_time", "service_type"},
+     *             @OA\Property(property="designer_id", type="integer", example=1, description="Designer ID (optional)"),
+     *             @OA\Property(property="appointment_date", type="string", format="date", example="2025-01-20", description="Appointment date (must be future)"),
+     *             @OA\Property(property="appointment_time", type="string", format="time", example="14:00", description="Appointment time (HH:MM)"),
+     *             @OA\Property(property="service_type", type="string", example="Interior Design Consultation", maxLength=100),
+     *             @OA\Property(property="description", type="string", example="Need help with living room design", maxLength=500),
+     *             @OA\Property(property="duration", type="integer", example=60, minimum=30, maximum=480, description="Duration in minutes"),
+     *             @OA\Property(property="location", type="string", example="123 Main St, City", maxLength=200),
+     *             @OA\Property(property="notes", type="string", example="Please bring color samples", maxLength=500),
+     *             @OA\Property(property="order_id", type="integer", example=5, description="Link to specific order (optional)"),
+     *             @OA\Property(property="order_notes", type="string", example="Related to order #123", maxLength=500)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Appointment created successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Appointment created successfully"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation error"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     )
+     * )
      */
     public function store(StoreAppointmentRequest $request): JsonResponse
     {
@@ -233,6 +286,57 @@ class AppointmentController extends Controller
 
     /**
      * Update an appointment
+     * 
+     * @OA\Put(
+     *     path="/api/appointments/{appointment}",
+     *     summary="Update appointment",
+     *     description="Update an existing appointment (only if status is pending or confirmed)",
+     *     tags={"Appointments"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="appointment",
+     *         in="path",
+     *         description="Appointment ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="designer_id", type="integer", example=1, description="Designer ID (optional)"),
+     *             @OA\Property(property="appointment_date", type="string", format="date", example="2025-01-20"),
+     *             @OA\Property(property="appointment_time", type="string", format="time", example="14:00"),
+     *             @OA\Property(property="service_type", type="string", example="Interior Design Consultation", maxLength=100),
+     *             @OA\Property(property="description", type="string", example="Updated description", maxLength=500),
+     *             @OA\Property(property="duration", type="integer", example=90, minimum=30, maximum=480),
+     *             @OA\Property(property="location", type="string", example="456 Oak St, City", maxLength=200),
+     *             @OA\Property(property="notes", type="string", example="Updated notes", maxLength=500),
+     *             @OA\Property(property="order_id", type="integer", example=5),
+     *             @OA\Property(property="order_notes", type="string", example="Updated order notes", maxLength=500)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Appointment updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Appointment updated successfully"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation error or cannot modify appointment"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Unauthorized access to appointment"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Appointment not found"
+     *     )
+     * )
      */
     public function update(UpdateAppointmentRequest $request, Appointment $appointment): JsonResponse
     {
@@ -262,7 +366,42 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Delete an appointment
+     * Cancel an appointment
+     * 
+     * @OA\Delete(
+     *     path="/api/appointments/{appointment}",
+     *     summary="Cancel appointment",
+     *     description="Cancel a specific appointment (only if status is pending or confirmed)",
+     *     tags={"Appointments"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="appointment",
+     *         in="path",
+     *         description="Appointment ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Appointment cancelled successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Appointment cancelled successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Cannot cancel appointment"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Unauthorized access to appointment"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Appointment not found"
+     *     )
+     * )
      */
     public function destroy(Appointment $appointment): JsonResponse
     {
@@ -275,42 +414,12 @@ class AppointmentController extends Controller
                 ], 403);
             }
 
-            $this->appointmentService->deleteAppointment($appointment);
+            // Cancel the appointment instead of deleting
+            $this->appointmentService->cancelAppointment($appointment);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Appointment deleted successfully'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to delete appointment',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Cancel an appointment
-     */
-    public function cancel(Request $request, Appointment $appointment): JsonResponse
-    {
-        try {
-            // Check if user can access this appointment
-            if (!$this->appointmentService->canAccessAppointment($appointment)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized access to appointment'
-                ], 403);
-            }
-
-            $reason = $request->input('reason');
-            $updatedAppointment = $this->appointmentService->cancelAppointment($appointment, $reason);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Appointment cancelled successfully',
-                'data' => new AppointmentResource($updatedAppointment)
+                'message' => 'Appointment cancelled successfully'
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -321,122 +430,13 @@ class AppointmentController extends Controller
         }
     }
 
-    /**
-     * Confirm an appointment
-     */
-    public function confirm(Appointment $appointment): JsonResponse
-    {
-        try {
-            // Check if user can access this appointment
-            if (!$this->appointmentService->canAccessAppointment($appointment)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized access to appointment'
-                ], 403);
-            }
 
-            $updatedAppointment = $this->appointmentService->confirmAppointment($appointment);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Appointment confirmed successfully',
-                'data' => new AppointmentResource($updatedAppointment)
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to confirm appointment',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
 
-    /**
-     * Complete an appointment
-     */
-    public function complete(Appointment $appointment): JsonResponse
-    {
-        try {
-            // Check if user can access this appointment
-            if (!$this->appointmentService->canAccessAppointment($appointment)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized access to appointment'
-                ], 403);
-            }
 
-            $updatedAppointment = $this->appointmentService->completeAppointment($appointment);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Appointment completed successfully',
-                'data' => new AppointmentResource($updatedAppointment)
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to complete appointment',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
 
-    /**
-     * Get available time slots for a designer
-     */
-    public function availableTimeSlots(Request $request): JsonResponse
-    {
-        try {
-            $request->validate([
-                'designer_id' => 'required|integer|exists:designers,id',
-                'date' => 'required|date|after:today'
-            ]);
 
-            $timeSlots = $this->appointmentService->getAvailableTimeSlots(
-                $request->designer_id,
-                $request->date
-            );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Available time slots retrieved successfully',
-                'data' => [
-                    'designer_id' => $request->designer_id,
-                    'date' => $request->date,
-                    'available_slots' => $timeSlots
-                ]
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to get available time slots',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
 
-    /**
-     * Get upcoming appointments
-     */
-    public function upcoming(Request $request): JsonResponse
-    {
-        try {
-            $user = Auth::user();
-            $limit = $request->get('limit', 10);
-
-            $appointments = $this->appointmentService->getUpcomingAppointments($user->id, $limit);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Upcoming appointments retrieved successfully',
-                'data' => AppointmentResource::collection($appointments)
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to get upcoming appointments',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
 }

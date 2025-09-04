@@ -17,31 +17,79 @@ class OtpController extends Controller
     }
 
     /**
-     * Send OTP
+     * Send OTP to user
      * 
-     * @group Authentication
-     * 
-     * @bodyParam identifier string required The email or phone number to send OTP to. Example: john@example.com
-     * @bodyParam type string required The type of OTP (email, sms, whatsapp, fake). Example: email
-     * @bodyParam expiry_minutes integer The expiry time in minutes (1-60). Example: 10
-     * 
-     * @response 200 {
-     *   "success": true,
-     *   "message": "OTP sent successfully",
-     *   "data": {
-     *     "otp_id": "123",
-     *     "expires_at": "2024-01-01T00:10:00.000000Z",
-     *     "type": "email"
-     *   }
-     * }
-     * 
-     * @response 422 {
-     *   "success": false,
-     *   "message": "Validation failed",
-     *   "errors": {
-     *     "identifier": ["The identifier field is required."]
-     *   }
-     * }
+     * @OA\Post(
+     *     path="/api/auth/send-otp",
+     *     operationId="sendOtp",
+     *     tags={"Authentication"},
+     *     summary="Send OTP to user",
+     *     description="Send a one-time password (OTP) to the user's email, phone, or WhatsApp. The OTP can be used for verification purposes.",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"identifier","type"},
+     *             @OA\Property(
+     *                 property="identifier", 
+     *                 type="string", 
+     *                 description="Email address or phone number where the OTP will be sent. For email OTP, use a valid email format. For SMS/WhatsApp, use international phone number format with country code.",
+     *                 example="john@example.com"
+     *             ),
+     *             @OA\Property(
+     *                 property="type", 
+     *                 type="string", 
+     *                 enum={"email","sms","whatsapp","fake"}, 
+     *                 description="Delivery method for the OTP. 'email' sends via email, 'sms' sends via text message, 'whatsapp' sends via WhatsApp, 'fake' generates a test OTP for development",
+     *                 example="email"
+     *             ),
+     *             @OA\Property(
+     *                 property="expiry_minutes", 
+     *                 type="integer", 
+     *                 minimum=1,
+     *                 maximum=60,
+     *                 description="Number of minutes before the OTP expires. Must be between 1-60 minutes. Default is 10 minutes if not specified.",
+     *                 example=10
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="OTP sent successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="OTP sent successfully"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="otp_id", type="string", example="123"),
+     *                 @OA\Property(property="expires_at", type="string", format="date-time", example="2024-01-01T00:10:00.000000Z"),
+     *                 @OA\Property(property="type", type="string", example="email")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation failed",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(property="identifier", type="array", @OA\Items(type="string", example="The identifier field is required."))
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to send OTP"),
+     *             @OA\Property(property="error", type="string", example="Internal server error")
+     *         )
+     *     )
+     * )
      */
     public function sendOtp(Request $request)
     {
@@ -95,35 +143,86 @@ class OtpController extends Controller
     }
 
     /**
-     * Verify OTP
+     * Verify OTP code
      * 
-     * @group Authentication
-     * 
-     * @bodyParam identifier string required The email or phone number. Example: john@example.com
-     * @bodyParam code string required The 6-digit OTP code. Example: 123456
-     * @bodyParam type string required The type of OTP (email, sms, whatsapp, fake). Example: email
-     * 
-     * @response 200 {
-     *   "success": true,
-     *   "message": "OTP verified successfully",
-     *   "data": {
-     *     "verified_at": "2024-01-01T00:05:00.000000Z",
-     *     "otp_id": "123"
-     *   }
-     * }
-     * 
-     * @response 400 {
-     *   "success": false,
-     *   "message": "Invalid OTP code"
-     * }
-     * 
-     * @response 422 {
-     *   "success": false,
-     *   "message": "Validation failed",
-     *   "errors": {
-     *     "code": ["The code field is required."]
-     *   }
-     * }
+     * @OA\Post(
+     *     path="/api/auth/verify-otp",
+     *     operationId="verifyOtp",
+     *     tags={"Authentication"},
+     *     summary="Verify OTP code",
+     *     description="Verify the OTP code sent to the user. The code must be exactly 6 digits and not expired.",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"identifier","code","type"},
+     *             @OA\Property(
+     *                 property="identifier", 
+     *                 type="string", 
+     *                 description="Email address or phone number that was used when the OTP was sent. Must match exactly with the identifier used in the send-otp request.",
+     *                 example="john@example.com"
+     *             ),
+     *             @OA\Property(
+     *                 property="code", 
+     *                 type="string", 
+     *                 minLength=6,
+     *                 maxLength=6,
+     *                 description="6-digit OTP code received via the specified delivery method. Must be exactly 6 characters long.",
+     *                 example="123456"
+     *             ),
+     *             @OA\Property(
+     *                 property="type", 
+     *                 type="string", 
+     *                 enum={"email","sms","whatsapp","fake"}, 
+     *                 description="Delivery method that was used to send the OTP. Must match the type used in the send-otp request.",
+     *                 example="email"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="OTP verified successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="OTP verified successfully"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="verified_at", type="string", format="date-time", example="2024-01-01T00:05:00.000000Z"),
+     *                 @OA\Property(property="otp_id", type="string", example="123")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid OTP code",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Invalid OTP code")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation failed",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(property="code", type="array", @OA\Items(type="string", example="The code field is required."))
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to verify OTP"),
+     *             @OA\Property(property="error", type="string", example="Internal server error")
+     *         )
+     *     )
+     * )
      */
     public function verifyOtp(Request $request)
     {
@@ -174,31 +273,79 @@ class OtpController extends Controller
     }
 
     /**
-     * Resend OTP
+     * Resend OTP to user
      * 
-     * @group Authentication
-     * 
-     * @bodyParam identifier string required The email or phone number. Example: john@example.com
-     * @bodyParam type string required The type of OTP (email, sms, whatsapp, fake). Example: email
-     * @bodyParam expiry_minutes integer The expiry time in minutes (1-60). Example: 10
-     * 
-     * @response 200 {
-     *   "success": true,
-     *   "message": "OTP resent successfully",
-     *   "data": {
-     *     "otp_id": "124",
-     *     "expires_at": "2024-01-01T00:10:00.000000Z",
-     *     "type": "email"
-     *   }
-     * }
-     * 
-     * @response 422 {
-     *   "success": false,
-     *   "message": "Validation failed",
-     *   "errors": {
-     *     "identifier": ["The identifier field is required."]
-     *   }
-     * }
+     * @OA\Post(
+     *     path="/api/auth/resend-otp",
+     *     operationId="resendOtp",
+     *     tags={"Authentication"},
+     *     summary="Resend OTP to user",
+     *     description="Resend a new OTP to the user. This will invalidate any previous OTP and generate a new one.",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"identifier","type"},
+     *             @OA\Property(
+     *                 property="identifier", 
+     *                 type="string", 
+     *                 description="Email address or phone number where the new OTP will be sent. Must be the same identifier used in the original send-otp request.",
+     *                 example="john@example.com"
+     *             ),
+     *             @OA\Property(
+     *                 property="type", 
+     *                 type="string", 
+     *                 enum={"email","sms","whatsapp","fake"}, 
+     *                 description="Delivery method for the new OTP. Must be the same type used in the original send-otp request.",
+     *                 example="email"
+     *             ),
+     *             @OA\Property(
+     *                 property="expiry_minutes", 
+     *                 type="integer", 
+     *                 minimum=1,
+     *                 maximum=60,
+     *                 description="Number of minutes before the new OTP expires. Must be between 1-60 minutes. Default is 10 minutes if not specified.",
+     *                 example=10
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="OTP resent successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="OTP resent successfully"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="otp_id", type="string", example="124"),
+     *                 @OA\Property(property="expires_at", type="string", format="date-time", example="2024-01-01T00:10:00.000000Z"),
+     *                 @OA\Property(property="type", type="string", example="email")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation failed",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(property="identifier", type="array", @OA\Items(type="string", example="The identifier field is required."))
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to resend OTP"),
+     *             @OA\Property(property="error", type="string", example="Internal server error")
+     *         )
+     *     )
+     * )
      */
     public function resendOtp(Request $request)
     {
