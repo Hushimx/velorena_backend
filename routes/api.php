@@ -55,6 +55,19 @@ Route::prefix('products')->group(function () {
     Route::get('/{product}', [ProductController::class, 'show']);
 });
 
+// ========================================
+// APPOINTMENT AVAILABILITY ROUTES (Public)
+// ========================================
+// Public route for checking availability without authentication
+Route::prefix('appointments')->group(function () {
+    // GET /api/appointments/available-slots?date=2024-01-15
+    // Get available time slots for a specific date (defaults to today)
+    Route::get('/available-slots', [AppointmentController::class, 'getAvailableSlots']);
+});
+
+
+
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
@@ -64,6 +77,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/documents/upload', [DocumentController::class, 'uploadDocument']);
     Route::delete('/documents/delete', [DocumentController::class, 'deleteDocument']);
     Route::get('/documents/info', [DocumentController::class, 'getDocumentInfo']);
+
 
     // Order routes
     Route::prefix('orders')->group(function () {
@@ -98,6 +112,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
+
+
         // ========================================
         // INDIVIDUAL APPOINTMENT OPERATIONS
         // ========================================
@@ -118,6 +134,8 @@ Route::middleware('auth:sanctum')->group(function () {
         // Access: user who created the appointment or assigned designer
         // Status: only pending appointments can be deleted
         Route::delete('/{appointment}', [AppointmentController::class, 'destroy']);
+
+
 
 
 

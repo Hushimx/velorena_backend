@@ -38,6 +38,8 @@ Route::prefix('admin')->group(function () {
             Route::resource('products', ProductsController::class);
             Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
             Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
+            Route::resource('marketers', \App\Http\Controllers\Admin\MarketerController::class);
+            Route::resource('leads', \App\Http\Controllers\Admin\LeadController::class);
         });
     });
 });

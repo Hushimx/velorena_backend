@@ -1,4 +1,7 @@
-<div wire:poll.5s>
+<div wire:poll.5s class="designer-appointments">
+    <style>
+        @import url('{{ asset("css/designer-appointments.css") }}');
+    </style>
     <!-- Statistics Cards -->
     <div class="row mb-4">
         <!-- Available Appointments -->
@@ -164,7 +167,7 @@
                 </div>
                 <div class="card-body p-0">
                     @forelse($todayAppointments as $appointment)
-                        <div class="border-bottom p-4" wire:key="today-{{ $appointment->id }}">
+                        <div class="border-bottom p-4 appointment-card today {{ $appointment->hasZoomMeeting() ? 'has-meeting' : '' }}" wire:key="today-{{ $appointment->id }}">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="flex-grow-1">
                                     <div class="d-flex align-items-center mb-2">
@@ -177,14 +180,50 @@
                                                 {{ $appointment->formatted_end_time }}</p>
                                         </div>
                                     </div>
+                                    
+                                    <!-- Meeting Information -->
+                                    @if($appointment->hasZoomMeeting())
+                                        <div class="alert alert-info py-2 px-3 mb-2 meeting-info-alert">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-video text-info me-2"></i>
+                                                    <small class="text-info fw-medium">Zoom Meeting Available</small>
+                                                </div>
+                                                @php
+                                                    $canJoin = $appointment->canJoinMeeting();
+                                                    $isActive = $appointment->isMeetingActive();
+                                                @endphp
+                                                @if($canJoin)
+                                                    <a href="{{ $appointment->getHostMeetingUrl() }}" 
+                                                       target="_blank" 
+                                                       class="btn btn-sm btn-success meeting-btn">
+                                                        <i class="fas fa-video me-1"></i>
+                                                        @if($isActive)
+                                                            Join Meeting
+                                                        @else
+                                                            Start Meeting
+                                                        @endif
+                                                    </a>
+                                                @else
+                                                    <span class="badge bg-secondary">
+                                                        <i class="fas fa-clock me-1"></i>
+                                                        {{ $appointment->getMeetingDateTime()->diffForHumans() }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
+                                    
                                     <span class="badge bg-success">{{ ucfirst($appointment->status) }}</span>
                                 </div>
                                 @if ($appointment->isAccepted())
                                     <div class="ms-3">
-                                        <button wire:click="completeAppointment({{ $appointment->id }})"
-                                            class="btn btn-info btn-sm">
-                                            <i class="fas fa-check-double me-1"></i>{{ trans('dashboard.complete') }}
-                                        </button>
+                                        <div class="d-grid gap-2">
+                                            <button wire:click="completeAppointment({{ $appointment->id }})"
+                                                class="btn btn-info btn-sm">
+                                                <i class="fas fa-check-double me-1"></i>{{ trans('dashboard.complete') }}
+                                            </button>
+                                        </div>
                                     </div>
                                 @endif
                             </div>
@@ -218,22 +257,46 @@
                 </div>
                 <div class="card-body p-0">
                     @forelse($upcomingAppointments as $appointment)
-                        <div class="border-bottom p-4" wire:key="upcoming-{{ $appointment->id }}">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
+                        <div class="border-bottom p-4 appointment-card upcoming {{ $appointment->hasZoomMeeting() ? 'has-meeting' : '' }}" wire:key="upcoming-{{ $appointment->id }}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="d-flex align-items-center flex-grow-1">
                                     <div class="bg-info bg-opacity-10 rounded-circle p-2 me-3">
                                         <i class="fas fa-user text-info"></i>
                                     </div>
-                                    <div>
+                                    <div class="flex-grow-1">
                                         <h6 class="fw-semibold mb-1">{{ $appointment->user->full_name }}</h6>
                                         <p class="text-muted small mb-1">{{ $appointment->formatted_date }} at
                                             {{ $appointment->formatted_time }}</p>
+                                        
+                                        <!-- Meeting Information for Upcoming -->
+                                        @if($appointment->hasZoomMeeting())
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="fas fa-video text-info me-2"></i>
+                                                <small class="text-info fw-medium">Zoom Meeting Scheduled</small>
+                                                @php
+                                                    $canJoin = $appointment->canJoinMeeting();
+                                                @endphp
+                                                @if($canJoin)
+                                                    <a href="{{ $appointment->getHostMeetingUrl() }}" 
+                                                       target="_blank" 
+                                                       class="btn btn-sm btn-success ms-2">
+                                                        <i class="fas fa-video me-1"></i>Join
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        @endif
+                                        
                                         <span class="badge bg-info">{{ ucfirst($appointment->status) }}</span>
                                     </div>
                                 </div>
                                 <div class="text-end">
                                     <p class="small mb-0 fw-medium">{{ $appointment->duration_minutes }} min</p>
                                     <p class="small text-muted mb-0">{{ $appointment->user->email }}</p>
+                                    @if($appointment->hasZoomMeeting())
+                                        <p class="small text-info mb-0">
+                                            <i class="fas fa-video me-1"></i>Meeting Ready
+                                        </p>
+                                    @endif
                                 </div>
                             </div>
                         </div>

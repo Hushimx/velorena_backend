@@ -50,6 +50,11 @@ return [
             'driver' => 'session',
             'provider' => 'designers',
         ],
+
+        'marketer' => [
+            'driver' => 'session',
+            'provider' => 'marketers',
+        ],
     ],
 
     /*
@@ -84,6 +89,11 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\Designer::class,
         ],
+
+        'marketers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Marketer::class,
+        ],
     ],
 
     /*
@@ -114,6 +124,12 @@ return [
         ],
         'designers' => [
             'provider' => 'designers',
+            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        'marketers' => [
+            'provider' => 'marketers',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,

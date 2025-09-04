@@ -503,6 +503,151 @@
                 ]
             }
         },
+        "/api/appointments/available-slots": {
+            "get": {
+                "tags": [
+                    "Appointments"
+                ],
+                "summary": "Get available time slots",
+                "description": "Retrieve available time slots for today or a specific date. Returns 30-minute slots from 8 AM to 4 PM for all 7 days of the week.",
+                "operationId": "195575db1a73fa9f1ee6bc007132cf24",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "Date for available slots (optional, defaults to today). Format: YYYY-MM-DD",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-09-05"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Available time slots retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "date": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2025-09-05"
+                                                },
+                                                "day_of_week": {
+                                                    "type": "string",
+                                                    "example": "Friday"
+                                                },
+                                                "available_slots": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "08:00"
+                                                    },
+                                                    "example": [
+                                                        "08:00",
+                                                        "08:30",
+                                                        "09:00",
+                                                        "09:30",
+                                                        "10:00",
+                                                        "10:30",
+                                                        "11:00",
+                                                        "11:30",
+                                                        "12:00",
+                                                        "12:30",
+                                                        "13:00",
+                                                        "13:30",
+                                                        "14:00",
+                                                        "14:30",
+                                                        "15:00",
+                                                        "15:30"
+                                                    ]
+                                                },
+                                                "total_slots": {
+                                                    "type": "integer",
+                                                    "example": 16
+                                                },
+                                                "slot_duration": {
+                                                    "description": "Duration of each slot in minutes",
+                                                    "type": "integer",
+                                                    "example": 30
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation failed"
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "date": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The date must be a date after or equal to today."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to get available slots"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Error message details"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/auth/register": {
             "post": {
                 "tags": [

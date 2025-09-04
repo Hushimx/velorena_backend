@@ -439,4 +439,120 @@ class AppointmentController extends Controller
 
 
 
+
+    /**
+     * Get available time slots for a specific date
+     * 
+     * @OA\Get(
+     *     path="/api/appointments/available-slots",
+     *     summary="Get available time slots",
+     *     description="Retrieve available time slots for today or a specific date. Returns 30-minute slots from 8 AM to 4 PM for all 7 days of the week.",
+     *     tags={"Appointments"},
+     *     @OA\Parameter(
+     *         name="date",
+     *         in="query",
+     *         description="Date for available slots (optional, defaults to today). Format: YYYY-MM-DD",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date", example="2025-09-05")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Available time slots retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="date", type="string", format="date", example="2025-09-05"),
+     *                 @OA\Property(property="day_of_week", type="string", example="Friday"),
+     *                 @OA\Property(
+     *                     property="available_slots",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="08:00"),
+     *                     example={"08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30"}
+     *                 ),
+     *                 @OA\Property(property="total_slots", type="integer", example=16),
+     *                 @OA\Property(property="slot_duration", type="integer", example=30, description="Duration of each slot in minutes")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation failed",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="date",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The date must be a date after or equal to today.")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to get available slots"),
+     *             @OA\Property(property="error", type="string", example="Error message details")
+     *         )
+     *     )
+     * )
+     */
+    public function getAvailableSlots(Request $request): JsonResponse
+    {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            "date" => "nullable|date|after_or_equal:today",
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                "success" => false,
+                "message" => "Validation failed",
+                "errors" => $validator->errors()
+            ], 422);
+        }
+
+        $date = $request->date ?? \Carbon\Carbon::today()->format("Y-m-d");
+
+        try {
+            // Get available time slots excluding booked appointments
+            $availableSlots = \App\Models\AvailabilitySlot::getAvailableTimeSlotsExcludingBooked($date);
+            
+            // Get day of week for additional info
+            $dayOfWeek = \Carbon\Carbon::parse($date)->format("l");
+            
+            // Get the actual slot duration from the availability configuration
+            $slotDuration = 30; // Default
+            $availabilityConfig = \App\Models\AvailabilitySlot::where('day_of_week', strtolower($dayOfWeek))
+                                                            ->where('is_active', true)
+                                                            ->first();
+            if ($availabilityConfig) {
+                $slotDuration = $availabilityConfig->slot_duration_minutes;
+            }
+            
+            return response()->json([
+                "success" => true,
+                "data" => [
+                    "date" => $date,
+                    "day_of_week" => $dayOfWeek,
+                    "available_slots" => array_values($availableSlots), // Re-index array
+                    "total_slots" => count($availableSlots),
+                    "slot_duration" => $slotDuration,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                "success" => false,
+                "message" => "Failed to get available slots",
+                "error" => $e->getMessage()
+            ], 500);
+        }
+    }
 }
