@@ -67,6 +67,9 @@ Route::group(
             Route::patch('/appointments/{appointment}/cancel', [App\Http\Controllers\AppointmentController::class, 'cancel'])->name('appointments.cancel');
             Route::get('/appointments/slots', [App\Http\Controllers\AppointmentController::class, 'getAvailableSlots'])->name('appointments.slots');
 
+            // Cart routes
+            Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
+
             // Orders routes
             Route::get('/orders', [App\Http\Controllers\UserOrderController::class, 'index'])->name('user.orders.index');
             Route::get('/orders/{order}', [App\Http\Controllers\UserOrderController::class, 'show'])->name('user.orders.show');

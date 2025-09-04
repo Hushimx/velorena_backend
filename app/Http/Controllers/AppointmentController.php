@@ -18,10 +18,11 @@ class AppointmentController extends Controller
     /**
      * Show the appointment booking form
      */
-    public function create()
+    public function create(Request $request)
     {
         $designers = Designer::where('is_active', true)->get();
-        return view('users.appointments.create', compact('designers'));
+        $orderId = $request->get('order_id');
+        return view('users.appointments.create', compact('designers', 'orderId'));
     }
 
     /**
