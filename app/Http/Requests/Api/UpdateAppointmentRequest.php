@@ -21,7 +21,7 @@ class UpdateAppointmentRequest extends FormRequest
     {
         return [
             'designer_id' => 'sometimes|integer|exists:designers,id',
-            'appointment_date' => 'sometimes|date|after:today',
+            'appointment_date' => 'sometimes|date|after_or_equal:today',
             'appointment_time' => 'sometimes|date_format:H:i',
             'service_type' => 'sometimes|string|max:100',
             'description' => 'nullable|string|max:500',
@@ -41,7 +41,7 @@ class UpdateAppointmentRequest extends FormRequest
     {
         return [
             'designer_id.exists' => 'Selected designer does not exist.',
-            'appointment_date.after' => 'Appointment date must be in the future.',
+            'appointment_date.after_or_equal' => 'Appointment date must be today or in the future.',
             'appointment_time.date_format' => 'Please enter a valid time format (HH:MM).',
             'duration.min' => 'Duration must be at least 30 minutes.',
             'duration.max' => 'Duration cannot exceed 8 hours.',

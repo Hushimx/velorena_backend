@@ -160,7 +160,7 @@
                     "Appointments"
                 ],
                 "summary": "Create new appointment",
-                "description": "Create a new appointment with optional designer assignment",
+                "description": "Create a new appointment with optional designer assignment. The appointment will be created with 'pending' status and can be claimed by designers later. Use the available-slots endpoint to check for available time slots before booking.",
                 "operationId": "2b481df28ec53d2afb2ec7c9a3a77846",
                 "requestBody": {
                     "required": true,
@@ -174,45 +174,49 @@
                                 ],
                                 "properties": {
                                     "designer_id": {
-                                        "description": "Designer ID (optional)",
+                                        "description": "Designer ID (optional - can be assigned later)",
                                         "type": "integer",
                                         "example": 1
                                     },
                                     "appointment_date": {
-                                        "description": "Appointment date (must be future)",
+                                        "description": "Appointment date (must be today or future)",
                                         "type": "string",
                                         "format": "date",
-                                        "example": "2025-01-20"
+                                        "example": "2025-09-08"
                                     },
                                     "appointment_time": {
-                                        "description": "Appointment time (HH:MM)",
+                                        "description": "Appointment time (HH:MM) - must be from available slots",
                                         "type": "string",
                                         "format": "time",
-                                        "example": "14:00"
+                                        "example": "10:00"
                                     },
                                     "service_type": {
+                                        "description": "Type of service requested",
                                         "type": "string",
                                         "maxLength": 100,
                                         "example": "Interior Design Consultation"
                                     },
                                     "description": {
+                                        "description": "Detailed description of the service needed",
                                         "type": "string",
                                         "maxLength": 500,
                                         "example": "Need help with living room design"
                                     },
                                     "duration": {
-                                        "description": "Duration in minutes",
+                                        "description": "Duration in minutes (default: 30)",
                                         "type": "integer",
                                         "maximum": 480,
                                         "minimum": 30,
-                                        "example": 60
+                                        "example": 30
                                     },
                                     "location": {
+                                        "description": "Appointment location (optional)",
                                         "type": "string",
                                         "maxLength": 200,
                                         "example": "123 Main St, City"
                                     },
                                     "notes": {
+                                        "description": "Additional notes for the appointment",
                                         "type": "string",
                                         "maxLength": 500,
                                         "example": "Please bring color samples"
@@ -223,6 +227,7 @@
                                         "example": 5
                                     },
                                     "order_notes": {
+                                        "description": "Notes related to the linked order",
                                         "type": "string",
                                         "maxLength": 500,
                                         "example": "Related to order #123"
@@ -249,6 +254,46 @@
                                             "example": "Appointment created successfully"
                                         },
                                         "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 11
+                                                },
+                                                "user_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "designer_id": {
+                                                    "type": "integer",
+                                                    "example": null
+                                                },
+                                                "appointment_date": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2025-09-08"
+                                                },
+                                                "appointment_time": {
+                                                    "type": "string",
+                                                    "format": "time",
+                                                    "example": "10:00"
+                                                },
+                                                "service_type": {
+                                                    "type": "string",
+                                                    "example": "Interior Design Consultation"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "pending"
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
                                             "type": "object"
                                         }
                                     },
@@ -257,11 +302,68 @@
                             }
                         }
                     },
-                    "400": {
-                        "description": "Validation error"
+                    "422": {
+                        "description": "Validation error - Invalid input data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation failed"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Unauthenticated"
+                        "description": "Unauthenticated - Bearer token required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to create appointment"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Database error details"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -506,21 +608,22 @@
         "/api/appointments/available-slots": {
             "get": {
                 "tags": [
-                    "Appointments"
+                    "Appointments",
+                    "Availability"
                 ],
                 "summary": "Get available time slots",
-                "description": "Retrieve available time slots for today or a specific date. Returns 30-minute slots from 8 AM to 4 PM for all 7 days of the week.",
+                "description": "Retrieve available time slots for today or a specific date. This endpoint shows real-time availability by excluding already booked appointments. Returns 30-minute slots from 8 AM to 4 PM for all 7 days of the week (Monday-Sunday).",
                 "operationId": "195575db1a73fa9f1ee6bc007132cf24",
                 "parameters": [
                     {
                         "name": "date",
                         "in": "query",
-                        "description": "Date for available slots (optional, defaults to today). Format: YYYY-MM-DD",
+                        "description": "Date for available slots (optional, defaults to today). Format: YYYY-MM-DD. Must be today or in the future.",
                         "required": false,
                         "schema": {
                             "type": "string",
                             "format": "date",
-                            "example": "2025-09-05"
+                            "example": "2025-09-08"
                         }
                     }
                 ],
@@ -540,13 +643,14 @@
                                                 "date": {
                                                     "type": "string",
                                                     "format": "date",
-                                                    "example": "2025-09-05"
+                                                    "example": "2025-09-08"
                                                 },
                                                 "day_of_week": {
                                                     "type": "string",
-                                                    "example": "Friday"
+                                                    "example": "Monday"
                                                 },
                                                 "available_slots": {
+                                                    "description": "Array of available time slots in HH:MM format",
                                                     "type": "array",
                                                     "items": {
                                                         "type": "string",
@@ -572,6 +676,7 @@
                                                     ]
                                                 },
                                                 "total_slots": {
+                                                    "description": "Total number of available slots",
                                                     "type": "integer",
                                                     "example": 16
                                                 },
@@ -590,7 +695,7 @@
                         }
                     },
                     "422": {
-                        "description": "Validation failed",
+                        "description": "Validation failed - Invalid date format or past date",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -637,7 +742,7 @@
                                         },
                                         "error": {
                                             "type": "string",
-                                            "example": "Error message details"
+                                            "example": "Database connection error"
                                         }
                                     },
                                     "type": "object"
@@ -3492,7 +3597,11 @@
     "tags": [
         {
             "name": "Appointments",
-            "description": "API Endpoints for appointment management"
+            "description": "Complete appointment management system - Create, read, update, and manage appointments with real-time availability checking"
+        },
+        {
+            "name": "Availability",
+            "description": "Real-time availability checking - Get available time slots for booking appointments"
         },
         {
             "name": "Orders",

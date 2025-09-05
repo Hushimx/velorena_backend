@@ -14,7 +14,7 @@ class BookAppointment extends Component
     public $notes;
 
     protected $rules = [
-        'selectedDate' => 'required|date_format:Y-m-d\TH:i|after:now',
+        'selectedDate' => 'required|date_format:Y-m-d\TH:i|after_or_equal:now',
         'notes' => 'nullable|string|max:500',
     ];
 

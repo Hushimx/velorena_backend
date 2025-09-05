@@ -21,7 +21,7 @@ class StoreAppointmentRequest extends FormRequest
     {
         return [
             'designer_id' => 'nullable|integer|exists:designers,id',
-            'appointment_date' => 'required|date|after:today',
+            'appointment_date' => 'required|date|after_or_equal:today',
             'appointment_time' => 'required|date_format:H:i',
             'service_type' => 'required|string|max:100',
             'description' => 'nullable|string|max:500',
@@ -41,7 +41,7 @@ class StoreAppointmentRequest extends FormRequest
         return [
             'designer_id.exists' => 'Selected designer does not exist.',
             'appointment_date.required' => 'Appointment date is required.',
-            'appointment_date.after' => 'Appointment date must be in the future.',
+            'appointment_date.after_or_equal' => 'Appointment date must be today or in the future.',
             'appointment_time.required' => 'Appointment time is required.',
             'appointment_time.date_format' => 'Please enter a valid time format (HH:MM).',
             'service_type.required' => 'Service type is required.',

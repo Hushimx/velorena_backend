@@ -5,11 +5,34 @@ namespace App\Http\Controllers\Api;
 /**
  * @OA\Info(
  *     title="Velorena API",
- *     version="1.0.0",
- *     description="API for Velorena Backend - Orders and Appointments Management",
+ *     version="2.0.0",
+ *     description="Complete API for Velorena Backend - E-commerce, Orders, Appointments, and Availability Management System",
  *     @OA\Contact(
- *         email="admin@velorena.com"
+ *         email="admin@velorena.com",
+ *         name="Velorena Support"
+ *     ),
+ *     @OA\License(
+ *         name="MIT",
+ *         url="https://opensource.org/licenses/MIT"
  *     )
+ * )
+ * 
+ * @OA\Server(
+ *     url="http://localhost:8000",
+ *     description="Local Development Server"
+ * )
+ * 
+ * @OA\Server(
+ *     url="https://api.velorena.com",
+ *     description="Production Server"
+ * )
+ * 
+ * @OA\SecurityScheme(
+ *     securityScheme="sanctum",
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="JWT",
+ *     description="Laravel Sanctum Authentication"
  * )
  */
 
@@ -28,7 +51,12 @@ use Illuminate\Support\Facades\Auth;
 /**
  * @OA\Tag(
  *     name="Appointments",
- *     description="API Endpoints for appointment management"
+ *     description="Complete appointment management system - Create, read, update, and manage appointments with real-time availability checking"
+ * )
+ * 
+ * @OA\Tag(
+ *     name="Availability",
+ *     description="Real-time availability checking - Get available time slots for booking appointments"
  * )
  */
 class AppointmentController extends Controller
@@ -227,23 +255,23 @@ class AppointmentController extends Controller
      * @OA\Post(
      *     path="/api/appointments",
      *     summary="Create new appointment",
-     *     description="Create a new appointment with optional designer assignment",
+     *     description="Create a new appointment with optional designer assignment. The appointment will be created with 'pending' status and can be claimed by designers later. Use the available-slots endpoint to check for available time slots before booking.",
      *     tags={"Appointments"},
      *     security={{"sanctum":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
      *             required={"appointment_date", "appointment_time", "service_type"},
-     *             @OA\Property(property="designer_id", type="integer", example=1, description="Designer ID (optional)"),
-     *             @OA\Property(property="appointment_date", type="string", format="date", example="2025-01-20", description="Appointment date (must be future)"),
-     *             @OA\Property(property="appointment_time", type="string", format="time", example="14:00", description="Appointment time (HH:MM)"),
-     *             @OA\Property(property="service_type", type="string", example="Interior Design Consultation", maxLength=100),
-     *             @OA\Property(property="description", type="string", example="Need help with living room design", maxLength=500),
-     *             @OA\Property(property="duration", type="integer", example=60, minimum=30, maximum=480, description="Duration in minutes"),
-     *             @OA\Property(property="location", type="string", example="123 Main St, City", maxLength=200),
-     *             @OA\Property(property="notes", type="string", example="Please bring color samples", maxLength=500),
+     *             @OA\Property(property="designer_id", type="integer", example=1, description="Designer ID (optional - can be assigned later)"),
+     *             @OA\Property(property="appointment_date", type="string", format="date", example="2025-09-08", description="Appointment date (must be today or future)"),
+     *             @OA\Property(property="appointment_time", type="string", format="time", example="10:00", description="Appointment time (HH:MM) - must be from available slots"),
+     *             @OA\Property(property="service_type", type="string", example="Interior Design Consultation", maxLength=100, description="Type of service requested"),
+     *             @OA\Property(property="description", type="string", example="Need help with living room design", maxLength=500, description="Detailed description of the service needed"),
+     *             @OA\Property(property="duration", type="integer", example=30, minimum=30, maximum=480, description="Duration in minutes (default: 30)"),
+     *             @OA\Property(property="location", type="string", example="123 Main St, City", maxLength=200, description="Appointment location (optional)"),
+     *             @OA\Property(property="notes", type="string", example="Please bring color samples", maxLength=500, description="Additional notes for the appointment"),
      *             @OA\Property(property="order_id", type="integer", example=5, description="Link to specific order (optional)"),
-     *             @OA\Property(property="order_notes", type="string", example="Related to order #123", maxLength=500)
+     *             @OA\Property(property="order_notes", type="string", example="Related to order #123", maxLength=500, description="Notes related to the linked order")
      *         )
      *     ),
      *     @OA\Response(
@@ -252,16 +280,45 @@ class AppointmentController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Appointment created successfully"),
-     *             @OA\Property(property="data", type="object")
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=11),
+     *                 @OA\Property(property="user_id", type="integer", example=1),
+     *                 @OA\Property(property="designer_id", type="integer", example=null),
+     *                 @OA\Property(property="appointment_date", type="string", format="date", example="2025-09-08"),
+     *                 @OA\Property(property="appointment_time", type="string", format="time", example="10:00"),
+     *                 @OA\Property(property="service_type", type="string", example="Interior Design Consultation"),
+     *                 @OA\Property(property="status", type="string", example="pending"),
+     *                 @OA\Property(property="created_at", type="string", format="date-time"),
+     *                 @OA\Property(property="updated_at", type="string", format="date-time")
+     *             )
      *         )
      *     ),
      *     @OA\Response(
-     *         response=400,
-     *         description="Validation error"
+     *         response=422,
+     *         description="Validation error - Invalid input data",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(property="errors", type="object")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=401,
-     *         description="Unauthenticated"
+     *         description="Unauthenticated - Bearer token required",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Failed to create appointment"),
+     *             @OA\Property(property="error", type="string", example="Database error details")
+     *         )
      *     )
      * )
      */
@@ -446,14 +503,14 @@ class AppointmentController extends Controller
      * @OA\Get(
      *     path="/api/appointments/available-slots",
      *     summary="Get available time slots",
-     *     description="Retrieve available time slots for today or a specific date. Returns 30-minute slots from 8 AM to 4 PM for all 7 days of the week.",
-     *     tags={"Appointments"},
+     *     description="Retrieve available time slots for today or a specific date. This endpoint shows real-time availability by excluding already booked appointments. Returns 30-minute slots from 8 AM to 4 PM for all 7 days of the week (Monday-Sunday).",
+     *     tags={"Appointments", "Availability"},
      *     @OA\Parameter(
      *         name="date",
      *         in="query",
-     *         description="Date for available slots (optional, defaults to today). Format: YYYY-MM-DD",
+     *         description="Date for available slots (optional, defaults to today). Format: YYYY-MM-DD. Must be today or in the future.",
      *         required=false,
-     *         @OA\Schema(type="string", format="date", example="2025-09-05")
+     *         @OA\Schema(type="string", format="date", example="2025-09-08")
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -463,22 +520,23 @@ class AppointmentController extends Controller
      *             @OA\Property(
      *                 property="data",
      *                 type="object",
-     *                 @OA\Property(property="date", type="string", format="date", example="2025-09-05"),
-     *                 @OA\Property(property="day_of_week", type="string", example="Friday"),
+     *                 @OA\Property(property="date", type="string", format="date", example="2025-09-08"),
+     *                 @OA\Property(property="day_of_week", type="string", example="Monday"),
      *                 @OA\Property(
      *                     property="available_slots",
      *                     type="array",
      *                     @OA\Items(type="string", example="08:00"),
-     *                     example={"08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30"}
+     *                     example={"08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30"},
+     *                     description="Array of available time slots in HH:MM format"
      *                 ),
-     *                 @OA\Property(property="total_slots", type="integer", example=16),
+     *                 @OA\Property(property="total_slots", type="integer", example=16, description="Total number of available slots"),
      *                 @OA\Property(property="slot_duration", type="integer", example=30, description="Duration of each slot in minutes")
      *             )
      *         )
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation failed",
+     *         description="Validation failed - Invalid date format or past date",
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=false),
      *             @OA\Property(property="message", type="string", example="Validation failed"),
@@ -499,7 +557,7 @@ class AppointmentController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=false),
      *             @OA\Property(property="message", type="string", example="Failed to get available slots"),
-     *             @OA\Property(property="error", type="string", example="Error message details")
+     *             @OA\Property(property="error", type="string", example="Database connection error")
      *         )
      *     )
      * )
