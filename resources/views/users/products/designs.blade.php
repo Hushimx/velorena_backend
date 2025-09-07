@@ -47,28 +47,31 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     @foreach ($selectedDesigns as $productDesign)
                         <div class="bg-white rounded-lg p-4 border border-purple-200">
-                            <div class="flex items-start space-x-3">
-                                <img src="{{ $productDesign->design->thumbnail_url ?? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjY2NjY2NjIi8+PHRleHQgeD0iMzAiIHk9IjMwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiM2NjY2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5EZXNpZ248L3RleHQ+PC9zdmc+' }}"
-                                    alt="{{ $productDesign->design->title }}" class="w-12 h-12 object-cover rounded">
-                                <div class="flex-1 min-w-0">
-                                    <h4 class="font-medium text-gray-900 text-sm truncate">
-                                        {{ $productDesign->design->title }}</h4>
-                                    <p class="text-xs text-gray-500">Priority: {{ $productDesign->priority }}</p>
-                                    @if ($productDesign->notes)
-                                        <p class="text-xs text-gray-600 mt-1">{{ Str::limit($productDesign->notes, 50) }}
-                                        </p>
-                                    @endif
+                            @if ($productDesign->design)
+                                <div class="flex items-start space-x-3">
+                                    <img src="{{ $productDesign->design->thumbnail_url ?? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjY2NjY2NjIi8+PHRleHQgeD0iMzAiIHk9IjMwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiM2NjY2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5EZXNpZ248L3RleHQ+PC9zdmc+' }}"
+                                        alt="{{ $productDesign->design->title }}" class="w-12 h-12 object-cover rounded">
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-medium text-gray-900 text-sm truncate">
+                                            {{ $productDesign->design->title }}</h4>
+                                        <p class="text-xs text-gray-500">Priority: {{ $productDesign->priority }}</p>
+                                        @if ($productDesign->notes)
+                                            <p class="text-xs text-gray-600 mt-1">
+                                                {{ Str::limit($productDesign->notes, 50) }}
+                                            </p>
+                                        @endif
+                                    </div>
+                                    <form
+                                        action="{{ route('user.product.designs.destroy', ['product' => $product->id, 'design' => $productDesign->design->id]) }}"
+                                        method="POST" class="ml-2">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-800 text-sm">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
                                 </div>
-                                <form
-                                    action="{{ route('user.product.designs.destroy', ['product' => $product->id, 'design' => $productDesign->design->id]) }}"
-                                    method="POST" class="ml-2">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-800 text-sm">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </form>
-                            </div>
+                            @endif
                         </div>
                     @endforeach
                 </div>

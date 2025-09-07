@@ -33,6 +33,16 @@ return [
     'notes_placeholder' => 'Add any special instructions...',
     'options_price' => 'Options Price',
 
+    // Checkout Modal
+    'phone' => 'Phone',
+    'phone_placeholder' => 'Enter your phone number',
+    'shipping_address' => 'Shipping Address',
+    'shipping_address_placeholder' => 'Enter your shipping address',
+    'billing_address' => 'Billing Address',
+    'billing_address_placeholder' => 'Enter your billing address',
+    'order_notes_placeholder' => 'Add any special instructions for your order',
+    'create_order' => 'Create Order',
+
     // Messages
     'cart_cleared' => 'Cart cleared successfully',
     'item_removed' => 'Item removed from cart',

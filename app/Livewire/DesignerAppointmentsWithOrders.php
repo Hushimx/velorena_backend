@@ -65,21 +65,7 @@ class DesignerAppointmentsWithOrders extends Component
         session()->flash('success', 'Appointment marked as completed.');
     }
 
-    public function viewAppointmentDetails($appointmentId)
-    {
-        // Generate the localized URL
-        $url = route('designer.appointments.show', $appointmentId);
 
-        // If localization is enabled, ensure the URL includes the locale prefix
-        if (config('laravellocalization')) {
-            $locale = app()->getLocale();
-            // Remove the domain part and add locale prefix
-            $path = parse_url($url, PHP_URL_PATH);
-            $url = "/{$locale}{$path}";
-        }
-
-        return redirect($url);
-    }
 
     public function render()
     {

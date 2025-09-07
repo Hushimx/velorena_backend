@@ -42,6 +42,20 @@ class Design extends Model
             ->withTimestamps();
     }
 
+    public function favorites(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'design_favorites')
+            ->withPivot('notes')
+            ->withTimestamps();
+    }
+
+    public function collections(): BelongsToMany
+    {
+        return $this->belongsToMany(DesignCollection::class, 'design_collection_items')
+            ->withPivot('notes', 'added_at')
+            ->withTimestamps();
+    }
+
     // Scopes
     public function scopeActive($query)
     {

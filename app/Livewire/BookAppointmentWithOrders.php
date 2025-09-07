@@ -48,11 +48,16 @@ class BookAppointmentWithOrders extends Component
         'appointment_date.after' => 'Appointments must be scheduled for a future date and time.',
     ];
 
-    public function mount($userId = null)
+    public function mount($userId = null, $orderId = null)
     {
         $this->user_id = $userId ?? (Auth::check() ? Auth::id() : null);
         $this->designers = Designer::where('is_active', true)->get();
         $this->loadUserOrders();
+
+        // Set the selected order if provided (e.g., from cart page)
+        if ($orderId) {
+            $this->selected_order_id = $orderId;
+        }
     }
 
     public function loadUserOrders()

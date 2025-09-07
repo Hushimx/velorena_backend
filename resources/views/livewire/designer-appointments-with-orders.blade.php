@@ -1,6 +1,12 @@
 <div class="p-6 bg-white rounded-lg shadow-md">
     <h2 class="text-2xl font-bold mb-6">My Appointments</h2>
 
+    @if (session()->has('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <!-- Filters -->
     <div class="mb-6 flex gap-4">
         <select wire:model.live="status_filter" class="border rounded px-3 py-2">
@@ -95,7 +101,7 @@
                     @php
                         $productDesigns = collect();
                         foreach ($appointment->order->items as $item) {
-                            $designs = $item->product->designsForUser($appointment->user_id)->get();
+                            $designs = $item->designs()->with('design')->get();
                             if ($designs->count() > 0) {
                                 $productDesigns->push([
                                     'product' => $item->product,
@@ -117,28 +123,67 @@
                                         <h5 class="font-medium text-purple-800 mb-3">
                                             {{ $productDesignData['product']->name }}
                                         </h5>
-                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                        <div
+                                            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                             @foreach ($productDesignData['designs'] as $productDesign)
-                                                <div class="bg-white rounded-lg p-3 border border-purple-200">
-                                                    <div class="flex items-start space-x-3">
-                                                        <img src="{{ $productDesign->design->thumbnail_url ?? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjY2NjY2NjIi8+PHRleHQgeD0iMzAiIHk9IjMwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiM2NjY2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5EZXNpZ248L3RleHQ+PC9zdmc+' }}"
-                                                            alt="{{ $productDesign->design->title }}"
-                                                            class="w-12 h-12 object-cover rounded">
-                                                        <div class="flex-1 min-w-0">
-                                                            <h6 class="font-medium text-gray-900 text-sm truncate">
+                                                @if ($productDesign->design)
+                                                    <div
+                                                        class="bg-white rounded-lg p-3 border border-purple-200 shadow-sm hover:shadow-md transition-shadow">
+                                                        <!-- Image Section -->
+                                                        <div class="text-center mb-3">
+                                                            <div class="relative inline-block">
+                                                                <img src="{{ $productDesign->design->thumbnail_url ?? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjY2NjY2NjIi8+PHRleHQgeD0iNDAiIHk9IjQwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiM2NjY2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5EZXNpZ248L3RleHQ+PC9zdmc+' }}"
+                                                                    alt="{{ $productDesign->design->title }}"
+                                                                    class="w-20 h-20 object-cover rounded-lg shadow-sm">
+                                                                <div class="absolute -top-1 -right-1">
+                                                                    <span
+                                                                        class="bg-purple-600 text-white text-xs rounded-full px-2 py-1 font-medium min-w-[20px] text-center">
+                                                                        {{ $productDesign->priority }}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Content Section -->
+                                                        <div class="text-center">
+                                                            <h6 class="font-semibold text-gray-900 text-sm mb-2 truncate"
+                                                                title="{{ $productDesign->design->title }}">
                                                                 {{ $productDesign->design->title }}
                                                             </h6>
-                                                            <p class="text-xs text-gray-500">
-                                                                Priority: {{ $productDesign->priority }}
-                                                            </p>
-                                                            @if ($productDesign->notes)
-                                                                <p class="text-xs text-gray-600 mt-1">
-                                                                    {{ Str::limit($productDesign->notes, 60) }}
+
+                                                            @if ($productDesign->design->description)
+                                                                <p class="text-xs text-gray-500 mb-2 line-clamp-2">
+                                                                    {{ $productDesign->design->description }}
                                                                 </p>
                                                             @endif
+
+                                                            @if ($productDesign->notes)
+                                                                <div class="bg-purple-50 rounded p-2 mb-2">
+                                                                    <p class="text-xs text-purple-700 line-clamp-2">
+                                                                        <i class="fas fa-comment mr-1"></i>
+                                                                        <strong>Note:</strong>
+                                                                        {{ $productDesign->notes }}
+                                                                    </p>
+                                                                </div>
+                                                            @endif
+
+                                                            <!-- Badges Section -->
+                                                            <div class="flex flex-col gap-1">
+                                                                <span
+                                                                    class="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                                    <i class="fas fa-star mr-1"></i>
+                                                                    Priority {{ $productDesign->priority }}
+                                                                </span>
+                                                                @if ($productDesign->design->category)
+                                                                    <span
+                                                                        class="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                                        {{ $productDesign->design->category }}
+                                                                    </span>
+                                                                @endif
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                @endif
                                             @endforeach
                                         </div>
                                     </div>
@@ -214,10 +259,10 @@
                         </button>
                     @endif
 
-                    <button wire:click="viewAppointmentDetails({{ $appointment->id }})"
-                        class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                    <a href="{{ route('designer.appointments.show', $appointment->id) }}"
+                        class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 inline-block text-center">
                         View Details
-                    </button>
+                    </a>
                 </div>
             </div>
         @empty

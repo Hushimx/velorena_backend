@@ -112,7 +112,7 @@
                                     <div class="flex items-center border border-gray-300 rounded-lg"
                                         wire:key="quantity-controls-{{ $item['product_id'] ?? 0 }}-{{ $item['quantity'] ?? 1 }}">
                                         <button
-                                            wire:click="updateQuantity({{ $item['product_id'] ?? 0 }}, {{ max(1, ($item['quantity'] ?? 1) - 1) }})"
+                                            wire:click="updateQuantity({{ $item['id'] ?? 0 }}, {{ max(1, ($item['quantity'] ?? 1) - 1) }})"
                                             class="px-3 py-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-l-lg {{ ($item['quantity'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
                                             {{ ($item['quantity'] ?? 1) <= 1 ? 'disabled' : '' }}>
                                             <i class="fas fa-minus text-xs"></i>
@@ -121,7 +121,7 @@
                                             {{ $item['quantity'] ?? 1 }}
                                         </span>
                                         <button
-                                            wire:click="updateQuantity({{ $item['product_id'] ?? 0 }}, {{ ($item['quantity'] ?? 1) + 1 }})"
+                                            wire:click="updateQuantity({{ $item['id'] ?? 0 }}, {{ ($item['quantity'] ?? 1) + 1 }})"
                                             class="px-3 py-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-r-lg">
                                             <i class="fas fa-plus text-xs"></i>
                                         </button>
@@ -147,34 +147,36 @@
                                         </h4>
                                         <div class="flex flex-wrap gap-2 mb-2">
                                             @foreach ($selectedDesigns as $productDesign)
-                                                <div wire:key="design-{{ $productDesign->id }}-{{ $productDesign->product_id }}-{{ $productDesign->design_id }}"
-                                                    class="flex items-center bg-purple-50 border border-purple-200 rounded-lg p-2 group hover:bg-purple-100 transition-colors">
-                                                    <img src="{{ $productDesign->design->thumbnail_url ?? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiBmaWxsPSIjY2NjY2NjIi8+PHRleHQgeD0iMTUiIHk9IjE1IiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iOCIgZmlsbD0iIzY2NjY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkQ8L3RleHQ+PC9zdmc+' }}"
-                                                        alt="{{ $productDesign->design->title }}"
-                                                        class="w-8 h-8 object-cover rounded mr-2">
-                                                    <div class="flex-1 min-w-0">
-                                                        <p class="text-xs font-medium text-gray-900 truncate"
-                                                            title="{{ $productDesign->design->title }}">
-                                                            {{ $productDesign->design->title }}
-                                                        </p>
-                                                        <div class="flex items-center">
-                                                            <span
-                                                                class="text-xs text-purple-600 font-medium">{{ trans('cart.priority', ['default' => 'Priority']) }}
-                                                                {{ $productDesign->priority }}</span>
-                                                            @if ($productDesign->notes)
-                                                                <span class="text-xs text-gray-500 ml-2">•
-                                                                    {{ Str::limit($productDesign->notes, 20) }}</span>
-                                                            @endif
+                                                @if ($productDesign->design)
+                                                    <div wire:key="design-{{ $productDesign->id }}-{{ $productDesign->product_id }}-{{ $productDesign->design_id }}"
+                                                        class="flex items-center bg-purple-50 border border-purple-200 rounded-lg p-2 group hover:bg-purple-100 transition-colors">
+                                                        <img src="{{ $productDesign->design->thumbnail_url ?? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiBmaWxsPSIjY2NjY2NjIi8+PHRleHQgeD0iMTUiIHk9IjE1IiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iOCIgZmlsbD0iIzY2NjY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkQ8L3RleHQ+PC9zdmc+' }}"
+                                                            alt="{{ $productDesign->design->title }}"
+                                                            class="w-8 h-8 object-cover rounded mr-2">
+                                                        <div class="flex-1 min-w-0">
+                                                            <p class="text-xs font-medium text-gray-900 truncate"
+                                                                title="{{ $productDesign->design->title }}">
+                                                                {{ $productDesign->design->title }}
+                                                            </p>
+                                                            <div class="flex items-center">
+                                                                <span
+                                                                    class="text-xs text-purple-600 font-medium">{{ trans('cart.priority', ['default' => 'Priority']) }}
+                                                                    {{ $productDesign->priority }}</span>
+                                                                @if ($productDesign->notes)
+                                                                    <span class="text-xs text-gray-500 ml-2">•
+                                                                        {{ Str::limit($productDesign->notes, 20) }}</span>
+                                                                @endif
+                                                            </div>
                                                         </div>
+                                                        <button
+                                                            wire:click="removeDesignFromProduct({{ $productDesign->product_id }}, {{ $productDesign->design_id }})"
+                                                            wire:confirm="{{ trans('cart.confirm_remove_design', ['default' => 'Are you sure you want to remove this design from :product?', 'product' => $item['product_name'] ?? trans('cart.this_product', ['default' => 'this product'])]) }}"
+                                                            class="ml-2 p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors opacity-0 group-hover:opacity-100"
+                                                            title="{{ trans('cart.remove_this_design', ['default' => 'Remove this design']) }}">
+                                                            <i class="fas fa-times text-xs"></i>
+                                                        </button>
                                                     </div>
-                                                    <button
-                                                        wire:click="removeDesignFromProduct({{ $productDesign->product_id }}, {{ $productDesign->design_id }})"
-                                                        wire:confirm="{{ trans('cart.confirm_remove_design', ['default' => 'Are you sure you want to remove this design from :product?', 'product' => $item['product_name'] ?? trans('cart.this_product', ['default' => 'this product'])]) }}"
-                                                        class="ml-2 p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors opacity-0 group-hover:opacity-100"
-                                                        title="{{ trans('cart.remove_this_design', ['default' => 'Remove this design']) }}">
-                                                        <i class="fas fa-times text-xs"></i>
-                                                    </button>
-                                                </div>
+                                                @endif
                                             @endforeach
                                         </div>
                                         <a href="{{ route('user.product.designs', ['product' => $item['product_id'] ?? 0]) }}"
@@ -203,7 +205,7 @@
                                 <div class="text-lg font-bold text-gray-900 mb-2">
                                     ${{ number_format($item['total_price'] ?? 0, 2) }}
                                 </div>
-                                <button wire:click="removeItem({{ $item['product_id'] ?? 0 }})"
+                                <button wire:click="removeItem({{ $item['id'] ?? 0 }})"
                                     wire:confirm="{{ trans('cart.confirm_remove_item', ['default' => 'Are you sure you want to remove this item from your cart?', 'product' => $item['product_name'] ?? trans('cart.this_item', ['default' => 'this item'])]) }}"
                                     class="text-red-600 hover:text-red-800 text-sm font-medium flex items-center">
                                     <i class="fas fa-trash mr-1"></i>
@@ -263,6 +265,88 @@
                     </a>
                 </div>
             </div>
+
+            <!-- Checkout Form Modal -->
+            @if ($showCheckoutForm)
+                <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+                    wire:click="hideCheckout">
+                    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white" wire:click.stop>
+                        <div class="mt-3">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                {{ trans('cart.checkout') }}
+                            </h3>
+
+                            <form wire:submit.prevent="createOrder">
+                                <div class="space-y-4">
+                                    <!-- Phone -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            {{ trans('cart.phone') }} <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="tel" wire:model="checkoutData.phone"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="{{ trans('cart.phone_placeholder') }}">
+                                        @error('checkoutData.phone')
+                                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <!-- Shipping Address -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            {{ trans('cart.shipping_address') }}
+                                        </label>
+                                        <textarea wire:model="checkoutData.shipping_address" rows="3"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="{{ trans('cart.shipping_address_placeholder') }}"></textarea>
+                                        @error('checkoutData.shipping_address')
+                                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <!-- Billing Address -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            {{ trans('cart.billing_address') }}
+                                        </label>
+                                        <textarea wire:model="checkoutData.billing_address" rows="3"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="{{ trans('cart.billing_address_placeholder') }}"></textarea>
+                                        @error('checkoutData.billing_address')
+                                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <!-- Notes -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            {{ trans('cart.notes') }}
+                                        </label>
+                                        <textarea wire:model="checkoutData.notes" rows="2"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="{{ trans('cart.order_notes_placeholder') }}"></textarea>
+                                        @error('checkoutData.notes')
+                                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <!-- Form Actions -->
+                                <div class="flex justify-end space-x-3 mt-6">
+                                    <button type="button" wire:click="hideCheckout"
+                                        class="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50">
+                                        {{ trans('cart.cancel') }}
+                                    </button>
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                                        {{ trans('cart.create_order') }}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endif
         @endif
     </div>
 
@@ -500,6 +584,23 @@
                 Livewire.on('design-removed', (event) => {
                     // The $refresh dispatch above should handle the refresh
                 });
+            });
+        });
+    </script>
+
+    <!-- Database Cart JavaScript (New Implementation) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Database Cart JavaScript loaded');
+
+            // Dispatch event to update header cart count
+            window.updateCartCount = function() {
+                document.dispatchEvent(new CustomEvent('cartUpdated'));
+            };
+
+            // Listen for cart updates
+            document.addEventListener('cartUpdated', function() {
+                console.log('Cart updated event received - Database Cart Mode');
             });
         });
     </script>

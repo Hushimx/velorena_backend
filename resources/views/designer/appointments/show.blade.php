@@ -4,6 +4,32 @@
 @section('title', 'Appointment Details')
 
 @section('content')
+    <style>
+        .hover-shadow {
+            transition: box-shadow 0.3s ease;
+        }
+
+        .hover-shadow:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .text-truncate {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
     <div class="container-fluid">
         <!-- Header Section -->
         <div class="row mb-4">
@@ -226,7 +252,7 @@
                     @php
                         $productDesigns = collect();
                         foreach ($appointment->order->items as $item) {
-                            $designs = $item->product->designsForUser($appointment->user_id)->get();
+                            $designs = $item->designs()->with('design')->get();
                             if ($designs->count() > 0) {
                                 $productDesigns->push([
                                     'product' => $item->product,
@@ -260,40 +286,76 @@
                                             </h6>
                                         </div>
 
-                                        <div class="row">
+                                        <div class="row g-4">
                                             @foreach ($productDesignData['designs'] as $productDesign)
-                                                <div class="col-md-6 col-lg-4 mb-3">
-                                                    <div class="card h-100 border-0 shadow-sm">
-                                                        <div class="card-body p-3">
-                                                            <div class="d-flex align-items-start">
-                                                                <div class="flex-shrink-0 me-3">
-                                                                    <img src="{{ $productDesign->design->thumbnail_url ?? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjY2NjY2NjIi8+PHRleHQgeD0iMzAiIHk9IjMwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiM2NjY2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5EZXNpZ248L3RleHQ+PC9zdmc+' }}"
-                                                                        alt="{{ $productDesign->design->title }}"
-                                                                        class="rounded"
-                                                                        style="width: 60px; height: 60px; object-fit: cover;">
+                                                @if ($productDesign->design)
+                                                    <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                                                        <div
+                                                            class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                                                            <div class="card-body p-3">
+                                                                <!-- Image Section -->
+                                                                <div class="text-center mb-3">
+                                                                    <div class="position-relative d-inline-block">
+                                                                        <img src="{{ $productDesign->design->thumbnail_url ?? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjY2NjY2NjIi8+PHRleHQgeD0iNDAiIHk9IjQwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiM2NjY2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5EZXNpZ248L3RleHQ+PC9zdmc+' }}"
+                                                                            alt="{{ $productDesign->design->title }}"
+                                                                            class="rounded shadow-sm"
+                                                                            style="width: 80px; height: 80px; object-fit: cover;">
+                                                                        <div
+                                                                            class="position-absolute top-0 end-0 translate-middle">
+                                                                            <span class="badge bg-primary rounded-pill"
+                                                                                style="font-size: 0.65rem; min-width: 20px;">
+                                                                                {{ $productDesign->priority }}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="flex-grow-1">
-                                                                    <h6 class="card-title mb-1 text-truncate"
-                                                                        title="{{ $productDesign->design->title }}">
+
+                                                                <!-- Content Section -->
+                                                                <div class="text-center">
+                                                                    <h6 class="card-title mb-2 fw-semibold text-dark text-truncate"
+                                                                        title="{{ $productDesign->design->title }}"
+                                                                        style="font-size: 0.9rem; line-height: 1.2;">
                                                                         {{ $productDesign->design->title }}
                                                                     </h6>
-                                                                    <div class="d-flex align-items-center mb-2">
-                                                                        <span class="badge bg-warning text-dark me-2">
+
+                                                                    @if ($productDesign->design->description)
+                                                                        <p class="text-muted small mb-2"
+                                                                            style="font-size: 0.75rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                                                            {{ $productDesign->design->description }}
+                                                                        </p>
+                                                                    @endif
+
+                                                                    @if ($productDesign->notes)
+                                                                        <div class="bg-light rounded p-2 mb-2">
+                                                                            <p class="text-muted small mb-0"
+                                                                                style="font-size: 0.7rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                                                                <i
+                                                                                    class="fas fa-comment me-1 text-primary"></i>
+                                                                                <strong>Note:</strong>
+                                                                                {{ $productDesign->notes }}
+                                                                            </p>
+                                                                        </div>
+                                                                    @endif
+
+                                                                    <!-- Badges Section -->
+                                                                    <div class="d-flex flex-column gap-1">
+                                                                        <span class="badge bg-warning text-dark mx-auto"
+                                                                            style="font-size: 0.7rem;">
                                                                             <i class="fas fa-star me-1"></i>
                                                                             Priority {{ $productDesign->priority }}
                                                                         </span>
+                                                                        @if ($productDesign->design->category)
+                                                                            <span class="badge bg-secondary mx-auto"
+                                                                                style="font-size: 0.7rem;">
+                                                                                {{ $productDesign->design->category }}
+                                                                            </span>
+                                                                        @endif
                                                                     </div>
-                                                                    @if ($productDesign->notes)
-                                                                        <p class="card-text text-muted small mb-0">
-                                                                            <i class="fas fa-comment me-1"></i>
-                                                                            {{ Str::limit($productDesign->notes, 80) }}
-                                                                        </p>
-                                                                    @endif
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                @endif
                                             @endforeach
                                         </div>
                                     </div>

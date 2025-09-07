@@ -33,6 +33,16 @@ return [
     'notes_placeholder' => 'أضف أي تعليمات خاصة...',
     'options_price' => 'سعر الخيارات',
 
+    // Checkout Modal
+    'phone' => 'رقم الهاتف',
+    'phone_placeholder' => 'أدخل رقم هاتفك',
+    'shipping_address' => 'عنوان الشحن',
+    'shipping_address_placeholder' => 'أدخل عنوان الشحن',
+    'billing_address' => 'عنوان الفواتير',
+    'billing_address_placeholder' => 'أدخل عنوان الفواتير',
+    'order_notes_placeholder' => 'أضف أي تعليمات خاصة لطلبك',
+    'create_order' => 'إنشاء الطلب',
+
     // Messages
     'cart_cleared' => 'تم مسح السلة بنجاح',
     'item_removed' => 'تم إزالة العنصر من السلة',

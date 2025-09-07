@@ -7,13 +7,7 @@
     </button>
 
 
-    <!-- Success/Error Messages -->
-    @if (session()->has('message'))
-        <div class="mt-2 p-2 bg-green-100 border border-green-400 text-green-700 rounded">
-            {{ session('message') }}
-        </div>
-    @endif
-
+    <!-- Error Messages (outside modal) -->
     @if (session()->has('error'))
         <div class="mt-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
             {{ session('error') }}
@@ -280,6 +274,40 @@
                 };
                 addToCartHandler(testItem);
             };
+        });
+    </script>
+
+    <!-- Database Cart JavaScript (New Implementation) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('AddToCart JavaScript loaded - Database Cart Mode');
+
+            // Listen for cart updates
+            document.addEventListener('cartUpdated', function() {
+                console.log('Cart updated event received in AddToCart - Database Cart Mode');
+            });
+
+            // Listen for success toast event
+            Livewire.on('showSuccessToast', (event) => {
+                console.log('Success toast event received:', event.message);
+
+                // Show success toast using SweetAlert or custom toast
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: '{{ app()->getLocale() === 'ar' ? 'تمت الإضافة!' : 'Success!' }}',
+                        text: event.message ||
+                            '{{ app()->getLocale() === 'ar' ? 'تم إضافة المنتج إلى السلة بنجاح' : 'Item added to cart successfully!' }}',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-end'
+                    });
+                } else {
+                    // Fallback: show simple alert
+                    alert(event.message || 'Item added to cart successfully!');
+                }
+            });
         });
     </script>
 </div>

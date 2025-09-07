@@ -3,7 +3,9 @@
 namespace App\Livewire;
 
 use App\Models\Product;
+use App\Models\CartItem;
 use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
 
 class AddToCart extends Component
 {
@@ -29,6 +31,11 @@ class AddToCart extends Component
 
     public function addToCart()
     {
+        if (!Auth::check()) {
+            session()->flash('error', 'Please login to add items to cart');
+            return;
+        }
+
         \Log::info('addToCart called', [
             'product_id' => $this->product->id,
             'quantity' => $this->quantity,
@@ -45,144 +52,111 @@ class AddToCart extends Component
             return;
         }
 
-        // Calculate total price including options
-        $totalPrice = $this->calculateTotalPrice();
+        \Log::info('Validation passed, proceeding to add to cart');
 
-        // Prepare cart item data
-        $cartItem = [
-            'product_id' => $this->product->id,
-            'product_name' => $this->product->name,
-            'product_image' => $this->product->image_url ?? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y3ZjdmNyIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+UHJvZHVjdDwvdGV4dD48L3N2Zz4=',
-            'base_price' => $this->product->base_price,
-            'unit_price' => $totalPrice,
-            'quantity' => $this->quantity,
-            'total_price' => $totalPrice * $this->quantity,
-            'selected_options' => $this->getSelectedOptionsData(),
-            'notes' => $this->notes
-        ];
+        $user = Auth::user();
 
-        // Add to cart via simple JavaScript
-        \Log::info('AddToCart adding to cart directly', $cartItem);
+        // Check if item already exists with same options
+        $existingItem = CartItem::where('user_id', $user->id)
+            ->where('product_id', $this->product->id)
+            ->where('selected_options', json_encode($this->selectedOptions))
+            ->first();
 
-        $this->js("
-            console.log('Adding to cart:', " . json_encode($cartItem) . ");
+        if ($existingItem) {
+            // Update quantity
+            $existingItem->quantity += $this->quantity;
+            $existingItem->updatePrices();
 
-            // Get current cart data
-            let cartData = JSON.parse(localStorage.getItem('shopping_cart') || '{\"items\": [], \"total\": 0, \"itemCount\": 0}');
+            \Log::info('Updated existing cart item', ['cart_item_id' => $existingItem->id]);
+            session()->flash('success', 'Item quantity updated in cart');
+        } else {
+            // Create new cart item
+            $cartItem = CartItem::create([
+                'user_id' => $user->id,
+                'product_id' => $this->product->id,
+                'quantity' => $this->quantity,
+                'selected_options' => $this->selectedOptions,
+                'notes' => $this->notes
+            ]);
 
-            // Add new item
-            cartData.items.push(" . json_encode($cartItem) . ");
+            $cartItem->updatePrices();
 
-            // Update totals
-            cartData.itemCount = cartData.items.reduce((sum, item) => sum + (item.quantity || 0), 0);
-            cartData.total = cartData.items.reduce((sum, item) => sum + (item.total_price || 0), 0);
+            \Log::info('Created new cart item', ['cart_item_id' => $cartItem->id]);
+        }
 
-            // Save to localStorage
-            localStorage.setItem('shopping_cart', JSON.stringify(cartData));
-
-            console.log('Cart updated:', cartData);
-
-            // Show success message
-            Swal.fire({
-                title: 'Added to Cart!',
-                text: 'Product added to cart successfully!',
-                icon: 'success',
-                timer: 2000,
-                showConfirmButton: false
-            });
-        ");
-
-        $this->showModal = false;
-
-        // Reset form data
+        // Reset form
         $this->quantity = 1;
         $this->notes = '';
 
-        // Reinitialize selectedOptions properly
-        $this->selectedOptions = [];
+        // Close modal immediately
+        $this->showModal = false;
+
+        // Show success toast message
+        $this->dispatch('showSuccessToast', message: 'Item added to cart successfully!');
+
+        // Reset selected options
         foreach ($this->product->options as $option) {
             $this->selectedOptions[$option->id] = null;
         }
+
+        // Dispatch event to update cart count
+        $this->dispatch('cartUpdated');
+
+        // Also dispatch a browser event
+        $this->dispatch('cartUpdated');
+    }
+
+    public function validateRequiredOptions()
+    {
+        foreach ($this->product->options as $option) {
+            if ($option->is_required && empty($this->selectedOptions[$option->id])) {
+                $this->addError('selectedOptions.' . $option->id, 'Please select ' . $option->name);
+            }
+        }
+    }
+
+    public function calculateTotalPrice()
+    {
+        $price = $this->product->base_price;
+
+        // Add option prices
+        foreach ($this->selectedOptions as $optionId => $valueId) {
+            if ($valueId) {
+                $optionValue = \App\Models\OptionValue::find($valueId);
+                if ($optionValue && $optionValue->price_adjustment) {
+                    $price += $optionValue->price_adjustment;
+                }
+            }
+        }
+
+        return $price * $this->quantity;
     }
 
     public function openModal()
     {
-        \Log::info('Opening modal for product', ['product_id' => $this->product->id, 'current_options' => $this->selectedOptions]);
-
         $this->showModal = true;
-
-        // Reset form data
-        $this->quantity = 1;
-        $this->notes = '';
-
-        // Reset selected options when opening modal
-        $this->selectedOptions = [];
-        foreach ($this->product->options as $option) {
-            $this->selectedOptions[$option->id] = null;
-        }
-
-        \Log::info('Modal opened with reset options', ['new_options' => $this->selectedOptions]);
     }
 
     public function closeModal()
     {
         $this->showModal = false;
+    }
 
-        // Reset form data
+    public function showAddToCartModal()
+    {
+        $this->showModal = true;
+    }
+
+    public function hideAddToCartModal()
+    {
+        $this->showModal = false;
         $this->quantity = 1;
         $this->notes = '';
 
-        // Reinitialize selectedOptions properly
-        $this->selectedOptions = [];
+        // Reset selected options
         foreach ($this->product->options as $option) {
             $this->selectedOptions[$option->id] = null;
         }
-    }
-
-    private function validateRequiredOptions()
-    {
-        foreach ($this->product->options as $option) {
-            if ($option->is_required && empty($this->selectedOptions[$option->id])) {
-                $this->addError('selectedOptions.' . $option->id, 'This option is required.');
-            }
-        }
-    }
-
-    private function calculateTotalPrice()
-    {
-        $totalPrice = $this->product->base_price;
-
-        foreach ($this->selectedOptions as $optionId => $valueId) {
-            if ($valueId) {
-                $optionValue = \App\Models\OptionValue::find($valueId);
-                if ($optionValue) {
-                    $totalPrice += $optionValue->price_adjustment;
-                }
-            }
-        }
-
-        return $totalPrice;
-    }
-
-    private function getSelectedOptionsData()
-    {
-        $optionsData = [];
-
-        foreach ($this->selectedOptions as $optionId => $valueId) {
-            if ($valueId) {
-                $option = $this->product->options->find($optionId);
-                $optionValue = \App\Models\OptionValue::find($valueId);
-
-                if ($option && $optionValue) {
-                    $optionsData[$option->name] = [
-                        'value' => $optionValue->value,
-                        'price_adjustment' => $optionValue->price_adjustment
-                    ];
-                }
-            }
-        }
-
-        return $optionsData;
     }
 
     public function render()
