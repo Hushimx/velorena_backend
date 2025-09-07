@@ -653,4 +653,242 @@ class DesignController extends Controller
             ]
         ]);
     }
+
+    // ========================================
+    // EXTERNAL API ACCESS (PROTECTED)
+    // ========================================
+
+    /**
+     * Search designs from external API
+     */
+    public function searchExternal(Request $request): JsonResponse
+    {
+        $request->validate([
+            'q' => 'required|string|min:2',
+            'limit' => 'nullable|integer|min:1|max:100',
+            'page' => 'nullable|integer|min:1',
+            'category' => 'nullable|string',
+            'type' => 'nullable|string|in:photo,vector,psd,ai',
+            'orientation' => 'nullable|string|in:horizontal,vertical,square',
+            'color' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
+            'min_width' => 'nullable|integer|min:1',
+            'min_height' => 'nullable|integer|min:1',
+        ]);
+
+        try {
+            $apiService = new DesignApiService();
+
+            $params = [
+                'q' => $request->get('q'),
+                'limit' => $request->get('limit', 50),
+                'page' => $request->get('page', 1),
+            ];
+
+            // Add optional filters
+            if ($request->has('category')) {
+                $params['category'] = $request->get('category');
+            }
+            if ($request->has('type')) {
+                $params['type'] = $request->get('type');
+            }
+            if ($request->has('orientation')) {
+                $params['orientation'] = $request->get('orientation');
+            }
+            if ($request->has('color')) {
+                $params['color'] = $request->get('color');
+            }
+            if ($request->has('min_width')) {
+                $params['min_width'] = $request->get('min_width');
+            }
+            if ($request->has('min_height')) {
+                $params['min_height'] = $request->get('min_height');
+            }
+
+            $result = $apiService->searchExternalDesigns($request->get('q'), $params);
+
+            if ($result === null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to fetch designs from external API'
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'query' => $request->get('q'),
+                'data' => $result['data'] ?? [],
+                'pagination' => [
+                    'current_page' => $result['pagination']['current_page'] ?? 1,
+                    'total_pages' => $result['pagination']['total_pages'] ?? 1,
+                    'total_results' => $result['pagination']['total_results'] ?? 0,
+                    'per_page' => $params['limit'],
+                ],
+                'filters_applied' => array_filter($params, function ($key) {
+                    return !in_array($key, ['q', 'limit', 'page']);
+                }, ARRAY_FILTER_USE_KEY)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error searching external designs: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get designs by category from external API
+     */
+    public function getExternalByCategory(Request $request): JsonResponse
+    {
+        $request->validate([
+            'category' => 'required|string',
+            'limit' => 'nullable|integer|min:1|max:100',
+            'page' => 'nullable|integer|min:1',
+            'type' => 'nullable|string|in:photo,vector,psd,ai',
+            'orientation' => 'nullable|string|in:horizontal,vertical,square',
+            'color' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
+            'min_width' => 'nullable|integer|min:1',
+            'min_height' => 'nullable|integer|min:1',
+        ]);
+
+        try {
+            $apiService = new DesignApiService();
+
+            $params = [
+                'limit' => $request->get('limit', 50),
+                'page' => $request->get('page', 1),
+            ];
+
+            // Add optional filters
+            if ($request->has('type')) {
+                $params['type'] = $request->get('type');
+            }
+            if ($request->has('orientation')) {
+                $params['orientation'] = $request->get('orientation');
+            }
+            if ($request->has('color')) {
+                $params['color'] = $request->get('color');
+            }
+            if ($request->has('min_width')) {
+                $params['min_width'] = $request->get('min_width');
+            }
+            if ($request->has('min_height')) {
+                $params['min_height'] = $request->get('min_height');
+            }
+
+            $result = $apiService->getExternalDesignsByCategory($request->get('category'), $params);
+
+            if ($result === null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to fetch designs from external API'
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'category' => $request->get('category'),
+                'data' => $result['data'] ?? [],
+                'pagination' => [
+                    'current_page' => $result['pagination']['current_page'] ?? 1,
+                    'total_pages' => $result['pagination']['total_pages'] ?? 1,
+                    'total_results' => $result['pagination']['total_results'] ?? 0,
+                    'per_page' => $params['limit'],
+                ],
+                'filters_applied' => array_filter($params, function ($key) {
+                    return !in_array($key, ['limit', 'page']);
+                }, ARRAY_FILTER_USE_KEY)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching designs by category: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get available categories from external API
+     */
+    public function getExternalCategories(): JsonResponse
+    {
+        try {
+            $apiService = new DesignApiService();
+            $result = $apiService->getExternalCategories();
+
+            if ($result === null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to fetch categories from external API'
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $result['data'] ?? $result,
+                'total_categories' => count($result['data'] ?? $result)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching external categories: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get featured/popular designs from external API
+     */
+    public function getExternalFeatured(Request $request): JsonResponse
+    {
+        $request->validate([
+            'limit' => 'nullable|integer|min:1|max:100',
+            'page' => 'nullable|integer|min:1',
+            'type' => 'nullable|string|in:photo,vector,psd,ai',
+            'orientation' => 'nullable|string|in:horizontal,vertical,square',
+        ]);
+
+        try {
+            $apiService = new DesignApiService();
+
+            $params = [
+                'limit' => $request->get('limit', 50),
+                'page' => $request->get('page', 1),
+                'featured' => true, // Assuming the API supports featured filter
+            ];
+
+            // Add optional filters
+            if ($request->has('type')) {
+                $params['type'] = $request->get('type');
+            }
+            if ($request->has('orientation')) {
+                $params['orientation'] = $request->get('orientation');
+            }
+
+            $result = $apiService->fetchExternalDesigns($params);
+
+            if ($result === null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to fetch featured designs from external API'
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $result['data'] ?? [],
+                'pagination' => [
+                    'current_page' => $result['pagination']['current_page'] ?? 1,
+                    'total_pages' => $result['pagination']['total_pages'] ?? 1,
+                    'total_results' => $result['pagination']['total_results'] ?? 0,
+                    'per_page' => $params['limit'],
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching featured designs: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
