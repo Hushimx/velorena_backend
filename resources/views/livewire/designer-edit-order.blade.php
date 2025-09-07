@@ -170,6 +170,12 @@
                                 @forelse ($products as $product)
                                     <div class="col-md-6 col-lg-4">
                                         <div class="card h-100 border-0 shadow-sm">
+                                            <!-- Product Image -->
+                                            <div class="text-center p-3">
+                                                <img src="{{ $product->image ?? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iI2NjY2NjYyIvPjx0ZXh0IHg9IjYwIiB5PSI2MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjY2NjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+' }}"
+                                                    alt="{{ $product->name }}" class="img-fluid rounded"
+                                                    style="max-height: 120px; width: auto; object-fit: cover;">
+                                            </div>
                                             <div class="card-body">
                                                 <h6 class="card-title">{{ $product->name }}</h6>
                                                 <p class="card-text text-muted small">
@@ -199,7 +205,7 @@
                             </div>
 
                             <!-- Pagination -->
-                            <div class="mt-4">
+                            <div class="mt-4 d-flex justify-content-center">
                                 {{ $products->links() }}
                             </div>
                         </div>

@@ -34,6 +34,8 @@ class DesignerEditOrder extends Component
         'category_filter' => ['except' => ''],
     ];
 
+    protected $listeners = ['refreshComponent' => '$refresh'];
+
     public function mount(Appointment $appointment)
     {
         // Verify the designer has access to this appointment

@@ -42,9 +42,7 @@ Route::prefix('designer')->group(function () {
             Route::post('/appointments/{appointment}/complete', [App\Http\Controllers\AppointmentController::class, 'complete'])->name('appointments.complete');
 
             // Order editing routes
-            Route::get('/appointments/{appointment}/edit-order', function (App\Models\Appointment $appointment) {
-                return view('designer.orders.edit', compact('appointment'));
-            })->name('orders.edit');
+            Route::get('/appointments/{appointment}/edit-order', [App\Http\Controllers\AppointmentController::class, 'designerEditOrder'])->name('orders.edit');
         });
     });
 

@@ -399,6 +399,32 @@ class AppointmentController extends Controller
     }
 
     /**
+     * Show designer's order editing page
+     */
+    public function designerEditOrder(Appointment $appointment)
+    {
+        // Get the authenticated designer
+        $authenticatedDesigner = Auth::guard('designer')->user();
+
+        // If no designer is authenticated, abort
+        if (!$authenticatedDesigner) {
+            abort(403, 'Designer authentication required');
+        }
+
+        // Check if the appointment belongs to this designer
+        if ($appointment->designer_id !== $authenticatedDesigner->id) {
+            abort(403, 'You can only edit orders for your own appointments');
+        }
+
+        // Check if appointment has an order
+        if (!$appointment->order) {
+            abort(404, 'No order found for this appointment');
+        }
+
+        return view('designer.orders.edit', compact('appointment'));
+    }
+
+    /**
      * Show user's appointments
      */
     public function userAppointments(Request $request, User $user)
