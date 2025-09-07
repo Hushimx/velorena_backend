@@ -40,6 +40,11 @@ Route::prefix('designer')->group(function () {
             Route::post('/appointments/{appointment}/accept', [App\Http\Controllers\AppointmentController::class, 'accept'])->name('appointments.accept');
             Route::post('/appointments/{appointment}/reject', [App\Http\Controllers\AppointmentController::class, 'reject'])->name('appointments.reject');
             Route::post('/appointments/{appointment}/complete', [App\Http\Controllers\AppointmentController::class, 'complete'])->name('appointments.complete');
+
+            // Order editing routes
+            Route::get('/appointments/{appointment}/edit-order', function (App\Models\Appointment $appointment) {
+                return view('designer.orders.edit', compact('appointment'));
+            })->name('orders.edit');
         });
     });
 

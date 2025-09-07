@@ -212,6 +212,13 @@
                                 </div>
                             @endif
 
+                            <!-- Edit Order Button -->
+                            <div class="mb-3">
+                                <a href="{{ route('designer.orders.edit', $appointment) }}" class="btn btn-warning">
+                                    <i class="fas fa-edit me-2"></i>Edit Order
+                                </a>
+                            </div>
+
                             <!-- Products List -->
                             <div class="mb-3">
                                 <label class="form-label fw-bold text-muted">Products in Order</label>
