@@ -309,9 +309,15 @@
                     <span>{{ trans('sidebar.products') }}</span>
                 </a>
 
+                <a href="{{ route('cart.index') }}"
+                    class="sidebar-link {{ request()->routeIs('cart.*') ? 'active' : '' }}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>{{ trans('cart.shopping_cart') }}</span>
+                </a>
+
                 <a href="{{ route('user.orders.index') }}"
                     class="sidebar-link {{ request()->routeIs('user.orders.*') ? 'active' : '' }}">
-                    <i class="fas fa-shopping-cart"></i>
+                    <i class="fas fa-box"></i>
                     <span>{{ trans('orders.my_orders') }}</span>
                 </a>
             </nav>
@@ -341,10 +347,17 @@
                     <h1 class="text-xl font-bold text-gray-800">@yield('title', trans('dashboard.dashboard'))</h1>
 
                     <div class="flex items-center gap-3">
+                        <!-- Shopping Cart -->
+                        <a href="{{ route('cart.index') }}"
+                            class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                            <i class="fas fa-shopping-cart text-blue-600"></i>
+                            <span class="hidden sm:inline">{{ trans('cart.cart') }}</span>
+                        </a>
+
                         <!-- Quick Orders Access -->
                         <a href="{{ route('user.orders.index') }}"
                             class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                            <i class="fas fa-shopping-cart text-blue-600"></i>
+                            <i class="fas fa-box text-green-600"></i>
                             <span class="hidden sm:inline">{{ trans('orders.my_orders') }}</span>
                         </a>
 
@@ -431,9 +444,14 @@
                                         'left-0': '{{ LaravelLocalization::getCurrentLocaleDirection() }}'
                                         === 'ltr'
                                     }">
-                                    <a href="{{ route('user.orders.index') }}"
+                                    <a href="{{ route('cart.index') }}"
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         <i class="fas fa-shopping-cart mr-2"></i>
+                                        {{ trans('cart.shopping_cart') }}
+                                    </a>
+                                    <a href="{{ route('user.orders.index') }}"
+                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-box mr-2"></i>
                                         {{ trans('orders.my_orders') }}
                                     </a>
                                     <a href="{{ route('appointments.index') }}"
@@ -510,6 +528,7 @@
             }
         });
 
+
         // Handle flash messages
         @if (session('success'))
             Swal.fire({
@@ -556,6 +575,8 @@
             maxDate: new Date().fp_incr(90),
         });
     </script>
+
+
 
 </body>
 

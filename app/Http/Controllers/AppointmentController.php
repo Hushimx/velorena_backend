@@ -18,10 +18,11 @@ class AppointmentController extends Controller
     /**
      * Show the appointment booking form
      */
-    public function create()
+    public function create(Request $request)
     {
         $designers = Designer::where('is_active', true)->get();
-        return view('users.appointments.create', compact('designers'));
+        $orderId = $request->get('order_id');
+        return view('users.appointments.create', compact('designers', 'orderId'));
     }
 
     /**
@@ -302,8 +303,7 @@ class AppointmentController extends Controller
         $pendingAppointments = Appointment::with('user')
             ->where('designer_id', $designer->id)
             ->where('status', 'pending')
-            ->orderBy('appointment_date')
-            ->orderBy('appointment_time')
+            ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
 
@@ -344,7 +344,8 @@ class AppointmentController extends Controller
             ->with([
                 'user:id,full_name,email,phone',
                 'order.items.product',
-                'order.items.product.options.values'
+                'order.items.product.options.values',
+                'order.items.designs.design'
             ])
             ->when($request->date, function ($query, $date) {
                 return $query->where('appointment_date', $date);
@@ -352,8 +353,8 @@ class AppointmentController extends Controller
             ->when($request->status, function ($query, $status) {
                 return $query->where('status', $status);
             })
-            ->orderBy('appointment_date')
-            ->orderBy('appointment_time')
+            ->orderBy('appointment_date', 'desc')
+            ->orderBy('appointment_time', 'desc')
             ->paginate($request->per_page ?? 15);
 
         // If it's an API request, return JSON
@@ -366,6 +367,35 @@ class AppointmentController extends Controller
 
         // For web requests, render the view
         return view('designer.appointments.index', compact('appointments'));
+    }
+
+    /**
+     * Show designer's appointment details
+     */
+    public function designerShow(Appointment $appointment)
+    {
+        // Get the authenticated designer
+        $authenticatedDesigner = Auth::guard('designer')->user();
+
+        // If no designer is authenticated, abort
+        if (!$authenticatedDesigner) {
+            abort(403, 'Designer authentication required');
+        }
+
+        // Check if the appointment belongs to this designer
+        if ($appointment->designer_id !== $authenticatedDesigner->id) {
+            abort(403, 'You can only view your own appointments');
+        }
+
+        // Load the appointment with all necessary relationships
+        $appointment->load([
+            'user:id,full_name,email,phone',
+            'order.items.product',
+            'order.items.product.options.values',
+            'order.items.designs.design'
+        ]);
+
+        return view('designer.appointments.show', compact('appointment'));
     }
 
     /**

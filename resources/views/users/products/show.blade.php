@@ -150,7 +150,7 @@
                     <!-- Actions -->
                     <div class="pt-6 border-t border-gray-200">
                         <div class="flex space-x-4 gap-3">
-                            @livewire('add-to-order', ['product' => $product])
+                            @livewire('add-to-cart', ['product' => $product])
                             <button
                                 class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
                                 <i class="fas fa-heart"></i>

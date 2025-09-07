@@ -65,10 +65,7 @@ class DesignerAppointmentsWithOrders extends Component
         session()->flash('success', 'Appointment marked as completed.');
     }
 
-    public function viewAppointmentDetails($appointmentId)
-    {
-        return redirect()->route('designer.appointments.show', $appointmentId);
-    }
+
 
     public function render()
     {

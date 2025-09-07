@@ -208,6 +208,7 @@
                     </div>
                 </div>
 
+
                 <!-- Selected Order Summary -->
                 @if ($selected_order_id)
                     <div class="mb-6">
@@ -354,6 +355,7 @@
                                 </div>
                             </div>
                         @endif
+
                     </div>
                 @endif
 
@@ -411,6 +413,7 @@
                 {{ trans('dashboard.link_orders_desc', ['default' => 'Connect your orders with appointments for better consultation.']) }}
             </p>
         </div>
+
 
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 text-center">
             <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
