@@ -77,6 +77,23 @@ Route::prefix('designs')->group(function () {
     Route::post('/sync', [DesignController::class, 'sync']);
 });
 
+// ========================================
+// EXTERNAL DESIGN API ROUTES (PUBLIC - PROTECTED API KEY)
+// ========================================
+Route::prefix('external/designs')->group(function () {
+    // GET /api/external/designs/search - Search designs from external API
+    Route::get('/search', [DesignController::class, 'searchExternal']);
+
+    // GET /api/external/designs/category - Get designs by category from external API
+    Route::get('/category', [DesignController::class, 'getExternalByCategory']);
+
+    // GET /api/external/designs/categories - Get available categories from external API
+    Route::get('/categories', [DesignController::class, 'getExternalCategories']);
+
+    // GET /api/external/designs/featured - Get featured designs from external API
+    Route::get('/featured', [DesignController::class, 'getExternalFeatured']);
+});
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);

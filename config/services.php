@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'freepik' => [
+        'api_key' => env('FREEPIK_API_KEY'),
+        'base_url' => env('FREEPIK_BASE_URL', 'https://api.freepik.com/v1'),
+    ],
+
 ];
