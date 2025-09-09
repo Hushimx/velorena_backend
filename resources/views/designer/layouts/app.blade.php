@@ -144,8 +144,6 @@
             background: #f8f9fa;
         }
 
-
-
         /* Language Switcher */
         .language-switcher .dropdown-toggle {
             border-color: #dee2e6;
@@ -300,8 +298,6 @@
                 text-align: right;
             }
 
-
-
             @media (max-width: 768px) {
                 .main-content {
                     margin-right: 0;
@@ -340,8 +336,6 @@
                 <div class="platform-title">Velorena</div>
                 <small class="text-muted">Designer Platform</small>
             </div>
-
-
 
             <!-- Navigation Links -->
             <nav class="nav-section">
