@@ -146,12 +146,6 @@
                     <dt class="text-sm font-medium text-gray-500">الحي:</dt>
                     <dd class="text-sm text-gray-900">{{ $listing->neighborhood ?? '-' }}</dd>
                 </div>
-                @if($listing->latitude && $listing->longitude)
-                <div class="flex justify-between">
-                    <dt class="text-sm font-medium text-gray-500">الإحداثيات:</dt>
-                    <dd class="text-sm text-gray-900">{{ $listing->latitude }}, {{ $listing->longitude }}</dd>
-                </div>
-                @endif
                 <div class="flex justify-between">
                     <dt class="text-sm font-medium text-gray-500">إجمالي المخزون:</dt>
                     <dd class="text-sm text-gray-900">{{ $listing->total_stock ?? 1 }}</dd>
@@ -188,8 +182,8 @@
                 <div class="flex justify-between">
                     <dt class="text-sm font-medium text-gray-500">نشط:</dt>
                     <dd class="text-sm">
-                        <span class="px-2 py-1 rounded-full text-xs font-semibold {{ $listing->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                            {{ $listing->is_active ? 'نعم' : 'لا' }}
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold {{ $listing->status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                            {{ $listing->status === 'active' ? 'نعم' : 'لا' }}
                         </span>
                     </dd>
                 </div>
@@ -213,49 +207,124 @@
         @endif
     </div>
 
-    <!-- Orders Section -->
+    <!-- Recent Orders Section -->
     <div class="bg-white rounded-lg shadow p-6 mt-8">
-        <h2 class="text-xl font-bold mb-4">الطلبات على هذا العرض</h2>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-gray-900 flex items-center">
+                <i class="fas fa-shopping-cart text-green-500 ml-2"></i>
+                آخر الطلبات
+            </h2>
+            <span class="text-sm text-gray-500">أحدث 5 طلبات</span>
+        </div>
+        
         @if($listing->orders && $listing->orders->count())
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">المستخدم</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">تاريخ البداية</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">تاريخ الانتهاء</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">عدد الأيام</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">الإجمالي</th>
-                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">الحالة</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المستخدم</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ البداية</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الانتهاء</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">عدد الأيام</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجمالي</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($listing->orders as $order)
-                            <tr>
-                                <td class="px-4 py-2 whitespace-nowrap">
-                                    {{ $order->user ? $order->user->name : '-' }}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-8 w-8">
+                                            <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                                <i class="fas fa-user text-gray-500 text-sm"></i>
+                                            </div>
+                                        </div>
+                                        <div class="mr-3">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ $order->user ? $order->user->name : 'غير محدد' }}
+                                            </div>
+                                            @if($order->user && $order->user->phone)
+                                                <div class="text-sm text-gray-500">{{ $order->user->phone }}</div>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </td>
-                                <td class="px-4 py-2 whitespace-nowrap">{{ $order->start_date }}</td>
-                                <td class="px-4 py-2 whitespace-nowrap">{{ $order->end_date }}</td>
-                                <td class="px-4 py-2 whitespace-nowrap">{{ $order->rental_days }}</td>
-                                <td class="px-4 py-2 whitespace-nowrap">{{ $order->total }} ر.س</td>
-                                <td class="px-4 py-2 whitespace-nowrap">
-                                    <span class="inline-flex px-3 py-1 text-xs font-bold rounded-full
-                                        @if($order->status == 'pending') bg-yellow-200 text-yellow-900 border border-yellow-400
-                                        @elseif($order->status == 'accepted') bg-green-200 text-green-900 border border-green-400
-                                        @elseif($order->status == 'rejected') bg-red-200 text-red-900 border border-red-400
-                                        @elseif($order->status == 'completed') bg-blue-200 text-blue-900 border border-blue-400
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ \Carbon\Carbon::parse($order->start_date)->format('d/m/Y') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ \Carbon\Carbon::parse($order->end_date)->format('d/m/Y') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $order->rental_days }} 
+                                    @if($order->rental_days == 1)
+                                        يوم
+                                    @elseif($order->rental_days == 2)
+                                        يومين
+                                    @elseif($order->rental_days <= 10)
+                                        أيام
+                                    @else
+                                        يوم
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                                    {{ number_format($order->total, 2) }} ر.س
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                        @if($order->status == 'pending') bg-yellow-100 text-yellow-800
+                                        @elseif($order->status == 'approved') bg-blue-100 text-blue-800
+                                        @elseif($order->status == 'paid') bg-purple-100 text-purple-800
+                                        @elseif($order->status == 'active') bg-indigo-100 text-indigo-800
+                                        @elseif($order->status == 'completed') bg-green-100 text-green-800
+                                        @elseif($order->status == 'cancelled') bg-red-100 text-red-800
+                                        @elseif($order->status == 'cancelled_by_user') bg-orange-100 text-orange-800
+                                        @elseif($order->status == 'rejected') bg-red-100 text-red-800
+                                        @elseif($order->status == 'late') bg-orange-100 text-orange-800
+                                        @else bg-gray-100 text-gray-800
                                         @endif">
-                                        {{ $order->status == 'pending' ? 'معلق' : ($order->status == 'accepted' ? 'مقبول' : ($order->status == 'rejected' ? 'مرفوض' : ($order->status == 'completed' ? 'مكتمل' : $order->status))) }}
+                                        @if($order->status == 'pending') معلق
+                                        @elseif($order->status == 'approved') مقبول
+                                        @elseif($order->status == 'paid') مدفوع
+                                        @elseif($order->status == 'active') نشط
+                                        @elseif($order->status == 'completed') مكتمل
+                                        @elseif($order->status == 'cancelled') ملغي
+                                        @elseif($order->status == 'cancelled_by_user') ملغي من العميل
+                                        @elseif($order->status == 'rejected') مرفوض
+                                        @elseif($order->status == 'late') متأخر
+                                        @else {{ $order->status }}
+                                        @endif
                                     </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <a href="{{ route('lender.orders.show', $order) }}" 
+                                        class="text-green-600 hover:text-green-900 inline-flex items-center">
+                                        <i class="fas fa-eye ml-1"></i>
+                                        عرض
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
+            
+            <!-- View All Orders Link -->
+            <div class="mt-4 text-center">
+                <a href="{{ route('lender.orders.index') }}?listing_id={{ $listing->id }}" 
+                    class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                    <i class="fas fa-list ml-2"></i>
+                    عرض جميع الطلبات
+                </a>
+            </div>
         @else
-            <div class="text-gray-500">لا توجد طلبات على هذا العرض.</div>
+            <div class="text-center py-8">
+                <i class="fas fa-shopping-cart text-4xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500 text-lg">لا توجد طلبات على هذا العرض</p>
+                <p class="text-gray-400 text-sm mt-2">ستظهر الطلبات هنا عند حجز العملاء لهذا العرض</p>
+            </div>
         @endif
     </div>
 </div>

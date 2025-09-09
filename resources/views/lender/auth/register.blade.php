@@ -1,1084 +1,802 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>تسجيل كمالك - فيلورينا</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Jarak - منصة الإيجار</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body {
             font-family: 'Cairo', sans-serif;
+            background-color: #f8fafc;
         }
 
-        /* Navy Blue and Mint Green Theme - Clean & Focused */
+        /* Minimal Professional Theme */
         :root {
-            --navy-blue: #000080;
-            --mint-green: #98FF98;
-            --navy-blue-light: rgba(0, 0, 128, 0.1);
-            --mint-green-light: rgba(152, 255, 152, 0.1);
-            --navy-blue-dark: #000066;
-            --mint-green-dark: #7FFF7F;
-        }
-
-        .gradient-bg {
-            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--mint-green) 100%);
-        }
-
-        .card-shadow {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 128, 0.15), 0 10px 10px -5px rgba(152, 255, 152, 0.1);
-        }
-
-        .input-focus {
-            transition: all 0.3s ease;
-        }
-
-        .input-focus:focus {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 128, 0.2);
-            border-color: var(--navy-blue);
-        }
-
-        .btn-hover {
-            transition: all 0.3s ease;
-        }
-
-        .btn-hover:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 128, 0.2);
-        }
-
-        .type-card {
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 2px solid transparent;
-            background: var(--mint-green-light);
-        }
-
-        .type-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 128, 0.15);
-        }
-
-        .type-card.selected {
-            border-color: var(--navy-blue);
-            background: linear-gradient(135deg, var(--navy-blue-light) 0%, var(--mint-green-light) 100%);
-            box-shadow: 0 0 0 3px rgba(0, 0, 128, 0.1);
-        }
-
-        .input-error {
-            border-color: #ef4444 !important;
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
-        }
-
-        .error-message {
-            color: #ef4444;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-            display: none;
-        }
-
-        .input-icon {
-            transition: all 0.3s ease;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        .input-focused .input-icon {
-            transform: translateX(-10px);
-            opacity: 0.7;
-        }
-
-        /* Ensure icons stay visible */
-        .relative .absolute {
-            pointer-events: none;
+            --primary: #2563eb;
+            --primary-light: #dbeafe;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            --success: #10b981;
+            --error: #ef4444;
         }
 
         .form-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, var(--mint-green-light) 100%);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 0, 128, 0.15);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 128, 0.2);
+            background: white;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(10px);
         }
 
-        .input-focus {
+        .form-input {
+            border: 1.5px solid var(--gray-300);
+            border-radius: 0.75rem;
+            padding: 0.875rem 1rem;
+            font-size: 0.875rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(145deg, #ffffff 0%, #f9fafb 100%);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
-        .input-focus:focus {
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1), inset 0 1px 2px rgba(0, 0, 0, 0.05);
+            background: white;
             transform: translateY(-1px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 128, 0.1);
-            border-color: var(--navy-blue);
         }
 
-        /* Override Tailwind focus states for Navy Blue theme */
-        .focus\:ring-blue-500:focus {
-            --tw-ring-color: #000080 !important;
+        .form-input:hover {
+            border-color: var(--gray-400);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
         }
 
-        .focus\:border-blue-500:focus {
-            border-color: #000080 !important;
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
         }
 
+        .phone-input-container {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--gray-300);
+            border-radius: 0.5rem;
+            background: white;
+            transition: all 0.2s ease;
+        }
+
+        .phone-input-container:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .phone-input-container:hover {
+            border-color: var(--gray-600);
+        }
+
+        .phone-country-code {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--gray-50);
+            border-right: 1px solid var(--gray-200);
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .phone-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            background: transparent;
+        }
+
+        .account-type-card {
+            border: 2px solid var(--gray-200);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .account-type-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.15);
+        }
+
+        .account-type-card.selected {
+            border-color: var(--primary);
+            background: linear-gradient(145deg, var(--primary-light) 0%, #dbeafe 100%);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.2);
+            transform: translateY(-1px);
+        }
+        
         .btn-primary {
-            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--mint-green) 100%);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 128, 0.3);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        /* Loading animation */
-        .loading-spinner {
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Additional styling improvements */
-        .section-title {
-            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--mint-green) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .error-message {
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .file-input-wrapper {
+            background: linear-gradient(135deg, var(--primary) 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
             position: relative;
             overflow: hidden;
         }
 
-        .file-input-wrapper input[type=file] {
+        .btn-primary::before {
+            content: '';
             position: absolute;
-            left: -9999px;
-            opacity: 0;
-            pointer-events: none;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            transform: translateY(-2px);
         }
 
-        .file-input-label {
-            display: block;
-            padding: 12px 16px;
-            background: var(--mint-green-light);
-            border: 2px dashed rgba(0, 0, 128, 0.3);
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: var(--gray-300);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .btn-primary:disabled::before {
+            display: none;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--gray-700);
+            border: 2px solid var(--gray-300);
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
             transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
         }
 
-        .file-input-label:hover {
-            border-color: var(--navy-blue);
-            background: linear-gradient(135deg, var(--navy-blue-light) 0%, var(--mint-green-light) 100%);
+        .btn-secondary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.05), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-400);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary:hover::before {
+            left: 100%;
+        }
+
+        .btn-secondary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-progress {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 0.5rem;
+        }
+
+        .step-dot {
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+            background: var(--gray-300);
+            transition: all 0.2s ease;
+        }
+
+        .step-dot.active {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            transform: scale(1.3);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .step-dot.completed {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .loading {
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid currentColor;
+            border-right: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
+        .loading-dots {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .loading-dot {
+            width: 0.375rem;
+            height: 0.375rem;
+            background: currentColor;
+            border-radius: 50%;
+            animation: loading-dots 1.4s ease-in-out infinite both;
+        }
+
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+        .loading-dot:nth-child(3) { animation-delay: 0; }
+
+        @keyframes loading-dots {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .input-icon {
+            color: var(--gray-400);
+        }
+
+        .form-input:focus + .input-icon {
+            color: var(--primary);
+        }
+
+        .success-message {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            color: #166534;
+            font-size: 0.875rem;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            color: #dc2626;
+            font-size: 0.875rem;
+        }
+
+        .otp-input {
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.5rem;
         }
     </style>
 </head>
-
-<body class="bg-gradient-to-br from-green-50 via-blue-50 to-green-100 min-h-screen font-cairo"
-    style="background: linear-gradient(135deg, var(--mint-green-light) 0%, rgba(0, 0, 128, 0.05) 50%, var(--mint-green-light) 100%);">
-    <!-- Background Pattern -->
-    <div class="fixed inset-0 opacity-5">
-        <div class="absolute inset-0"
-            style="background-image: url('data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.4'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
-        </div>
-    </div>
-
-    <div class="relative min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <!-- Language Switcher -->
-        <div class="absolute top-4 right-4 z-10">
-            @php
-                use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
-                $current = LaravelLocalization::getCurrentLocale();
-            @endphp
-
-            <div x-data="{ open: false }" class="relative">
-                <!-- Trigger Button -->
-                <button @click="open = !open" type="button"
-                    class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    aria-haspopup="listbox" :aria-expanded="open">
-                    <span class="inline-flex items-center gap-2">
-                        <span class="text-xs rounded px-2 py-0.5 border">{{ strtoupper($current) }}</span>
-                        <span class="hidden sm:inline">
-                            {{ $current === 'ar' ? 'العربية' : 'English' }}
-                        </span>
-                    </span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
-
-                <!-- Dropdown -->
-                <div x-cloak x-show="open" @click.outside="open = false"
-                    class="absolute z-50 mt-2 w-40 rounded-xl border border-gray-200 bg-white shadow-lg"
-                    :class="{
-                        'right-0': '{{ LaravelLocalization::getCurrentLocaleDirection() }}'
-                        === 'rtl',
-                        'left-0': '{{ LaravelLocalization::getCurrentLocaleDirection() }}'
-                        === 'ltr'
-                    }">
-                    <ul class="py-1" role="listbox">
-                        @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
-                            @php
-                                $url = LaravelLocalization::getLocalizedURL($localeCode, null, [], true);
-                                $active = $localeCode === $current;
-                            @endphp
-
-                            <li>
-                                <a href="{{ $url }}" hreflang="{{ $localeCode }}" rel="alternate"
-                                    class="flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 @if ($active) font-semibold @endif">
-                                    <span class="flex items-center gap-2">
-                                        <span
-                                            class="text-xs rounded px-2 py-0.5 border">{{ strtoupper($localeCode) }}</span>
-                                        <span>{{ $properties['native'] ?? strtoupper($localeCode) }}</span>
-                                    </span>
-                                    @if ($active)
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
-                                            fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M16.707 5.293a1 1 0 010 1.414l-7.364 7.364a1 1 0 01-1.414 0L3.293 10.435a1 1 0 111.414-1.414l3.222 3.222 6.657-6.657a1 1 0 011.414 0z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    @endif
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        </div>
-
+<body class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div class="max-w-md w-full">
         <!-- Header -->
-        <div class="sm:mx-auto sm:w-full sm:max-w-md">
-            <div class="flex justify-center">
-                <div class="text-center">
-                    <h1
-                        class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-green-500">
-                        {{ __('velorena') }}</h1>
-                </div>
-            </div>
-            <h2 class="mt-8 text-center text-3xl font-extrabold text-gray-900">
-                تسجيل حساب جديد
-            </h2>
-            <p class="mt-2 text-center text-sm text-gray-600">
-                أو
-                <a href="{{ route('lender.login') }}"
-                    class="font-medium text-blue-600 hover:text-blue-500 transition-colors">
-                    تسجيل الدخول إلى حسابك
-                </a>
-            </p>
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-2">Jarak</h1>
+            <p class="text-sm text-gray-600">منصة الإيجار الرائدة</p>
         </div>
 
-        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
-            <div class="form-card py-8 px-6 rounded-2xl">
-                @if ($errors->any())
-                    <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                        <div class="flex">
-                            <svg class="w-5 h-5 text-red-400 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            <div>
-                                <h3 class="text-sm font-medium text-red-800">يرجى تصحيح الأخطاء التالية:</h3>
-                                <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                @endif
+        <!-- Register Card -->
+        <div class="form-card rounded-xl p-8">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">إنشاء حساب جديد</h2>
+                <p class="text-sm text-gray-600 mt-2">انضم إلى منصة Jarak</p>
+            </div>
 
-                @if (session('error'))
-                    <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                        <div class="flex">
-                            <svg class="w-5 h-5 text-red-400 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            <div>
-                                <h3 class="text-sm font-medium text-red-800">خطأ:</h3>
-                                <p class="mt-1 text-sm text-red-700">{{ session('error') }}</p>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
-                <form class="space-y-6" action="{{ route('lender.register') }}" method="POST" id="registrationForm"
-                    enctype="multipart/form-data">
-                    @csrf
-
-                    <!-- Registration Type Selection -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-3">
-                            نوع التسجيل <span class="text-red-500">*</span>
-                        </label>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="type-card selected border-2 border-gray-200 rounded-xl p-4 text-center"
-                                onclick="selectType('individual')">
-                                <input id="individual" name="type" type="radio" value="individual" class="hidden"
-                                    {{ old('type') == 'individual' ? 'checked' : 'checked' }}>
-                                <div
-                                    class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                    <svg class="w-6 h-6 text-blue-800" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <h3 class="font-medium text-gray-900">فرد</h3>
-                                <p class="text-sm text-gray-500 mt-1">حساب شخصي</p>
-                            </div>
-                            <div class="type-card border-2 border-gray-200 rounded-xl p-4 text-center"
-                                onclick="selectType('company')">
-                                <input id="company" name="type" type="radio" value="company" class="hidden"
-                                    {{ old('type') == 'company' ? 'checked' : '' }}>
-                                <div
-                                    class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <h3 class="font-medium text-gray-900">شركة</h3>
-                                <p class="text-sm text-gray-500 mt-1">حساب تجاري</p>
-                            </div>
-                        </div>
-                        <div class="error-message" id="type-error">يرجى اختيار نوع التسجيل</div>
-                    </div>
-
-                    <!-- Personal Information Section -->
-                    <div class="space-y-4">
-                        <h3 class="section-title text-lg font-bold border-b border-gray-200 pb-2">المعلومات الشخصية
-                        </h3>
-
-                        <!-- Name -->
+            <!-- Error Messages -->
+            @if ($errors->any())
+                <div class="error-message mb-6">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                        </svg>
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                                الاسم الكامل <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <div
-                                    class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none input-icon">
-                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <input id="name" name="name" type="text" required
-                                    value="{{ old('name') }}"
-                                    class="input-focus block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right"
-                                    onblur="validateField('name')" onfocus="handleInputFocus(this)"
-                                    onblur="handleInputBlur(this)">
-                                <div class="error-message" id="name-error">يرجى إدخال الاسم الكامل</div>
-                            </div>
+                            @foreach ($errors->all() as $error)
+                                <p>{{ $error }}</p>
+                            @endforeach
                         </div>
-
-                        <!-- Email -->
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                                البريد الإلكتروني <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <div
-                                    class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none input-icon">
-                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <input id="email" name="email" type="email" autocomplete="email" required
-                                    value="{{ old('email') }}"
-                                    class="input-focus block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right"
-                                    onblur="validateField('email')" onfocus="handleInputFocus(this)"
-                                    onblur="handleInputBlur(this)">
-                                <div class="error-message" id="email-error">يرجى إدخال بريد إلكتروني صحيح</div>
-                            </div>
-                        </div>
-
-                        <!-- Phone -->
-                        <div>
-                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
-                                رقم الهاتف <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <div
-                                    class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none input-icon">
-                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <input id="phone" name="phone" type="tel" required
-                                    value="{{ old('phone') }}"
-                                    class="input-focus block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right"
-                                    onblur="validateField('phone')" onfocus="handleInputFocus(this)"
-                                    onblur="handleInputBlur(this)">
-                                <div class="error-message" id="phone-error">يرجى إدخال رقم هاتف صحيح</div>
-                            </div>
-                        </div>
-
-                        <!-- City Selection -->
-                        <div>
-                            <label for="city" class="block text-sm font-medium text-gray-700 mb-2">
-                                المدينة <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <div
-                                    class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none input-icon">
-                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
-                                        </path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                </div>
-                                <select id="city" name="city" required
-                                    class="input-focus block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right appearance-none bg-white"
-                                    onblur="validateField('city')" onfocus="handleInputFocus(this)"
-                                    onblur="handleInputBlur(this)">
-                                    <option value="">اختر المدينة</option>
-                                    @foreach (\App\Models\City::all() as $city)
-                                        <option value="{{ $city->id }}"
-                                            {{ old('city') == $city->id ? 'selected' : '' }}>{{ $city->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                                <div class="error-message" id="city-error">يرجى اختيار المدينة</div>
-                            </div>
-                        </div>
-
-                        <!-- Address -->
-                        <div>
-                            <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
-                                العنوان التفصيلي <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <div
-                                    class="absolute inset-y-0 right-0 pr-3 pt-3 flex items-start pointer-events-none input-icon">
-                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
-                                        </path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                </div>
-                                <textarea id="address" name="address" rows="3" required
-                                    class="input-focus block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right resize-none"
-                                    onblur="validateField('address')" onfocus="handleInputFocus(this)" onblur="handleInputBlur(this)"
-                                    placeholder="أدخل العنوان التفصيلي (الحي، الشارع، رقم المنزل)">{{ old('address') }}</textarea>
-                                <div class="error-message" id="address-error">يرجى إدخال العنوان التفصيلي</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Company Information Section (Conditional) -->
-                    <div id="company-fields" class="hidden space-y-4">
-                        <h3 class="section-title text-lg font-bold border-b border-gray-200 pb-2">معلومات الشركة</h3>
-
-                        <!-- Business Name -->
-                        <div>
-                            <label for="business_name" class="block text-sm font-medium text-gray-700 mb-2">
-                                اسم الشركة <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <div
-                                    class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none input-icon">
-                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <input id="business_name" name="business_name" type="text"
-                                    value="{{ old('business_name') }}"
-                                    class="input-focus block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right"
-                                    onblur="validateField('business_name')" onfocus="handleInputFocus(this)"
-                                    onblur="handleInputBlur(this)">
-                                <div class="error-message" id="business_name-error">يرجى إدخال اسم الشركة</div>
-                            </div>
-                        </div>
-
-                        <!-- Business Category -->
-                        <div>
-                            <label for="business_category" class="block text-sm font-medium text-gray-700 mb-2">
-                                النشاط التجاري <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <div
-                                    class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none input-icon">
-                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <select id="business_category" name="business_category" required
-                                    class="input-focus block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right appearance-none bg-white"
-                                    onblur="validateField('business_category')" onfocus="handleInputFocus(this)"
-                                    onblur="handleInputBlur(this)" onchange="handleCategoryChange()">
-                                    <option value="">اختر النشاط التجاري</option>
-                                    @foreach (\App\Models\Category::all() as $category)
-                                        <option value="{{ $category->id }}"
-                                            {{ old('business_category') == $category->id ? 'selected' : '' }}>
-                                            {{ $category->name }}</option>
-                                    @endforeach
-                                    <option value="other"
-                                        {{ old('business_category') == 'other' ? 'selected' : '' }}>أخرى</option>
-                                </select>
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                                <div class="error-message" id="business_category-error">يرجى اختيار النشاط التجاري
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Custom Activity (Conditional) -->
-                        <div id="custom-activity-field" class="hidden">
-                            <label for="custom_activity" class="block text-sm font-medium text-gray-700 mb-2">
-                                النشاط التجاري المخصص <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <div
-                                    class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none input-icon">
-                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <input id="custom_activity" name="custom_activity" type="text"
-                                    value="{{ old('custom_activity') }}"
-                                    class="input-focus block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right"
-                                    onblur="validateField('custom_activity')" onfocus="handleInputFocus(this)"
-                                    onblur="handleInputBlur(this)" placeholder="أدخل النشاط التجاري المخصص">
-                                <div class="error-message" id="custom_activity-error">يرجى إدخال النشاط التجاري المخصص
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Commercial Record Upload -->
-                        <div>
-                            <label for="commercial_record" class="block text-sm font-medium text-gray-700 mb-2">
-                                السجل التجاري (PDF) <span class="text-red-500">*</span>
-                            </label>
-                            <div class="file-input-wrapper">
-                                <label for="commercial_record" class="file-input-label">
-                                    <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
-                                        </path>
-                                    </svg>
-                                    <span class="text-sm text-gray-600">اضغط لرفع ملف السجل التجاري</span>
-                                    <span class="text-xs text-gray-500 block mt-1">PDF فقط - الحد الأقصى 10
-                                        ميجابايت</span>
-                                </label>
-                                <input id="commercial_record" name="commercial_record" type="file" accept=".pdf"
-                                    required onblur="validateField('commercial_record')"
-                                    onchange="updateFileLabel(this, 'commercial_record')">
-                                <div class="error-message" id="commercial_record-error">يرجى رفع السجل التجاري</div>
-                            </div>
-                        </div>
-
-                        <!-- Tax Record Upload (Optional) -->
-                        <div>
-                            <label for="tax_record" class="block text-sm font-medium text-gray-700 mb-2">
-                                السجل الضريبي (PDF) <span class="text-gray-500">(اختياري)</span>
-                            </label>
-                            <div class="file-input-wrapper">
-                                <label for="tax_record" class="file-input-label">
-                                    <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
-                                        </path>
-                                    </svg>
-                                    <span class="text-sm text-gray-600">اضغط لرفع ملف السجل الضريبي</span>
-                                    <span class="text-xs text-gray-500 block mt-1">PDF فقط - الحد الأقصى 10
-                                        ميجابايت</span>
-                                </label>
-                                <input id="tax_record" name="tax_record" type="file" accept=".pdf"
-                                    onchange="updateFileLabel(this, 'tax_record')">
-                            </div>
-                        </div>
-
-                        <!-- Business Description -->
-                        <div>
-                            <label for="business_description" class="block text-sm font-medium text-gray-700 mb-2">
-                                وصف النشاط التجاري
-                            </label>
-                            <div class="relative">
-                                <div
-                                    class="absolute inset-y-0 right-0 pr-3 pt-3 flex items-start pointer-events-none input-icon">
-                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <textarea id="business_description" name="business_description" rows="3"
-                                    class="input-focus block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right resize-none"
-                                    placeholder="وصف مختصر للنشاط التجاري" onfocus="handleInputFocus(this)" onblur="handleInputBlur(this)">{{ old('business_description') }}</textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Password Section -->
-                    <div class="space-y-4">
-                        <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">كلمة المرور</h3>
-
-                        <!-- Password -->
-                        <div>
-                            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                                كلمة المرور <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <div
-                                    class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none input-icon">
-                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <input id="password" name="password" type="password" autocomplete="new-password"
-                                    required
-                                    class="input-focus block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right"
-                                    onblur="validateField('password')" onfocus="handleInputFocus(this)"
-                                    onblur="handleInputBlur(this)">
-                                <div class="error-message" id="password-error">كلمة المرور يجب أن تكون 8 أحرف على
-                                    الأقل</div>
-                            </div>
-                        </div>
-
-                        <!-- Confirm Password -->
-                        <div>
-                            <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">
-                                تأكيد كلمة المرور <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <div
-                                    class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none input-icon">
-                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <input id="password_confirmation" name="password_confirmation" type="password"
-                                    autocomplete="new-password" required
-                                    class="input-focus block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right"
-                                    onblur="validateField('password_confirmation')" onfocus="handleInputFocus(this)"
-                                    onblur="handleInputBlur(this)">
-                                <div class="error-message" id="password_confirmation-error">كلمة المرور غير متطابقة
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Submit Button -->
-                    <div class="pt-4">
-                        <button type="submit"
-                            class="btn-primary w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            إنشاء الحساب
-                        </button>
-                    </div>
-                </form>
-
-                <!-- Divider -->
-                <div class="mt-8">
-                    <div class="relative">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-gray-300"></div>
-                        </div>
-                        <div class="relative flex justify-center text-sm">
-                            <span class="px-2 bg-white text-gray-500">لديك حساب بالفعل؟</span>
-                        </div>
-                    </div>
-
-                    <div class="mt-6">
-                        <a href="{{ route('lender.login') }}"
-                            class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
-                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1">
-                                </path>
-                            </svg>
-                            تسجيل الدخول
-                        </a>
                     </div>
                 </div>
+            @endif
+
+            @if (session('error'))
+                <div class="error-message mb-6">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div>{{ session('error') }}</div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Step Progress Indicator -->
+            <div class="step-progress">
+                <div class="step-dot active" id="step1-dot"></div>
+                <div class="step-dot" id="step2-dot"></div>
+            </div>
+
+            <!-- Step 1: Registration Form -->
+            <div id="step1" class="space-y-6">
+                <div class="text-center mb-6">
+                    <h3 class="text-xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">معلومات الحساب</h3>
+                    <p class="text-sm text-gray-600 mt-1">أدخل معلوماتك الشخصية</p>
+                </div>
+
+                <form id="registration-form" class="space-y-6">
+                    <!-- Account Type Selection -->
+                    <div>
+                        <label class="form-label">نوع الحساب <span class="text-red-500">*</span></label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="type" value="individual" class="hidden" {{ old('type', 'individual') == 'individual' ? 'checked' : '' }} onchange="toggleAccountType()" required>
+                                <div class="account-type-card {{ old('type', 'individual') == 'individual' ? 'selected' : '' }}" id="individual-type">
+                                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                        </svg>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">فرد</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="type" value="company" class="hidden" {{ old('type') == 'company' ? 'checked' : '' }} onchange="toggleAccountType()">
+                                <div class="account-type-card {{ old('type') == 'company' ? 'selected' : '' }}" id="company-type">
+                                    <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                        <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h10M7 11h10M7 15h10"></path>
+                                        </svg>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">شركة</span>
+                                </div>
+                            </label>
+                        </div>
+                        @error('type')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="form-label">البريد الإلكتروني <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input type="email" 
+                                   name="email" 
+                                   id="email" 
+                                   value="{{ old('email') }}"
+                                   class="form-input w-full pr-12 text-right"
+                                   placeholder="أدخل بريدك الإلكتروني"
+                                   required>
+                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none input-icon">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        @error('email')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Full Name -->
+                    <div>
+                        <label for="full_name" class="form-label">الاسم الكامل <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input type="text" 
+                                   name="full_name" 
+                                   id="full_name" 
+                                   value="{{ old('full_name') }}"
+                                   class="form-input w-full pr-12 text-right"
+                                   placeholder="أدخل اسمك الكامل"
+                                   required>
+                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none input-icon">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        @error('full_name')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Company Name (Only for company account type) -->
+                    <div id="company-name-section" class="{{ old('type') == 'company' ? '' : 'hidden' }}">
+                        <label for="business_name" class="form-label">اسم الشركة <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input type="text" 
+                                   name="business_name" 
+                                   id="business_name" 
+                                   value="{{ old('business_name') }}"
+                                   class="form-input w-full pr-12 text-right"
+                                   placeholder="أدخل اسم الشركة">
+                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none input-icon">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h10M7 11h10M7 15h10"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        @error('business_name')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Phone Input -->
+                    <div>
+                        <label for="phone" class="form-label">رقم الهاتف <span class="text-red-500">*</span></label>
+                        <div class="phone-input-container">
+                            <div class="phone-country-code">+966</div>
+                            <input type="text" 
+                                   name="phone" 
+                                   id="phone" 
+                                   maxlength="9"
+                                   value="{{ old('phone') }}"
+                                   class="phone-input"
+                                   placeholder="5XXXXXXXX"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 9)"
+                                   required>
+                        </div>
+                        @error('phone')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label for="password" class="form-label">كلمة المرور <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input type="password" 
+                                   name="password" 
+                                   id="password" 
+                                   class="form-input w-full pr-12 text-right"
+                                   placeholder="أدخل كلمة المرور"
+                                   required>
+                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none input-icon">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        @error('password')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div>
+                        <label for="password_confirmation" class="form-label">تأكيد كلمة المرور <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input type="password" 
+                                   name="password_confirmation" 
+                                   id="password_confirmation" 
+                                   class="form-input w-full pr-12 text-right"
+                                   placeholder="أعد إدخال كلمة المرور"
+                                   required>
+                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none input-icon">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Next Button -->
+                    <button type="button" onclick="validateAndProceed()" id="proceed-btn" class="w-full flex justify-center items-center py-4 px-6 rounded-xl text-sm font-medium text-white btn-primary">
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                        <span id="proceed-text">إرسال رمز التحقق</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Step 2: OTP Verification -->
+            <div id="step2" class="space-y-6 hidden">
+                <div class="text-center mb-6">
+                    <h3 class="text-xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">التحقق من الرمز</h3>
+                    <p class="text-sm text-gray-600 mt-1">تم إرسال رمز التحقق إلى <span id="contact-display" class="font-medium text-blue-600"></span></p>
+                </div>
+
+                <!-- Success Message -->
+                <div class="success-message">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="text-sm">تم إرسال رمز التحقق بنجاح!</span>
+                    </div>
+                </div>
+
+                <!-- OTP Input -->
+                <div>
+                    <label for="otp" class="form-label">رمز التحقق <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <input type="text" 
+                               name="otp" 
+                               id="otp" 
+                               maxlength="6"
+                               class="form-input w-full text-center otp-input"
+                               placeholder="000000"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6)">
+                    </div>
+                    <p class="text-sm text-gray-500 text-center mt-2">رمز التحقق هو: <span class="font-bold text-primary">123456</span></p>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex space-x-3 space-x-reverse">
+                    <button type="button" onclick="backToStep1()" class="flex-1 py-4 px-6 rounded-xl text-sm font-medium text-gray-700 btn-secondary">
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        رجوع
+                    </button>
+                    <button type="button" onclick="verifyOTP()" id="verify-otp-btn" class="flex-1 py-4 px-6 rounded-xl text-sm font-medium text-white btn-primary">
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span id="verify-otp-text">التحقق</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Login Link -->
+            <div class="text-center mt-6 pt-6 border-t border-gray-200">
+                <p class="text-sm text-gray-600">
+                    تملك حساب بالفعل؟
+                    <a href="{{ route('lender.login') }}" class="font-bold text-primary hover:text-blue-700 transition-colors">
+                        تسجيل الدخول
+                    </a>
+                </p>
             </div>
         </div>
     </div>
 
     <script>
-        // Input focus/blur handlers
-        function handleInputFocus(element) {
-            const parent = element.parentElement;
-            parent.classList.add('input-focused');
-        }
+        let currentStep = 1;
+        let accountType = 'individual';
 
-        function handleInputBlur(element) {
-            const parent = element.parentElement;
-            parent.classList.remove('input-focused');
-        }
-
-        // Category change handler
-        function handleCategoryChange() {
-            const categorySelect = document.getElementById('business_category');
-            const customActivityField = document.getElementById('custom-activity-field');
-            const customActivityInput = document.getElementById('custom_activity');
-
-            if (categorySelect.value === 'other') {
-                customActivityField.classList.remove('hidden');
-                customActivityInput.required = true;
-            } else {
-                customActivityField.classList.add('hidden');
-                customActivityInput.required = false;
-                customActivityInput.value = '';
-            }
-        }
-
-        // File label updater
-        function updateFileLabel(input, fieldName) {
-            const label = input.previousElementSibling;
-            const fileName = input.files[0]?.name;
-
-            if (fileName) {
-                label.innerHTML = `
-                     <svg class="w-6 h-6 text-green-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                     </svg>
-                     <span class="text-sm text-gray-700 font-medium">${fileName}</span>
-                     <span class="text-xs text-gray-500 block mt-1">تم اختيار الملف بنجاح</span>
-                 `;
-                label.style.borderColor = '#10b981';
-                label.style.background = 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
-
-                // Remove error styling if file is selected
-                input.classList.remove('input-error');
-                const errorElement = document.getElementById(fieldName + '-error');
-                if (errorElement) {
-                    errorElement.style.display = 'none';
-                }
-            } else {
-                // Reset to default
-                if (fieldName === 'commercial_record') {
-                    label.innerHTML = `
-                         <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                         </svg>
-                         <span class="text-sm text-gray-600">اضغط لرفع ملف السجل التجاري</span>
-                         <span class="text-xs text-gray-500 block mt-1">PDF فقط - الحد الأقصى 10 ميجابايت</span>
-                     `;
-                } else {
-                    label.innerHTML = `
-                         <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                         </svg>
-                         <span class="text-sm text-gray-600">اضغط لرفع ملف السجل الضريبي</span>
-                         <span class="text-xs text-gray-500 block mt-1">PDF فقط - الحد الأقصى 10 ميجابايت</span>
-                     `;
-                }
-                label.style.borderColor = '#cbd5e1';
-                label.style.background = 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)';
-            }
-        }
-
-        // Validation functions
-        function validateField(fieldName) {
-            const field = document.getElementById(fieldName);
-            const errorElement = document.getElementById(fieldName + '-error');
-
-            // Remove previous validation classes
-            field.classList.remove('input-error');
-            errorElement.style.display = 'none';
-
-            let isValid = false;
-            let errorMessage = '';
-
-            switch (fieldName) {
-                case 'name':
-                    isValid = field.value.trim().length >= 3;
-                    errorMessage = 'الاسم يجب أن يكون 3 أحرف على الأقل';
-                    break;
-
-                case 'email':
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    isValid = emailRegex.test(field.value);
-                    errorMessage = 'يرجى إدخال بريد إلكتروني صحيح';
-                    break;
-
-                case 'phone':
-                    const phoneRegex = /^[0-9+\-\s()]{10,}$/;
-                    isValid = phoneRegex.test(field.value);
-                    errorMessage = 'يرجى إدخال رقم هاتف صحيح';
-                    break;
-
-                case 'city':
-                    isValid = field.value !== '';
-                    errorMessage = 'يرجى اختيار المدينة';
-                    break;
-
-                case 'address':
-                    isValid = field.value.trim().length >= 10;
-                    errorMessage = 'العنوان يجب أن يكون 10 أحرف على الأقل';
-                    break;
-
-                case 'business_name':
-                    if (document.getElementById('company').checked) {
-                        isValid = field.value.trim().length >= 2;
-                        errorMessage = 'اسم الشركة يجب أن يكون حرفين على الأقل';
-                    } else {
-                        isValid = true; // Not required for individual
-                    }
-                    break;
-
-                case 'business_category':
-                    if (document.getElementById('company').checked) {
-                        isValid = field.value !== '';
-                        errorMessage = 'يرجى اختيار النشاط التجاري';
-                    } else {
-                        isValid = true; // Not required for individual
-                    }
-                    break;
-
-                case 'custom_activity':
-                    if (document.getElementById('company').checked && document.getElementById('business_category').value ===
-                        'other') {
-                        isValid = field.value.trim().length >= 2;
-                        errorMessage = 'يرجى إدخال النشاط التجاري المخصص';
-                    } else {
-                        isValid = true; // Not required
-                    }
-                    break;
-
-                case 'commercial_record':
-                    if (document.getElementById('company').checked) {
-                        isValid = field.files.length > 0;
-                        errorMessage = 'يرجى رفع ملف PDF للسجل التجاري';
-                    } else {
-                        isValid = true;
-                    }
-                    break;
-
-                case 'password':
-                    isValid = field.value.length >= 8;
-                    errorMessage = 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
-                    break;
-
-                case 'password_confirmation':
-                    const password = document.getElementById('password').value;
-                    isValid = field.value === password && field.value.length >= 8;
-                    errorMessage = 'كلمة المرور غير متطابقة';
-                    break;
-            }
-
-            // Apply validation styling for errors
-            if (!isValid) {
-                field.classList.add('input-error');
-                errorElement.style.display = 'block';
-            } else {
-                field.classList.remove('input-error');
-                errorElement.style.display = 'none';
-            }
-        }
-
-        // Show/hide company fields based on registration type
-        function selectType(type) {
-            const individualCard = document.querySelector('[onclick="selectType(\'individual\')"]');
-            const companyCard = document.querySelector('[onclick="selectType(\'company\')"]');
-            const individualRadio = document.getElementById('individual');
-            const companyRadio = document.getElementById('company');
-            const companyFields = document.getElementById('company-fields');
-
-            // Remove selected class from both cards
-            individualCard.classList.remove('selected');
-            companyCard.classList.remove('selected');
-
-            if (type === 'company') {
-                companyCard.classList.add('selected');
-                companyRadio.checked = true;
-                companyFields.classList.remove('hidden');
-                // Make company fields required
-                document.getElementById('business_name').required = true;
-                document.getElementById('business_category').required = true;
-                document.getElementById('commercial_record').required = true;
-            } else {
+        // Toggle account type
+        function toggleAccountType() {
+            const individualType = document.querySelector('input[name="type"][value="individual"]');
+            const companyType = document.querySelector('input[name="type"][value="company"]');
+            const companySection = document.getElementById('company-name-section');
+            const individualCard = document.getElementById('individual-type');
+            const companyCard = document.getElementById('company-type');
+            const businessNameInput = document.getElementById('business_name');
+            
+            if (individualType.checked) {
+                accountType = 'individual';
                 individualCard.classList.add('selected');
-                individualRadio.checked = true;
-                companyFields.classList.add('hidden');
-                // Remove required from company fields
-                document.getElementById('business_name').required = false;
-                document.getElementById('business_category').required = false;
-                document.getElementById('commercial_record').required = false;
-            }
-
-            // Validate type selection
-            validateTypeSelection();
-        }
-
-        function validateTypeSelection() {
-            const typeError = document.getElementById('type-error');
-            const selectedType = document.querySelector('input[name="type"]:checked');
-
-            if (selectedType) {
-                typeError.style.display = 'none';
+                companyCard.classList.remove('selected');
+                companySection.classList.add('hidden');
+                businessNameInput.required = false;
             } else {
-                typeError.style.display = 'block';
+                accountType = 'company';
+                companyCard.classList.add('selected');
+                individualCard.classList.remove('selected');
+                companySection.classList.remove('hidden');
+                businessNameInput.required = true;
             }
         }
 
-        // Form submission validation
-        document.getElementById('registrationForm').addEventListener('submit', function(e) {
-            let isValid = true;
-
-            // Validate all required fields
-            const requiredFields = ['name', 'email', 'phone', 'city', 'address', 'password',
-                'password_confirmation'
-            ];
-            requiredFields.forEach(field => {
-                validateField(field);
-                const fieldElement = document.getElementById(field);
-                if (fieldElement.classList.contains('input-error') || fieldElement.value.trim() === '') {
-                    isValid = false;
+        // Validate and proceed to OTP step
+        function validateAndProceed() {
+            const form = document.getElementById('registration-form');
+            const formData = new FormData(form);
+            
+            // Basic validation
+            const email = formData.get('email');
+            const fullName = formData.get('full_name');
+            const phone = formData.get('phone');
+            const password = formData.get('password');
+            const passwordConfirmation = formData.get('password_confirmation');
+            const type = formData.get('type');
+            const businessName = formData.get('business_name');
+            
+            if (!email || !fullName || !phone || !password || !passwordConfirmation || !type) {
+                alert('يرجى ملء جميع الحقول المطلوبة');
+                return;
+            }
+            
+            if (phone.length !== 9) {
+                alert('يرجى إدخال رقم هاتف صحيح مكون من 9 أرقام');
+                return;
+            }
+            
+            if (password !== passwordConfirmation) {
+                alert('كلمة المرور غير متطابقة');
+                return;
+            }
+            
+            if (password.length < 8) {
+                alert('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
+                return;
+            }
+            
+            if (type === 'company' && !businessName) {
+                alert('يرجى إدخال اسم الشركة');
+                return;
+            }
+            
+            // Check availability
+            Promise.all([
+                checkAvailability('email', email),
+                checkAvailability('phone', phone)
+            ]).then(([emailAvailable, phoneAvailable]) => {
+                if (!emailAvailable || !phoneAvailable) {
+                    return;
                 }
+                
+                // Show loading state
+                const button = document.getElementById('proceed-btn');
+                const buttonText = document.getElementById('proceed-text');
+                const originalText = buttonText.textContent;
+                
+                button.disabled = true;
+                buttonText.innerHTML = '<div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span class="mr-2">جاري الإرسال</span>';
+
+                // Simulate API call
+                setTimeout(() => {
+                    // Move to step 2
+                    document.getElementById('step1').classList.add('hidden');
+                    document.getElementById('step2').classList.remove('hidden');
+                    
+                    // Update step indicator
+                    document.getElementById('step1-dot').classList.remove('active');
+                    document.getElementById('step1-dot').classList.add('completed');
+                    document.getElementById('step2-dot').classList.add('active');
+                    
+                    // Update contact display
+                    document.getElementById('contact-display').textContent = `+966${phone}`;
+                    
+                    currentStep = 2;
+                    
+                    // Reset button
+                    button.disabled = false;
+                    buttonText.textContent = originalText;
+                }, 1500);
             });
+        }
 
-            // Validate type selection
-            validateTypeSelection();
-            if (!document.querySelector('input[name="type"]:checked')) {
-                isValid = false;
-            }
-
-            // Validate company fields if company is selected
-            if (document.getElementById('company').checked) {
-                const companyFields = ['business_name', 'business_category', 'commercial_record'];
-                companyFields.forEach(field => {
-                    validateField(field);
-                    const fieldElement = document.getElementById(field);
-                    if (fieldElement.classList.contains('input-error') || fieldElement.value.trim() ===
-                        '') {
-                        isValid = false;
-                    }
-                });
-
-                // Validate custom activity if "other" is selected
-                if (document.getElementById('business_category').value === 'other') {
-                    validateField('custom_activity');
-                    const customActivityElement = document.getElementById('custom_activity');
-                    if (customActivityElement.classList.contains('input-error') || customActivityElement.value
-                        .trim() === '') {
-                        isValid = false;
-                    }
+        // Check availability
+        function checkAvailability(method, value) {
+            return fetch('{{ route("lender.register.check-availability") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    contact_method: method,
+                    contact_value: value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.available) {
+                    alert(data.message);
+                    return false;
                 }
-            }
-
-            if (!isValid) {
-                e.preventDefault();
-                alert('يرجى تصحيح الأخطاء قبل إرسال النموذج');
+                return true;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('حدث خطأ في التحقق من البيانات');
                 return false;
-            }
-
-            // Show loading state
-            const submitBtn = this.querySelector('button[type="submit"]');
-            submitBtn.innerHTML = `
-                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                جاري التسجيل...
-            `;
-            submitBtn.disabled = true;
-        });
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            const selectedType = document.querySelector('input[name="type"]:checked');
-            if (selectedType) {
-                selectType(selectedType.value);
-            }
-
-            // Add real-time validation for password confirmation
-            document.getElementById('password').addEventListener('input', function() {
-                const confirmPassword = document.getElementById('password_confirmation');
-                if (confirmPassword.value) {
-                    validateField('password_confirmation');
-                }
             });
+        }
+
+        // Verify OTP
+        function verifyOTP() {
+            const otp = document.getElementById('otp').value.trim();
+            
+            if (!otp || otp.length !== 6) {
+                alert('يرجى إدخال رمز التحقق المكون من 6 أرقام');
+                return;
+            }
+
+            if (otp !== '123456') {
+                alert('رمز التحقق غير صحيح');
+                return;
+            }
+            
+            // Show loading state
+            const button = document.getElementById('verify-otp-btn');
+            const buttonText = document.getElementById('verify-otp-text');
+            const originalText = buttonText.textContent;
+            
+            button.disabled = true;
+            buttonText.innerHTML = '<div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span class="mr-2">جاري التحقق</span>';
+
+            // Submit the form
+            setTimeout(() => {
+                const form = document.getElementById('registration-form');
+                form.action = '{{ route("lender.register.post") }}';
+                form.method = 'POST';
+                
+                // Add CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = csrfToken;
+                form.appendChild(csrfInput);
+                
+                form.submit();
+            }, 1000);
+        }
+
+        // Back to step 1
+        function backToStep1() {
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step1').classList.remove('hidden');
+            
+            // Update step indicator
+            document.getElementById('step2-dot').classList.remove('active');
+            document.getElementById('step1-dot').classList.remove('completed');
+            document.getElementById('step1-dot').classList.add('active');
+            
+            currentStep = 1;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleAccountType();
         });
     </script>
 </body>
-
 </html>

@@ -8,7 +8,7 @@
     <div class="flex justify-between items-center">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">التقييمات</h1>
-            <p class="text-gray-600">عرض والرد على تقييمات العملاء</p>
+            <p class="text-gray-600">عرض تقييمات العملاء</p>
         </div>
     </div>
 
@@ -16,6 +16,12 @@
     @livewire('lender-reviews-table')
 </div>
 @endsection
+
+
+
+
+
+
 
 
 
