@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Jarak - منصة الإيجار</title>
+    <title>التحقق من الرمز - Jarak</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -64,44 +64,6 @@
             font-weight: 500;
             color: var(--gray-700);
             margin-bottom: 0.5rem;
-        }
-
-        .phone-input-container {
-            display: flex;
-            align-items: center;
-            border: 1px solid var(--gray-300);
-            border-radius: 0.5rem;
-            background: white;
-            transition: all 0.2s ease;
-        }
-
-        .phone-input-container:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .phone-input-container:hover {
-            border-color: var(--gray-600);
-        }
-
-        .phone-country-code {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            background: var(--gray-50);
-            border-right: 1px solid var(--gray-200);
-            color: var(--gray-600);
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .phone-input {
-            flex: 1;
-            border: none;
-            outline: none;
-            padding: 0.75rem 1rem;
-            font-size: 0.875rem;
-            background: transparent;
         }
         
         .btn-primary {
@@ -198,6 +160,16 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
+        .loading {
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid currentColor;
+            border-right: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
         .loading-dots {
             display: inline-flex;
             align-items: center;
@@ -258,6 +230,21 @@
             font-size: 1.25rem;
             font-weight: 600;
             letter-spacing: 0.5rem;
+            direction: ltr;
+        }
+
+        .field-error {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .field-error svg {
+            width: 1rem;
+            height: 1rem;
+            margin-left: 0.25rem;
         }
     </style>
 </head>
@@ -269,11 +256,11 @@
             <p class="text-sm text-gray-600">منصة الإيجار الرائدة</p>
         </div>
 
-        <!-- Login Card -->
+        <!-- OTP Verification Card -->
         <div class="form-card rounded-xl p-8">
             <div class="text-center mb-6">
-                <h2 class="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">تسجيل الدخول</h2>
-                <p class="text-sm text-gray-600 mt-2">مرحباً بك مرة أخرى</p>
+                <h2 class="text-xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">التحقق من الرمز</h2>
+                <p class="text-sm text-gray-600 mt-1">تم إرسال رمز التحقق إلى <span class="font-medium text-blue-600">{{ session('login_phone') }}</span></p>
             </div>
 
             <!-- Success Messages -->
@@ -288,96 +275,106 @@
                 </div>
             @endif
 
-            <!-- Error Messages -->
-            @if ($errors->any())
-                <div class="error-message mb-6">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                        </svg>
-                        <div>
-                            @foreach ($errors->all() as $error)
-                                <p>{{ $error }}</p>
-                            @endforeach
-                        </div>
+            <!-- OTP Form -->
+            <form action="{{ route('lender.login.otp.verify') }}" method="POST" class="space-y-6" id="otp-form">
+                @csrf
+                
+                <!-- OTP Input -->
+                <div>
+                    <label for="otp" class="form-label">رمز التحقق <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <input type="text" 
+                               name="otp" 
+                               id="otp" 
+                               maxlength="6"
+                               class="form-input w-full text-center otp-input @error('otp') border-red-500 @enderror"
+                               placeholder="000000"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6)"
+                               required>
                     </div>
+                    @error('otp')
+                        <div class="field-error">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                            </svg>
+                            {{ $message }}
+                        </div>
+                    @enderror
+                    <p class="text-sm text-gray-500 text-center mt-2">رمز التحقق هو: <span class="font-bold text-primary">123456</span></p>
                 </div>
-            @endif
 
-            <!-- Email/Password Login -->
-            <div class="space-y-4">
-                <form action="{{ route('lender.login') }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="login_method" value="email">
-                    
-                    <div>
-                        <label for="email" class="form-label">البريد الإلكتروني <span class="text-red-500">*</span></label>
-                        <div class="relative">
-                            <input type="email" 
-                                   name="email" 
-                                   id="email" 
-                                   value="{{ old('email') }}"
-                                   class="form-input w-full pr-12 text-right"
-                                   placeholder="أدخل بريدك الإلكتروني"
-                                   required>
-                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none input-icon">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
-                                </svg>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div>
-                        <label for="password" class="form-label">كلمة المرور <span class="text-red-500">*</span></label>
-                        <div class="relative">
-                            <input type="password" 
-                                   name="password" 
-                                   id="password" 
-                                   class="form-input w-full pr-12 text-right"
-                                   placeholder="أدخل كلمة المرور"
-                                   required>
-                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none input-icon">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                                </svg>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div class="mt-6">
-                        <button type="submit" class="w-full flex justify-center items-center py-4 px-6 rounded-xl text-sm font-medium text-white btn-primary">
+                <!-- Buttons -->
+                <div class="flex space-x-3 space-x-reverse">
+                    <a href="{{ route('lender.login') }}" class="flex-1 py-4 px-6 rounded-xl text-sm font-medium text-gray-700 btn-secondary text-center">
+                        <svg class="w-5 h-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        رجوع
+                    </a>
+                    <button type="submit" id="verify-otp-btn" class="flex-1 py-4 px-6 rounded-xl text-sm font-medium text-white btn-primary">
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        تسجيل الدخول
+                        <span id="verify-otp-text">تسجيل الدخول</span>
                     </button>
-                </form>
-
-                <!-- Forgot Password Link -->
-                <div class="text-center">
-                    <a href="{{ route('lender.password.request') }}" class="text-sm text-primary hover:text-blue-700 transition-colors">
-                        نسيت كلمة المرور؟
-                    </a>
                 </div>
-            </div>
-            
-            <!-- Register Link -->
-            <div class="text-center mt-6 pt-6 border-t border-gray-200">
-                <p class="text-sm text-gray-600">
-                    لا تملك حساب؟
-                    <a href="{{ route('lender.register') }}" class="font-bold text-primary hover:text-blue-700 transition-colors">
-                        إنشاء حساب جديد
-                    </a>
-                </p>
-            </div>
+            </form>
         </div>
     </div>
 
     <script>
-        // No phone login functionality, so no scripts needed.
+        // Form validation and submission
+        document.getElementById('otp-form').addEventListener('submit', function(e) {
+            const otp = document.getElementById('otp').value.trim();
+            const button = document.getElementById('verify-otp-btn');
+            const buttonText = document.getElementById('verify-otp-text');
+            
+            // Clear previous errors
+            clearErrors();
+            
+            // Validate OTP
+            if (!otp || otp.length !== 6) {
+                showFieldError('otp', 'يرجى إدخال رمز التحقق المكون من 6 أرقام');
+                e.preventDefault();
+                return;
+            }
+
+            if (otp !== '123456') {
+                showFieldError('otp', 'رمز التحقق غير صحيح');
+                e.preventDefault();
+                return;
+            }
+            
+            // Show loading state
+            const originalText = buttonText.textContent;
+            button.disabled = true;
+            buttonText.innerHTML = '<div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div><span class="mr-2">جاري التحقق</span>';
+        });
+
+        function showFieldError(fieldName, message) {
+            const field = document.getElementById(fieldName);
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'field-error';
+            errorDiv.innerHTML = `
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                </svg>
+                ${message}
+            `;
+            
+            field.classList.add('border-red-500');
+            field.parentNode.parentNode.appendChild(errorDiv);
+        }
+
+        function clearErrors() {
+            // Remove all field errors
+            const errors = document.querySelectorAll('.field-error');
+            errors.forEach(error => error.remove());
+            
+            // Remove error styling from inputs
+            const inputs = document.querySelectorAll('.form-input');
+            inputs.forEach(input => input.classList.remove('border-red-500'));
+        }
     </script>
 </body>
 </html>
