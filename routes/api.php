@@ -94,6 +94,19 @@ Route::prefix('external/designs')->group(function () {
     Route::get('/featured', [DesignController::class, 'getExternalFeatured']);
 });
 
+// ========================================
+// APPOINTMENT AVAILABILITY ROUTES (Public)
+// ========================================
+// Public route for checking availability without authentication
+Route::prefix('appointments')->group(function () {
+    // GET /api/appointments/available-slots?date=2024-01-15
+    // Get available time slots for a specific date (defaults to today)
+    Route::get('/available-slots', [AppointmentController::class, 'getAvailableSlots']);
+});
+
+
+
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
@@ -103,6 +116,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/documents/upload', [DocumentController::class, 'uploadDocument']);
     Route::delete('/documents/delete', [DocumentController::class, 'deleteDocument']);
     Route::get('/documents/info', [DocumentController::class, 'getDocumentInfo']);
+
 
     // Order routes
     Route::prefix('orders')->group(function () {
@@ -137,6 +151,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
+
+
         // ========================================
         // INDIVIDUAL APPOINTMENT OPERATIONS
         // ========================================
@@ -157,92 +173,8 @@ Route::middleware('auth:sanctum')->group(function () {
         // Access: user who created the appointment or assigned designer
         // Status: only pending appointments can be deleted
         Route::delete('/{appointment}', [AppointmentController::class, 'destroy']);
-    });
 
-    // ========================================
-    // USER DESIGN MANAGEMENT ROUTES
-    // ========================================
-    Route::prefix('designs')->group(function () {
 
-        // POST /api/designs/{design}/favorite - Add design to user favorites
-        Route::post('/{design}/favorite', [DesignController::class, 'addToFavorites']);
 
-        // DELETE /api/designs/{design}/favorite - Remove design from user favorites
-        Route::delete('/{design}/favorite', [DesignController::class, 'removeFromFavorites']);
-
-        // GET /api/designs/favorites - Get user's favorite designs
-        Route::get('/favorites', [DesignController::class, 'getFavorites']);
-
-        // POST /api/designs/collections - Create a new design collection
-        Route::post('/collections', [DesignController::class, 'createCollection']);
-
-        // GET /api/designs/collections - Get user's design collections
-        Route::get('/collections', [DesignController::class, 'getCollections']);
-
-        // GET /api/designs/collections/{collection} - Get specific collection
-        Route::get('/collections/{collection}', [DesignController::class, 'getCollection']);
-
-        // PUT /api/designs/collections/{collection} - Update collection
-        Route::put('/collections/{collection}', [DesignController::class, 'updateCollection']);
-
-        // DELETE /api/designs/collections/{collection} - Delete collection
-        Route::delete('/collections/{collection}', [DesignController::class, 'deleteCollection']);
-
-        // POST /api/designs/collections/{collection}/designs - Add design to collection
-        Route::post('/collections/{collection}/designs', [DesignController::class, 'addDesignToCollection']);
-
-        // DELETE /api/designs/collections/{collection}/designs/{design} - Remove design from collection
-        Route::delete('/collections/{collection}/designs/{design}', [DesignController::class, 'removeDesignFromCollection']);
-
-        // POST /api/designs/{design}/appointments/{appointment} - Link design to appointment
-        Route::post('/{design}/appointments/{appointment}', [DesignController::class, 'linkToAppointment']);
-
-        // DELETE /api/designs/{design}/appointments/{appointment} - Unlink design from appointment
-        Route::delete('/{design}/appointments/{appointment}', [DesignController::class, 'unlinkFromAppointment']);
-
-        // POST /api/designs/{design}/orders/{order} - Link design to order
-        Route::post('/{design}/orders/{order}', [DesignController::class, 'linkToOrder']);
-
-        // DELETE /api/designs/{design}/orders/{order} - Unlink design from order
-        Route::delete('/{design}/orders/{order}', [DesignController::class, 'unlinkFromOrder']);
-
-        // GET /api/designs/history - Get user's design interaction history
-        Route::get('/history', [DesignController::class, 'getDesignHistory']);
-    });
-
-    // ========================================
-    // CART MANAGEMENT ROUTES
-    // ========================================
-    Route::prefix('cart')->group(function () {
-
-        // GET /api/cart/items - Get user's cart items with designs
-        Route::get('/items', [CartController::class, 'getCartItems']);
-
-        // POST /api/cart/items - Add item to cart
-        Route::post('/items', [CartController::class, 'addToCart']);
-
-        // PUT /api/cart/items/{cartItemId} - Update cart item quantity
-        Route::put('/items/{cartItemId}', [CartController::class, 'updateCartItem']);
-
-        // DELETE /api/cart/items/{cartItemId} - Remove item from cart
-        Route::delete('/items/{cartItemId}', [CartController::class, 'removeFromCart']);
-
-        // DELETE /api/cart/clear - Clear entire cart
-        Route::delete('/clear', [CartController::class, 'clearCart']);
-
-        // POST /api/cart/designs - Add design to cart item
-        Route::post('/designs', [CartController::class, 'addDesignToCartItem']);
-
-        // DELETE /api/cart/designs - Remove design from cart item
-        Route::delete('/designs', [CartController::class, 'removeDesignFromCartItem']);
-
-        // PUT /api/cart/designs/notes - Update design notes in cart item
-        Route::put('/designs/notes', [CartController::class, 'updateDesignNotes']);
-
-        // GET /api/cart/items/{productId}/designs - Get designs for specific cart item
-        Route::get('/items/{productId}/designs', [CartController::class, 'getCartItemDesigns']);
-
-        // POST /api/cart/checkout - Create order from cart with designs
-        Route::post('/checkout', [CartController::class, 'createOrderFromCart']);
     });
 });

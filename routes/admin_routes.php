@@ -38,6 +38,13 @@ Route::prefix('admin')->group(function () {
             Route::resource('products', ProductsController::class);
             Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
             Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
+            Route::resource('marketers', \App\Http\Controllers\Admin\MarketerController::class);
+            Route::resource('leads', \App\Http\Controllers\Admin\LeadController::class);
+            
+            // Bulk upload routes for leads
+            Route::get('leads/bulk-upload', [\App\Http\Controllers\Admin\LeadController::class, 'bulkUpload'])->name('leads.bulk-upload');
+            Route::post('leads/bulk-upload', [\App\Http\Controllers\Admin\LeadController::class, 'processBulkUpload'])->name('leads.bulk-upload.process');
+            Route::get('leads/download-template', [\App\Http\Controllers\Admin\LeadController::class, 'downloadTemplate'])->name('leads.download-template');
         });
     });
 });

@@ -44,6 +44,7 @@ Route::group(
 
         require __DIR__ . '/admin_routes.php';
         require __DIR__ . '/designer_routes.php';
+        require __DIR__ . '/marketer_routes.php';
 
         // User routes
         Route::middleware(['auth'])->group(function () {

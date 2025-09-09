@@ -34,7 +34,7 @@ class BookAppointmentWithOrders extends Component
     protected $rules = [
         'user_id' => 'required|exists:users,id',
         'designer_id' => 'nullable|exists:designers,id',
-        'appointment_date' => 'required|date_format:Y-m-d\TH:i|after:now',
+        'appointment_date' => 'required|date_format:Y-m-d\TH:i|after_or_equal:now',
         'duration_minutes' => 'integer|min:15|max:480',
         'notes' => 'nullable|string|max:1000',
         'selected_order_id' => 'required|exists:orders,id',

@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'designer.guest' => \App\Http\Middleware\RedirectIfDesigner::class,
             'designer.auth' => \App\Http\Middleware\RedirectIfNotDesigner::class,
+            'marketer.guest' => \App\Http\Middleware\RedirectIfMarketer::class,
+            'marketer.auth' => \App\Http\Middleware\RedirectIfNotMarketer::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

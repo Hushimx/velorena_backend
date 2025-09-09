@@ -253,22 +253,6 @@ class AppointmentController extends Controller
         }
     }
 
-    /**
-     * Get available time slots for a specific date
-     */
-    public function getAvailableSlots(Request $request)
-    {
-        $request->validate([
-            'designer_id' => 'required|exists:designers,id',
-            'date' => 'required|date|after:today',
-        ]);
-
-        $designerId = $request->designer_id;
-        $date = $request->date;
-        $availableSlots = Appointment::getAvailableTimeSlots($designerId, $date);
-
-        return response()->json(['slots' => $availableSlots]);
-    }
 
     /**
      * Show designer's appointment dashboard
@@ -526,5 +510,52 @@ class AppointmentController extends Controller
         ]);
 
         return back()->with('success', 'Appointment marked as completed.');
+    }
+
+    /**
+     * Get available time slots for a specific date
+     * GET /api/appointments/available-slots?date=2024-01-15
+     */
+    public function getAvailableSlots(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'date' => 'nullable|date|after_or_equal:today',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $date = $request->date ?? Carbon::today()->format('Y-m-d');
+
+        try {
+            // Get available time slots excluding booked appointments
+            $availableSlots = \App\Models\AvailabilitySlot::getAvailableTimeSlotsExcludingBooked($date);
+            
+            // Get day of week for additional info
+            $dayOfWeek = Carbon::parse($date)->format('l');
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'date' => $date,
+                    'day_of_week' => $dayOfWeek,
+                    'available_slots' => array_values($availableSlots), // Re-index array
+                    'total_slots' => count($availableSlots),
+                    'slot_duration' => 15, // Default 15 minutes
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get available slots',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

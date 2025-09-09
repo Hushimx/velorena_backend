@@ -44,6 +44,18 @@
             <i class="fas fa-shopping-cart"></i>
             <span>{{ trans('sidebar.orders') }}</span>
         </a>
+
+        <a href="{{ route('admin.marketers.index') }}"
+            class="sidebar-link {{ request()->routeIs('admin.marketers.*') ? 'active' : '' }}">
+            <i class="fas fa-user-tie"></i>
+            <span>المسوقيين</span>
+        </a>
+
+        <a href="{{ route('admin.leads.index') }}"
+            class="sidebar-link {{ request()->routeIs('admin.leads.*') ? 'active' : '' }}">
+            <i class="fas fa-users"></i>
+            <span>الـ Leads</span>
+        </a>
     </nav>
     <div class="mt-auto mb-4 px-2">
         <form action="{{ route('admin.logout') }}" method="POST">

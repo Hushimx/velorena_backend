@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class Appointment extends Model
@@ -27,16 +28,25 @@ class Appointment extends Model
         'accepted_at',
         'rejected_at',
         'completed_at',
-        'cancelled_at'
+        'cancelled_at',
+        'google_meet_id',
+        'google_meet_link',
+        'meet_created_at',
+        'zoom_meeting_id',
+        'zoom_meeting_url',
+        'zoom_start_url',
+        'zoom_meeting_created_at'
     ];
 
     protected $casts = [
         'appointment_date' => 'date',
-        'appointment_time' => 'datetime:H:i',
+        'appointment_time' => 'datetime',
         'accepted_at' => 'datetime',
         'rejected_at' => 'datetime',
         'completed_at' => 'datetime',
         'cancelled_at' => 'datetime',
+        'meet_created_at' => 'datetime',
+        'zoom_meeting_created_at' => 'datetime',
     ];
 
     // Relationships
@@ -104,6 +114,9 @@ class Appointment extends Model
             'status' => 'accepted',
             'accepted_at' => now()
         ]);
+
+        // Create Zoom meeting when appointment is assigned and accepted
+        $this->createZoomMeeting();
     }
 
     // Scopes
@@ -145,17 +158,26 @@ class Appointment extends Model
     // Helper methods
     public function getFullDateTimeAttribute()
     {
-        return $this->appointment_date->format('Y-m-d') . ' ' . $this->appointment_time->format('H:i');
+        if (!$this->appointment_date || !$this->appointment_time) {
+            return '';
+        }
+        return Carbon::parse($this->appointment_date)->format('Y-m-d') . ' ' . Carbon::parse($this->appointment_time)->format('H:i');
     }
 
     public function getFormattedDateAttribute()
     {
-        return $this->appointment_date->format('l, F j, Y');
+        if (!$this->appointment_date) {
+            return '';
+        }
+        return Carbon::parse($this->appointment_date)->format('l, F j, Y');
     }
 
     public function getFormattedTimeAttribute()
     {
-        return $this->appointment_time->format('g:i A');
+        if (!$this->appointment_time) {
+            return '';
+        }
+        return Carbon::parse($this->appointment_time)->format('g:i A');
     }
 
     public function getEndTimeAttribute()
@@ -165,7 +187,11 @@ class Appointment extends Model
 
     public function getFormattedEndTimeAttribute()
     {
-        return $this->end_time->format('g:i A');
+        if (!$this->appointment_time) {
+            return '';
+        }
+        $endTime = Carbon::parse($this->appointment_time)->addMinutes($this->duration_minutes);
+        return $endTime->format('g:i A');
     }
 
     public function getStatusBadgeAttribute()
@@ -245,6 +271,9 @@ class Appointment extends Model
             'designer_notes' => $designerNotes,
             'accepted_at' => now()
         ]);
+
+        // Create Zoom meeting when appointment is accepted
+        $this->createZoomMeeting();
     }
 
     public function reject($designerNotes = null)
@@ -269,6 +298,9 @@ class Appointment extends Model
         $this->update([
             'status' => 'cancelled'
         ]);
+
+        // Delete Zoom meeting when appointment is cancelled
+        $this->deleteZoomMeeting();
     }
 
     // Check if time slot is available
@@ -298,8 +330,15 @@ class Appointment extends Model
     }
 
     // Get available time slots for a designer on a specific date
+    // This method now uses the AvailabilitySlot model for better flexibility
     public static function getAvailableTimeSlots($designerId, $date, $duration = 15)
     {
+        // Use the new AvailabilitySlot model if available
+        if (class_exists('App\Models\AvailabilitySlot')) {
+            return \App\Models\AvailabilitySlot::getAvailableTimeSlotsExcludingBooked($designerId, $date);
+        }
+
+        // Fallback to old hardcoded method if AvailabilitySlot doesn't exist
         $workingHours = [
             'start' => '09:00',
             'end' => '17:00'
@@ -370,5 +409,177 @@ class Appointment extends Model
             $summary[$productName]['total_price'] += $item->total_price;
         }
         return $summary;
+    }
+
+    // Zoom meeting helper methods
+    public function hasZoomMeeting(): bool
+    {
+        return !is_null($this->zoom_meeting_id);
+    }
+
+    public function hasGoogleMeet(): bool
+    {
+        return !is_null($this->google_meet_id);
+    }
+
+    public function getMeetingUrl(): ?string
+    {
+        if ($this->hasZoomMeeting()) {
+            return $this->zoom_meeting_url;
+        }
+        
+        if ($this->hasGoogleMeet()) {
+            return $this->google_meet_link;
+        }
+        
+        return null;
+    }
+
+    public function getHostMeetingUrl(): ?string
+    {
+        if ($this->hasZoomMeeting()) {
+            return $this->zoom_start_url;
+        }
+        
+        return $this->getMeetingUrl();
+    }
+
+    public function getMeetingType(): string
+    {
+        if ($this->hasZoomMeeting()) {
+            return 'zoom';
+        }
+        
+        if ($this->hasGoogleMeet()) {
+            return 'google_meet';
+        }
+        
+        return 'none';
+    }
+
+    /**
+     * Get the meeting datetime as a Carbon instance
+     */
+    public function getMeetingDateTime(): \Carbon\Carbon
+    {
+        try {
+            // Handle different input formats
+            if ($this->appointment_date instanceof \DateTime) {
+                $dateString = $this->appointment_date->format('Y-m-d');
+            } else {
+                $dateString = Carbon::parse($this->appointment_date)->format('Y-m-d');
+            }
+            
+            if ($this->appointment_time instanceof \DateTime) {
+                $timeString = $this->appointment_time->format('H:i:s');
+            } else {
+                $timeString = Carbon::parse($this->appointment_time)->format('H:i:s');
+            }
+            
+            return Carbon::createFromFormat('Y-m-d H:i:s', $dateString . ' ' . $timeString);
+        } catch (\Exception $e) {
+            Log::error('Failed to parse appointment datetime: ' . $e->getMessage(), [
+                'appointment_id' => $this->id,
+                'appointment_date' => $this->appointment_date,
+                'appointment_time' => $this->appointment_time
+            ]);
+            return now();
+        }
+    }
+
+    /**
+     * Check if the meeting can be joined (5 minutes before start time)
+     */
+    public function canJoinMeeting(): bool
+    {
+        $meetingTime = $this->getMeetingDateTime();
+        return now()->gte($meetingTime->subMinutes(5));
+    }
+
+    /**
+     * Check if the meeting is currently active
+     */
+    public function isMeetingActive(): bool
+    {
+        $meetingTime = $this->getMeetingDateTime();
+        return now()->between($meetingTime, $meetingTime->addMinutes($this->duration_minutes));
+    }
+
+
+    /**
+     * Create Zoom meeting for this appointment
+     */
+    public function createZoomMeeting(): bool
+    {
+        try {
+            // Check if Zoom is configured
+            $zoomService = app(\App\Services\ZoomService::class);
+            
+            if (!$zoomService->isConfigured()) {
+                Log::warning('Zoom is not configured, skipping meeting creation for appointment: ' . $this->id);
+                return false;
+            }
+
+            // Don't create if already has a Zoom meeting
+            if ($this->hasZoomMeeting()) {
+                Log::info('Appointment already has Zoom meeting, skipping creation: ' . $this->id);
+                return true;
+            }
+
+            // Create the meeting
+            $meetingData = $zoomService->createAppointmentMeeting($this);
+            
+            // Update appointment with Zoom meeting details
+            $this->update([
+                'zoom_meeting_id' => $meetingData['id'],
+                'zoom_meeting_url' => $meetingData['join_url'],
+                'zoom_start_url' => $meetingData['start_url'],
+                'zoom_meeting_created_at' => now()
+            ]);
+
+            Log::info('Zoom meeting created successfully for appointment: ' . $this->id, [
+                'meeting_id' => $meetingData['id'],
+                'join_url' => $meetingData['join_url']
+            ]);
+
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Failed to create Zoom meeting for appointment: ' . $this->id, [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Delete Zoom meeting for this appointment
+     */
+    public function deleteZoomMeeting(): bool
+    {
+        try {
+            if (!$this->hasZoomMeeting()) {
+                return true; // Nothing to delete
+            }
+
+            $zoomService = app(\App\Services\ZoomService::class);
+            $deleted = $zoomService->deleteMeeting($this->zoom_meeting_id);
+
+            if ($deleted) {
+                $this->update([
+                    'zoom_meeting_id' => null,
+                    'zoom_meeting_url' => null,
+                    'zoom_start_url' => null,
+                    'zoom_meeting_created_at' => null
+                ]);
+            }
+
+            return $deleted;
+        } catch (\Exception $e) {
+            Log::error('Failed to delete Zoom meeting for appointment: ' . $this->id, [
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
     }
 }

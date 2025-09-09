@@ -61,7 +61,10 @@ class AppointmentService
                 $appointmentDate = $data['appointment_date'] ?? $appointment->appointment_date;
                 $appointmentTime = $data['appointment_time'] ?? $appointment->appointment_time;
 
-                $this->checkDesignerAvailability($designerId, $appointmentDate, $appointmentTime, $appointment->id);
+                // Only check designer availability if designer_id is provided and not null
+                if ($designerId) {
+                    $this->checkDesignerAvailability($designerId, $appointmentDate, $appointmentTime, $appointment->id);
+                }
             }
 
             $appointment->update($data);

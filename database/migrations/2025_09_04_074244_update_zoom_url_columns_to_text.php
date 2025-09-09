@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('appointments', function (Blueprint $table) {
-            $table->string('google_meet_id')->nullable()->after('designer_notes');
-            $table->string('google_meet_link')->nullable()->after('google_meet_id');
-            $table->timestamp('meet_created_at')->nullable()->after('google_meet_link');
+            // Change zoom URL columns from string to text to accommodate long URLs
+            $table->text('zoom_meeting_url')->nullable()->change();
+            $table->text('zoom_start_url')->nullable()->change();
         });
     }
 
@@ -24,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('appointments', function (Blueprint $table) {
-            $table->dropColumn(['google_meet_id', 'google_meet_link', 'meet_created_at']);
+            // Revert back to string (this might cause data loss if URLs are too long)
+            $table->string('zoom_meeting_url')->nullable()->change();
+            $table->string('zoom_start_url')->nullable()->change();
         });
     }
 };

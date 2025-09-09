@@ -3,6 +3,14 @@
 @section('pageTitle', trans('dashboard.my_appointments'))
 @section('title', trans('dashboard.my_appointments'))
 
+@push('styles')
+<link href="{{ asset('css/designer-appointments.css') }}" rel="stylesheet">
+@endpush
+
+@push('scripts')
+<script src="{{ asset('js/designer-appointments.js') }}"></script>
+@endpush
+
 @section('content')
     <div class="container-fluid">
         <!-- Welcome Section -->
@@ -110,7 +118,7 @@
             <div class="row">
                 @foreach ($appointments as $appointment)
                     <div class="col-12 mb-4">
-                        <div class="card border-0 shadow-sm">
+                        <div class="card border-0 shadow-sm appointment-card {{ $appointment->hasZoomMeeting() ? 'has-meeting' : '' }}">
                             <div class="card-body p-4">
                                 <!-- Header -->
                                 <div class="d-flex justify-content-between align-items-start mb-4">
@@ -120,8 +128,9 @@
                                         </div>
                                         <div>
                                             <h5 class="mb-1 fw-semibold">{{ $appointment->formatted_date }}</h5>
-                                            <p class="text-muted mb-0">{{ $appointment->formatted_time }} -
-                                                {{ $appointment->formatted_end_time }}</p>
+                                            <p class="text-muted mb-0 appointment-time" data-datetime="{{ $appointment->appointment_date }} {{ $appointment->appointment_time }}">
+                                                {{ $appointment->formatted_time }} - {{ $appointment->formatted_end_time }}
+                                            </p>
                                         </div>
                                     </div>
                                     <div class="d-flex align-items-center gap-3">
@@ -149,6 +158,20 @@
                                                             class="fas fa-eye me-2"></i>{{ trans('dashboard.view_details') }}
                                                     </a>
                                                 </li>
+                                                @if($appointment->hasZoomMeeting())
+                                                    @php
+                                                        $canJoin = $appointment->canJoinMeeting();
+                                                    @endphp
+                                                    @if($canJoin)
+                                                        <li>
+                                                            <a href="{{ $appointment->getHostMeetingUrl() }}" 
+                                                               target="_blank" 
+                                                               class="dropdown-item text-success">
+                                                                <i class="fas fa-video me-2"></i>Join Meeting
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                @endif
                                                 @if ($appointment->canBeAccepted())
                                                     <li>
                                                         <form
@@ -194,6 +217,49 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Meeting Information -->
+                                @if($appointment->hasZoomMeeting())
+                                    <div class="alert alert-success mb-3 meeting-info-alert" role="alert">
+                                        <h6 class="alert-heading mb-3 fw-semibold">
+                                            <i class="fas fa-video me-2"></i>Meeting Information
+                                        </h6>
+                                        <div class="row align-items-center">
+                                            <div class="col-md-8">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <i class="fas fa-video text-success me-2"></i>
+                                                    <span class="fw-medium">Zoom Meeting Available</span>
+                                                </div>
+                                                <p class="mb-0 small text-muted">
+                                                    Meeting ID: {{ $appointment->zoom_meeting_id }}
+                                                </p>
+                                            </div>
+                                            <div class="col-md-4 text-end">
+                                                @php
+                                                    $canJoin = $appointment->canJoinMeeting();
+                                                    $isActive = $appointment->isMeetingActive();
+                                                @endphp
+                                                @if($canJoin)
+                                                    <a href="{{ $appointment->getHostMeetingUrl() }}" 
+                                                       target="_blank" 
+                                                       class="btn btn-success btn-sm meeting-btn">
+                                                        <i class="fas fa-video me-1"></i>
+                                                        @if($isActive)
+                                                            Join Meeting
+                                                        @else
+                                                            Start Meeting
+                                                        @endif
+                                                    </a>
+                                                @else
+                                                    <span class="badge bg-secondary">
+                                                        <i class="fas fa-clock me-1"></i>
+                                                        {{ $appointment->getMeetingDateTime()->diffForHumans() }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
 
                                 <!-- Client Information -->
                                 <div class="alert alert-primary mb-3" role="alert">
