@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Marketer;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -22,7 +23,8 @@ class MarketerController extends Controller
      */
     public function create()
     {
-        return view('admin.dashboard.marketers.create');
+        $categories = Category::where('is_active', true)->get();
+        return view('admin.dashboard.marketers.create', compact('categories'));
     }
 
     /**
@@ -35,6 +37,7 @@ class MarketerController extends Controller
             'email' => 'required|string|email|max:255|unique:marketers',
             'password' => 'required|string|min:8|confirmed',
             'phone' => 'nullable|string|max:20',
+            'category_id' => 'nullable|exists:categories,id',
             'is_active' => 'boolean',
         ]);
 
@@ -60,7 +63,8 @@ class MarketerController extends Controller
      */
     public function edit(Marketer $marketer)
     {
-        return view('admin.dashboard.marketers.edit', compact('marketer'));
+        $categories = Category::where('is_active', true)->get();
+        return view('admin.dashboard.marketers.edit', compact('marketer', 'categories'));
     }
 
     /**
@@ -73,6 +77,7 @@ class MarketerController extends Controller
             'email' => 'required|string|email|max:255|unique:marketers,email,' . $marketer->id,
             'password' => 'nullable|string|min:8|confirmed',
             'phone' => 'nullable|string|max:20',
+            'category_id' => 'nullable|exists:categories,id',
             'is_active' => 'boolean',
         ]);
 

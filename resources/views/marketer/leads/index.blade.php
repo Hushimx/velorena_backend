@@ -101,6 +101,43 @@
             </div>
         </div>
 
+        <!-- Request New Leads Section -->
+        @php
+            $marketer = auth()->guard('marketer')->user();
+            $activeLeads = $marketer->leads()->whereNotIn('status', ['closed_won', 'closed_lost'])->count();
+            $canRequestNew = $activeLeads === 0;
+        @endphp
+        
+        @if($canRequestNew)
+        <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-2xl font-bold mb-2">{{ __('marketer.ready_for_new_leads') }}</h3>
+                    <p class="text-green-100">{{ __('marketer.all_leads_completed_request_new') }}</p>
+                </div>
+                <form action="{{ route('marketer.leads.request-new') }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="bg-white text-green-600 px-6 py-3 rounded-xl font-semibold hover:bg-green-50 transition-colors duration-200 flex items-center">
+                        <i class="fas fa-plus ml-2"></i>
+                        {{ __('marketer.request_new_leads') }}
+                    </button>
+                </form>
+            </div>
+        </div>
+        @else
+        <div class="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-6 text-white shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-2xl font-bold mb-2">{{ __('marketer.complete_current_leads') }}</h3>
+                    <p class="text-orange-100">{{ __('marketer.you_have_active_leads', ['count' => $activeLeads]) }}</p>
+                </div>
+                <div class="bg-white/20 rounded-xl px-4 py-2">
+                    <span class="text-lg font-semibold">{{ $activeLeads }} {{ __('marketer.active_leads') }}</span>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <!-- Livewire Component -->
         <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
             @livewire('marketer-leads-table')

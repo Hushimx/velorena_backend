@@ -24,6 +24,7 @@ class Lead extends Model
         'status',
         'priority',
         'marketer_id',
+        'category_id',
         'last_contact_date',
         'next_follow_up',
     ];
@@ -60,5 +61,13 @@ class Lead extends Model
     public function latestCommunication()
     {
         return $this->hasOne(LeadCommunication::class)->latest('communication_date');
+    }
+
+    /**
+     * Get the category assigned to this lead
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }

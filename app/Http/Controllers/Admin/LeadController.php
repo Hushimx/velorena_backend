@@ -5,7 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
 use App\Models\Marketer;
+use App\Models\Category;
+use App\Imports\LeadsImport;
+use App\Exports\LeadsTemplateExport;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Validator;
 
 class LeadController extends Controller
 {
@@ -23,7 +28,8 @@ class LeadController extends Controller
     public function create()
     {
         $marketers = Marketer::where('is_active', true)->get();
-        return view('admin.dashboard.leads.create', compact('marketers'));
+        $categories = Category::where('is_active', true)->get();
+        return view('admin.dashboard.leads.create', compact('marketers', 'categories'));
     }
 
     /**
@@ -41,6 +47,7 @@ class LeadController extends Controller
             'status' => 'required|in:new,contacted,qualified,proposal_sent,negotiation,closed_won,closed_lost',
             'priority' => 'required|in:low,medium,high',
             'marketer_id' => 'nullable|exists:marketers,id',
+            'category_id' => 'nullable|exists:categories,id',
             'next_follow_up' => 'nullable|date',
         ]);
 
@@ -65,7 +72,8 @@ class LeadController extends Controller
     public function edit(Lead $lead)
     {
         $marketers = Marketer::where('is_active', true)->get();
-        return view('admin.dashboard.leads.edit', compact('lead', 'marketers'));
+        $categories = Category::where('is_active', true)->get();
+        return view('admin.dashboard.leads.edit', compact('lead', 'marketers', 'categories'));
     }
 
     /**
@@ -83,6 +91,7 @@ class LeadController extends Controller
             'status' => 'required|in:new,contacted,qualified,proposal_sent,negotiation,closed_won,closed_lost',
             'priority' => 'required|in:low,medium,high',
             'marketer_id' => 'nullable|exists:marketers,id',
+            'category_id' => 'nullable|exists:categories,id',
             'next_follow_up' => 'nullable|date',
         ]);
 
@@ -101,5 +110,42 @@ class LeadController extends Controller
 
         return redirect()->route('admin.leads.index')
             ->with('success', 'تم حذف الـ lead بنجاح');
+    }
+
+    /**
+     * Download Excel template for leads import
+     */
+    public function downloadTemplate()
+    {
+        return Excel::download(new LeadsTemplateExport, 'leads_template.xlsx');
+    }
+
+    /**
+     * Show bulk upload form
+     */
+    public function bulkUpload()
+    {
+        return view('admin.dashboard.leads.bulk-upload');
+    }
+
+    /**
+     * Process bulk upload of leads
+     */
+    public function processBulkUpload(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240', // 10MB max
+        ]);
+
+        try {
+            Excel::import(new LeadsImport, $request->file('file'));
+            
+            return redirect()->route('admin.leads.index')
+                ->with('success', 'تم رفع الـ leads بنجاح');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'حدث خطأ أثناء رفع الملف: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 }

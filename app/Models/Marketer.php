@@ -22,6 +22,7 @@ class Marketer extends Authenticatable
         'password',
         'phone',
         'is_active',
+        'category_id',
     ];
 
     /**
@@ -59,5 +60,13 @@ class Marketer extends Authenticatable
     public function communications()
     {
         return $this->hasMany(LeadCommunication::class);
+    }
+
+    /**
+     * Get the category assigned to this marketer
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }

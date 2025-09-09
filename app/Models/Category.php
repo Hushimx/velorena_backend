@@ -26,4 +26,14 @@ class Category extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    public function marketers(): HasMany
+    {
+        return $this->hasMany(Marketer::class);
+    }
+
+    public function leads(): HasMany
+    {
+        return $this->hasMany(Lead::class);
+    }
 }

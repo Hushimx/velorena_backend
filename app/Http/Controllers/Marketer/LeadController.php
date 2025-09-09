@@ -108,4 +108,73 @@ class LeadController extends Controller
         return redirect()->route('marketer.leads.show', $lead)
             ->with('success', 'تم إضافة التواصل بنجاح');
     }
+
+    /**
+     * Check if marketer has completed all leads and can request new ones
+     */
+    public function canRequestNewLeads()
+    {
+        $marketerId = Auth::guard('marketer')->id();
+        
+        // Check if marketer has any leads that are not closed
+        $activeLeads = Lead::where('marketer_id', $marketerId)
+            ->whereNotIn('status', ['closed_won', 'closed_lost'])
+            ->count();
+            
+        return $activeLeads === 0;
+    }
+
+    /**
+     * Request new leads assignment
+     */
+    public function requestNewLeads()
+    {
+        if (!$this->canRequestNewLeads()) {
+            return redirect()->route('marketer.leads.index')
+                ->with('error', 'يجب إنهاء جميع الـ leads الحالية قبل طلب leads جديدة');
+        }
+
+        $marketer = Auth::guard('marketer')->user();
+        
+        // Find unassigned leads in the same category as the marketer
+        $unassignedLeads = Lead::whereNull('marketer_id')
+            ->where('category_id', $marketer->category_id)
+            ->where('status', 'new')
+            ->limit(5) // Assign 5 leads at a time
+            ->get();
+
+        if ($unassignedLeads->isEmpty()) {
+            return redirect()->route('marketer.leads.index')
+                ->with('info', 'لا توجد leads جديدة متاحة في فئتك حالياً');
+        }
+
+        // Assign leads to marketer
+        foreach ($unassignedLeads as $lead) {
+            $lead->update(['marketer_id' => $marketer->id]);
+        }
+
+        return redirect()->route('marketer.leads.index')
+            ->with('success', 'تم تعيين ' . $unassignedLeads->count() . ' leads جديدة لك');
+    }
+
+    /**
+     * Get marketer dashboard data
+     */
+    public function dashboard()
+    {
+        $marketerId = Auth::guard('marketer')->id();
+        
+        $stats = [
+            'total_leads' => Lead::where('marketer_id', $marketerId)->count(),
+            'active_leads' => Lead::where('marketer_id', $marketerId)
+                ->whereNotIn('status', ['closed_won', 'closed_lost'])
+                ->count(),
+            'completed_leads' => Lead::where('marketer_id', $marketerId)
+                ->whereIn('status', ['closed_won', 'closed_lost'])
+                ->count(),
+            'can_request_new' => $this->canRequestNewLeads()
+        ];
+
+        return view('marketer.dashboard.main', compact('stats'));
+    }
 }

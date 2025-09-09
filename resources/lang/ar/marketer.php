@@ -93,6 +93,14 @@ return [
     'successes_this_month' => 'نجاحات هذا الشهر',
     '+12%_from_last_month' => '+12% من الشهر الماضي',
     
+    // New Leads Request
+    'ready_for_new_leads' => 'جاهز لـ Leads جديدة',
+    'all_leads_completed_request_new' => 'لقد أكملت جميع الـ leads المسندة إليك. يمكنك طلب leads جديدة الآن.',
+    'request_new_leads' => 'طلب Leads جديدة',
+    'complete_current_leads' => 'أكمل الـ Leads الحالية',
+    'you_have_active_leads' => 'لديك :count leads نشطة تحتاج إلى متابعة',
+    'active_leads' => 'Leads نشطة',
+    
     // Footer
     'copyright' => '© 2024 نظام إدارة الـ Leads. جميع الحقوق محفوظة.',
 ];

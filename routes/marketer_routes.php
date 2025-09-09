@@ -30,6 +30,7 @@ Route::prefix('marketer')->group(function () {
         Route::name('marketer.')->group(function () {
             Route::resource('leads', LeadController::class)->only(['index', 'show', 'edit', 'update']);
             Route::post('leads/{lead}/communication', [LeadController::class, 'addCommunication'])->name('leads.communication');
+            Route::post('leads/request-new', [LeadController::class, 'requestNewLeads'])->name('leads.request-new');
         });
     });
 });
