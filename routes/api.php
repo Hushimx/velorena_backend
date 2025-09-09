@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\AppointmentController;
+use App\Http\Controllers\Api\DesignController;
+use App\Http\Controllers\CartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,6 +55,43 @@ Route::prefix('categories')->group(function () {
 Route::prefix('products')->group(function () {
     Route::get('/', [ProductController::class, 'index']);
     Route::get('/{product}', [ProductController::class, 'show']);
+});
+
+// ========================================
+// DESIGN SYSTEM ROUTES (PUBLIC)
+// ========================================
+Route::prefix('designs')->group(function () {
+    // GET /api/designs - List all designs with pagination and filtering
+    Route::get('/', [DesignController::class, 'index']);
+
+    // GET /api/designs/search - Search designs by query
+    Route::get('/search', [DesignController::class, 'search']);
+
+    // GET /api/designs/categories - Get available design categories
+    Route::get('/categories', [DesignController::class, 'categories']);
+
+    // GET /api/designs/{design} - Get specific design details
+    Route::get('/{design}', [DesignController::class, 'show']);
+
+    // POST /api/designs/sync - Sync designs from external API (admin only)
+    Route::post('/sync', [DesignController::class, 'sync']);
+});
+
+// ========================================
+// EXTERNAL DESIGN API ROUTES (PUBLIC - PROTECTED API KEY)
+// ========================================
+Route::prefix('external/designs')->group(function () {
+    // GET /api/external/designs/search - Search designs from external API
+    Route::get('/search', [DesignController::class, 'searchExternal']);
+
+    // GET /api/external/designs/category - Get designs by category from external API
+    Route::get('/category', [DesignController::class, 'getExternalByCategory']);
+
+    // GET /api/external/designs/categories - Get available categories from external API
+    Route::get('/categories', [DesignController::class, 'getExternalCategories']);
+
+    // GET /api/external/designs/featured - Get featured designs from external API
+    Route::get('/featured', [DesignController::class, 'getExternalFeatured']);
 });
 
 // ========================================
@@ -134,8 +173,6 @@ Route::middleware('auth:sanctum')->group(function () {
         // Access: user who created the appointment or assigned designer
         // Status: only pending appointments can be deleted
         Route::delete('/{appointment}', [AppointmentController::class, 'destroy']);
-
-
 
 
 

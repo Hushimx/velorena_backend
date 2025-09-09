@@ -92,6 +92,14 @@ class Appointment extends Model
         );
     }
 
+    // Relationship with designs (many-to-many)
+    public function designs(): BelongsToMany
+    {
+        return $this->belongsToMany(Design::class, 'appointment_designs')
+            ->withPivot('notes', 'priority')
+            ->withTimestamps();
+    }
+
     // Check if appointment is unassigned
     public function isUnassigned()
     {

@@ -74,6 +74,26 @@ class User extends Authenticatable
         return $this->hasMany(Appointment::class);
     }
 
+    public function designFavorites(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Design::class, 'design_favorites')
+            ->withPivot('notes')
+            ->withTimestamps();
+    }
+
+    public function designCollections(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(DesignCollection::class);
+    }
+
+    /**
+     * Get the user's cart items
+     */
+    public function cartItems(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
     /**
      * Get validation rules for user registration
      */

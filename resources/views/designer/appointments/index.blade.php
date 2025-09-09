@@ -153,7 +153,7 @@
                                             <ul class="dropdown-menu">
                                                 <li>
                                                     <a class="dropdown-item"
-                                                        href="{{ route('designer.appointments.dashboard') }}">
+                                                        href="{{ route('designer.appointments.show', $appointment) }}">
                                                         <i
                                                             class="fas fa-eye me-2"></i>{{ trans('dashboard.view_details') }}
                                                     </a>

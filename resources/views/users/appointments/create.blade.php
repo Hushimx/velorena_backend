@@ -34,6 +34,6 @@
         </div>
 
         <!-- Livewire Component -->
-        @livewire('book-appointment-with-orders')
+        @livewire('book-appointment-with-orders', ['orderId' => $orderId ?? null])
     </div>
 @endsection
