@@ -30,6 +30,14 @@ Route::prefix('admin')->group(function () {
     Route::middleware(RedirectIfNotAdmin::class)->group(function () {
         Route::post('logout', [LoginController::class, 'logout'])->name('admin.logout');
         Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+        Route::get('/dashboard/sales-data', [AdminController::class, 'getSalesDataForPeriod'])->name('admin.dashboard.sales-data');
+        Route::get('/language/{locale}', function($locale) {
+            if (in_array($locale, ['ar', 'en'])) {
+                session(['locale' => $locale]);
+                app()->setLocale($locale);
+            }
+            return redirect()->back();
+        })->name('admin.language.switch');
 
         // Users management routes
         Route::name('admin.')->group(function () {
@@ -38,13 +46,18 @@ Route::prefix('admin')->group(function () {
             Route::resource('products', ProductsController::class);
             Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
             Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
+            Route::resource('appointments', \App\Http\Controllers\Admin\AppointmentController::class);
             Route::resource('marketers', \App\Http\Controllers\Admin\MarketerController::class);
-            Route::resource('leads', \App\Http\Controllers\Admin\LeadController::class);
             
-            // Bulk upload routes for leads
+            // Bulk upload routes for leads (must be before resource route)
             Route::get('leads/bulk-upload', [\App\Http\Controllers\Admin\LeadController::class, 'bulkUpload'])->name('leads.bulk-upload');
             Route::post('leads/bulk-upload', [\App\Http\Controllers\Admin\LeadController::class, 'processBulkUpload'])->name('leads.bulk-upload.process');
             Route::get('leads/download-template', [\App\Http\Controllers\Admin\LeadController::class, 'downloadTemplate'])->name('leads.download-template');
+            
+            Route::resource('leads', \App\Http\Controllers\Admin\LeadController::class);
+            Route::resource('admins', \App\Http\Controllers\Admin\AdminResourceController::class);
+            Route::resource('availability-slots', \App\Http\Controllers\Admin\AvailabilitySlotController::class);
+            Route::patch('availability-slots/{availabilitySlot}/toggle-status', [\App\Http\Controllers\Admin\AvailabilitySlotController::class, 'toggleStatus'])->name('availability-slots.toggle-status');
         });
     });
 });

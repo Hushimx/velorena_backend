@@ -1,8 +1,8 @@
 <!-- Sidebar -->
 <div id="sidebar" class="sidebar w-64 min-h-screen flex flex-col p-0">
     <div class="logo flex flex-col items-center py-8 border-b border-gray-200 relative">
-        <img src="https://ui-avatars.com/api/?name=Lender&background=059669&color=fff&rounded=true&size=64" alt="Logo" class="w-16 h-16 mb-2">
-        <div class="platform-title">منصة جارك </div>
+        <img src="{{ asset('storage/qaads-logo.png') }}" alt="QAADS Logo" class="w-16 h-16 mb-2 object-contain">
+        <div class="platform-title">QAADS</div>
         <button id="closeSidebar" class="lg:hidden text-gray-300 hover:text-white transition-colors absolute top-4 left-4" onclick="toggleSidebar()">
             <i class="fas fa-times text-xl"></i>
         </button>
