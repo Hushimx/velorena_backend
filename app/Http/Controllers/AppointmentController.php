@@ -354,6 +354,57 @@ class AppointmentController extends Controller
     }
 
     /**
+     * Show designer's upcoming appointments
+     */
+    public function designerUpcoming(Request $request)
+    {
+        $designer = Auth::guard('designer')->user();
+
+        if (!$designer) {
+            abort(403, 'Designer access required');
+        }
+
+        // Get upcoming appointments (future dates)
+        $upcomingAppointments = Appointment::with([
+                'user:id,full_name,email,phone',
+                'order.items.product',
+                'order.items.product.options.values',
+                'order.items.designs.design'
+            ])
+            ->where('designer_id', $designer->id)
+            ->where('appointment_date', '>', Carbon::today())
+            ->where('status', '!=', 'cancelled')
+            ->when($request->filter, function ($query, $filter) {
+                switch ($filter) {
+                    case 'tomorrow':
+                        return $query->where('appointment_date', Carbon::tomorrow());
+                    case 'this_week':
+                        return $query->whereBetween('appointment_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+                    case 'next_week':
+                        return $query->whereBetween('appointment_date', [Carbon::now()->addWeek()->startOfWeek(), Carbon::now()->addWeek()->endOfWeek()]);
+                    case 'this_month':
+                        return $query->whereMonth('appointment_date', Carbon::now()->month);
+                    default:
+                        return $query;
+                }
+            })
+            ->orderBy('appointment_date')
+            ->orderBy('appointment_time')
+            ->paginate($request->per_page ?? 15);
+
+        // If it's an API request, return JSON
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $upcomingAppointments
+            ]);
+        }
+
+        // For web requests, render the view
+        return view('designer.appointments.upcoming', compact('upcomingAppointments'));
+    }
+
+    /**
      * Show designer's appointment details
      */
     public function designerShow(Appointment $appointment)
@@ -379,7 +430,107 @@ class AppointmentController extends Controller
             'order.items.designs.design'
         ]);
 
-        return view('designer.appointments.show', compact('appointment'));
+        // Get available orders for this user that are not linked to any appointment
+        $availableOrders = Order::where('user_id', $appointment->user_id)
+            ->whereDoesntHave('appointment')
+            ->with(['items.product'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('designer.appointments.show', compact('appointment', 'availableOrders'));
+    }
+
+    /**
+     * Link an order to an appointment
+     */
+    public function linkOrder(Request $request, Appointment $appointment)
+    {
+        $designer = Auth::guard('designer')->user();
+
+        if (!$designer || $appointment->designer_id !== $designer->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        $request->validate([
+            'order_id' => 'required|exists:orders,id',
+            'order_notes' => 'nullable|string|max:500'
+        ]);
+
+        // Check if the order belongs to the same user as the appointment
+        $order = Order::findOrFail($request->order_id);
+        if ($order->user_id !== $appointment->user_id) {
+            return back()->withErrors(['order_id' => 'Order does not belong to this appointment\'s customer.']);
+        }
+
+        // Check if the order is already linked to another appointment
+        if ($order->appointment) {
+            return back()->withErrors(['order_id' => 'This order is already linked to another appointment.']);
+        }
+
+        // Link the order to the appointment
+        $appointment->update([
+            'order_id' => $request->order_id,
+            'order_notes' => $request->order_notes
+        ]);
+
+        return back()->with('success', 'Order linked to appointment successfully.');
+    }
+
+    /**
+     * Unlink an order from an appointment
+     */
+    public function unlinkOrder(Appointment $appointment)
+    {
+        $designer = Auth::guard('designer')->user();
+
+        if (!$designer || $appointment->designer_id !== $designer->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        $appointment->update([
+            'order_id' => null,
+            'order_notes' => null
+        ]);
+
+        return back()->with('success', 'Order unlinked from appointment successfully.');
+    }
+
+    /**
+     * Recalculate order totals
+     */
+    public function recalculateOrder(Appointment $appointment)
+    {
+        $designer = Auth::guard('designer')->user();
+
+        if (!$designer || $appointment->designer_id !== $designer->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        if (!$appointment->order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No order found for this appointment.'
+            ], 404);
+        }
+
+        try {
+            $appointment->order->calculateTotals();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Order recalculated successfully.',
+                'data' => [
+                    'subtotal' => $appointment->order->subtotal,
+                    'tax' => $appointment->order->tax,
+                    'total' => $appointment->order->total
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to recalculate order.'
+            ], 500);
+        }
     }
 
     /**

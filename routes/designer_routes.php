@@ -33,17 +33,33 @@ Route::prefix('designer')->group(function () {
         Route::get('/dashboard', [DesignerController::class, 'index'])->name('designer.dashboard');
 
         // Appointment routes
-        Route::name('designer.')->group(function () {
-            Route::get('/appointments/list', [App\Http\Controllers\AppointmentController::class, 'designerAppointments'])->name('appointments.index');
-            Route::get('/appointments/dashboard', [App\Http\Controllers\AppointmentController::class, 'designerDashboard'])->name('appointments.dashboard');
-            Route::get('/appointments/details/{appointment}', [App\Http\Controllers\AppointmentController::class, 'designerShow'])->name('appointments.show');
-            Route::post('/appointments/{appointment}/accept', [App\Http\Controllers\AppointmentController::class, 'accept'])->name('appointments.accept');
-            Route::post('/appointments/{appointment}/reject', [App\Http\Controllers\AppointmentController::class, 'reject'])->name('appointments.reject');
-            Route::post('/appointments/{appointment}/complete', [App\Http\Controllers\AppointmentController::class, 'complete'])->name('appointments.complete');
+        Route::get('/appointments/list', [App\Http\Controllers\AppointmentController::class, 'designerAppointments'])->name('designer.appointments.index');
+        Route::get('/appointments/dashboard', [App\Http\Controllers\AppointmentController::class, 'designerDashboard'])->name('designer.appointments.dashboard');
+        Route::get('/appointments/upcoming', [App\Http\Controllers\AppointmentController::class, 'designerUpcoming'])->name('designer.appointments.upcoming');
+        Route::get('/appointments/details/{appointment}', [App\Http\Controllers\AppointmentController::class, 'designerShow'])->name('designer.appointments.show');
+        Route::post('/appointments/{appointment}/accept', [App\Http\Controllers\AppointmentController::class, 'accept'])->name('designer.appointments.accept');
+        Route::post('/appointments/{appointment}/reject', [App\Http\Controllers\AppointmentController::class, 'reject'])->name('designer.appointments.reject');
+        Route::post('/appointments/{appointment}/complete', [App\Http\Controllers\AppointmentController::class, 'complete'])->name('designer.appointments.complete');
+        Route::post('/appointments/{appointment}/link-order', [App\Http\Controllers\AppointmentController::class, 'linkOrder'])->name('designer.appointments.link-order');
+        Route::post('/appointments/{appointment}/unlink-order', [App\Http\Controllers\AppointmentController::class, 'unlinkOrder'])->name('designer.appointments.unlink-order');
+        Route::put('/appointments/{appointment}', [App\Http\Controllers\AppointmentController::class, 'update'])->name('designer.appointments.update');
+        Route::post('/appointments/{appointment}/recalculate-order', [App\Http\Controllers\AppointmentController::class, 'recalculateOrder'])->name('designer.appointments.recalculate-order');
 
-            // Order editing routes
-            Route::get('/appointments/{appointment}/edit-order', [App\Http\Controllers\AppointmentController::class, 'designerEditOrder'])->name('orders.edit');
-        });
+        // Order editing routes
+        Route::get('/appointments/{appointment}/edit-order', [App\Http\Controllers\AppointmentController::class, 'designerEditOrder'])->name('designer.orders.edit');
+        
+        // Orders routes
+        Route::get('/orders', [App\Http\Controllers\AppointmentController::class, 'designerAppointments'])->name('designer.orders.index');
+        
+        // Profile routes
+        Route::get('/profile/edit', function() {
+            return view('designer.profile.edit');
+        })->name('designer.profile.edit');
+        
+        // Portfolio routes
+        Route::get('/portfolio', function() {
+            return view('designer.portfolio.index');
+        })->name('designer.portfolio.index');
     });
 
     // Temporary test route without middleware for debugging

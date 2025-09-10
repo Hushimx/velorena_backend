@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             AppointmentSeeder::class,
             LeadSeeder::class,
+            OrderSeeder::class,
         ]);
     }
 }

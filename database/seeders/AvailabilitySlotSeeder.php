@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\AvailabilitySlot;
 
@@ -13,34 +12,74 @@ class AvailabilitySlotSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('Creating general availability slots for all 7 days');
-
-        // Default availability schedule (All 7 days, 8 AM to 4 PM, 30-minute slots)
-        $defaultSchedule = [
-            'monday' => ['08:00', '16:00'],
-            'tuesday' => ['08:00', '16:00'],
-            'wednesday' => ['08:00', '16:00'],
-            'thursday' => ['08:00', '16:00'],
-            'friday' => ['08:00', '16:00'],
-            'saturday' => ['08:00', '16:00'],
-            'sunday' => ['08:00', '16:00'],
+        $availabilitySlots = [
+            // Monday
+            [
+                'day_of_week' => 'monday',
+                'start_time' => '09:00:00',
+                'end_time' => '17:00:00',
+                'slot_duration_minutes' => 30,
+                'is_active' => true,
+                'notes' => 'Regular business hours for Monday',
+            ],
+            // Tuesday
+            [
+                'day_of_week' => 'tuesday',
+                'start_time' => '09:00:00',
+                'end_time' => '17:00:00',
+                'slot_duration_minutes' => 30,
+                'is_active' => true,
+                'notes' => 'Regular business hours for Tuesday',
+            ],
+            // Wednesday
+            [
+                'day_of_week' => 'wednesday',
+                'start_time' => '09:00:00',
+                'end_time' => '17:00:00',
+                'slot_duration_minutes' => 30,
+                'is_active' => true,
+                'notes' => 'Regular business hours for Wednesday',
+            ],
+            // Thursday
+            [
+                'day_of_week' => 'thursday',
+                'start_time' => '09:00:00',
+                'end_time' => '17:00:00',
+                'slot_duration_minutes' => 30,
+                'is_active' => true,
+                'notes' => 'Regular business hours for Thursday',
+            ],
+            // Friday
+            [
+                'day_of_week' => 'friday',
+                'start_time' => '09:00:00',
+                'end_time' => '17:00:00',
+                'slot_duration_minutes' => 30,
+                'is_active' => true,
+                'notes' => 'Regular business hours for Friday',
+            ],
+            // Saturday (shorter hours)
+            [
+                'day_of_week' => 'saturday',
+                'start_time' => '10:00:00',
+                'end_time' => '14:00:00',
+                'slot_duration_minutes' => 30,
+                'is_active' => true,
+                'notes' => 'Weekend hours for Saturday',
+            ],
+            // Sunday (closed)
+            [
+                'day_of_week' => 'sunday',
+                'start_time' => '00:00:00',
+                'end_time' => '00:00:00',
+                'slot_duration_minutes' => 30,
+                'is_active' => false,
+                'notes' => 'Closed on Sunday',
+            ],
         ];
 
-        foreach ($defaultSchedule as $dayOfWeek => $times) {
-            AvailabilitySlot::updateOrCreate(
-                ['day_of_week' => $dayOfWeek],
-                [
-                    'start_time' => $times[0],
-                    'end_time' => $times[1],
-                    'slot_duration_minutes' => 30,
-                    'is_active' => true,
-                    'notes' => 'General working hours - 30 minute slots',
-                ]
-            );
-            
-            $this->command->info("Created availability for {$dayOfWeek}: {$times[0]} - {$times[1]} (30 min slots)");
+        foreach ($availabilitySlots as $slot) {
+            AvailabilitySlot::create($slot);
         }
-
-        $this->command->info('General availability slots created successfully for all 7 days.');
     }
 }

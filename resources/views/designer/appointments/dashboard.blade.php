@@ -1,108 +1,231 @@
 @extends('designer.layouts.app')
 
-@section('pageTitle', trans('dashboard.appointments_dashboard'))
-@section('title', trans('dashboard.appointments_dashboard'))
+@section('pageTitle', __('dashboard.new_appointments'))
+@section('title', __('dashboard.new_appointments'))
 
 @section('content')
-    <div class="container-fluid">
-        <!-- Welcome Section -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card border-0 shadow-lg overflow-hidden">
-                    <div class="card-body p-0">
-                        <div class="row g-0">
-                            <!-- Main Content -->
-                            <div class="col-lg-8 p-4 p-lg-5">
-                                <div class="d-flex align-items-center mb-0 gap-3">
-                                    <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
-                                        <i class="fas fa-user-tie text-success fa-2x"></i>
-                                    </div>
-                                    <div>
-                                        <h1 class="h3 mb-1 fw-bold text-dark">
-                                            {{ trans('dashboard.welcome_back') }},
-                                            {{ Auth::guard('designer')->user()->name }}!
-                                        </h1>
-                                        <p class="text-muted mb-0">{{ trans('dashboard.whats_happening') }}</p>
-                                    </div>
-                                </div>
-                            </div>
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold" style="color: var(--brand-brown);">{{ __('dashboard.new_appointments') }}</h1>
+            <p class="text-gray-600">{{ __('dashboard.claim_new_appointments') }}</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{{ route('designer.appointments.index') }}" 
+               class="btn btn-secondary">
+                <i class="fas fa-list"></i>
+                <span>{{ __('dashboard.all_appointments') }}</span>
+            </a>
+            <a href="{{ route('designer.appointments.upcoming') }}" 
+               class="btn btn-secondary">
+                <i class="fas fa-calendar-alt"></i>
+                <span>{{ __('dashboard.upcoming_appointments') }}</span>
+            </a>
+        </div>
+    </div>
 
-                            <!-- Visual Element -->
-                            <div class="col-lg-4 bg-gradient d-none d-lg-block"
-                                style="background: linear-gradient(135deg, #198754 0%, #20c997 100%);">
-                                <div class="d-flex flex-column justify-content-center align-items-center h-100 p-4">
-                                    <div class="text-center text-white">
-                                        <i class="fas fa-calendar-check fa-5x mb-3 opacity-75"></i>
-                                        <h5 class="fw-bold mb-2">Appointment Dashboard</h5>
-                                        <p class="opacity-90 mb-0">Manage your schedule efficiently</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">{{ __('dashboard.total_appointments') }}</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ $totalAppointments }}</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-calendar text-blue-600 text-xl"></i>
                 </div>
             </div>
         </div>
-
-        <!-- Success Message -->
-        @if (session('success'))
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
-                        <i class="fas fa-check-circle me-2 fs-5"></i>
-                        <div class="fw-medium">{{ session('success') }}</div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+        
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">{{ __('dashboard.pending_appointments') }}</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ $pendingCount }}</p>
                 </div>
-            </div>
-        @endif
-
-        <!-- Error Message -->
-        @if (session('error'))
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
-                        <i class="fas fa-exclamation-triangle me-2 fs-5"></i>
-                        <div class="fw-medium">{{ session('error') }}</div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                </div>
-            </div>
-        @endif
-
-        <!-- Quick Actions -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-3">
-                        <div class="row align-items-center">
-                            <div class="col-md-6">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="spinner-grow spinner-grow-sm text-success me-2" role="status"
-                                        aria-hidden="true"></div>
-                                    <span class="text-muted fw-medium">{{ trans('dashboard.live_updates_active') }}</span>
-                                    <span class="badge bg-success ms-2">{{ trans('dashboard.real_time') }}</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6 text-md-end">
-                                <a href="{{ route('designer.appointments.index') }}" class="btn btn-primary">
-                                    <i class="fas fa-list me-2"></i>{{ trans('dashboard.view_all_appointments') }}
-                                </a>
-                                <button class="btn btn-outline-secondary ms-2" onclick="location.reload()">
-                                    <i class="fas fa-sync-alt me-2"></i>{{ trans('dashboard.refresh') }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-clock text-yellow-600 text-xl"></i>
                 </div>
             </div>
         </div>
-
-        <!-- Livewire Component -->
-        <div class="row">
-            <div class="col-12">
-                @livewire('designer-live-appointments')
+        
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">{{ __('dashboard.completed_appointments') }}</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ $completedAppointments }}</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">{{ __('dashboard.cancelled_appointments') }}</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ $cancelledCount }}</p>
+                </div>
+                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Live New Appointments Section -->
+    @livewire('designer.new-appointments')
+
+    <!-- Today's Appointments -->
+    @if($todayAppointments->count() > 0)
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">{{ __('dashboard.todays_appointments') }}</h3>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {{ $todayAppointments->count() }} {{ __('dashboard.appointments') }}
+                </span>
+            </div>
+            
+            <div class="space-y-3">
+                @foreach($todayAppointments as $appointment)
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-blue-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">{{ $appointment->user->full_name ?? $appointment->user->email }}</p>
+                                <p class="text-sm text-gray-500">
+                                    {{ $appointment->appointment_time ? $appointment->appointment_time->format('H:i') : 'غير محدد' }}
+                                    @if($appointment->duration_minutes)
+                                        - {{ $appointment->duration_minutes }} {{ __('dashboard.minutes') }}
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="badge badge-{{ $appointment->status }}">
+                                {{ __('status.appointment.' . $appointment->status) ?: $appointment->status }}
+                            </span>
+                            <a href="{{ route('designer.appointments.show', $appointment) }}" 
+                               class="text-blue-600 hover:text-blue-800 transition-colors">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    <!-- Upcoming Appointments -->
+    @if($upcomingAppointments->count() > 0)
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">{{ __('dashboard.upcoming_appointments') }}</h3>
+                <a href="{{ route('designer.appointments.upcoming') }}" 
+                   class="text-sm font-medium hover:underline flex items-center gap-2"
+                   style="color: #2a1e1e;">
+                    <span>{{ __('dashboard.view_all') }}</span>
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            </div>
+            
+            <div class="space-y-3">
+                @foreach($upcomingAppointments as $appointment)
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-calendar text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">{{ $appointment->user->full_name ?? $appointment->user->email }}</p>
+                                <p class="text-sm text-gray-500">
+                                    {{ $appointment->appointment_date ? $appointment->appointment_date->format('Y-m-d') : 'غير محدد' }}
+                                    @if($appointment->appointment_time)
+                                        - {{ $appointment->appointment_time->format('H:i') }}
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="badge badge-{{ $appointment->status }}">
+                                {{ __('status.appointment.' . $appointment->status) ?: $appointment->status }}
+                            </span>
+                            <a href="{{ route('designer.appointments.show', $appointment) }}" 
+                               class="text-blue-600 hover:text-blue-800 transition-colors">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    <!-- Pending Appointments -->
+    @if($pendingAppointments->count() > 0)
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">{{ __('dashboard.pending_appointments') }}</h3>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                    {{ $pendingAppointments->count() }} {{ __('dashboard.pending') }}
+                </span>
+            </div>
+            
+            <div class="space-y-3">
+                @foreach($pendingAppointments as $appointment)
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-clock text-yellow-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">{{ $appointment->user->full_name ?? $appointment->user->email }}</p>
+                                <p class="text-sm text-gray-500">
+                                    {{ $appointment->appointment_date ? $appointment->appointment_date->format('Y-m-d') : 'غير محدد' }}
+                                    @if($appointment->appointment_time)
+                                        - {{ $appointment->appointment_time->format('H:i') }}
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <form action="{{ route('designer.appointments.accept', $appointment) }}" 
+                                  method="POST" class="inline">
+                                @csrf
+                                <button type="submit" 
+                                        class="px-3 py-1.5 text-xs font-medium text-white rounded-lg transition-colors hover:shadow-sm"
+                                        style="background-color: #2a1e1e;"
+                                        onclick="return confirm('{{ __('dashboard.confirm_accept_appointment') }}')">
+                                    <i class="fas fa-check mr-1"></i>
+                                    {{ __('dashboard.accept') }}
+                                </button>
+                            </form>
+                            
+                            <form action="{{ route('designer.appointments.reject', $appointment) }}" 
+                                  method="POST" class="inline">
+                                @csrf
+                                <button type="submit" 
+                                        class="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-200 rounded-lg transition-colors hover:bg-gray-300"
+                                        onclick="return confirm('{{ __('dashboard.confirm_reject_appointment') }}')">
+                                    <i class="fas fa-times mr-1"></i>
+                                    {{ __('dashboard.reject') }}
+                                </button>
+                            </form>
+                            
+                            <a href="{{ route('designer.appointments.show', $appointment) }}" 
+                               class="text-blue-600 hover:text-blue-800 transition-colors">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+</div>
 @endsection

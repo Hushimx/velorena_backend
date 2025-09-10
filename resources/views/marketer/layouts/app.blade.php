@@ -43,12 +43,10 @@
             <!-- Logo Section -->
             <div class="p-8 border-b border-gray-100">
                 <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                        <i class="fas fa-chart-line text-white text-lg"></i>
-                    </div>
+                    <img src="{{ asset('storage/qaads-logo.png') }}" alt="QAADS Logo" class="w-12 h-12 object-contain rounded-xl shadow-lg">
                     <div>
-                        <h2 class="text-xl font-bold text-gray-800">{{ __('marketer.marketer_panel') }}</h2>
-                        <p class="text-sm text-gray-500">{{ __('marketer.manage_your_assigned_leads') }}</p>
+                        <h2 class="text-xl font-bold text-gray-800">QAADS</h2>
+                        <p class="text-sm text-gray-500">{{ __('marketer.marketer_panel') }}</p>
                     </div>
                 </div>
             </div>

@@ -1,20 +1,19 @@
 @extends('admin.layouts.app')
 
-@section('pageTitle', 'Admin | Marketers')
-@section('title', 'قائمة المسوقيين')
+@section('pageTitle', __('admin.marketers_management'))
+@section('title', __('admin.marketers_management'))
 
 @section('content')
     <div class="space-y-6">
         <!-- Header -->
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">قائمة المسوقيين</h1>
-                <p class="text-gray-600">إدارة المسوقيين في المنصة</p>
+                <h1 class="text-2xl font-bold" style="color: var(--brand-brown);">{{ __('admin.marketers_management') }}</h1>
+                <p class="text-gray-600">{{ __('admin.manage_marketers_platform') }}</p>
             </div>
-            <a href="{{ route('admin.marketers.create') }}"
-                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
-                <i class="fas fa-plus pl-2"></i>
-                <span>إضافة مسوق جديد</span>
+            <a href="{{ route('admin.marketers.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                <span>{{ __('admin.add_new_marketer') }}</span>
             </a>
         </div>
 
