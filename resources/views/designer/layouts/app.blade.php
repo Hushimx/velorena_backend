@@ -24,9 +24,9 @@
 
         /* Sidebar Styles */
         .sidebar {
-            background: #ffffff;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-            border-right: 1px solid #dee2e6;
+            background: #2A1E20;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            border-right: 1px solid #4A3E40;
             min-height: 100vh;
             width: 280px;
             position: fixed;
@@ -51,7 +51,7 @@
             border-radius: 0.5rem;
             font-size: 1rem;
             font-weight: 500;
-            color: #6c757d;
+            color: #d1d5db;
             text-decoration: none;
             transition: all 0.2s ease;
             margin-bottom: 0.5rem;
@@ -59,9 +59,9 @@
 
         .sidebar-link:hover,
         .sidebar-link.active {
-            background: #198754;
-            color: #fff;
-            box-shadow: 0 2px 8px 0 rgba(25, 135, 84, 0.15);
+            background: #ffde9f;
+            color: #2a1e1e;
+            box-shadow: 0 2px 8px 0 rgba(255, 222, 159, 0.20);
             text-decoration: none;
         }
 
@@ -75,7 +75,7 @@
             text-align: center;
             margin-bottom: 2rem;
             padding-bottom: 1.5rem;
-            border-bottom: 1px solid #dee2e6;
+            border-bottom: 1px solid #4A3E40;
         }
 
         .sidebar .logo img {
@@ -100,7 +100,7 @@
         .sidebar .platform-title {
             font-size: 1.25rem;
             font-weight: bold;
-            color: #212529;
+            color: #f9fafb;
             letter-spacing: 1px;
             margin-bottom: 0.25rem;
         }
@@ -128,9 +128,9 @@
 
         /* Header Styles */
         .main-header {
-            background: #fff;
-            box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.07);
-            border-bottom: 1px solid #dee2e6;
+            background: #2A1E20;
+            box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid #4A3E40;
             padding: 1rem 0;
         }
 
@@ -148,46 +148,49 @@
 
         /* Language Switcher */
         .language-switcher .dropdown-toggle {
-            border-color: #dee2e6;
-            background: #fff;
-            color: #6c757d;
+            border-color: #4A3E40;
+            background: #2A1E20;
+            color: #d1d5db;
             font-size: 0.875rem;
             padding: 0.375rem 0.75rem;
         }
 
         .language-switcher .dropdown-toggle:hover {
-            border-color: #198754;
-            color: #198754;
+            border-color: #ffde9f;
+            color: #ffde9f;
         }
 
         .language-switcher .dropdown-menu {
             border: none;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            background: #2A1E20;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
             border-radius: 0.5rem;
         }
 
         .language-switcher .dropdown-item {
             padding: 0.5rem 1rem;
             font-size: 0.875rem;
+            color: #d1d5db;
         }
 
         .language-switcher .dropdown-item:hover {
-            background-color: #f8f9fa;
+            background-color: #4A3E40;
+            color: #f9fafb;
         }
 
         .language-switcher .dropdown-item.active {
-            background-color: #198754;
-            color: #fff;
+            background-color: #ffde9f;
+            color: #2a1e1e;
         }
 
         .profile-name {
             font-weight: 600;
-            color: #212529;
+            color: #f9fafb;
         }
 
         .profile-role {
             font-size: 0.875rem;
-            color: #6c757d;
+            color: #d1d5db;
         }
 
         /* Card Enhancements */
@@ -314,12 +317,12 @@
             background: none;
             border: none;
             font-size: 1.5rem;
-            color: #6c757d;
+            color: #d1d5db;
             padding: 0.5rem;
         }
 
         .sidebar-toggle:hover {
-            color: #198754;
+            color: #ffde9f;
         }
 
         .toast-body {
@@ -334,10 +337,8 @@
         <div class="sidebar-content">
             <!-- Logo and Title -->
             <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-palette fa-2x text-success"></i>
-                </div>
-                <div class="platform-title">Velorena</div>
+                <img src="{{ asset('storage/qaads-logo.png') }}" alt="QAADS Logo" class="w-16 h-16 mb-2 object-contain" style="border-radius: 50%; box-shadow: 0 2px 8px 0 rgba(25, 135, 84, 0.15);">
+                <div class="platform-title">QAADS</div>
                 <small class="text-muted">Designer Platform</small>
             </div>
 
@@ -385,7 +386,7 @@
                         <button class="sidebar-toggle" id="sidebarToggle">
                             <i class="fas fa-bars"></i>
                         </button>
-                        <h1 class="h4 mb-0 ms-3 d-inline">@yield('title', trans('dashboard.designer_dashboard'))</h1>
+                        <h1 class="h4 mb-0 ms-3 d-inline text-white">@yield('title', trans('dashboard.designer_dashboard'))</h1>
                     </div>
                     <div class="col-auto">
                         <div class="d-flex align-items-center">

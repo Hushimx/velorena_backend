@@ -54,7 +54,7 @@ class LeadController extends Controller
         Lead::create($request->all());
 
         return redirect()->route('admin.leads.index')
-            ->with('success', 'تم إنشاء الـ lead بنجاح');
+            ->with('success', __('admin.lead_created_success'));
     }
 
     /**
@@ -98,7 +98,7 @@ class LeadController extends Controller
         $lead->update($request->all());
 
         return redirect()->route('admin.leads.index')
-            ->with('success', 'تم تحديث الـ lead بنجاح');
+            ->with('success', __('admin.lead_updated_success'));
     }
 
     /**
@@ -109,7 +109,7 @@ class LeadController extends Controller
         $lead->delete();
 
         return redirect()->route('admin.leads.index')
-            ->with('success', 'تم حذف الـ lead بنجاح');
+            ->with('success', __('admin.lead_deleted_success'));
     }
 
     /**
@@ -138,13 +138,49 @@ class LeadController extends Controller
         ]);
 
         try {
-            Excel::import(new LeadsImport, $request->file('file'));
+            // Get the uploaded file
+            $file = $request->file('file');
+            
+            // Check if file exists and has a valid path
+            if (!$file || !$file->isValid()) {
+                throw new \Exception('Invalid file uploaded');
+            }
+            
+            // Log the file info for debugging
+            \Log::info('Uploading file: ' . $file->getClientOriginalName());
+            \Log::info('File path: ' . $file->getPathname());
+            \Log::info('File size: ' . $file->getSize());
+            
+            // Store the file temporarily to get a proper path using public disk
+            $tempPath = $file->store('temp', 'public');
+            $fullPath = storage_path('app/public/' . $tempPath);
+            
+            \Log::info('Stored file at: ' . $fullPath);
+            
+            // Check if the file exists
+            if (!file_exists($fullPath)) {
+                throw new \Exception('File was not stored properly');
+            }
+            
+            // Import the file using the stored path
+            Excel::import(new LeadsImport, $fullPath);
+            
+            // Clean up the temporary file
+            \Storage::disk('public')->delete($tempPath);
             
             return redirect()->route('admin.leads.index')
-                ->with('success', 'تم رفع الـ leads بنجاح');
+                ->with('success', __('admin.leads_uploaded_success'));
         } catch (\Exception $e) {
+            \Log::error('Bulk upload error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            // Clean up temporary file if it exists
+            if (isset($tempPath)) {
+                \Storage::disk('public')->delete($tempPath);
+            }
+            
             return redirect()->back()
-                ->with('error', 'حدث خطأ أثناء رفع الملف: ' . $e->getMessage())
+                ->with('error', __('admin.leads_upload_error') . ': ' . $e->getMessage())
                 ->withInput();
         }
     }

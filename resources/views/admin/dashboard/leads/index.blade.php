@@ -1,26 +1,26 @@
 @extends('admin.layouts.app')
 
-@section('pageTitle', 'Admin | Leads')
-@section('title', 'قائمة الـ Leads')
+@section('pageTitle', __('admin.leads_management'))
+@section('title', __('admin.leads_management'))
 
 @section('content')
     <div class="space-y-6">
         <!-- Header -->
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">قائمة الـ Leads</h1>
-                <p class="text-gray-600">إدارة الـ leads في المنصة</p>
+                <h1 class="text-2xl font-bold" style="color: var(--brand-brown);">{{ __('admin.leads_management') }}</h1>
+                <p class="text-gray-600">{{ __('admin.manage_leads_platform') }}</p>
             </div>
             <div class="flex space-x-3">
                 <a href="{{ route('admin.leads.bulk-upload') }}"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
-                    <i class="fas fa-upload pl-2"></i>
-                    <span>رفع بالجملة</span>
+                    class="btn btn-secondary">
+                    <i class="fas fa-upload"></i>
+                    <span>{{ __('admin.bulk_upload') }}</span>
                 </a>
                 <a href="{{ route('admin.leads.create') }}"
-                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
-                    <i class="fas fa-plus pl-2"></i>
-                    <span>إضافة lead جديد</span>
+                    class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    <span>{{ __('admin.add_new_lead') }}</span>
                 </a>
             </div>
         </div>

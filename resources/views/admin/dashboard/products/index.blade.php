@@ -1,24 +1,29 @@
 @extends('admin.layouts.app')
 
-@section('pageTitle', 'Admin | Products')
-@section('title', trans('products.products_list'))
+@section('pageTitle', __('admin.products_management'))
+@section('title', __('admin.products_management'))
 
 @section('content')
-    <div class="container mx-auto px-4">
-        <div class="flex justify-between items-center mb-6">
+    <div class="space-y-6">
+        <!-- Header -->
+        <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">{{ trans('products.products_list') }}</h1>
-                <p class="text-gray-600 mt-2">{{ trans('products.manage_products') }}</p>
+                <h1 class="text-2xl font-bold" style="color: var(--brand-brown);">{{ __('admin.products_management') }}</h1>
+                <p class="text-gray-600">{{ __('admin.manage_products_platform') }}</p>
             </div>
-            <div>
-                <a href="{{ route('admin.products.create') }}"
-                    class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                    <i class="fas fa-plus mx-2"></i>
-                    {{ trans('products.add_new_product') }}
+            <div class="flex space-x-3">
+                <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">
+                    <i class="fas fa-tags"></i>
+                    <span>{{ __('admin.categories') }}</span>
+                </a>
+                <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    <span>{{ __('admin.add_new_product') }}</span>
                 </a>
             </div>
         </div>
 
+        <!-- Products Table -->
         @livewire('products-table')
     </div>
 @endsection
