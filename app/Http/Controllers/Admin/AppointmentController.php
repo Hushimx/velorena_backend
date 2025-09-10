@@ -32,7 +32,7 @@ class AppointmentController extends Controller
     public function update(Request $request, Appointment $appointment)
     {
         $request->validate([
-            'status' => 'required|in:pending,scheduled,completed,cancelled',
+            'status' => 'required|in:pending,accepted,rejected,completed,cancelled',
             'appointment_date' => 'nullable|date',
             'appointment_time' => 'nullable|date_format:H:i',
             'notes' => 'nullable|string',
@@ -43,7 +43,7 @@ class AppointmentController extends Controller
 
         // Handle status transitions
         switch ($request->status) {
-            case 'scheduled':
+            case 'accepted':
                 if (!$appointment->accepted_at) {
                     $data['accepted_at'] = now();
                 }
