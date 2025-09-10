@@ -37,9 +37,10 @@ Route::group(
         Auth::routes();
 
         Route::get('/', function () {
-            return redirect()->route('home');
+            return view('welcome');
         });
         Route::get('/home', [HomeController::class, 'index'])->name('home');
+        Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
         // Route::view('/success', "admin.auth.success");
 
         require __DIR__ . '/admin_routes.php';
