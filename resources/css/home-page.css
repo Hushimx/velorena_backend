@@ -41,6 +41,9 @@ body {
 
 .servicesSwiper .swiper-slide {
     height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
 }
 
 .servicesSwiper .service-box {
@@ -56,7 +59,9 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: 10px;
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
 }
 
 .servicesSwiper .service-box:hover {
@@ -154,8 +159,6 @@ body {
 
 .services .service-box {
     background-color: #FFDEA1;
-    width: 200px;
-    height: 200px;
     border-radius: 6px;
     -webkit-box-shadow: 0px 0px 5px 2px #fff3cd;
     -moz-box-shadow: 0px 0px 5px 2px #fff3cd;
