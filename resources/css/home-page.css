@@ -1,4 +1,5 @@
 /* Home Page Styles */
+/* Global styles */
 * {
     margin: 0;
     padding: 0;
@@ -8,70 +9,75 @@
 body {
     font-family: 'Cairo', sans-serif;
     background: linear-gradient(180deg, #FFEBC6 0%, #FFFFFF 100%);
-    min-height: 100vh;
     direction: rtl;
 }
 
-.header {
-    background: transparent;
-    padding: 1rem 0;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    width: 100%;
-}
 
-.header::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 60px;
-    height: 100%;
-    background: transparent;
-}
+/* navbar styles */
 
-.nav-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: white;
-}
-
-.logo-image {
-    height: 50px;
+.navbar-brand-logo {
+    height: 70px;
     width: auto;
     object-fit: contain;
 }
 
-.nav-links {
-    display: flex;
-    gap: 2rem;
-    list-style: none;
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link.show {
+    color: #000;
+    font-weight: bold;
 }
 
-.nav-links a {
-    color: white;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s ease;
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active:hover {
+    color: #c4a700;
 }
 
-.nav-links a:hover,
-.nav-links a.active {
-    color: #FFD700;
+/* end navbar styles */
+
+/* main content styles */
+
+.main-content {
+    min-height: calc(100vh - 96px);
 }
+
+.main-content .main-headline {
+    font-family: 'Caveat', cursive;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #2C2C2C;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    animation: fadeInUp 0.8s ease forwards;
+}
+
+.main-content .sub-headline {
+    font-size: 1.2rem;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    animation: fadeInUp 0.8s ease 0.2s forwards;
+    opacity: 0;
+}
+
+/* end main content styles */
+
+/* services styles */
+
+.services .service-box {
+    background-color: #FFDEA1;
+    width: 200px;
+    height: 200px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0px 0px 5px 2px #fff3cd;
+    -moz-box-shadow: 0px 0px 5px 2px #fff3cd;
+    -o-box-shadow: 0px 0px 5px 2px #fff3cd;
+    box-shadow: 0px 0px 5px 2px #fff3cd;
+}
+
+/* end services styles */
+
+/* ======================================== */
+
 
 .appointment-btn {
     background: #2C2C2C;
@@ -94,16 +100,6 @@ body {
     background: #404040;
 }
 
-.main-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 6rem 2rem 4rem 2rem;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: center;
-    min-height: 100vh;
-}
 
 .product-display {
     position: relative;
@@ -234,24 +230,6 @@ body {
     object-fit: cover;
 }
 
-.main-headline {
-    font-family: 'Caveat', cursive;
-    font-size: 3.5rem;
-    font-weight: 700;
-    color: #2C2C2C;
-    line-height: 1.2;
-    margin-bottom: 1.5rem;
-    animation: fadeInUp 0.8s ease forwards;
-}
-
-.sub-headline {
-    font-size: 1.2rem;
-    color: #666;
-    line-height: 1.6;
-    margin-bottom: 2rem;
-    animation: fadeInUp 0.8s ease 0.2s forwards;
-    opacity: 0;
-}
 
 .print-btn {
     background: #2C2C2C;
@@ -306,6 +284,7 @@ body {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -313,9 +292,12 @@ body {
 }
 
 @keyframes float {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(0px);
     }
+
     50% {
         transform: translateY(-10px);
     }
@@ -404,7 +386,6 @@ body {
     background: #2C2C2C;
     color: #FFEBC6;
     padding: 3rem 0 1rem 0;
-    margin-top: 4rem;
 }
 
 .footer-container {
@@ -519,49 +500,44 @@ body {
 }
 
 @media (max-width: 768px) {
-    .main-content {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-        padding: 2rem 1rem;
-    }
-    
+
     .main-headline {
         font-size: 2rem;
     }
-    
+
     .nav-links {
         display: none;
     }
-    
+
     .product-stack {
         width: 250px;
         height: 300px;
     }
-    
+
     .product-box {
         width: 150px;
         height: 90px;
     }
-    
+
     .footer-content {
         grid-template-columns: 1fr;
         gap: 2rem;
         text-align: center;
     }
-    
+
     .social-icons {
         justify-content: center;
     }
-    
+
     .features-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
-    
+
     .section-title {
         font-size: 2.5rem;
     }
-    
+
     .feature-card {
         padding: 2rem 1.5rem;
     }
