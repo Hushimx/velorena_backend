@@ -16,9 +16,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    {{-- owl.carousel --}}
-    <link rel="stylesheet" href="{{ asset('assets/css/owl.theme.default.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/css/home-page.css', 'resources/js/app.js'])
 </head>
@@ -31,37 +30,55 @@
     <div class="services">
         <h2 class="text-center fb-bold">{{ trans('Services') }}</h2>
         <div class="container">
-            <div class="owl-carousel">
-                <!-- Card 1 -->
-                <div
-                    class="item d-flex flex-column align-items-center justify-content-center service-box py-4 mx-2 flex-fill">
-                    <i class="fa fa-print fa-3x mb-3 text-primary"></i>
-                    <h3 class="mb-2">{{ trans('Printing') }}</h3>
+            <!-- Swiper -->
+            <div class="swiper servicesSwiper">
+                <div class="swiper-wrapper">
+                    <!-- Slide 1 -->
+                    <div class="swiper-slide">
+                        <div class="service-box d-flex flex-column align-items-center justify-content-center py-4">
+                            <i class="fas fa-print fa-3x mb-3 text-primary"></i>
+                            <h3 class="mb-2">{{ trans('Printing') }}</h3>
+                            <p class="text-center">High quality printing services</p>
+                        </div>
+                    </div>
+                    <!-- Slide 2 -->
+                    <div class="swiper-slide">
+                        <div class="service-box d-flex flex-column align-items-center justify-content-center py-4">
+                            <i class="fas fa-paint-brush fa-3x mb-3 text-success"></i>
+                            <h3 class="mb-2">{{ trans('Design') }}</h3>
+                            <p class="text-center">Professional design services</p>
+                        </div>
+                    </div>
+                    <!-- Slide 3 -->
+                    <div class="swiper-slide">
+                        <div class="service-box d-flex flex-column align-items-center justify-content-center py-4">
+                            <i class="fas fa-shipping-fast fa-3x mb-3 text-warning"></i>
+                            <h3 class="mb-2">{{ trans('Delivery') }}</h3>
+                            <p class="text-center">Fast and reliable delivery</p>
+                        </div>
+                    </div>
+                    <!-- Slide 4 -->
+                    <div class="swiper-slide">
+                        <div class="service-box d-flex flex-column align-items-center justify-content-center py-4">
+                            <i class="fas fa-cogs fa-3x mb-3 text-info"></i>
+                            <h3 class="mb-2">Customization</h3>
+                            <p class="text-center">Custom solutions for your needs</p>
+                        </div>
+                    </div>
+                    <!-- Slide 5 -->
+                    <div class="swiper-slide">
+                        <div class="service-box d-flex flex-column align-items-center justify-content-center py-4">
+                            <i class="fas fa-headset fa-3x mb-3 text-danger"></i>
+                            <h3 class="mb-2">Support</h3>
+                            <p class="text-center">24/7 customer support</p>
+                        </div>
+                    </div>
                 </div>
-                <!-- Card 2 -->
-                <div
-                    class="item d-flex flex-column align-items-center justify-content-center service-box py-4 mx-2 flex-fill">
-                    <i class="fa fa-paint-brush fa-3x mb-3 text-success"></i>
-                    <h3 class="mb-2">{{ trans('Design') }}</h3>
-                </div>
-                <!-- Card 3 -->
-                <div
-                    class="item d-flex flex-column align-items-center justify-content-center service-box py-4 mx-2 flex-fill">
-                    <i class="fa fa-shipping-fast fa-3x mb-3 text-warning"></i>
-                    <h3 class="mb-2">{{ trans('Delivery') }}</h3>
-                </div>
-                <!-- Card 3 -->
-                <div
-                    class="item d-flex flex-column align-items-center justify-content-center service-box py-4 mx-2 flex-fill">
-                    <i class="fa fa-shipping-fast fa-3x mb-3 text-warning"></i>
-                    <h3 class="mb-2">{{ trans('Delivery') }}</h3>
-                </div>
-                <!-- Card 3 -->
-                <div
-                    class="item d-flex flex-column align-items-center justify-content-center service-box py-4 mx-2 flex-fill">
-                    <i class="fa fa-shipping-fast fa-3x mb-3 text-warning"></i>
-                    <h3 class="mb-2">{{ trans('Delivery') }}</h3>
-                </div>
+                <!-- Navigation buttons -->
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+                <!-- Pagination -->
+                <div class="swiper-pagination"></div>
             </div>
         </div>
     </div>
@@ -146,8 +163,8 @@
         <!-- Content Section -->
         <div class="content-section">
             <div class="content-background">
-                <img src="https://placehold.co/400x300/FFEBC6/2C2C2C?text=High+Quality+Printing" alt="Printing Services"
-                    class="background-image">
+                <img src="https://placehold.co/400x300/FFEBC6/2C2C2C?text=High+Quality+Printing"
+                    alt="Printing Services" class="background-image">
             </div>
             <h1 class="main-headline">{{ trans('Print Your Design Now with the Highest Quality') }}</h1>
             <p class="sub-headline">
@@ -172,11 +189,46 @@
     {{-- bootstrap --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('assets/js/jquery-3.7.1.min.js') }}"></script>
-    <script src="{{ asset('assets/js/owl.carousel.min.js') }}"></script>
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="{{ asset('assets/js/main.js') }}"></script>
     <script>
-        // Add some interactive animations
+        // Initialize Swiper
         document.addEventListener('DOMContentLoaded', function() {
+            // Services Swiper
+            const servicesSwiper = new Swiper('.servicesSwiper', {
+                slidesPerView: 1,
+                spaceBetween: 30,
+                loop: true,
+                autoplay: {
+                    delay: 3000,
+                    disableOnInteraction: false,
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+                breakpoints: {
+                    640: {
+                        slidesPerView: 2,
+                        spaceBetween: 20,
+                    },
+                    768: {
+                        slidesPerView: 3,
+                        spaceBetween: 30,
+                    },
+                    1024: {
+                        slidesPerView: 4,
+                        spaceBetween: 40,
+                    },
+                },
+            });
+
+            // Add some interactive animations
             const productBoxes = document.querySelectorAll('.product-box');
 
             productBoxes.forEach((box, index) => {

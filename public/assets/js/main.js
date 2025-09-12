@@ -1,18 +1,2 @@
-$(document).ready(function () {
-    $(".owl-carousel").owlCarousel({
-        loop: true,
-        margin: 10,
-        nav: true,
-        responsive: {
-            0: {
-                items: 1,
-            },
-            600: {
-                items: 3,
-            },
-            1000: {
-                items: 5,
-            },
-        },
-    });
-});
+// Owl Carousel removed - now using Swiper
+// Swiper initialization is handled in the welcome.blade.php file

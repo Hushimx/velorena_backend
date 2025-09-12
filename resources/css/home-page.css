@@ -34,6 +34,95 @@ body {
 
 /* end navbar styles */
 
+/* Swiper Carousel Styles */
+.servicesSwiper {
+    padding: 20px 0 60px 0;
+}
+
+.servicesSwiper .swiper-slide {
+    height: auto;
+}
+
+.servicesSwiper .service-box {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    min-height: 200px;
+    border: 2px solid transparent;
+    padding: 30px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 10px;
+}
+
+.servicesSwiper .service-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: #c4a700;
+}
+
+.servicesSwiper .service-box h3 {
+    color: #2C2C2C;
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.servicesSwiper .service-box p {
+    color: #666;
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.servicesSwiper .service-box i {
+    display: block;
+    margin-bottom: 15px;
+}
+
+/* Swiper Navigation */
+.servicesSwiper .swiper-button-next,
+.servicesSwiper .swiper-button-prev {
+    color: #c4a700;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-top: -20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.servicesSwiper .swiper-button-next:after,
+.servicesSwiper .swiper-button-prev:after {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.servicesSwiper .swiper-button-next:hover,
+.servicesSwiper .swiper-button-prev:hover {
+    background: #c4a700;
+    color: white;
+}
+
+/* Swiper Pagination */
+.servicesSwiper .swiper-pagination-bullet {
+    background: #ddd;
+    opacity: 1;
+    width: 12px;
+    height: 12px;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+}
+
+.servicesSwiper .swiper-pagination-bullet-active {
+    background: #c4a700;
+    transform: scale(1.2);
+}
+
 /* main content styles */
 
 .main-content {
