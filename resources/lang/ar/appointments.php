@@ -1,0 +1,70 @@
+<?php
+
+return [
+  // Appointment Statuses
+  'pending' => 'معلق',
+  'accepted' => 'مقبول',
+  'completed' => 'مكتمل',
+  'cancelled' => 'ملغي',
+  'rejected' => 'مرفوض',
+
+  // Appointment Actions
+  'view' => 'عرض',
+  'cancel' => 'إلغاء',
+  'reschedule' => 'إعادة جدولة',
+
+  // Appointment Details
+  'appointment_details' => 'تفاصيل الموعد',
+  'consultation_details' => 'تفاصيل الاستشارة',
+  'meeting_details' => 'تفاصيل الاجتماع',
+
+  // Time and Date
+  'appointment_time' => 'وقت الموعد',
+  'appointment_date' => 'تاريخ الموعد',
+  'duration' => 'المدة',
+  'start_time' => 'وقت البداية',
+  'end_time' => 'وقت النهاية',
+
+  // Status Messages
+  'status_pending' => 'موعدك معلق للموافقة',
+  'status_accepted' => 'تم قبول موعدك',
+  'status_completed' => 'تم إكمال موعدك',
+  'status_cancelled' => 'تم إلغاء موعدك',
+  'status_rejected' => 'تم رفض موعدك',
+
+  // Messages
+  'no_appointments_found' => 'لم يتم العثور على مواعيد',
+  'appointment_not_found' => 'الموعد غير موجود',
+  'appointment_successfully_created' => 'تم إنشاء الموعد بنجاح',
+  'appointment_successfully_cancelled' => 'تم إلغاء الموعد بنجاح',
+  'appointment_successfully_rescheduled' => 'تم إعادة جدولة الموعد بنجاح',
+
+  // Confirmations
+  'confirm_cancel' => 'هل أنت متأكد من إلغاء هذا الموعد؟',
+  'confirm_reschedule' => 'هل أنت متأكد من إعادة جدولة هذا الموعد؟',
+  'confirm_delete' => 'هل أنت متأكد من حذف هذا الموعد؟',
+
+  // Errors
+  'appointment_cannot_be_cancelled' => 'لا يمكن إلغاء هذا الموعد',
+  'appointment_cannot_be_rescheduled' => 'لا يمكن إعادة جدولة هذا الموعد',
+  'invalid_appointment_time' => 'وقت الموعد غير صحيح',
+  'appointment_time_in_past' => 'وقت الموعد لا يمكن أن يكون في الماضي',
+  'appointment_time_conflict' => 'هذه الفترة الزمنية محجوزة بالفعل',
+
+  // Labels
+  'appointment_id' => 'رقم الموعد',
+  'appointment_number' => 'رقم الموعد',
+  'appointment_type' => 'نوع الموعد',
+  'appointment_notes' => 'ملاحظات الموعد',
+  'customer_notes' => 'ملاحظات العميل',
+  'designer_notes' => 'ملاحظات المصمم',
+
+  // Filters
+  'filter_by_status' => 'تصفية حسب الحالة',
+  'filter_by_date' => 'تصفية حسب التاريخ',
+  'filter_by_designer' => 'تصفية حسب المصمم',
+  'all_appointments' => 'جميع المواعيد',
+  'today_appointments' => 'مواعيد اليوم',
+  'upcoming_appointments' => 'المواعيد القادمة',
+  'past_appointments' => 'المواعيد السابقة',
+];
