@@ -156,6 +156,196 @@ class ProductController extends Controller
     }
 
     /**
+     * Search products with advanced filtering
+     * 
+     * @OA\Get(
+     *     path="/api/products/search",
+     *     operationId="searchProducts",
+     *     tags={"Products"},
+     *     summary="Search products with advanced filtering",
+     *     description="Search products by name, description, category, price range, and other criteria with pagination support.",
+     *     @OA\Parameter(
+     *         name="q",
+     *         in="query",
+     *         description="Search query to match against product names and descriptions in English and Arabic",
+     *         required=true,
+     *         @OA\Schema(type="string", example="business card")
+     *     ),
+     *     @OA\Parameter(
+     *         name="category_id",
+     *         in="query",
+     *         description="Filter by specific category ID",
+     *         required=false,
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Parameter(
+     *         name="min_price",
+     *         in="query",
+     *         description="Minimum price filter",
+     *         required=false,
+     *         @OA\Schema(type="number", format="float", example=10.00)
+     *     ),
+     *     @OA\Parameter(
+     *         name="max_price",
+     *         in="query",
+     *         description="Maximum price filter",
+     *         required=false,
+     *         @OA\Schema(type="number", format="float", example=100.00)
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort_by",
+     *         in="query",
+     *         description="Sort field (name, price, created_at, sort_order)",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"name", "price", "created_at", "sort_order"}, example="name")
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort_order",
+     *         in="query",
+     *         description="Sort direction (asc, desc)",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"asc", "desc"}, example="asc")
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Page number for pagination",
+     *         required=false,
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Parameter(
+     *         name="limit",
+     *         in="query",
+     *         description="Number of products per page (1-100)",
+     *         required=false,
+     *         @OA\Schema(type="integer", example=15)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Search results retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="query", type="string", example="business card"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="current_page", type="integer", example=1),
+     *                 @OA\Property(
+     *                     property="data",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="id", type="integer", example=1),
+     *                         @OA\Property(property="name", type="string", example="Standard Business Cards"),
+     *                         @OA\Property(property="name_ar", type="string", example="بطاقات عمل قياسية"),
+     *                         @OA\Property(property="description", type="string", example="Professional business cards"),
+     *                         @OA\Property(property="base_price", type="string", example="50.00"),
+     *                         @OA\Property(property="image", type="string", nullable=true),
+     *                         @OA\Property(
+     *                             property="category",
+     *                             type="object",
+     *                             @OA\Property(property="id", type="integer", example=1),
+     *                             @OA\Property(property="name", type="string", example="Business Cards"),
+     *                             @OA\Property(property="name_ar", type="string", example="بطاقات عمل")
+     *                         )
+     *                     )
+     *                 ),
+     *                 @OA\Property(property="per_page", type="integer", example=15),
+     *                 @OA\Property(property="total", type="integer", example=5),
+     *                 @OA\Property(property="last_page", type="integer", example=1)
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation failed",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(property="q", type="array", @OA\Items(type="string", example="The q field is required."))
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function search(Request $request): JsonResponse
+    {
+        $request->validate([
+            'q' => 'required|string|min:2|max:255',
+            'category_id' => 'nullable|integer|exists:categories,id',
+            'min_price' => 'nullable|numeric|min:0',
+            'max_price' => 'nullable|numeric|min:0|gte:min_price',
+            'sort_by' => 'nullable|string|in:name,price,created_at,sort_order',
+            'sort_order' => 'nullable|string|in:asc,desc',
+            'page' => 'nullable|integer|min:1',
+            'limit' => 'nullable|integer|min:1|max:100'
+        ]);
+
+        $query = Product::query()->where('is_active', true);
+        $searchTerm = $request->get('q');
+
+        // Search in name and description (English and Arabic)
+        $query->where(function ($q) use ($searchTerm) {
+            $q->where('name', 'like', "%{$searchTerm}%")
+              ->orWhere('name_ar', 'like', "%{$searchTerm}%")
+              ->orWhere('description', 'like', "%{$searchTerm}%")
+              ->orWhere('description_ar', 'like', "%{$searchTerm}%");
+        });
+
+        // Filter by category
+        if ($request->has('category_id')) {
+            $query->where('category_id', $request->get('category_id'));
+        }
+
+        // Filter by price range
+        if ($request->has('min_price')) {
+            $query->where('base_price', '>=', $request->get('min_price'));
+        }
+
+        if ($request->has('max_price')) {
+            $query->where('base_price', '<=', $request->get('max_price'));
+        }
+
+        // Sorting
+        $sortBy = $request->get('sort_by', 'sort_order');
+        $sortOrder = $request->get('sort_order', 'asc');
+
+        // Handle different sort fields
+        switch ($sortBy) {
+            case 'name':
+                $query->orderBy('name', $sortOrder);
+                break;
+            case 'price':
+                $query->orderBy('base_price', $sortOrder);
+                break;
+            case 'created_at':
+                $query->orderBy('created_at', $sortOrder);
+                break;
+            case 'sort_order':
+            default:
+                $query->orderBy('sort_order', $sortOrder)
+                      ->orderBy('name', 'asc');
+                break;
+        }
+
+        // Pagination
+        $limit = $request->get('limit', 15);
+        $limit = min(max((int) $limit, 1), 100);
+
+        $products = $query->with(['category', 'options.values'])
+            ->paginate($limit);
+
+        return response()->json([
+            'success' => true,
+            'query' => $searchTerm,
+            'data' => $products
+        ]);
+    }
+
+    /**
      * Display the specified product
      * 
      * @OA\Get(

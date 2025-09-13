@@ -140,3 +140,4 @@ class AvailabilitySlotController extends Controller
             ->with('success', __('admin.availability_slot_status_updated', ['status' => $status]));
     }
 }
+

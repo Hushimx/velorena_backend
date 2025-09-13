@@ -232,7 +232,7 @@
             <!-- Copyright -->
             <div class="footer-bottom">
                 <p>جميع الحقوق محفوظة - 2025 Qaads</p>
-            </div>
+                </div>
         </div>
     </footer>
 
