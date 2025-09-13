@@ -81,4 +81,7 @@ return [
     "no_products_found_description" => "حاول تعديل البحث أو معايير التصفية للعثور على ما تبحث عنه.",
     "add_to_favorites" => "إضافة إلى المفضلة",
     "related_products" => "المنتجات ذات الصلة",
+    "highlights" => "المميزات",
+    "no_highlights" => "لا توجد مميزات",
+    "assign_highlights" => "تعيين المميزات",
 ];

@@ -42,6 +42,9 @@
                             {{ trans('products.base_price') }}
                         </th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {{ trans('products.highlights') }}
+                        </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                             {{ trans('products.status') }}
                         </th>
                         <th
@@ -84,6 +87,17 @@
                                 {{ number_format($product->base_price, 2) }} {{ trans('products.currency') }}
                             </td>
                             <td class="p-3 whitespace-nowrap text-center">
+                                <div class="flex flex-wrap gap-1 justify-center">
+                                    @forelse($product->highlights as $highlight)
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            {{ $highlight->name }}
+                                        </span>
+                                    @empty
+                                        <span class="text-gray-400 text-xs">{{ trans('products.no_highlights') }}</span>
+                                    @endforelse
+                                </div>
+                            </td>
+                            <td class="p-3 whitespace-nowrap text-center">
                                 @if ($product->is_active)
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -115,6 +129,13 @@
                                         <span>{{ trans('products.edit') }}</span>
                                     </a>
 
+                                    <!-- Assign Highlights Button -->
+                                    <a href="{{ route('admin.products.assign-highlights', $product) }}"
+                                        class="inline-flex items-center gap-2 px-3 mx-2 py-1.5 border border-transparent text-xs font-medium rounded-md text-purple-700 bg-purple-100 hover:bg-purple-200 transition duration-150 ease-in-out">
+                                        <i class="fas fa-star"></i>
+                                        <span>{{ trans('products.assign_highlights') }}</span>
+                                    </a>
+
                                     <!-- Delete Button -->
                                     <button wire:click="confirmDelete({{ $product->id }})"
                                         wire:key="delete-{{ $product->id }}"
@@ -127,7 +148,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
                                 {{ trans('products.no_products_exist') }}</td>
                         </tr>
                     @endforelse

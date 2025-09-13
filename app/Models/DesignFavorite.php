@@ -13,7 +13,9 @@ class DesignFavorite extends Model
     protected $fillable = [
         'user_id',
         'design_id',
-        'notes'
+        'notes',
+        'custom_image_url',
+        'image_type'
     ];
 
     // Relationships

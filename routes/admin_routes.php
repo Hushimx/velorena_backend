@@ -58,6 +58,30 @@ Route::prefix('admin')->group(function () {
             Route::resource('admins', \App\Http\Controllers\Admin\AdminResourceController::class);
             Route::resource('availability-slots', \App\Http\Controllers\Admin\AvailabilitySlotController::class);
             Route::patch('availability-slots/{availabilitySlot}/toggle-status', [\App\Http\Controllers\Admin\AvailabilitySlotController::class, 'toggleStatus'])->name('availability-slots.toggle-status');
+            
+            // Highlights management routes
+            Route::resource('highlights', \App\Http\Controllers\Admin\HighlightController::class);
+            Route::get('products/{product}/assign-highlights', [\App\Http\Controllers\Admin\HighlightController::class, 'assignToProduct'])->name('products.assign-highlights');
+            Route::post('products/{product}/assign-highlights', [\App\Http\Controllers\Admin\HighlightController::class, 'storeProductHighlights'])->name('products.store-highlights');
+            
+            // Home banners management routes
+            Route::get('home-banners', [\App\Http\Controllers\Admin\HomeBannerController::class, 'index'])->name('home-banners.index');
+            Route::get('home-banners/create', [\App\Http\Controllers\Admin\HomeBannerController::class, 'create'])->name('home-banners.create');
+            Route::post('home-banners', [\App\Http\Controllers\Admin\HomeBannerController::class, 'store'])->name('home-banners.store');
+            Route::get('home-banners/{home_banner}', [\App\Http\Controllers\Admin\HomeBannerController::class, 'show'])->name('home-banners.show');
+            Route::get('home-banners/{home_banner}/edit', [\App\Http\Controllers\Admin\HomeBannerController::class, 'edit'])->name('home-banners.edit');
+            Route::put('home-banners/{home_banner}', [\App\Http\Controllers\Admin\HomeBannerController::class, 'update'])->name('home-banners.update');
+            Route::delete('home-banners/{home_banner}', [\App\Http\Controllers\Admin\HomeBannerController::class, 'destroy'])->name('home-banners.destroy');
+            
+            
+            // Support Tickets management routes
+            Route::resource('support-tickets', \App\Http\Controllers\Admin\SupportTicketController::class);
+            Route::post('support-tickets/{supportTicket}/assign', [\App\Http\Controllers\Admin\SupportTicketController::class, 'assign'])->name('support-tickets.assign');
+            Route::post('support-tickets/{supportTicket}/replies', [\App\Http\Controllers\Admin\SupportTicketController::class, 'addReply'])->name('support-tickets.add-reply');
+            Route::put('support-tickets/replies/{reply}', [\App\Http\Controllers\Admin\SupportTicketController::class, 'updateReply'])->name('support-tickets.update-reply');
+            Route::delete('support-tickets/replies/{reply}', [\App\Http\Controllers\Admin\SupportTicketController::class, 'deleteReply'])->name('support-tickets.delete-reply');
+            Route::post('support-tickets/bulk-action', [\App\Http\Controllers\Admin\SupportTicketController::class, 'bulkAction'])->name('support-tickets.bulk-action');
+            Route::get('support-tickets-statistics', [\App\Http\Controllers\Admin\SupportTicketController::class, 'statistics'])->name('support-tickets.statistics');
         });
     });
 });

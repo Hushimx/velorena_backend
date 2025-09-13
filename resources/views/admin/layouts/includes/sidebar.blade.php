@@ -79,6 +79,10 @@
                     <i class="fas fa-tags"></i>
                     <span>{{ __('admin.categories') }}</span>
                 </a>
+                <a href="{{ route('admin.highlights.index') }}" class="sidebar-link tree-child {{ request()->routeIs('admin.highlights.*') ? 'active' : '' }}">
+                    <i class="fas fa-star"></i>
+                    <span>{{ __('admin.highlights_management') }}</span>
+                </a>
             </div>
         </div>
 
@@ -87,6 +91,33 @@
             <i class="fas fa-calendar-alt"></i>
             <span>{{ __('admin.appointments') }}</span>
         </a>
+
+        <!-- Support Tickets Tree -->
+        <div class="tree-item">
+            <a href="{{ route('admin.support-tickets.index') }}" class="sidebar-link {{ request()->routeIs('admin.support-tickets.*') ? 'active' : '' }}" onclick="toggleTree(event, 'support-tickets-tree')">
+                <i class="fas fa-ticket-alt"></i>
+                <span>{{ __('admin.support_tickets') }}</span>
+                <i class="fas fa-chevron-left tree-toggle" id="support-tickets-toggle"></i>
+            </a>
+            <div class="tree-children" id="support-tickets-tree">
+                <a href="{{ route('admin.support-tickets.index') }}" class="sidebar-link tree-child {{ request()->routeIs('admin.support-tickets.index') ? 'active' : '' }}">
+                    <i class="fas fa-list"></i>
+                    <span>{{ __('admin.all_tickets') }}</span>
+                </a>
+                <a href="{{ route('admin.support-tickets.index', ['status' => 'open']) }}" class="sidebar-link tree-child {{ request()->get('status') === 'open' ? 'active' : '' }}">
+                    <i class="fas fa-folder-open text-green-500"></i>
+                    <span>{{ __('admin.open_tickets') }}</span>
+                </a>
+                <a href="{{ route('admin.support-tickets.index', ['status' => 'in_progress']) }}" class="sidebar-link tree-child {{ request()->get('status') === 'in_progress' ? 'active' : '' }}">
+                    <i class="fas fa-cog text-blue-500"></i>
+                    <span>{{ __('admin.in_progress_tickets') }}</span>
+                </a>
+                <a href="{{ route('admin.support-tickets.statistics') }}" class="sidebar-link tree-child {{ request()->routeIs('admin.support-tickets.statistics') ? 'active' : '' }}">
+                    <i class="fas fa-chart-bar text-purple-500"></i>
+                    <span>{{ __('admin.ticket_statistics') }}</span>
+                </a>
+            </div>
+        </div>
 
         <!-- Availability Slots -->
         <a href="{{ route('admin.availability-slots.index') }}" class="sidebar-link {{ request()->routeIs('admin.availability-slots.*') ? 'active' : '' }}">
@@ -111,6 +142,21 @@
             <i class="fas fa-user-friends"></i>
             <span>{{ __('admin.leads') }}</span>
         </a>
+
+        <!-- Settings Tree -->
+        <div class="tree-item">
+            <a href="#" class="sidebar-link {{ request()->routeIs('admin.home-banners.*') ? 'active' : '' }}" onclick="toggleTree(event, 'settings-tree')">
+                <i class="fas fa-cog"></i>
+                <span>{{ __('admin.settings') }}</span>
+                <i class="fas fa-chevron-left tree-toggle" id="settings-toggle"></i>
+            </a>
+            <div class="tree-children" id="settings-tree">
+                <a href="{{ route('admin.home-banners.index') }}" class="sidebar-link tree-child {{ request()->routeIs('admin.home-banners.*') ? 'active' : '' }}">
+                    <i class="fas fa-images"></i>
+                    <span>{{ __('admin.home_banners_management') }}</span>
+                </a>
+            </div>
+        </div>
 
         <!-- Admins -->
         <a href="{{ route('admin.admins.index') }}" class="sidebar-link {{ request()->routeIs('admin.admins.*') ? 'active' : '' }}">

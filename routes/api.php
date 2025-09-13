@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\DesignController;
+use App\Http\Controllers\Api\SupportTicketController;
 use App\Http\Controllers\CartController;
 
 /*
@@ -58,41 +59,23 @@ Route::prefix('products')->group(function () {
     Route::get('/{product}', [ProductController::class, 'show']);
 });
 
-// ========================================
-// DESIGN SYSTEM ROUTES (PUBLIC)
-// ========================================
-Route::prefix('designs')->group(function () {
-    // GET /api/designs - List all designs with pagination and filtering
-    Route::get('/', [DesignController::class, 'index']);
+Route::prefix('highlights')->group(function () {
+    Route::get('/', [App\Http\Controllers\Api\HighlightController::class, 'index']);
+    Route::get('/{highlight}', [App\Http\Controllers\Api\HighlightController::class, 'show']);
+    Route::get('/{highlight}/products', [App\Http\Controllers\Api\HighlightController::class, 'products']);
+});
 
-    // GET /api/designs/search - Search designs by query
-    Route::get('/search', [DesignController::class, 'search']);
-
-    // GET /api/designs/categories - Get available design categories
-    Route::get('/categories', [DesignController::class, 'categories']);
-
-    // GET /api/designs/{design} - Get specific design details
-    Route::get('/{design}', [DesignController::class, 'show']);
-
-    // POST /api/designs/sync - Sync designs from external API (admin only)
-    Route::post('/sync', [DesignController::class, 'sync']);
+Route::prefix('home-banners')->group(function () {
+    Route::get('/', [App\Http\Controllers\Api\HomeBannerController::class, 'index']);
+    Route::get('/{banner}', [App\Http\Controllers\Api\HomeBannerController::class, 'show']);
 });
 
 // ========================================
-// EXTERNAL DESIGN API ROUTES (PUBLIC - PROTECTED API KEY)
+// DESIGN SYSTEM ROUTES (PUBLIC - Basic Info Only)
 // ========================================
-Route::prefix('external/designs')->group(function () {
-    // GET /api/external/designs/search - Search designs from external API
-    Route::get('/search', [DesignController::class, 'searchExternal']);
-
-    // GET /api/external/designs/category - Get designs by category from external API
-    Route::get('/category', [DesignController::class, 'getExternalByCategory']);
-
-    // GET /api/external/designs/categories - Get available categories from external API
-    Route::get('/categories', [DesignController::class, 'getExternalCategories']);
-
-    // GET /api/external/designs/featured - Get featured designs from external API
-    Route::get('/featured', [DesignController::class, 'getExternalFeatured']);
+Route::prefix('designs')->group(function () {
+    // GET /api/designs/categories - Get available design categories
+    Route::get('/categories', [DesignController::class, 'categories']);
 });
 
 // ========================================
@@ -178,4 +161,106 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     });
+
+    // ========================================
+    // DESIGN SYSTEM ROUTES (AUTHENTICATED)
+    // ========================================
+    Route::prefix('designs')->group(function () {
+        
+        // GET /api/designs/search
+        // Search designs using Freepik API
+        Route::get('/search', [DesignController::class, 'searchExternal']);
+        
+        // GET /api/designs/saved
+        // Get user's saved/favorite designs
+        Route::get('/saved', [DesignController::class, 'getFavorites']);
+        
+        // POST /api/designs/save
+        // Save design to favorites
+        Route::post('/save', [DesignController::class, 'addToFavorites']);
+        
+        // PUT /api/designs/favorite/{design}
+        // Edit favorite design and replace with new image
+        Route::put('/favorite/{design}', [DesignController::class, 'updateFavorite']);
+        
+        // DELETE /api/designs/favorite/{design}
+        // Remove design from favorites
+        Route::delete('/favorite/{design}', [DesignController::class, 'removeFromFavorites']);
+        
+        // GET /api/designs/{design}
+        // Get specific design details
+        Route::get('/{design}', [DesignController::class, 'show']);
+        
+    });
+
+    // ========================================
+    // SUPPORT TICKETS ROUTES
+    // ========================================
+    Route::prefix('support-tickets')->group(function () {
+        
+        // GET /api/support-tickets
+        // Get user's support tickets with filtering and pagination
+        Route::get('/', [SupportTicketController::class, 'index']);
+        
+        // POST /api/support-tickets
+        // Create a new support ticket
+        Route::post('/', [SupportTicketController::class, 'store']);
+        
+        // GET /api/support-tickets/statistics
+        // Get support ticket statistics for the authenticated user
+        Route::get('/statistics', [SupportTicketController::class, 'statistics']);
+        
+        // GET /api/support-tickets/{id}
+        // Get a specific support ticket with replies
+        Route::get('/{supportTicket}', [SupportTicketController::class, 'show']);
+        
+        // POST /api/support-tickets/{id}/replies
+        // Add a reply to a support ticket
+        Route::post('/{supportTicket}/replies', [SupportTicketController::class, 'addReply']);
+        
+        // GET /api/support-tickets/{id}/replies
+        // Get replies for a specific support ticket
+        Route::get('/{supportTicket}/replies', [SupportTicketController::class, 'getReplies']);
+        
+    });
+
+    // Payment routes
+    Route::prefix('payments')->group(function () {
+        // POST /api/payments/create-charge
+        // Create a payment charge
+        Route::post('/create-charge', [App\Http\Controllers\Api\TapPaymentController::class, 'createCharge']);
+        
+        // GET /api/payments/status
+        // Get payment status by charge ID
+        Route::get('/status', [App\Http\Controllers\Api\TapPaymentController::class, 'getPaymentStatus']);
+        
+        // POST /api/payments/refund
+        // Create a refund
+        Route::post('/refund', [App\Http\Controllers\Api\TapPaymentController::class, 'createRefund']);
+        
+        // GET /api/payments/test-cards
+        // Get test card numbers for testing
+        Route::get('/test-cards', [App\Http\Controllers\Api\TapPaymentController::class, 'getTestCards']);
+    });
 });
+
+// Unauthenticated routes for testing
+Route::prefix('test')->group(function () {
+    // Test payment routes (no authentication required)
+    Route::prefix('payments')->group(function () {
+        // POST /api/test/payments/create-charge
+        // Create a test payment charge (no auth required)
+        Route::post('/create-charge', [App\Http\Controllers\Api\TapPaymentController::class, 'createTestCharge']);
+        
+        // GET /api/test/payments/status
+        // Get test payment status by charge ID (no auth required)
+        Route::get('/status', [App\Http\Controllers\Api\TapPaymentController::class, 'getTestPaymentStatus']);
+        
+        // GET /api/test/payments/test-cards
+        // Get test card numbers for testing (no auth required)
+        Route::get('/test-cards', [App\Http\Controllers\Api\TapPaymentController::class, 'getTestCards']);
+    });
+});
+
+// Webhook routes (no authentication required)
+Route::post('/webhooks/tap', [App\Http\Controllers\Api\TapPaymentController::class, 'webhook']);

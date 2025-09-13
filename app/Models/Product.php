@@ -56,4 +56,31 @@ class Product extends Model
             ->wherePivot('user_id', $userId)
             ->orderByPivot('priority');
     }
+
+    // Relationship with highlights through product_highlights pivot table
+    public function highlights(): BelongsToMany
+    {
+        return $this->belongsToMany(Highlight::class, 'product_highlights')
+            ->withPivot('sort_order')
+            ->withTimestamps()
+            ->orderByPivot('sort_order');
+    }
+
+    /**
+     * Scope to get products with highlights
+     */
+    public function scopeWithHighlights($query)
+    {
+        return $query->with('highlights');
+    }
+
+    /**
+     * Scope to filter products by highlight
+     */
+    public function scopeByHighlight($query, $highlightId)
+    {
+        return $query->whereHas('highlights', function ($q) use ($highlightId) {
+            $q->where('highlights.id', $highlightId);
+        });
+    }
 }

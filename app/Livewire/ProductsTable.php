@@ -70,7 +70,7 @@ class ProductsTable extends Component
 
     public function render()
     {
-        $products = Product::with('category')
+        $products = Product::with(['category', 'highlights'])
             ->when($this->search, function ($query, $search) {
                 $query->where(function ($subQuery) use ($search) {
                     $subQuery->where('name', 'like', "%{$search}%")

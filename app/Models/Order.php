@@ -57,6 +57,12 @@ class Order extends Model
         return $this->hasOne(Appointment::class);
     }
 
+    // Relationship with payments (one-to-many)
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
     // Generate unique order number
     public static function generateOrderNumber(): string
     {

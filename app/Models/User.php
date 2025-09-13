@@ -155,4 +155,20 @@ class User extends Authenticatable
     {
         return $this->vat_document_path ? Storage::url($this->vat_document_path) : null;
     }
+
+    /**
+     * User's support tickets
+     */
+    public function supportTickets(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SupportTicket::class);
+    }
+
+    /**
+     * User's support ticket replies
+     */
+    public function supportTicketReplies(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SupportTicketReply::class);
+    }
 }

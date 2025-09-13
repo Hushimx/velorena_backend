@@ -46,4 +46,11 @@ return [
         'account_id' => env('ZOOM_ACCOUNT_ID'),
     ],
 
+    'tap' => [
+        'secret_key' => env('TAP_SECRET_KEY'),
+        'public_key' => env('TAP_PUBLIC_KEY'),
+        'test_mode' => env('TAP_TEST_MODE', true),
+        'webhook_secret' => env('TAP_WEBHOOK_SECRET'),
+    ],
+
 ];
