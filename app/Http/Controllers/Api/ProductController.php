@@ -144,7 +144,7 @@ class ProductController extends Controller
         $limit = $request->get('limit', 15);
         $limit = min(max((int) $limit, 1), 100); // Ensure limit is between 1 and 100
 
-        $products = $query->with(['category', 'options.values'])
+        $products = $query->with(['category', 'options.values', 'highlights'])
             ->orderBy('sort_order')
             ->orderBy('name')
             ->paginate($limit);
@@ -335,7 +335,7 @@ class ProductController extends Controller
         $limit = $request->get('limit', 15);
         $limit = min(max((int) $limit, 1), 100);
 
-        $products = $query->with(['category', 'options.values'])
+        $products = $query->with(['category', 'options.values', 'highlights'])
             ->paginate($limit);
 
         return response()->json([
@@ -427,7 +427,7 @@ class ProductController extends Controller
      */
     public function show(Product $product): JsonResponse
     {
-        $product->load(['category', 'options.values']);
+        $product->load(['category', 'options.values', 'highlights']);
 
         return response()->json([
             'success' => true,

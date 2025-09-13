@@ -28,4 +28,20 @@ class Admin extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Admin's assigned support tickets
+     */
+    public function assignedSupportTickets(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SupportTicket::class, 'assigned_to');
+    }
+
+    /**
+     * Admin's support ticket replies
+     */
+    public function supportTicketReplies(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SupportTicketReply::class);
+    }
 }

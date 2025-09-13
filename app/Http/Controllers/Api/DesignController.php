@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class DesignController extends Controller
 {
@@ -180,25 +181,45 @@ class DesignController extends Controller
     /**
      * Add design to user favorites
      */
-    public function addToFavorites(Request $request, Design $design): JsonResponse
+    public function addToFavorites(Request $request): JsonResponse
     {
-        $user = Auth::user();
+        $request->validate([
+            'design_id' => 'required|integer|exists:designs,id',
+            'notes' => 'nullable|string|max:1000',
+            'custom_image' => 'nullable|file|mimes:jpg,jpeg,png,pdf,psd,ai|max:10240', // 10MB max
+            'image_type' => 'nullable|string|in:edited,custom,modified'
+        ]);
 
-        if (!$design->is_active) {
+        $user = Auth::user();
+        $designId = $request->get('design_id');
+        
+        $design = Design::find($designId);
+        if (!$design || !$design->is_active) {
             return response()->json([
                 'success' => false,
                 'message' => 'Design not found'
             ], 404);
         }
 
+        $favoriteData = [
+            'notes' => $request->get('notes')
+        ];
+
+        // Handle custom image upload
+        if ($request->hasFile('custom_image')) {
+            $file = $request->file('custom_image');
+            $filename = time() . '_' . $user->id . '_' . $designId . '_custom.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('designs/custom', $filename, 'public');
+            $favoriteData['custom_image_url'] = Storage::url($path);
+            $favoriteData['image_type'] = $request->get('image_type', 'edited');
+        }
+
         $favorite = DesignFavorite::updateOrCreate(
             [
                 'user_id' => $user->id,
-                'design_id' => $design->id
+                'design_id' => $designId
             ],
-            [
-                'notes' => $request->get('notes')
-            ]
+            $favoriteData
         );
 
         return response()->json([
@@ -209,27 +230,101 @@ class DesignController extends Controller
     }
 
     /**
+     * Update favorite design and replace with new image
+     */
+    public function updateFavorite(Request $request, Design $design): JsonResponse
+    {
+        $request->validate([
+            'new_design_id' => 'required|integer|exists:designs,id',
+            'notes' => 'nullable|string|max:1000',
+            'custom_image' => 'nullable|file|mimes:jpg,jpeg,png,pdf,psd,ai|max:10240', // 10MB max
+            'image_type' => 'nullable|string|in:edited,custom,modified'
+        ]);
+
+        $user = Auth::user();
+        $newDesignId = $request->get('new_design_id');
+        
+        // Check if the new design exists and is active
+        $newDesign = Design::find($newDesignId);
+        if (!$newDesign || !$newDesign->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => 'New design not found'
+            ], 404);
+        }
+
+        // Check if user has the original design in favorites
+        $favorite = DesignFavorite::where('user_id', $user->id)
+            ->where('design_id', $design->id)
+            ->first();
+
+        if (!$favorite) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Design not found in favorites'
+            ], 404);
+        }
+
+        $updateData = [
+            'design_id' => $newDesignId,
+            'notes' => $request->get('notes', $favorite->notes)
+        ];
+
+        // Handle custom image upload
+        if ($request->hasFile('custom_image')) {
+            // Delete old custom image if exists
+            if ($favorite->custom_image_url) {
+                $oldPath = str_replace(Storage::url(''), '', $favorite->custom_image_url);
+                Storage::disk('public')->delete($oldPath);
+            }
+
+            $file = $request->file('custom_image');
+            $filename = time() . '_' . $user->id . '_' . $newDesignId . '_custom.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('designs/custom', $filename, 'public');
+            $updateData['custom_image_url'] = Storage::url($path);
+            $updateData['image_type'] = $request->get('image_type', 'edited');
+        }
+
+        // Update the favorite with new design
+        $favorite->update($updateData);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Favorite design updated successfully',
+            'data' => $favorite->fresh(['design'])
+        ]);
+    }
+
+    /**
      * Remove design from user favorites
      */
     public function removeFromFavorites(Design $design): JsonResponse
     {
         $user = Auth::user();
 
-        $deleted = DesignFavorite::where('user_id', $user->id)
+        $favorite = DesignFavorite::where('user_id', $user->id)
             ->where('design_id', $design->id)
-            ->delete();
+            ->first();
 
-        if ($deleted) {
+        if (!$favorite) {
             return response()->json([
-                'success' => true,
-                'message' => 'Design removed from favorites'
-            ]);
+                'success' => false,
+                'message' => 'Design was not in favorites'
+            ], 404);
         }
 
+        // Delete custom image if exists
+        if ($favorite->custom_image_url) {
+            $path = str_replace(Storage::url(''), '', $favorite->custom_image_url);
+            Storage::disk('public')->delete($path);
+        }
+
+        $favorite->delete();
+
         return response()->json([
-            'success' => false,
-            'message' => 'Design was not in favorites'
-        ], 404);
+            'success' => true,
+            'message' => 'Design removed from favorites'
+        ]);
     }
 
     /**

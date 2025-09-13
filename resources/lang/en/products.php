@@ -81,4 +81,7 @@ return [
     "no_products_found_description" => "Try adjusting your search or filter criteria to find what you're looking for.",
     "add_to_favorites" => "Add to Favorites",
     "related_products" => "Related Products",
+    "highlights" => "Highlights",
+    "no_highlights" => "No Highlights",
+    "assign_highlights" => "Assign Highlights",
 ];

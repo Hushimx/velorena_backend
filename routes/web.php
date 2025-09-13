@@ -91,5 +91,19 @@ Route::group(
             Route::post('/products/{product}/designs/sync', [App\Http\Controllers\ProductDesignController::class, 'syncDesigns'])->name('user.product.designs.sync');
             Route::delete('/products/{product}/designs/{design}', [App\Http\Controllers\ProductDesignController::class, 'destroy'])->name('user.product.designs.destroy');
         });
+
+        // Payment test routes (no authentication required for testing)
+        Route::get('/payment-test', function () {
+            return view('payment.test');
+        })->name('payment.test');
+
+        // Payment success/cancel routes
+        Route::get('/payment/success', function () {
+            return view('payment.success');
+        })->name('payment.success');
+
+        Route::get('/payment/cancel', function () {
+            return view('payment.cancel');
+        })->name('payment.cancel');
     }
 );

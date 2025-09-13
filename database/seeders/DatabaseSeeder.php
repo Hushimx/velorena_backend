@@ -12,6 +12,7 @@ use Database\Seeders\CategorySeeder;
 use Database\Seeders\DesignerSeeder;
 use Database\Seeders\MarketerSeeder;
 use Database\Seeders\LeadSeeder;
+use Database\Seeders\SupportTicketSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -32,6 +33,7 @@ class DatabaseSeeder extends Seeder
             AppointmentSeeder::class,
             LeadSeeder::class,
             OrderSeeder::class,
+            SupportTicketSeeder::class,
         ]);
     }
 }
