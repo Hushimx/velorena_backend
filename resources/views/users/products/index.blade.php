@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('components.layout')
 
 @section('pageTitle', trans('products.products'))
 @section('title', trans('products.products'))
