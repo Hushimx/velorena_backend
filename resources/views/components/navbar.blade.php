@@ -23,7 +23,11 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('cart.*') ? 'active' : '' }}"
-                        href="{{ route('cart.index') }}">{{ trans('cart.shopping_cart') }}</a>
+                        href="{{ route('cart.index') }}">{{ trans('cart.cart') }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('appointments.*') ? 'active' : '' }}"
+                        href="{{ route('appointments.index') }}">{{ trans('Appointments') }}</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">{{ __('AI Design') }}</a>
