@@ -241,6 +241,107 @@
                                     @endif
                                 </div>
                             </div>
+
+                            <!-- Order Items with Designs -->
+                            @if ($appointment->order && $appointment->order->items && $appointment->order->items->count() > 0)
+                                <div class="order-items-section">
+                                    <div class="section-header">
+                                        <div class="section-icon">
+                                            <i class="fas fa-box"></i>
+                                        </div>
+                                        <h5 class="section-title">{{ trans('dashboard.order_items') }}</h5>
+                                    </div>
+                                    <div class="order-items-list">
+                                        @foreach ($appointment->order->items as $item)
+                                            <div class="order-item-card">
+                                                <div class="order-item-content">
+                                                    <!-- Product Image -->
+                                                    <div class="order-item-image">
+                                                        <img src="{{ $item->product->image_url ?? 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjY2NjY2NjIi8+PHRleHQgeD0iNDAiIHk9IjQwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiM2NjY2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Qcm9kdWN0PC90ZXh0Pjwvc3ZnPg==' }}"
+                                                            alt="{{ $item->product->name }}">
+                                                    </div>
+
+                                                    <!-- Product Details -->
+                                                    <div class="order-item-details">
+                                                        <h6 class="order-item-title">{{ $item->product->name }}</h6>
+                                                        <div class="order-item-info">
+                                                            <span
+                                                                class="order-item-quantity">{{ trans('dashboard.quantity') }}:
+                                                                {{ $item->quantity }}</span>
+                                                            <span
+                                                                class="order-item-price">${{ number_format($item->total_price, 2) }}</span>
+                                                        </div>
+
+                                                        <!-- Selected Options -->
+                                                        @if (!empty($item->options) && is_array($item->options))
+                                                            <div class="order-item-options">
+                                                                <h6 class="options-title">
+                                                                    {{ trans('dashboard.selected_options') }}:</h6>
+                                                                <div class="options-list">
+                                                                    @foreach ($item->options as $optionId => $valueId)
+                                                                        @php
+                                                                            $option = \App\Models\ProductOption::find(
+                                                                                $optionId,
+                                                                            );
+                                                                            $value = \App\Models\OptionValue::find(
+                                                                                $valueId,
+                                                                            );
+                                                                        @endphp
+                                                                        @if ($option && $value)
+                                                                            <div class="option-item">
+                                                                                <span
+                                                                                    class="option-name">{{ $option->name }}:</span>
+                                                                                <span
+                                                                                    class="option-value">{{ $value->value }}</span>
+                                                                            </div>
+                                                                        @endif
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        @endif
+
+                                                        <!-- Selected Designs -->
+                                                        @if ($item->designs && $item->designs->count() > 0)
+                                                            <div class="order-item-designs">
+                                                                <h6 class="designs-title">
+                                                                    {{ trans('dashboard.selected_designs') }}:</h6>
+                                                                <div class="designs-list">
+                                                                    @foreach ($item->designs->sortBy('priority') as $orderItemDesign)
+                                                                        <div class="design-item">
+                                                                            <div class="design-thumbnail">
+                                                                                <img src="{{ $orderItemDesign->design->thumbnail_url ?? $orderItemDesign->design->image_url }}"
+                                                                                    alt="{{ $orderItemDesign->design->title }}"
+                                                                                    class="design-thumb">
+                                                                            </div>
+                                                                            <div class="design-info">
+                                                                                <span
+                                                                                    class="design-title">{{ $orderItemDesign->design->title }}</span>
+                                                                                @if (!empty($orderItemDesign->notes))
+                                                                                    <span
+                                                                                        class="design-notes">({{ $orderItemDesign->notes }})</span>
+                                                                                @endif
+                                                                            </div>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        @endif
+
+                                                        <!-- Item Notes -->
+                                                        @if (!empty($item->notes))
+                                                            <div class="order-item-notes">
+                                                                <h6 class="notes-title">{{ trans('dashboard.notes') }}:
+                                                                </h6>
+                                                                <p class="notes-content">{{ $item->notes }}</p>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
                         @endif
 
                         <!-- Designer Response -->
@@ -796,6 +897,7 @@
         /* Section Styles */
         .notes-section,
         .linked-order-section,
+        .order-items-section,
         .designer-response-section,
         .timeline-section {
             background: linear-gradient(135deg, rgba(255, 235, 198, 0.1) 0%, rgba(244, 208, 63, 0.05) 100%);
@@ -808,6 +910,11 @@
         .linked-order-section {
             background: linear-gradient(135deg, rgba(40, 167, 69, 0.05) 0%, rgba(40, 167, 69, 0.1) 100%);
             border-color: rgba(40, 167, 69, 0.2);
+        }
+
+        .order-items-section {
+            background: linear-gradient(135deg, rgba(108, 117, 125, 0.05) 0%, rgba(108, 117, 125, 0.1) 100%);
+            border-color: rgba(108, 117, 125, 0.2);
         }
 
         .designer-response-section {
@@ -1001,6 +1108,161 @@
             box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
         }
 
+        /* Order Items Styles */
+        .order-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .order-item-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .order-item-content {
+            padding: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .order-item-image {
+            flex-shrink: 0;
+        }
+
+        .order-item-image img {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid rgba(255, 235, 198, 0.3);
+        }
+
+        .order-item-details {
+            flex: 1;
+        }
+
+        .order-item-title {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .order-item-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .order-item-quantity {
+            color: #6c757d;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .order-item-price {
+            color: #28a745;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .order-item-options,
+        .order-item-designs,
+        .order-item-notes {
+            margin-bottom: 1rem;
+        }
+
+        .options-title,
+        .designs-title,
+        .notes-title {
+            color: #6c757d;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .option-item {
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+
+        .option-name {
+            font-weight: 600;
+        }
+
+        .option-value {
+            font-style: italic;
+        }
+
+        .designs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .design-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            background: rgba(255, 235, 198, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 235, 198, 0.3);
+        }
+
+        .design-thumbnail {
+            flex-shrink: 0;
+        }
+
+        .design-thumb {
+            width: 50px;
+            height: 50px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .design-info {
+            flex: 1;
+        }
+
+        .design-title {
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .design-notes {
+            color: #6c757d;
+            font-size: 0.8rem;
+            font-style: italic;
+        }
+
+        .notes-content {
+            color: #28a745;
+            font-size: 0.9rem;
+            background: rgba(40, 167, 69, 0.1);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-style: italic;
+            margin: 0;
+            border: 1px solid rgba(40, 167, 69, 0.2);
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .appointment-show-title {
@@ -1040,6 +1302,49 @@
 
             .timeline-grid {
                 grid-template-columns: 1fr;
+            }
+
+            /* Order Items Responsive */
+            .order-item-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .order-item-image {
+                display: flex;
+                justify-content: center;
+            }
+
+            .order-item-image img {
+                width: 100px;
+                height: 100px;
+            }
+
+            .order-item-info {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+
+            .designs-list {
+                gap: 0.75rem;
+            }
+
+            .design-item {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .design-thumb {
+                width: 45px;
+                height: 45px;
+            }
+
+            .design-info {
+                text-align: left;
+                margin-left: 0.5rem;
             }
 
             .actions-section {
