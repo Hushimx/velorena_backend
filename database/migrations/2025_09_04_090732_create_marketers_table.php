@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('phone')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->rememberToken();
             $table->timestamps();
         });
