@@ -421,6 +421,69 @@
             align-items: start;
         }
 
+        /* Better responsive grid for cart items */
+        @media (max-width: 1024px) {
+            .cart-item-content {
+                grid-template-columns: 100px 1fr auto auto;
+                gap: 1.5rem;
+                padding: 1.5rem;
+            }
+        }
+
+        /* Tablet layout */
+        @media (max-width: 992px) {
+            .cart-item-content {
+                grid-template-columns: 80px 1fr auto auto;
+                gap: 1.25rem;
+                padding: 1.25rem;
+            }
+
+            .cart-item-image img {
+                width: 80px;
+                height: 80px;
+            }
+
+            .cart-item-title {
+                font-size: 1.1rem;
+            }
+
+            .quantity-controls {
+                padding: 0.5rem;
+            }
+
+            .quantity-btn {
+                width: 35px;
+                height: 35px;
+                padding: 0.5rem;
+            }
+
+            .quantity-value {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.9rem;
+            }
+
+            .add-design-btn,
+            .remove-item-btn {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .designs-list {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .design-item {
+                max-width: 200px;
+                flex: 1 1 200px;
+            }
+
+            .design-thumb {
+                width: 45px;
+                height: 45px;
+            }
+        }
+
         /* Cart Item Image */
         .cart-item-image {
             flex-shrink: 0;
@@ -1493,10 +1556,45 @@
                 grid-template-columns: 1fr;
                 gap: 1.5rem;
                 text-align: center;
+                padding: 1.5rem;
+            }
+
+            .cart-item-image {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 1rem;
+            }
+
+            .cart-item-image img {
+                width: 120px;
+                height: 120px;
+            }
+
+            .cart-item-details {
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+
+            .cart-item-title {
+                font-size: 1.1rem;
+                margin-bottom: 0.5rem;
             }
 
             .cart-item-quantity {
                 order: -1;
+                margin-bottom: 1rem;
+            }
+
+            .cart-item-actions {
+                flex-direction: column;
+                gap: 0.75rem;
+                width: 100%;
+            }
+
+            .add-design-btn,
+            .remove-item-btn {
+                width: 100%;
+                justify-content: center;
             }
 
             .summary-actions {
@@ -1509,6 +1607,36 @@
                 width: 100%;
                 justify-content: center;
             }
+
+            /* Design items responsive */
+            .designs-list {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+            .design-item {
+                width: 100%;
+                max-width: 300px;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .design-thumbnail {
+                flex-shrink: 0;
+            }
+
+            .design-thumb {
+                width: 50px;
+                height: 50px;
+            }
+
+            .design-info {
+                flex: 1;
+                text-align: left;
+                margin: 0 1rem;
+            }
         }
 
         @media (max-width: 576px) {
@@ -1516,7 +1644,7 @@
             .cart-header-content,
             .cart-item-content,
             .order-summary-content {
-                padding: 1.5rem;
+                padding: 1rem;
             }
 
             .cart-icon {
@@ -1533,8 +1661,72 @@
             }
 
             .cart-item-image img {
-                width: 80px;
-                height: 80px;
+                width: 100px;
+                height: 100px;
+            }
+
+            .cart-item-title {
+                font-size: 1rem;
+            }
+
+            .cart-item-base-price {
+                font-size: 0.9rem;
+            }
+
+            .options-title,
+            .designs-title,
+            .notes-title {
+                font-size: 0.85rem;
+            }
+
+            .option-item,
+            .design-title,
+            .notes-content {
+                font-size: 0.8rem;
+            }
+
+            .quantity-controls {
+                padding: 0.5rem;
+            }
+
+            .quantity-btn {
+                width: 35px;
+                height: 35px;
+                padding: 0.5rem;
+            }
+
+            .quantity-value {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.9rem;
+            }
+
+            .add-design-btn,
+            .remove-item-btn {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .design-thumb {
+                width: 40px;
+                height: 40px;
+            }
+
+            .design-info {
+                margin: 0 0.5rem;
+            }
+
+            .design-title {
+                font-size: 0.8rem;
+            }
+
+            .design-notes {
+                font-size: 0.75rem;
+            }
+
+            .remove-design-btn {
+                width: 30px;
+                height: 30px;
+                padding: 0.25rem;
             }
 
             .empty-cart-icon {
@@ -1548,6 +1740,38 @@
 
             .empty-cart-title {
                 font-size: 1.25rem;
+            }
+
+            /* Modal responsive for small screens */
+            .design-modal {
+                width: 95%;
+                max-width: 95%;
+                margin: 1rem;
+            }
+
+            .design-modal-header {
+                padding: 1rem;
+            }
+
+            .design-modal-title {
+                font-size: 1rem;
+            }
+
+            .design-modal-content {
+                padding: 1rem;
+                max-height: 60vh;
+            }
+
+            .design-modal-footer {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .save-designs-btn,
+            .cancel-btn {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
