@@ -22,6 +22,7 @@ return new class extends Migration
             $table->enum('status', ['new', 'contacted', 'qualified', 'proposal_sent', 'negotiation', 'closed_won', 'closed_lost'])->default('new');
             $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
             $table->foreignId('marketer_id')->nullable()->constrained('marketers')->onDelete('set null');
+            $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->timestamp('last_contact_date')->nullable();
             $table->timestamp('next_follow_up')->nullable();
             $table->timestamps();
