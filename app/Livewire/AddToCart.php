@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\CartItem;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AddToCart extends Component
 {
@@ -36,7 +37,7 @@ class AddToCart extends Component
             return;
         }
 
-        \Log::info('addToCart called', [
+        Log::info('addToCart called', [
             'product_id' => $this->product->id,
             'quantity' => $this->quantity,
             'selectedOptions' => $this->selectedOptions,
@@ -48,11 +49,11 @@ class AddToCart extends Component
 
         // Check if there are any validation errors
         if ($this->getErrorBag()->count() > 0) {
-            \Log::error('Validation errors in addToCart', ['errors' => $this->getErrorBag()->toArray()]);
+            Log::error('Validation errors in addToCart', ['errors' => $this->getErrorBag()->toArray()]);
             return;
         }
 
-        \Log::info('Validation passed, proceeding to add to cart');
+        Log::info('Validation passed, proceeding to add to cart');
 
         $user = Auth::user();
 
@@ -67,7 +68,7 @@ class AddToCart extends Component
             $existingItem->quantity += $this->quantity;
             $existingItem->updatePrices();
 
-            \Log::info('Updated existing cart item', ['cart_item_id' => $existingItem->id]);
+            Log::info('Updated existing cart item', ['cart_item_id' => $existingItem->id]);
             session()->flash('success', 'Item quantity updated in cart');
         } else {
             // Create new cart item
@@ -81,7 +82,7 @@ class AddToCart extends Component
 
             $cartItem->updatePrices();
 
-            \Log::info('Created new cart item', ['cart_item_id' => $cartItem->id]);
+            Log::info('Created new cart item', ['cart_item_id' => $cartItem->id]);
         }
 
         // Reset form
@@ -135,29 +136,22 @@ class AddToCart extends Component
     public function openModal()
     {
         $this->showModal = true;
+        $this->dispatch('modal-opened');
     }
 
     public function closeModal()
     {
         $this->showModal = false;
-    }
-
-    public function showAddToCartModal()
-    {
-        $this->showModal = true;
-    }
-
-    public function hideAddToCartModal()
-    {
-        $this->showModal = false;
+        $this->dispatch('modal-closed');
+        // Reset form when closing
         $this->quantity = 1;
         $this->notes = '';
-
-        // Reset selected options
         foreach ($this->product->options as $option) {
             $this->selectedOptions[$option->id] = null;
         }
     }
+
+
 
     public function render()
     {

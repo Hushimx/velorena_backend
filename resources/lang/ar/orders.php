@@ -53,8 +53,11 @@ return [
     'orders_search_placeholder' => 'البحث في الطلبات بالرقم أو الهاتف أو العميل...',
     'my_orders_search_placeholder' => 'البحث في طلباتك بالرقم أو الهاتف...',
     'no_orders_exist' => 'لا توجد طلبات',
+    'no_orders_description' => 'لم تقم بإنشاء أي طلبات بعد. ابدأ رحلتك بإنشاء طلبك الأول.',
     'status_filter' => 'فلتر الحالة',
     'all_statuses' => 'جميع الحالات',
+    'actions' => 'الإجراءات',
+    'show' => 'عرض',
 
     // Messages
     'order_updated_successfully' => 'تم تحديث الطلب بنجاح',
@@ -69,6 +72,7 @@ return [
     'order_not_found' => 'الطلب غير موجود',
     'unauthorized_action' => 'غير مصرح لك بتنفيذ هذا الإجراء',
     'no_items_in_order' => 'لا توجد عناصر في هذا الطلب',
+    'no_items_description' => 'لم يتم إضافة أي عناصر إلى هذا الطلب بعد.',
     'order_summary' => 'ملخص الطلب',
 
     // Delete Confirmation
@@ -97,4 +101,6 @@ return [
     'notes_placeholder' => 'أضف أي تعليمات خاصة أو ملاحظات لهذا العنصر...',
     'adding' => 'جاري الإضافة...',
     'product_added_to_order' => 'تم إضافة المنتج إلى الطلب بنجاح',
+    'addresses' => 'العناوين',
+    'deleting' => 'جاري الحذف...',
 ];

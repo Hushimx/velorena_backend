@@ -10,6 +10,7 @@ return [
     'empty_cart' => 'Your cart is empty',
     'empty_cart_message' => 'Add some products to get started!',
     'continue_shopping' => 'Continue Shopping',
+    'manage_your_cart_items' => 'Manage your shopping cart items',
 
     // Cart Items
     'base_price' => 'Base Price',
@@ -25,6 +26,7 @@ return [
     // Actions
     'checkout' => 'Checkout',
     'book_appointment' => 'Book Appointment',
+    'make_appointment' => 'Make Appointment',
     'options' => 'Options',
     'optional' => 'Optional',
     'cancel' => 'Cancel',
@@ -67,4 +69,11 @@ return [
     'this_item' => 'this item',
     'invalid_product' => 'Invalid product.',
     'quantity_minimum' => 'Minimum quantity is 1. Use remove button to delete item.',
+    'success' => 'Success!',
+
+    // Design-related translations
+    'select_designs' => 'Select Designs',
+    'save_designs' => 'Save Designs',
+    'selected_designs' => 'Selected Designs',
+    'confirm_remove_design' => 'Are you sure you want to remove :design from :product?',
 ];

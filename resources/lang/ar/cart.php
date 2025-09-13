@@ -10,6 +10,7 @@ return [
     'empty_cart' => 'سلتك فارغة',
     'empty_cart_message' => 'أضف بعض المنتجات للبدء!',
     'continue_shopping' => 'متابعة التسوق',
+    'manage_your_cart_items' => 'إدارة عناصر سلة التسوق الخاصة بك',
 
     // Cart Items
     'base_price' => 'السعر الأساسي',
@@ -25,6 +26,7 @@ return [
     // Actions
     'checkout' => 'الدفع',
     'book_appointment' => 'حجز موعد',
+    'make_appointment' => 'حجز موعد',
     'options' => 'خيارات',
     'optional' => 'اختياري',
     'cancel' => 'إلغاء',
@@ -67,4 +69,11 @@ return [
     'this_item' => 'هذا العنصر',
     'invalid_product' => 'منتج غير صالح.',
     'quantity_minimum' => 'الحد الأدنى للكمية هو 1. استخدم زر الإزالة لحذف العنصر.',
+    'success' => 'تمت الإضافة!',
+
+    // Design-related translations
+    'select_designs' => 'اختر التصاميم',
+    'save_designs' => 'حفظ التصاميم',
+    'selected_designs' => 'التصاميم المختارة',
+    'confirm_remove_design' => 'هل أنت متأكد من أنك تريد إزالة :design من :product؟',
 ];

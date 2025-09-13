@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Log;
 class ShoppingCart extends Component
 {
     public $cartItems = [];
+    public $subtotal = 0;
+    public $tax = 0;
     public $total = 0;
     public $itemCount = 0;
     public $showCheckoutForm = false;
@@ -28,7 +30,19 @@ class ShoppingCart extends Component
         'notes' => ''
     ];
 
-    protected $listeners = ['cartUpdated' => 'loadCart'];
+    // Design modal properties
+    public $showDesignModal = false;
+    public $currentProductId = null;
+    public $currentProduct = null;
+    public $selectedDesignsForModal = [];
+    public $designNotesForModal = [];
+
+    protected $listeners = [
+        'cartUpdated' => 'loadCart',
+        'design-added' => 'handleDesignAdded',
+        'design-removed' => 'handleDesignRemoved',
+        'design-note-updated' => 'handleDesignNoteUpdated'
+    ];
 
     public function mount()
     {
@@ -39,6 +53,8 @@ class ShoppingCart extends Component
     {
         if (!Auth::check()) {
             $this->cartItems = [];
+            $this->subtotal = 0;
+            $this->tax = 0;
             $this->total = 0;
             $this->itemCount = 0;
             return;
@@ -50,6 +66,8 @@ class ShoppingCart extends Component
             ->get();
 
         $this->cartItems = [];
+        $this->subtotal = 0;
+        $this->tax = 0;
         $this->total = 0;
         $this->itemCount = 0;
 
@@ -126,8 +144,14 @@ class ShoppingCart extends Component
                 'total_price' => $item->total_price
             ];
 
-            $this->total += $item->total_price;
+            $this->subtotal += $item->total_price;
         }
+
+        // Calculate tax (assuming 15% VAT rate)
+        $this->tax = $this->subtotal * 0.15;
+
+        // Calculate total
+        $this->total = $this->subtotal + $this->tax;
 
         $this->itemCount = count($this->cartItems);
     }
@@ -193,12 +217,18 @@ class ShoppingCart extends Component
 
     public function showCheckout()
     {
+        if (!Auth::check()) {
+            session()->flash('error', 'Please login to create an order');
+            return;
+        }
+
         if (empty($this->cartItems)) {
             session()->flash('error', 'Your cart is empty');
             return;
         }
 
-        $this->showCheckoutForm = true;
+        // Create order directly without form
+        $this->createOrderDirectly();
     }
 
     public function hideCheckout()
@@ -288,6 +318,85 @@ class ShoppingCart extends Component
             $this->hideCheckout();
             $this->loadCart();
             $this->dispatch('cartUpdated');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Order creation failed: ' . $e->getMessage());
+            session()->flash('error', 'Failed to create order. Please try again.');
+        }
+    }
+
+    public function createOrderDirectly()
+    {
+        if (!Auth::check()) {
+            session()->flash('error', 'Please login to create an order');
+            return;
+        }
+
+        if (empty($this->cartItems)) {
+            session()->flash('error', 'Your cart is empty');
+            return;
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $user = Auth::user();
+            $cartItems = CartItem::where('user_id', $user->id)->with('product')->get();
+
+            $orderService = new OrderService();
+
+            // Prepare items data for OrderService
+            $items = [];
+            foreach ($cartItems as $cartItem) {
+                $items[] = [
+                    'product_id' => $cartItem->product_id,
+                    'quantity' => $cartItem->quantity,
+                    'unit_price' => $cartItem->unit_price,
+                    'total_price' => $cartItem->total_price,
+                    'selected_options' => $cartItem->selected_options,
+                    'notes' => $cartItem->notes
+                ];
+            }
+
+            // Use user's default data for order creation
+            $orderData = [
+                'phone' => $user->phone ?? '',
+                'shipping_address' => $user->address ?? '',
+                'billing_address' => $user->address ?? '',
+                'notes' => 'Order created directly from cart checkout',
+                'items' => $items
+            ];
+
+            $order = $orderService->createOrder($orderData);
+
+            // Copy design attachments to order items
+            foreach ($order->items as $orderItem) {
+                $designs = ProductDesign::where('user_id', $user->id)
+                    ->where('product_id', $orderItem->product_id)
+                    ->get();
+
+                foreach ($designs as $design) {
+                    // Create order item design attachment
+                    OrderItemDesign::create([
+                        'order_item_id' => $orderItem->id,
+                        'design_id' => $design->design_id,
+                        'notes' => $design->notes,
+                        'priority' => $design->priority
+                    ]);
+                }
+            }
+
+            // Clear cart after successful order creation
+            CartItem::where('user_id', $user->id)->delete();
+
+            DB::commit();
+
+            session()->flash('success', 'Order created successfully! Order #' . $order->order_number);
+            $this->loadCart();
+            $this->dispatch('cartUpdated');
+
+            // Redirect to orders page
+            return redirect()->route('user.orders.index');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Order creation failed: ' . $e->getMessage());
@@ -418,6 +527,125 @@ class ShoppingCart extends Component
             Log::error('Order creation failed: ' . $e->getMessage());
             session()->flash('error', 'Failed to create order. Please try again.');
             return null;
+        }
+    }
+
+    public function openDesignModal($productId)
+    {
+        if (!Auth::check()) {
+            return;
+        }
+
+        $this->currentProductId = $productId;
+        $this->currentProduct = \App\Models\Product::find($productId);
+
+        if (!$this->currentProduct) {
+            session()->flash('error', 'Product not found');
+            return;
+        }
+
+        // Load existing designs for this product
+        $user = Auth::user();
+        $existingDesigns = ProductDesign::where('user_id', $user->id)
+            ->where('product_id', $productId)
+            ->get();
+
+        $this->selectedDesignsForModal = $existingDesigns->pluck('design_id')->toArray();
+        $this->designNotesForModal = $existingDesigns->pluck('notes', 'design_id')->toArray();
+
+        $this->showDesignModal = true;
+    }
+
+    public function closeDesignModal()
+    {
+        $this->showDesignModal = false;
+        $this->currentProductId = null;
+        $this->currentProduct = null;
+        $this->selectedDesignsForModal = [];
+        $this->designNotesForModal = [];
+    }
+
+    public function handleDesignAdded($designId, $notes = '')
+    {
+        if (!in_array($designId, $this->selectedDesignsForModal)) {
+            $this->selectedDesignsForModal[] = $designId;
+        }
+        $this->designNotesForModal[$designId] = $notes;
+
+        \Log::info('Design added to modal', [
+            'designId' => $designId,
+            'notes' => $notes,
+            'currentSelection' => $this->selectedDesignsForModal
+        ]);
+    }
+
+    public function handleDesignRemoved($designId)
+    {
+        $this->selectedDesignsForModal = array_diff($this->selectedDesignsForModal, [$designId]);
+        unset($this->designNotesForModal[$designId]);
+
+        \Log::info('Design removed from modal', [
+            'designId' => $designId,
+            'currentSelection' => $this->selectedDesignsForModal
+        ]);
+    }
+
+    public function handleDesignNoteUpdated($designId, $notes)
+    {
+        $this->designNotesForModal[$designId] = $notes;
+
+        \Log::info('Design note updated', [
+            'designId' => $designId,
+            'notes' => $notes
+        ]);
+    }
+
+    public function saveSelectedDesigns()
+    {
+        if (!Auth::check() || !$this->currentProductId) {
+            session()->flash('error', 'Not authenticated or no product selected');
+            return;
+        }
+
+        // Debug: Check what we're trying to save
+        \Log::info('saveSelectedDesigns called', [
+            'currentProductId' => $this->currentProductId,
+            'selectedDesignsForModal' => $this->selectedDesignsForModal,
+            'designNotesForModal' => $this->designNotesForModal
+        ]);
+
+        $user = Auth::user();
+
+        try {
+            DB::beginTransaction();
+
+            // Remove existing designs for this product
+            ProductDesign::where('user_id', $user->id)
+                ->where('product_id', $this->currentProductId)
+                ->delete();
+
+            // Add new designs
+            foreach ($this->selectedDesignsForModal as $index => $designId) {
+                ProductDesign::create([
+                    'user_id' => $user->id,
+                    'product_id' => $this->currentProductId,
+                    'design_id' => $designId,
+                    'notes' => $this->designNotesForModal[$designId] ?? '',
+                    'priority' => $index + 1
+                ]);
+            }
+
+            DB::commit();
+
+            $this->closeDesignModal();
+            $this->loadCart();
+            $this->dispatch('cartUpdated');
+
+            session()->flash('success', 'Designs saved successfully! ' . count($this->selectedDesignsForModal) . ' designs saved.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Failed to save designs', ['error' => $e->getMessage()]);
+            session()->flash('error', 'Failed to save designs: ' . $e->getMessage());
         }
     }
 

@@ -1,15 +1,15 @@
 @extends('components.layout')
 
-@section('pageTitle', trans('dashboard.book_new_appointment'))
-@section('title', trans('dashboard.book_new_appointment'))
+@section('pageTitle', trans('cart.shopping_cart'))
+@section('title', trans('cart.shopping_cart'))
 
 @section('content')
     <!-- Navbar from Welcome Page -->
     <x-navbar />
 
-    <div class="appointment-create-page">
+    <div class="cart-index-page">
         <!-- Header Section -->
-        <div class="appointment-create-header">
+        <div class="cart-index-header">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-md-8">
@@ -22,35 +22,30 @@
                                         {{ trans('dashboard.dashboard') }}
                                     </a>
                                 </li>
-                                <li class="breadcrumb-item">
-                                    <a href="{{ route('appointments.index') }}" class="breadcrumb-link">
-                                        {{ trans('dashboard.my_appointments') }}
-                                    </a>
-                                </li>
                                 <li class="breadcrumb-item active" aria-current="page">
-                                    {{ trans('dashboard.book_new_appointment') }}
+                                    {{ trans('cart.shopping_cart') }}
                                 </li>
                             </ol>
                         </nav>
 
-                        <h1 class="appointment-create-title">{{ trans('dashboard.book_new_appointment') }}</h1>
-                        <p class="appointment-create-subtitle">{{ trans('dashboard.book_appointment_description') }}</p>
+                        <h1 class="cart-index-title">{{ trans('cart.shopping_cart') }}</h1>
+                        <p class="cart-index-subtitle">{{ trans('cart.manage_your_cart_items') }}</p>
                     </div>
                     <div class="col-md-4 text-md-end d-flex justify-content-end">
-                        <a href="{{ route('appointments.index') }}" class="back-btn">
+                        <a href="{{ route('user.products.index') }}" class="back-btn">
                             <i class="fas fa-arrow-left"></i>
-                            <span>{{ trans('dashboard.back_to_appointments') }}</span>
+                            <span>{{ trans('cart.continue_shopping') }}</span>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Appointment Content -->
-        <div class="appointment-content-section">
+        <!-- Cart Content -->
+        <div class="cart-content-section">
             <div class="container">
-                <!-- Livewire Component -->
-                @livewire('book-appointment-with-orders', ['orderId' => $orderId ?? null])
+                <!-- Shopping Cart Component -->
+                @livewire('shopping-cart')
             </div>
         </div>
     </div>
@@ -59,8 +54,8 @@
     <x-footer />
 
     <style>
-        /* Appointment Create Page Styles - Based on Product Show Page Design */
-        .appointment-create-page {
+        /* Cart Index Page Styles - Based on Product Show Page Design */
+        .cart-index-page {
             font-family: 'Cairo', sans-serif;
             background: linear-gradient(180deg, #FFEBC6 0%, #FFFFFF 100%);
             min-height: calc(100vh - 96px);
@@ -69,37 +64,31 @@
         }
 
         /* Header Section */
-        .appointment-create-header {
-            background: linear-gradient(135deg, #FFEBC6 0%, #F4D03F 100%);
+        .cart-index-header {
+            background: linear-gradient(135deg, #FFEBC6 0%, #F4D03F 50%, #FFEBC6 100%);
             padding: 3rem 0;
             position: relative;
             overflow: hidden;
         }
 
-        .appointment-create-header::before {
+        .cart-index-header::before {
             content: '';
             position: absolute;
             top: -50%;
             left: -50%;
             width: 200%;
             height: 200%;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            animation: float 20s ease-in-out infinite;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
         }
 
-        @keyframes float {
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
 
-            0%,
             100% {
-                transform: translateX(0px) translateY(0px) rotate(0deg);
-            }
-
-            33% {
-                transform: translateX(30px) translateY(-30px) rotate(120deg);
-            }
-
-            66% {
-                transform: translateX(-20px) translateY(20px) rotate(240deg);
+                transform: rotate(360deg);
             }
         }
 
@@ -112,26 +101,23 @@
             display: flex;
             align-items: center;
             list-style: none;
-            padding: 0;
             margin: 0;
+            padding: 0;
             gap: 0.5rem;
         }
 
         .breadcrumb-item {
             display: flex;
             align-items: center;
-            font-size: 0.9rem;
         }
 
-        .breadcrumb-item:not(:last-child)::after {
-            content: '›';
-            margin: 0 0.5rem;
-            color: rgba(139, 69, 19, 0.6);
-            font-weight: 700;
+        .breadcrumb-item.active {
+            color: #8B4513;
+            font-weight: 600;
         }
 
         .breadcrumb-link {
-            color: rgba(139, 69, 19, 0.8);
+            color: #8B4513;
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -142,33 +128,28 @@
         }
 
         .breadcrumb-link:hover {
+            background: rgba(139, 69, 19, 0.1);
             color: #8B4513;
-            background: rgba(255, 255, 255, 0.2);
-            text-decoration: none;
         }
 
-        .breadcrumb-item.active {
-            color: #8B4513;
-            font-weight: 700;
-            padding: 0.5rem 1rem;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
+        .breadcrumb-link i {
+            font-size: 0.875rem;
         }
 
-        /* Title and Subtitle */
-        .appointment-create-title {
+        /* Title Section */
+        .cart-index-title {
             font-size: 3rem;
-            font-weight: 900;
+            font-weight: 800;
             color: #8B4513;
-            margin: 0 0 1rem 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(139, 69, 19, 0.1);
         }
 
-        .appointment-create-subtitle {
-            font-size: 1.2rem;
-            color: rgba(139, 69, 19, 0.8);
-            margin: 0;
-            font-weight: 500;
+        .cart-index-subtitle {
+            font-size: 1.25rem;
+            color: #8B4513;
+            opacity: 0.8;
+            margin-bottom: 0;
         }
 
         /* Back Button */
@@ -178,7 +159,7 @@
             padding: 1rem 2rem;
             border-radius: 12px;
             text-decoration: none;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 0.75rem;
             font-weight: 600;
@@ -190,23 +171,52 @@
         .back-btn:hover {
             background: linear-gradient(135deg, #A0522D 0%, #8B4513 100%);
             color: white;
-            text-decoration: none;
+            transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
         }
 
-        /* Content Section */
-        .appointment-content-section {
+        .back-btn i {
+            font-size: 1.1rem;
+        }
+
+        /* Cart Content Section */
+        .cart-content-section {
             padding: 3rem 0;
+            position: relative;
+            z-index: 1;
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            .appointment-create-title {
+            .cart-index-header {
+                padding: 2rem 0;
+            }
+
+            .cart-index-title {
                 font-size: 2rem;
             }
 
-            .appointment-create-subtitle {
+            .cart-index-subtitle {
                 font-size: 1rem;
+            }
+
+            .back-btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .cart-content-section {
+                padding: 2rem 0;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .cart-index-header {
+                padding: 1.5rem 0;
+            }
+
+            .cart-index-title {
+                font-size: 1.75rem;
             }
 
             .breadcrumb-list {
@@ -214,26 +224,8 @@
             }
 
             .back-btn {
-                padding: 0.75rem 1.5rem;
-                font-size: 0.9rem;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .appointment-create-header {
-                padding: 2rem 0;
-            }
-
-            .appointment-content-section {
-                padding: 2rem 0;
-            }
-
-            .appointment-create-title {
-                font-size: 1.75rem;
-            }
-
-            .breadcrumb-nav {
-                margin-bottom: 1rem;
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>

@@ -143,6 +143,7 @@ class DesignSelector extends Component
         return count($this->selectedDesigns);
     }
 
+
     public function render()
     {
         $query = Design::active();

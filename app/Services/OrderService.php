@@ -53,7 +53,7 @@ class OrderService
             $product = Product::findOrFail($itemData['product_id']);
 
             // Calculate unit price (base price + options)
-            $unitPrice = $product->price;
+            $unitPrice = $product->base_price;
             $optionsPrice = 0;
             $selectedOptions = [];
 
@@ -137,7 +137,7 @@ class OrderService
             $product = Product::findOrFail($itemData['product_id']);
 
             // Calculate unit price (base price + options)
-            $unitPrice = $product->price;
+            $unitPrice = $product->base_price;
             $optionsPrice = 0;
             $selectedOptions = [];
 

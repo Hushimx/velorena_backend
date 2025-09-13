@@ -115,6 +115,7 @@
     "Home": "Home",
     "Products": "Products",
     "Orders": "Orders",
+    "Appointments": "Appointments",
     "AI Design": "AI Design",
     "Book with Designer": "Book with Designer",
     "Services": "Services",
@@ -149,5 +150,7 @@
     "MAGIC IN EVERY THREAD": "MAGIC IN EVERY THREAD",
     "Customization": "Customization",
     "Printed products that suit<br>all tastes and needs": "Printed products that suit<br>all tastes and needs",
-    "Saudi Arabia": "Saudi Arabia"
+    "Saudi Arabia": "Saudi Arabia",
+    "order_items": "Order Items",
+    "selected_designs": "Selected Designs"
 }

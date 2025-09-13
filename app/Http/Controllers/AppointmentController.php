@@ -130,8 +130,18 @@ class AppointmentController extends Controller
             'user:id,full_name,email,phone',
             'designer:id,name,email,phone',
             'order.items.product',
-            'order.items.product.options.values'
+            'order.items.product.options.values',
+            'order.items.designs.design'
         ]);
+
+        // Ensure options are properly cast as arrays
+        if ($appointment->order && $appointment->order->items) {
+            foreach ($appointment->order->items as $item) {
+                if (is_string($item->options)) {
+                    $item->options = json_decode($item->options, true) ?? [];
+                }
+            }
+        }
 
         // If it's an API request, return JSON
         if ($request->expectsJson()) {
@@ -366,11 +376,11 @@ class AppointmentController extends Controller
 
         // Get upcoming appointments (future dates)
         $upcomingAppointments = Appointment::with([
-                'user:id,full_name,email,phone',
-                'order.items.product',
-                'order.items.product.options.values',
-                'order.items.designs.design'
-            ])
+            'user:id,full_name,email,phone',
+            'order.items.product',
+            'order.items.product.options.values',
+            'order.items.designs.design'
+        ])
             ->where('designer_id', $designer->id)
             ->where('appointment_date', '>', Carbon::today())
             ->where('status', '!=', 'cancelled')
@@ -515,7 +525,7 @@ class AppointmentController extends Controller
 
         try {
             $appointment->order->calculateTotals();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Order recalculated successfully.',
@@ -686,10 +696,10 @@ class AppointmentController extends Controller
         try {
             // Get available time slots excluding booked appointments
             $availableSlots = \App\Models\AvailabilitySlot::getAvailableTimeSlotsExcludingBooked($date);
-            
+
             // Get day of week for additional info
             $dayOfWeek = Carbon::parse($date)->format('l');
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -700,7 +710,6 @@ class AppointmentController extends Controller
                     'slot_duration' => 15, // Default 15 minutes
                 ]
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

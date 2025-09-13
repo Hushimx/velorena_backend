@@ -112,9 +112,10 @@
     "Add any special instructions...": "أضف أي تعليمات خاصة...",
     "Options Price": "سعر الخيارات",
     "العربية": "العربية",
-    "Home": "الصفحة الرئيسية",
+    "Home": "الرئيسية",
     "Products": "المنتجات",
     "Orders": "الطلبات",
+    "Appointments": "المواعيد",
     "AI Design": "تصميم بالذكاء الصناعي",
     "Book with Designer": "موعد مع المصمم",
     "Services": "الخدمات",
@@ -149,5 +150,7 @@
     "MAGIC IN EVERY THREAD": "سحر في كل خيط",
     "Customization": "التخصيص",
     "Printed products that suit<br>all tastes and needs": "منتجات مطبوعة تناسب<br>كل الأذواق والاحتياجات",
-    "Saudi Arabia": "السعودية"
+    "Saudi Arabia": "السعودية",
+    "order_items": "عناصر الطلب",
+    "selected_designs": "التصاميم المختارة"
 }

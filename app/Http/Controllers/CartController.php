@@ -427,7 +427,7 @@ class CartController extends Controller
                     'quantity' => $cartItem->quantity,
                     'unit_price' => $cartItem->unit_price,
                     'total_price' => $cartItem->total_price,
-                    'selected_options' => $cartItem->selected_options,
+                    'options' => $cartItem->selected_options, // Fixed: use 'options' instead of 'selected_options'
                     'notes' => $cartItem->notes
                 ];
 
@@ -450,6 +450,9 @@ class CartController extends Controller
                     ]);
                 }
             }
+
+            // Calculate order totals after adding all items
+            $order->calculateTotals();
 
             // Clear cart after successful order creation
             CartItem::where('user_id', $user->id)->delete();
@@ -483,6 +486,6 @@ class CartController extends Controller
      */
     public function index()
     {
-        return view('cart.index');
+        return view('users.cart.index');
     }
 }
