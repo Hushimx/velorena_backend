@@ -24,9 +24,9 @@
                         <th class="table-header-cell text-center">{{ trans('orders.quantity') }}</th>
                         <th class="table-header-cell text-center">{{ trans('orders.unit_price') }}</th>
                         <th class="table-header-cell text-center">{{ trans('orders.total_price') }}</th>
-                        @if ($order->status === 'pending')
+                        {{-- @if ($order->status === 'pending')
                             <th class="table-header-cell text-center">{{ trans('orders.actions') }}</th>
-                        @endif
+                        @endif --}}
                     </tr>
                 </thead>
                 <tbody class="table-body">
@@ -66,7 +66,7 @@
                                 <div class="total-price">{{ number_format($item->total_price, 2) }}
                                     {{ trans('orders.currency') }}</div>
                             </td>
-                            @if ($order->status === 'pending')
+                            {{-- @if ($order->status === 'pending')
                                 <td class="table-cell text-center">
                                     <div class="item-actions">
                                         <button wire:click="confirmDelete({{ $item->id }})"
@@ -76,11 +76,11 @@
                                         </button>
                                     </div>
                                 </td>
-                            @endif
+                            @endif --}}
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $order->status === 'pending' ? 5 : 4 }}" class="empty-state">
+                            <td colspan="4" class="empty-state">
                                 <div class="empty-state-content">
                                     <i class="fas fa-box-open"></i>
                                     <h3>{{ trans('orders.no_items_in_order') }}</h3>
