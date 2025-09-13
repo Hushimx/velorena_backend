@@ -53,8 +53,11 @@ return [
     'orders_search_placeholder' => 'Search orders by number, phone, or customer...',
     'my_orders_search_placeholder' => 'Search your orders by number or phone...',
     'no_orders_exist' => 'No orders found',
+    'no_orders_description' => 'You haven\'t created any orders yet. Start your journey by creating your first order.',
     'status_filter' => 'Status Filter',
     'all_statuses' => 'All Statuses',
+    'actions' => 'Actions',
+    'show' => 'Show',
 
     // Messages
     'order_updated_successfully' => 'Order updated successfully',
@@ -69,6 +72,7 @@ return [
     'order_not_found' => 'Order not found',
     'unauthorized_action' => 'You are not authorized to perform this action',
     'no_items_in_order' => 'No items in this order',
+    'no_items_description' => 'No items have been added to this order yet.',
     'order_summary' => 'Order Summary',
 
     // Delete Confirmation
@@ -97,4 +101,6 @@ return [
     'notes_placeholder' => 'Add any special instructions or notes for this item...',
     'adding' => 'Adding...',
     'product_added_to_order' => 'Product added to order successfully',
+    'addresses' => 'Addresses',
+    'deleting' => 'Deleting...',
 ];

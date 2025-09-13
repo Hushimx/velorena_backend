@@ -284,7 +284,7 @@ return [
     "refresh" => "Refresh",
     "updating" => "Updating",
     "auto_refresh" => "Auto Refresh",
-    
+
     // Designer Appointments Pages
     "manage_your_appointments" => "Manage your appointments",
     "claim_new_appointments" => "Claim new appointments",
@@ -398,6 +398,7 @@ return [
     "available_products" => "Available Products",
     "browse_products" => "Browse Products",
     "back_to_dashboard" => "Back to Dashboard",
+    "refresh" => "Refresh",
 
     // Order Details
     "order_number" => "Order Number",

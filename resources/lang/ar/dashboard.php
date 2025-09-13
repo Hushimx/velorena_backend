@@ -196,7 +196,7 @@ return [
     "refresh" => "تحديث",
     "updating" => "جاري التحديث",
     "auto_refresh" => "تحديث تلقائي",
-    
+
     // Designer Appointments Pages
     "manage_your_appointments" => "إدارة مواعيدك",
     "claim_new_appointments" => "المطالبة بالمواعيد الجديدة",
@@ -398,6 +398,7 @@ return [
     "available_products" => "المنتجات المتاحة",
     "browse_products" => "تصفح المنتجات",
     "back_to_dashboard" => "العودة إلى لوحة التحكم",
+    "refresh" => "تحديث",
 
     // Order Details
     "order_number" => "رقم الطلب",
