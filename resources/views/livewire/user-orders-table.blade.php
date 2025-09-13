@@ -1,18 +1,7 @@
 <div class="orders-table-container">
     <!-- Success/Error Messages -->
-    @if (session()->has('message'))
-        <div class="success-message">
-            <i class="fas fa-check-circle"></i>
-            <span>{{ session('message') }}</span>
-        </div>
-    @endif
-
-    @if (session()->has('error'))
-        <div class="error-message">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>{{ session('error') }}</span>
-        </div>
-    @endif
+    <x-session-message type="message" />
+    <x-session-message type="error" />
 
     <!-- Search and Filters -->
     <div class="search-filters-card">
@@ -172,30 +161,6 @@
             direction: rtl;
         }
 
-        /* Success/Error Messages */
-        .success-message {
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            border: 1px solid #28a745;
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #155724;
-        }
-
-        .error-message {
-            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-            border: 1px solid #dc3545;
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #721c24;
-        }
 
         /* Search and Filters */
         .search-filters-card {

@@ -172,7 +172,7 @@
                                 <div class="summary-total">
                                     <div class="summary-item">
                                         <span class="summary-label">{{ trans('orders.total') }}:</span>
-                                        <span class="summary-total-value">{{ number_format($order->total, 2) }}
+                                        <span class="summary-total-value px-2">{{ number_format($order->total, 2) }}
                                             {{ trans('orders.currency') }}</span>
                                     </div>
                                 </div>

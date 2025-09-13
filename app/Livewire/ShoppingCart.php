@@ -205,12 +205,18 @@ class ShoppingCart extends Component
 
     public function showCheckout()
     {
+        if (!Auth::check()) {
+            session()->flash('error', 'Please login to create an order');
+            return;
+        }
+
         if (empty($this->cartItems)) {
             session()->flash('error', 'Your cart is empty');
             return;
         }
 
-        $this->showCheckoutForm = true;
+        // Create order directly without form
+        $this->createOrderDirectly();
     }
 
     public function hideCheckout()
@@ -300,6 +306,85 @@ class ShoppingCart extends Component
             $this->hideCheckout();
             $this->loadCart();
             $this->dispatch('cartUpdated');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Order creation failed: ' . $e->getMessage());
+            session()->flash('error', 'Failed to create order. Please try again.');
+        }
+    }
+
+    public function createOrderDirectly()
+    {
+        if (!Auth::check()) {
+            session()->flash('error', 'Please login to create an order');
+            return;
+        }
+
+        if (empty($this->cartItems)) {
+            session()->flash('error', 'Your cart is empty');
+            return;
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $user = Auth::user();
+            $cartItems = CartItem::where('user_id', $user->id)->with('product')->get();
+
+            $orderService = new OrderService();
+
+            // Prepare items data for OrderService
+            $items = [];
+            foreach ($cartItems as $cartItem) {
+                $items[] = [
+                    'product_id' => $cartItem->product_id,
+                    'quantity' => $cartItem->quantity,
+                    'unit_price' => $cartItem->unit_price,
+                    'total_price' => $cartItem->total_price,
+                    'selected_options' => $cartItem->selected_options,
+                    'notes' => $cartItem->notes
+                ];
+            }
+
+            // Use user's default data for order creation
+            $orderData = [
+                'phone' => $user->phone ?? '',
+                'shipping_address' => $user->address ?? '',
+                'billing_address' => $user->address ?? '',
+                'notes' => 'Order created directly from cart checkout',
+                'items' => $items
+            ];
+
+            $order = $orderService->createOrder($orderData);
+
+            // Copy design attachments to order items
+            foreach ($order->items as $orderItem) {
+                $designs = ProductDesign::where('user_id', $user->id)
+                    ->where('product_id', $orderItem->product_id)
+                    ->get();
+
+                foreach ($designs as $design) {
+                    // Create order item design attachment
+                    OrderItemDesign::create([
+                        'order_item_id' => $orderItem->id,
+                        'design_id' => $design->design_id,
+                        'notes' => $design->notes,
+                        'priority' => $design->priority
+                    ]);
+                }
+            }
+
+            // Clear cart after successful order creation
+            CartItem::where('user_id', $user->id)->delete();
+
+            DB::commit();
+
+            session()->flash('success', 'Order created successfully! Order #' . $order->order_number);
+            $this->loadCart();
+            $this->dispatch('cartUpdated');
+
+            // Redirect to orders page
+            return redirect()->route('user.orders.index');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Order creation failed: ' . $e->getMessage());

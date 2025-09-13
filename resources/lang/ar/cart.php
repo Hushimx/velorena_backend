@@ -26,6 +26,7 @@ return [
     // Actions
     'checkout' => 'الدفع',
     'book_appointment' => 'حجز موعد',
+    'make_appointment' => 'حجز موعد',
     'options' => 'خيارات',
     'optional' => 'اختياري',
     'cancel' => 'إلغاء',

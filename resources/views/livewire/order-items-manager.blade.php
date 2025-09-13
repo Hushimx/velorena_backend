@@ -1,26 +1,18 @@
 <div class="order-items-manager-container">
     <!-- Success/Error Messages -->
-    @if (session()->has('message'))
-        <div class="success-message">
-            <i class="fas fa-check-circle"></i>
-            <span>{{ session('message') }}</span>
-            <button wire:click="$refresh" class="refresh-btn">
-                <i class="fas fa-sync-alt"></i>
-                {{ trans('dashboard.refresh') }}
-            </button>
-        </div>
-    @endif
+    <x-session-message type="message">
+        <button wire:click="$refresh" class="refresh-btn">
+            <i class="fas fa-sync-alt"></i>
+            {{ trans('dashboard.refresh') }}
+        </button>
+    </x-session-message>
 
-    @if (session()->has('error'))
-        <div class="error-message">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>{{ session('error') }}</span>
-            <button wire:click="$refresh" class="refresh-btn">
-                <i class="fas fa-sync-alt"></i>
-                {{ trans('dashboard.refresh') }}
-            </button>
-        </div>
-    @endif
+    <x-session-message type="error">
+        <button wire:click="$refresh" class="refresh-btn">
+            <i class="fas fa-sync-alt"></i>
+            {{ trans('dashboard.refresh') }}
+        </button>
+    </x-session-message>
 
     <!-- Order Items Table -->
     <div class="items-table-card">
@@ -127,7 +119,7 @@
                         </div>
                         <div class="summary-total">
                             <span class="summary-label">{{ trans('orders.total') }}:</span>
-                            <span class="summary-total-value">{{ number_format($order->total, 2) }}
+                            <span class="summary-total-value px-2">{{ number_format($order->total, 2) }}
                                 {{ trans('orders.currency') }}</span>
                         </div>
                     </div>
@@ -186,61 +178,6 @@
             direction: rtl;
         }
 
-        /* Success/Error Messages */
-        .success-message {
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            border: 1px solid #c3e6cb;
-            color: #155724;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
-        }
-
-        .success-message i {
-            color: #28a745;
-            font-size: 1.25rem;
-        }
-
-        .error-message {
-            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.15);
-        }
-
-        .error-message i {
-            color: #dc3545;
-            font-size: 1.25rem;
-        }
-
-        .refresh-btn {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            color: inherit;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-left: auto;
-        }
-
-        .refresh-btn:hover {
-            background: rgba(255, 255, 255, 1);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
 
         /* Items Table Card */
         .items-table-card {

@@ -141,7 +141,7 @@
                     </div>
                     <div class="summary-total">
                         <span class="summary-label">{{ trans('cart.total') }}:</span>
-                        <span class="summary-total-value">${{ number_format($total, 2) }}</span>
+                        <span class="summary-total-value px-2">${{ number_format($total, 2) }}</span>
                     </div>
                 </div>
                 <div class="summary-actions">
@@ -149,9 +149,13 @@
                         <i class="fas fa-arrow-left"></i>
                         <span>{{ trans('cart.continue_shopping') }}</span>
                     </a>
-                    <button class="checkout-btn">
+                    <button wire:click="showCheckout" class="checkout-btn">
                         <i class="fas fa-credit-card"></i>
                         <span>{{ trans('cart.checkout') }}</span>
+                    </button>
+                    <button wire:click="bookAppointment" class="appointment-btn">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span>{{ trans('cart.make_appointment') }}</span>
                     </button>
                 </div>
             </div>
@@ -636,6 +640,26 @@
             box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
         }
 
+        .appointment-btn {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .appointment-btn:hover {
+            background: linear-gradient(135deg, #1e7e34 0%, #28a745 100%);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .cart-header-content {
@@ -659,7 +683,8 @@
             }
 
             .continue-shopping-btn,
-            .checkout-btn {
+            .checkout-btn,
+            .appointment-btn {
                 width: 100%;
                 justify-content: center;
             }

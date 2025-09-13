@@ -26,6 +26,7 @@ return [
     // Actions
     'checkout' => 'Checkout',
     'book_appointment' => 'Book Appointment',
+    'make_appointment' => 'Make Appointment',
     'options' => 'Options',
     'optional' => 'Optional',
     'cancel' => 'Cancel',
