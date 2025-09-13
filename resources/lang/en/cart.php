@@ -67,4 +67,5 @@ return [
     'this_item' => 'this item',
     'invalid_product' => 'Invalid product.',
     'quantity_minimum' => 'Minimum quantity is 1. Use remove button to delete item.',
+    'success' => 'Success!',
 ];

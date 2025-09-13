@@ -192,9 +192,8 @@
             Livewire.on('showSuccessToast', (event) => {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
-                        title: '{{ app()->getLocale() === 'ar' ? 'تمت الإضافة!' : 'Success!' }}',
-                        text: event.message ||
-                            '{{ app()->getLocale() === 'ar' ? 'تم إضافة المنتج إلى السلة بنجاح' : 'Item added to cart successfully!' }}',
+                        title: '{{ trans('cart.success') }}',
+                        text: event.message || '{{ trans('cart.product_added_to_cart') }}',
                         icon: 'success',
                         timer: 2000,
                         showConfirmButton: false,
@@ -202,7 +201,7 @@
                         position: 'top-end'
                     });
                 } else {
-                    alert(event.message || 'Item added to cart successfully!');
+                    alert(event.message || '{{ trans('cart.product_added_to_cart') }}');
                 }
             });
         });
