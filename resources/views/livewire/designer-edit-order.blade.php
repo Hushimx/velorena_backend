@@ -73,9 +73,37 @@
                                                 <td>
                                                     <div>
                                                         <strong>{{ $item['product_name'] }}</strong>
-                                                        @if ($item['notes'])
-                                                            <br><small class="text-muted">{{ $item['notes'] }}</small>
+
+                                                        @if (!empty($item['option_details']))
+                                                            <div class="mt-2">
+                                                                <small class="text-muted fw-bold">Selected
+                                                                    Options:</small>
+                                                                <ul class="list-unstyled mb-0 mt-1">
+                                                                    @foreach ($item['option_details'] as $option)
+                                                                        <li class="small text-muted">
+                                                                            <i
+                                                                                class="fas fa-check text-success me-1"></i>
+                                                                            {{ $option['option_name'] }}:
+                                                                            {{ $option['value'] }}
+                                                                            @if ($option['price_adjustment'] != 0)
+                                                                                <span class="text-success fw-bold">
+                                                                                    ({{ $option['price_adjustment'] > 0 ? '+' : '' }}${{ number_format($option['price_adjustment'], 2) }})
+                                                                                </span>
+                                                                            @endif
+                                                                        </li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            </div>
                                                         @endif
+
+                                                        @if ($item['notes'])
+                                                            <div class="mt-2">
+                                                                <small class="text-muted fw-bold">Notes:</small>
+                                                                <br><small
+                                                                    class="text-muted">{{ $item['notes'] }}</small>
+                                                            </div>
+                                                        @endif
+
                                                         @if ($item['is_existing'])
                                                             <span class="badge bg-info ms-2">Existing</span>
                                                         @else
@@ -85,8 +113,9 @@
                                                 </td>
                                                 <td>
                                                     <input type="number" class="form-control form-control-sm"
+                                                        wire:model.live="cartItems.{{ $index }}.quantity"
                                                         wire:change="updateQuantity({{ $index }}, $event.target.value)"
-                                                        value="{{ $item['quantity'] }}" min="1">
+                                                        min="1">
                                                 </td>
                                                 <td>${{ number_format($item['unit_price'], 2) }}</td>
                                                 <td>
@@ -95,11 +124,19 @@
                                                     </strong>
                                                 </td>
                                                 <td>
-                                                    <button type="button" class="btn btn-sm btn-outline-danger"
-                                                        wire:click="removeFromCart({{ $index }})"
-                                                        onclick="return confirm('Remove this item from the order?')">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                                            wire:click="editItemOptions({{ $index }})"
+                                                            title="Edit Options">
+                                                            <i class="fas fa-cog"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                            wire:click="removeFromCart({{ $index }})"
+                                                            onclick="return confirm('Remove this item from the order?')"
+                                                            title="Remove Item">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -304,4 +341,98 @@
             </div>
         </div>
     </div>
+
+    <!-- Edit Options Modal -->
+    <div class="modal fade" id="editOptionsModal" tabindex="-1" wire:ignore.self>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-cog me-2"></i>
+                        Edit Product Options
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    @if ($editingItemIndex !== null && isset($cartItems[$editingItemIndex]))
+                        @php $item = $cartItems[$editingItemIndex]; @endphp
+
+                        <div class="mb-3">
+                            <h6 class="fw-bold">{{ $item['product_name'] }}</h6>
+                            <p class="text-muted mb-0">Current Unit Price:
+                                ${{ number_format($item['unit_price'], 2) }}</p>
+                        </div>
+
+                        @php
+                            $product = \App\Models\Product::with(['options.values'])->find($item['product_id']);
+                        @endphp
+
+                        @if ($product && $product->options->count() > 0)
+                            <div class="row">
+                                @foreach ($product->options as $option)
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">{{ $option->name }}</label>
+                                        @if ($option->is_required)
+                                            <span class="text-danger">*</span>
+                                        @endif
+
+                                        <div class="mt-2">
+                                            @foreach ($option->values as $value)
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio"
+                                                        name="option_{{ $option->id }}"
+                                                        value="{{ $value->id }}"
+                                                        id="option_{{ $option->id }}_{{ $value->id }}"
+                                                        wire:model="editingOptions.{{ $option->id }}"
+                                                        @if (in_array($value->id, $item['options'] ?? [])) checked @endif>
+                                                    <label class="form-check-label"
+                                                        for="option_{{ $option->id }}_{{ $value->id }}">
+                                                        {{ $value->value }}
+                                                        @if ($value->price_adjustment != 0)
+                                                            <span class="text-success fw-bold">
+                                                                ({{ $value->price_adjustment > 0 ? '+' : '' }}${{ number_format($value->price_adjustment, 2) }})
+                                                            </span>
+                                                        @endif
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                This product has no customizable options.
+                            </div>
+                        @endif
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" wire:click="saveItemOptions">
+                        <i class="fas fa-save me-2"></i>Save Options
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('livewire:init', () => {
+        Livewire.on('showModal', (modalId) => {
+            const modal = new bootstrap.Modal(document.getElementById(modalId));
+            modal.show();
+        });
+
+        Livewire.on('hideModal', (modalId) => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+            if (modal) {
+                modal.hide();
+            }
+        });
+    });
+</script>

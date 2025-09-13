@@ -28,6 +28,8 @@ class DesignerEditOrder extends Component
     public $cartItems = [];
     public $showAddProducts = false;
     public $orderNotes = '';
+    public $editingItemIndex = null;
+    public $editingOptions = [];
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -62,6 +64,24 @@ class DesignerEditOrder extends Component
         $this->cartItems = [];
 
         foreach ($this->order->items as $item) {
+            // Load option details for display
+            $optionDetails = [];
+            if (!empty($item->options)) {
+                $options = is_array($item->options) ? $item->options : json_decode($item->options, true);
+                if (is_array($options)) {
+                    foreach ($options as $optionValueId) {
+                        $optionValue = OptionValue::with('productOption')->find($optionValueId);
+                        if ($optionValue) {
+                            $optionDetails[] = [
+                                'option_name' => $optionValue->productOption->name,
+                                'value' => $optionValue->value,
+                                'price_adjustment' => $optionValue->price_adjustment
+                            ];
+                        }
+                    }
+                }
+            }
+
             $this->cartItems[] = [
                 'id' => $item->id,
                 'product_id' => $item->product_id,
@@ -70,6 +90,7 @@ class DesignerEditOrder extends Component
                 'unit_price' => $item->unit_price,
                 'total_price' => $item->total_price,
                 'options' => $item->options ?? [],
+                'option_details' => $optionDetails,
                 'notes' => $item->notes ?? '',
                 'is_existing' => true
             ];
@@ -101,6 +122,7 @@ class DesignerEditOrder extends Component
                 'unit_price' => $product->base_price,
                 'total_price' => $product->base_price,
                 'options' => [],
+                'option_details' => [],
                 'notes' => '',
                 'is_existing' => false
             ];
@@ -128,11 +150,102 @@ class DesignerEditOrder extends Component
         }
     }
 
+    public function updatedCartItems($value, $key)
+    {
+        // Handle live updates to cart items
+        if (str_contains($key, '.quantity')) {
+            $index = explode('.', $key)[0];
+            if (isset($this->cartItems[$index]) && $this->cartItems[$index]['quantity'] > 0) {
+                $this->cartItems[$index]['total_price'] =
+                    $this->cartItems[$index]['quantity'] * $this->cartItems[$index]['unit_price'];
+            }
+        }
+    }
+
     public function updateItemNotes($index, $notes)
     {
         if (isset($this->cartItems[$index])) {
             $this->cartItems[$index]['notes'] = $notes;
         }
+    }
+
+    public function editItemOptions($index)
+    {
+        if (isset($this->cartItems[$index])) {
+            $this->editingItemIndex = $index;
+            $this->editingOptions = [];
+
+            // Load current options
+            if (!empty($this->cartItems[$index]['options'])) {
+                $options = is_array($this->cartItems[$index]['options']) ?
+                    $this->cartItems[$index]['options'] :
+                    json_decode($this->cartItems[$index]['options'], true);
+
+                if (is_array($options)) {
+                    foreach ($options as $optionValueId) {
+                        $optionValue = OptionValue::with('productOption')->find($optionValueId);
+                        if ($optionValue) {
+                            $this->editingOptions[$optionValue->productOption->id] = $optionValueId;
+                        }
+                    }
+                }
+            }
+
+            // Show modal
+            $this->dispatch('showModal', 'editOptionsModal');
+        }
+    }
+
+    public function saveItemOptions()
+    {
+        if ($this->editingItemIndex !== null && isset($this->cartItems[$this->editingItemIndex])) {
+            $product = Product::with(['options.values'])->find($this->cartItems[$this->editingItemIndex]['product_id']);
+
+            if ($product) {
+                // Calculate new unit price
+                $basePrice = $product->base_price;
+                $optionsPrice = 0;
+                $selectedOptions = [];
+
+                foreach ($this->editingOptions as $optionId => $valueId) {
+                    if ($valueId) {
+                        $optionValue = OptionValue::find($valueId);
+                        if ($optionValue) {
+                            $optionsPrice += $optionValue->price_adjustment;
+                            $selectedOptions[] = $valueId;
+                        }
+                    }
+                }
+
+                $newUnitPrice = $basePrice + $optionsPrice;
+                $newTotalPrice = $newUnitPrice * $this->cartItems[$this->editingItemIndex]['quantity'];
+
+                // Update cart item
+                $this->cartItems[$this->editingItemIndex]['unit_price'] = $newUnitPrice;
+                $this->cartItems[$this->editingItemIndex]['total_price'] = $newTotalPrice;
+                $this->cartItems[$this->editingItemIndex]['options'] = $selectedOptions;
+
+                // Update option details for display
+                $optionDetails = [];
+                foreach ($selectedOptions as $optionValueId) {
+                    $optionValue = OptionValue::with('productOption')->find($optionValueId);
+                    if ($optionValue) {
+                        $optionDetails[] = [
+                            'option_name' => $optionValue->productOption->name,
+                            'value' => $optionValue->value,
+                            'price_adjustment' => $optionValue->price_adjustment
+                        ];
+                    }
+                }
+                $this->cartItems[$this->editingItemIndex]['option_details'] = $optionDetails;
+
+                session()->flash('success', 'Product options updated successfully!');
+            }
+        }
+
+        $this->editingItemIndex = null;
+        $this->editingOptions = [];
+        $this->dispatch('hideModal', 'editOptionsModal');
     }
 
     public function toggleAddProducts()

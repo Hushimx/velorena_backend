@@ -14,3 +14,52 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Language Dropdown Styles */
+.language-dropdown .btn {
+    border: 1px solid #dee2e6;
+    background-color: transparent;
+    color: #495057;
+    font-size: 0.9rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    transition: all 0.15s ease-in-out;
+}
+
+.language-dropdown .btn:hover {
+    background-color: #f8f9fa;
+    border-color: #adb5bd;
+    color: #212529;
+}
+
+.language-dropdown .btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.language-dropdown .dropdown-menu {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    min-width: 120px;
+}
+
+.language-dropdown .dropdown-item {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    transition: all 0.15s ease-in-out;
+}
+
+.language-dropdown .dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+.language-dropdown .dropdown-item.active {
+    background-color: #007bff;
+    color: white;
+}
+
+.language-dropdown .dropdown-item.active:hover {
+    background-color: #0056b3;
+    color: white;
+}
