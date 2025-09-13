@@ -4,6 +4,9 @@
 @section('title', trans('products.products'))
 
 @section('content')
+    <!-- Navbar from Welcome Page -->
+    <x-navbar />
+
     <div class="products-page">
         <!-- Header Section -->
         <div class="products-header">
@@ -41,13 +44,18 @@
         </div>
     </div>
 
+    <!-- Footer from Welcome Page -->
+    <x-footer />
+
     <style>
         /* Products Page Styles - Based on Welcome Page Design */
         .products-page {
             font-family: 'Cairo', sans-serif;
             background: linear-gradient(180deg, #FFEBC6 0%, #FFFFFF 100%);
-            min-height: 100vh;
+            min-height: calc(100vh - 96px);
+            /* Account for navbar height */
             direction: rtl;
+            padding-top: 0;
         }
 
         /* Header Styles */
