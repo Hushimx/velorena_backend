@@ -16,7 +16,7 @@
                         <h1 class="products-title">{{ trans('products.products') }}</h1>
                         <p class="products-subtitle">{{ trans('products.browse_our_products') }}</p>
                     </div>
-                    <div class="col-md-4 text-md-end">
+                    <div class="col-md-4 text-md-end d-flex justify-content-end">
                         <a href="{{ route('home') }}" class="back-btn">
                             <i class="fas fa-arrow-left"></i>
                             <span>{{ trans('dashboard.back_to_dashboard') }}</span>
@@ -90,7 +90,7 @@
         }
 
         .products-title {
-            font-family: 'Caveat', cursive;
+            font-family: 'Cairo', cursive;
             font-size: 3.5rem;
             font-weight: 700;
             color: #FFEBC6;
@@ -124,7 +124,7 @@
             gap: 0.5rem;
             transition: all 0.3s ease;
             text-decoration: none;
-            font-family: 'Caveat', cursive;
+            font-family: 'Cairo', cursive;
             font-size: 1.1rem;
             box-shadow: 0 4px 15px rgba(255, 235, 198, 0.3);
             position: relative;

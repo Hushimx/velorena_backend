@@ -66,6 +66,9 @@
 
 <!-- Bootstrap JavaScript -->
 <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@livewireScripts
 </body>
 
 </html>

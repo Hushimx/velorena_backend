@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/css/home-page.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 
 <body>

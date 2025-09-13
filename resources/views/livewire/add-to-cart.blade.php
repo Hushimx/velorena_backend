@@ -1,11 +1,9 @@
 <div>
     <!-- Add to Cart Button -->
-    <button wire:click="openModal"
-        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-        <i class="fas fa-shopping-cart mr-2"></i>
+    <button wire:click="openModal" class="add-to-cart-btn" wire:loading.attr="disabled">
+        <i class="fas fa-shopping-cart"></i>
         {{ trans('cart.add_to_cart') }}
     </button>
-
 
     <!-- Error Messages (outside modal) -->
     @if (session()->has('error'))
@@ -16,80 +14,78 @@
 
     <!-- Modal -->
     @if ($showModal)
-        <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                <div class="mt-3">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900">
+        <div class="add-to-cart-modal-overlay" wire:click.self="closeModal">
+            <div class="add-to-cart-modal-container" wire:click.stop>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">
                             {{ trans('cart.add_to_cart') }}
                         </h3>
-                        <button wire:click="closeModal" class="text-gray-400 hover:text-gray-600">
+                        <button wire:click="closeModal" class="modal-close-btn">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
 
-                    <div class="space-y-4">
+                    <div class="modal-body">
                         <!-- Error Messages -->
                         @if (session()->has('error'))
-                            <div class="bg-red-50 border border-red-200 rounded-lg p-3">
-                                <div class="flex items-center">
-                                    <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
-                                    <span class="text-red-800">{{ session('error') }}</span>
-                                </div>
+                            <div class="modal-error-message">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span>{{ session('error') }}</span>
                             </div>
                         @endif
 
                         <!-- Product Info -->
-                        <div class="bg-gray-50 p-3 rounded-lg">
-                            <h4 class="font-medium text-gray-900">{{ $product->name }}</h4>
-                            <p class="text-green-600 font-semibold">
+                        <div class="modal-product-info">
+                            <h4 class="modal-product-name">{{ $product->name }}</h4>
+                            <p class="modal-product-price">
                                 {{ number_format($product->base_price, 2) }} {{ trans('products.currency') }}
                             </p>
                         </div>
 
                         <!-- Quantity -->
-                        <div>
-                            <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">
+                        <div class="modal-quantity-section">
+                            <label for="quantity" class="modal-label">
                                 {{ trans('cart.quantity') }}
                             </label>
-                            <input type="number" wire:model="quantity" min="1" max="100"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="number" wire:model.blur="quantity" min="1" max="100"
+                                class="modal-input" value="{{ $quantity }}">
                             @error('quantity')
-                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                                <span class="modal-error">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <!-- Product Options -->
                         @if ($product->options->count() > 0)
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <div class="modal-options-section">
+                                <label class="modal-label">
                                     {{ trans('cart.options') }}
                                 </label>
-                                <div class="space-y-3">
+                                <div class="modal-options-container">
                                     @foreach ($product->options as $option)
                                         <div
-                                            class="border border-gray-200 rounded-lg p-3 {{ $errors->has('selectedOptions.' . $option->id) ? 'border-red-300 bg-red-50' : '' }}">
-                                            <div class="flex justify-between items-center mb-2">
-                                                <span class="font-medium text-gray-700">{{ $option->name }}</span>
+                                            class="modal-option-card {{ $errors->has('selectedOptions.' . $option->id) ? 'error' : '' }}">
+                                            <div class="modal-option-header">
+                                                <span class="modal-option-name">{{ $option->name }}</span>
                                                 @if ($option->is_required)
                                                     <span
-                                                        class="text-red-500 text-xs font-medium">{{ trans('products.required') }}</span>
+                                                        class="modal-required-badge">{{ trans('products.required') }}</span>
                                                 @endif
                                             </div>
 
                                             @if ($option->values->count() > 0)
-                                                <div class="space-y-2">
+                                                <div class="modal-option-values">
                                                     @foreach ($option->values as $value)
-                                                        <label class="flex items-center">
+                                                        <label class="modal-option-value">
                                                             <input type="radio"
-                                                                wire:model="selectedOptions.{{ $option->id }}"
+                                                                wire:model.blur="selectedOptions.{{ $option->id }}"
                                                                 value="{{ $value->id }}"
-                                                                name="option_{{ $option->id }}" class="mr-2">
-                                                            <span class="text-sm text-gray-700">
+                                                                name="option_{{ $option->id }}">
+                                                            <span class="modal-option-text">
                                                                 {{ $value->value }}
                                                                 @if ($value->price_adjustment != 0)
                                                                     <span
-                                                                        class="text-sm {{ $value->price_adjustment > 0 ? 'text-green-600' : 'text-red-600' }}">
+                                                                        class="modal-price-adjustment {{ $value->price_adjustment > 0 ? 'positive' : 'negative' }}">
                                                                         ({{ $value->price_adjustment > 0 ? '+' : '' }}{{ number_format($value->price_adjustment, 2) }}
                                                                         {{ trans('products.currency') }})
                                                                     </span>
@@ -98,7 +94,7 @@
                                                         </label>
                                                     @endforeach
                                                     @error('selectedOptions.' . $option->id)
-                                                        <span class="text-red-500 text-sm">{{ $message }}</span>
+                                                        <span class="modal-error">{{ $message }}</span>
                                                     @enderror
                                                 </div>
                                             @endif
@@ -109,13 +105,15 @@
                         @endif
 
                         <!-- Order Summary -->
-                        <div class="bg-gray-50 rounded-lg p-3">
-                            <h4 class="font-medium text-gray-900 mb-2">
-                                {{ trans('cart.order_summary') }}</h4>
-                            <div class="space-y-1 text-sm">
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">{{ trans('cart.base_price') }}:</span>
-                                    <span class="font-medium">${{ number_format($product->base_price, 2) }}</span>
+                        <div class="modal-order-summary">
+                            <h4 class="modal-summary-title">
+                                {{ trans('cart.order_summary') }}
+                            </h4>
+                            <div class="modal-summary-details">
+                                <div class="modal-summary-row">
+                                    <span class="modal-summary-label">{{ trans('cart.base_price') }}:</span>
+                                    <span
+                                        class="modal-summary-value">${{ number_format($product->base_price, 2) }}</span>
                                 </div>
                                 @php
                                     $totalPrice = $product->base_price;
@@ -132,61 +130,54 @@
                                     $finalPrice = $totalPrice * $quantity;
                                 @endphp
                                 @if ($optionsPrice > 0)
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">{{ trans('cart.options_price') }}:</span>
+                                    <div class="modal-summary-row">
+                                        <span class="modal-summary-label">{{ trans('cart.options_price') }}:</span>
                                         <span
-                                            class="font-medium text-green-600">+${{ number_format($optionsPrice, 2) }}</span>
+                                            class="modal-summary-value positive">+${{ number_format($optionsPrice, 2) }}</span>
                                     </div>
                                 @endif
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">{{ trans('cart.quantity') }}:</span>
-                                    <span class="font-medium">{{ $quantity }}</span>
+                                <div class="modal-summary-row">
+                                    <span class="modal-summary-label">{{ trans('cart.quantity') }}:</span>
+                                    <span class="modal-summary-value">{{ $quantity }}</span>
                                 </div>
-                                <div class="border-t pt-1 mt-1">
-                                    <div class="flex justify-between font-semibold text-lg">
-                                        <span class="text-gray-900">{{ trans('cart.total') }}:</span>
-                                        <span class="text-blue-600">${{ number_format($finalPrice, 2) }}</span>
+                                <div class="modal-summary-total">
+                                    <div class="modal-summary-row">
+                                        <span class="modal-summary-label">{{ trans('cart.total') }}:</span>
+                                        <span
+                                            class="modal-summary-total-price">${{ number_format($finalPrice, 2) }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Notes -->
-                        <div>
-                            <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">
+                        <div class="modal-notes-section">
+                            <label for="notes" class="modal-label">
                                 {{ trans('cart.notes') }}
-                                ({{ trans('cart.optional') }})
+                                <span class="modal-optional">({{ trans('cart.optional') }})</span>
                             </label>
-                            <textarea wire:model="notes" rows="3" placeholder="{{ trans('cart.notes_placeholder') }}"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            <textarea wire:model.blur="notes" rows="3" placeholder="{{ trans('cart.notes_placeholder') }}"
+                                class="modal-textarea"></textarea>
                             @error('notes')
-                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                                <span class="modal-error">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex space-x-3 mt-6">
+                    <div class="modal-actions">
                         <button type="button" wire:click="addToCart" wire:loading.attr="disabled"
-                            wire:loading.class="opacity-50 cursor-not-allowed"
-                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors disabled:opacity-50">
+                            wire:loading.class="loading" class="modal-confirm-btn">
                             <span wire:loading.remove wire:target="addToCart">
+                                <i class="fas fa-shopping-cart"></i>
                                 {{ trans('cart.add_to_cart') }}
                             </span>
-                            <span wire:loading wire:target="addToCart" class="inline-flex items-center">
-                                <svg class="animate-spin h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                    viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10"
-                                        stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                    </path>
-                                </svg>
+                            <span wire:loading wire:target="addToCart" class="modal-loading">
+                                <i class="fas fa-spinner fa-spin"></i>
                                 {{ trans('cart.adding') }}
                             </span>
                         </button>
-                        <button type="button" wire:click="closeModal"
-                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-colors">
+                        <button type="button" wire:click="closeModal" class="modal-cancel-btn">
                             {{ trans('cart.cancel') }}
                         </button>
                     </div>
@@ -195,103 +186,10 @@
         </div>
     @endif
 
-    <!-- JavaScript for cart integration -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('AddToCart JavaScript loaded');
-
-            // Function to handle adding to cart
-            function addToCartHandler(cartItem) {
-                console.log('🎉 AddToCart event received:', cartItem);
-
-                let cartData = JSON.parse(localStorage.getItem('shopping_cart') ||
-                    '{"items": [], "total": 0, "itemCount": 0}');
-
-                console.log('Current cart data:', cartData);
-
-                // Check if product already exists in cart
-                const existingItemIndex = cartData.items.findIndex(item =>
-                    item.product_id === cartItem.product_id &&
-                    JSON.stringify(item.selected_options) === JSON.stringify(cartItem.selected_options)
-                );
-
-                if (existingItemIndex !== -1) {
-                    // Update existing item quantity
-                    cartData.items[existingItemIndex].quantity += cartItem.quantity;
-                    cartData.items[existingItemIndex].total_price = cartData.items[existingItemIndex]
-                        .unit_price * cartData.items[existingItemIndex].quantity;
-                    console.log('Updated existing item');
-                } else {
-                    // Add new item
-                    cartData.items.push(cartItem);
-                    console.log('Added new item');
-                }
-
-                // Update totals
-                cartData.itemCount = cartData.items.reduce((sum, item) => sum + (item.quantity || 0), 0);
-                cartData.total = cartData.items.reduce((sum, item) => sum + (item.total_price || 0), 0);
-
-                console.log('Updated cart data:', cartData);
-
-                // Save to localStorage
-                localStorage.setItem('shopping_cart', JSON.stringify(cartData));
-
-                // Update cart count immediately
-                if (window.updateCartCount) {
-                    window.updateCartCount();
-                }
-
-                // Dispatch cart updated event
-                document.dispatchEvent(new CustomEvent('cartUpdated'));
-
-                // Show success message
-                Swal.fire({
-                    title: '{{ app()->getLocale() === 'ar' ? 'تمت الإضافة!' : 'Added to Cart!' }}',
-                    text: '{{ app()->getLocale() === 'ar' ? 'تم إضافة المنتج إلى السلة بنجاح' : 'Product added to cart successfully!' }}',
-                    icon: 'success',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            }
-
-            // Note: Cart addition is now handled directly in the Livewire component
-
-            // Note: Removed browser event listener to prevent duplicate additions
-
-            // Test function
-            window.testCart = function() {
-                console.log('Testing cart...');
-                const testItem = {
-                    product_id: 999,
-                    product_name: 'Test Product',
-                    product_image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2NjY2NjYyIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmaWxsPSIjNjY2NjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+VGVzdDwvdGV4dD48L3N2Zz4=',
-                    base_price: 10.00,
-                    unit_price: 10.00,
-                    quantity: 1,
-                    total_price: 10.00,
-                    selected_options: {},
-                    notes: 'Test item'
-                };
-                addToCartHandler(testItem);
-            };
-        });
-    </script>
-
-    <!-- Database Cart JavaScript (New Implementation) -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('AddToCart JavaScript loaded - Database Cart Mode');
-
-            // Listen for cart updates
-            document.addEventListener('cartUpdated', function() {
-                console.log('Cart updated event received in AddToCart - Database Cart Mode');
-            });
-
             // Listen for success toast event
             Livewire.on('showSuccessToast', (event) => {
-                console.log('Success toast event received:', event.message);
-
-                // Show success toast using SweetAlert or custom toast
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         title: '{{ app()->getLocale() === 'ar' ? 'تمت الإضافة!' : 'Success!' }}',
@@ -304,10 +202,456 @@
                         position: 'top-end'
                     });
                 } else {
-                    // Fallback: show simple alert
                     alert(event.message || 'Item added to cart successfully!');
                 }
             });
         });
     </script>
+
+    <style>
+        /* Prevent Bootstrap modal conflicts */
+        .modal-backdrop.show {
+            opacity: 0 !important;
+        }
+
+        .modal.show {
+            display: none !important;
+        }
+
+        /* Add to Cart Button Styles */
+        .add-to-cart-btn {
+            background: linear-gradient(135deg, #c4a700 0%, #FFD700 100%);
+            color: #2C2C2C;
+            border: 2px solid #c4a700;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-family: 'Cairo', cursive;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(196, 167, 0, 0.3);
+        }
+
+        .add-to-cart-btn:hover {
+            background: linear-gradient(135deg, #FFD700 0%, #FFEBC6 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(196, 167, 0, 0.4);
+        }
+
+        /* Modal Overlay Styles */
+        .add-to-cart-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 9999;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .add-to-cart-modal-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideIn 0.3s ease-out;
+            transform-origin: center;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-content {
+            padding: 2rem;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .modal-title {
+            font-family: 'Cairo', cursive;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2C2C2C;
+            margin: 0;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close-btn:hover {
+            background: #f3f4f6;
+            color: #2C2C2C;
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .modal-error-message {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border: 1px solid #ef5350;
+            border-radius: 10px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #c62828;
+        }
+
+        .modal-product-info {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .modal-product-name {
+            font-family: 'Cairo', cursive;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2C2C2C;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .modal-product-price {
+            color: #c4a700;
+            font-family: 'Cairo', cursive;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .modal-label {
+            display: block;
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .modal-optional {
+            color: #666;
+            font-weight: 400;
+            font-size: 0.9rem;
+        }
+
+        .modal-input,
+        .modal-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .modal-input:focus,
+        .modal-textarea:focus {
+            outline: none;
+            border-color: #c4a700;
+            box-shadow: 0 0 0 3px rgba(196, 167, 0, 0.1);
+        }
+
+        .modal-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modal-options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .modal-option-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .modal-option-card.error {
+            border-color: #ef5350;
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+        }
+
+        .modal-option-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .modal-option-name {
+            font-weight: 600;
+            color: #2C2C2C;
+            font-size: 1.1rem;
+        }
+
+        .modal-required-badge {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            color: #c62828;
+            border: 1px solid #ef5350;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .modal-option-values {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .modal-option-value {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-option-value:hover {
+            border-color: #c4a700;
+            box-shadow: 0 2px 8px rgba(196, 167, 0, 0.1);
+        }
+
+        .modal-option-value input[type="radio"] {
+            margin: 0;
+            accent-color: #c4a700;
+        }
+
+        .modal-option-text {
+            color: #2C2C2C;
+            font-weight: 500;
+        }
+
+        .modal-price-adjustment {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .modal-price-adjustment.positive {
+            color: #2e7d32;
+        }
+
+        .modal-price-adjustment.negative {
+            color: #c62828;
+        }
+
+        .modal-order-summary {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .modal-summary-title {
+            font-family: 'Cairo', cursive;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2C2C2C;
+            margin: 0 0 1rem 0;
+        }
+
+        .modal-summary-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .modal-summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+
+        .modal-summary-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .modal-summary-value {
+            color: #2C2C2C;
+            font-weight: 600;
+        }
+
+        .modal-summary-value.positive {
+            color: #2e7d32;
+        }
+
+        .modal-summary-total {
+            border-top: 2px solid #e5e7eb;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+        }
+
+        .modal-summary-total-price {
+            color: #c4a700;
+            font-family: 'Cairo', cursive;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .modal-notes-section {
+            margin-top: 1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .modal-confirm-btn {
+            flex: 1;
+            background: linear-gradient(135deg, #c4a700 0%, #FFD700 100%);
+            color: #2C2C2C;
+            border: 2px solid #c4a700;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-family: 'Cairo', cursive;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(196, 167, 0, 0.3);
+        }
+
+        .modal-confirm-btn:hover {
+            background: linear-gradient(135deg, #FFD700 0%, #FFEBC6 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(196, 167, 0, 0.4);
+        }
+
+        .modal-confirm-btn.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .modal-cancel-btn {
+            background: #fff;
+            color: #2C2C2C;
+            border: 2px solid #e5e7eb;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Cairo', cursive;
+            font-size: 1.1rem;
+        }
+
+        .modal-cancel-btn:hover {
+            background: #FFEBC6;
+            border-color: #c4a700;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(196, 167, 0, 0.2);
+        }
+
+        .modal-loading {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-error {
+            color: #c62828;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .add-to-cart-modal-overlay {
+                padding: 10px;
+            }
+
+            .add-to-cart-modal-container {
+                max-width: none;
+                margin: 0;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .add-to-cart-modal-overlay {
+                padding: 5px;
+            }
+
+            .modal-content {
+                padding: 1rem;
+            }
+        }
+    </style>
 </div>
