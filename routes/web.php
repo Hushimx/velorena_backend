@@ -46,7 +46,7 @@ Route::group(
         Auth::routes();
 
         Route::get('/', function () {
-            return view('home.welcome');
+            return view('users.welcome');
         });
         Route::get('/home', [HomeController::class, 'index'])->name('home');
         Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');

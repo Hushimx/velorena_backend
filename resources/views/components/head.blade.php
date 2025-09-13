@@ -13,7 +13,7 @@
         href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cairo:wght@300;400;600;700;900&display=swap"
         rel="stylesheet">
     {{-- bootstrap --}}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Swiper CSS -->
