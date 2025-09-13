@@ -70,4 +70,10 @@ return [
     'invalid_product' => 'Invalid product.',
     'quantity_minimum' => 'Minimum quantity is 1. Use remove button to delete item.',
     'success' => 'Success!',
+
+    // Design-related translations
+    'select_designs' => 'Select Designs',
+    'save_designs' => 'Save Designs',
+    'selected_designs' => 'Selected Designs',
+    'confirm_remove_design' => 'Are you sure you want to remove :design from :product?',
 ];

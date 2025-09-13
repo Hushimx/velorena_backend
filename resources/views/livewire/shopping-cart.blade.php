@@ -85,6 +85,35 @@
                                 </div>
                             @endif
 
+                            <!-- Selected Designs -->
+                            @if (!empty($item['designs']) && count($item['designs']) > 0)
+                                <div class="cart-item-designs">
+                                    <h4 class="designs-title">{{ trans('cart.selected_designs') }}:</h4>
+                                    <div class="designs-list">
+                                        @foreach ($item['designs'] as $design)
+                                            <div class="design-item">
+                                                <div class="design-thumbnail">
+                                                    <img src="{{ $design['thumbnail_url'] ?? $design['image_url'] }}"
+                                                        alt="{{ $design['title'] }}" class="design-thumb">
+                                                </div>
+                                                <div class="design-info">
+                                                    <span class="design-title">{{ $design['title'] }}</span>
+                                                    @if (!empty($design['notes']))
+                                                        <span class="design-notes">({{ $design['notes'] }})</span>
+                                                    @endif
+                                                </div>
+                                                <button
+                                                    wire:click="removeDesignFromProduct({{ $item['product_id'] }}, {{ $design['id'] }})"
+                                                    class="remove-design-btn"
+                                                    wire:confirm="{{ trans('cart.confirm_remove_design', ['design' => $design['title'], 'product' => $item['product_name']]) }}">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
                             <!-- Notes -->
                             @if (!empty($item['notes']))
                                 <div class="cart-item-notes">
@@ -114,8 +143,13 @@
                             </div>
                         </div>
 
-                        <!-- Remove Button -->
+                        <!-- Actions -->
                         <div class="cart-item-actions">
+                            <button wire:click="openDesignModal({{ $item['product_id'] ?? 0 }})"
+                                class="add-design-btn">
+                                <i class="fas fa-palette"></i>
+                                <span>{{ trans('cart.select_designs') }}</span>
+                            </button>
                             <button wire:click="removeItem({{ $item['id'] ?? 0 }})" class="remove-item-btn">
                                 <i class="fas fa-trash"></i>
                                 <span>{{ trans('cart.remove') }}</span>
@@ -156,6 +190,33 @@
                     <button wire:click="bookAppointment" class="appointment-btn">
                         <i class="fas fa-calendar-plus"></i>
                         <span>{{ trans('cart.make_appointment') }}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Design Selection Modal -->
+    @if ($showDesignModal)
+        <div class="design-modal-overlay" wire:click="closeDesignModal">
+            <div class="design-modal" wire:click.stop>
+                <div class="design-modal-header">
+                    <h3 class="design-modal-title">{{ trans('cart.select_designs') }} -
+                        {{ $currentProduct->name ?? '' }}</h3>
+                    <button wire:click="closeDesignModal" class="design-modal-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="design-modal-content">
+                    @livewire('design-selector', ['productId' => $currentProductId ?? null])
+                </div>
+                <div class="design-modal-footer">
+                    <button wire:click="saveSelectedDesigns" class="save-designs-btn">
+                        <i class="fas fa-save"></i>
+                        <span>{{ trans('cart.save_designs') }}</span>
+                    </button>
+                    <button wire:click="closeDesignModal" class="cancel-btn">
+                        <span>{{ trans('cart.cancel') }}</span>
                     </button>
                 </div>
             </div>
@@ -546,6 +607,766 @@
             background: linear-gradient(135deg, #ffcdd2 0%, #ef9a9a 100%);
             color: #b71c1c;
             box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+        }
+
+        /* Add Design Button */
+        .add-design-btn {
+            background: linear-gradient(135deg, #FFEBC6 0%, #F4D03F 100%);
+            color: #8B4513;
+            border: 2px solid rgba(139, 69, 19, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .add-design-btn:hover {
+            background: linear-gradient(135deg, #F4D03F 0%, #FFEBC6 100%);
+            color: #8B4513;
+            box-shadow: 0 4px 12px rgba(244, 208, 63, 0.3);
+        }
+
+        /* Cart Item Actions */
+        .cart-item-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Selected Designs */
+        .cart-item-designs {
+            margin-bottom: 1rem;
+        }
+
+        .designs-title {
+            color: #6c757d;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .designs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .design-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(255, 235, 198, 0.1);
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 1px solid rgba(244, 208, 63, 0.2);
+        }
+
+        .design-thumbnail {
+            flex-shrink: 0;
+        }
+
+        .design-thumb {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid rgba(139, 69, 19, 0.2);
+        }
+
+        .design-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .design-title {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+
+        .design-notes {
+            font-style: italic;
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+
+        .remove-design-btn {
+            background: rgba(211, 47, 47, 0.1);
+            color: #d32f2f;
+            border: 1px solid rgba(211, 47, 47, 0.2);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+
+        .remove-design-btn:hover {
+            background: rgba(211, 47, 47, 0.2);
+            color: #b71c1c;
+        }
+
+        /* Design Modal */
+        .design-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .design-modal {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .design-modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #FFEBC6 0%, #F4D03F 100%);
+        }
+
+        .design-modal-title {
+            color: #8B4513;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .design-modal-close {
+            background: rgba(139, 69, 19, 0.1);
+            color: #8B4513;
+            border: 1px solid rgba(139, 69, 19, 0.2);
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .design-modal-close:hover {
+            background: rgba(139, 69, 19, 0.2);
+        }
+
+        .design-modal-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            background: #f8f9fa;
+        }
+
+        /* Bootstrap overrides for design selector */
+        .design-modal-content .design-selector {
+            background: transparent;
+            padding: 0;
+        }
+
+        .design-modal-content .card {
+            border: 1px solid #e9ecef;
+            border-radius: 0.5rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .design-modal-content .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            transform: translateY(-2px);
+        }
+
+        .design-modal-content .form-control,
+        .design-modal-content .form-select {
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            font-family: 'Cairo', sans-serif;
+            direction: rtl;
+        }
+
+        .design-modal-content .form-control:focus,
+        .design-modal-content .form-select:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .design-modal-content .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .design-modal-content .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+        /* Override design selector styles for modal */
+        .design-modal-content .design-selector {
+            background: transparent;
+            padding: 0;
+        }
+
+        .design-modal-content .mb-6 {
+            margin-bottom: 1.5rem !important;
+        }
+
+        .design-modal-content .bg-white {
+            background: white !important;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .design-modal-content .grid {
+            display: grid !important;
+        }
+
+        .design-modal-content .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+        }
+
+        .design-modal-content .sm\\:grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+
+        .design-modal-content .md\\:grid-cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        }
+
+        .design-modal-content .lg\\:grid-cols-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        }
+
+        .design-modal-content .xl\\:grid-cols-5 {
+            grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+        }
+
+        .design-modal-content .gap-4 {
+            gap: 1rem !important;
+        }
+
+        .design-modal-content .p-4 {
+            padding: 1rem !important;
+        }
+
+        .design-modal-content .p-3 {
+            padding: 0.75rem !important;
+        }
+
+        .design-modal-content .rounded-lg {
+            border-radius: 0.5rem !important;
+        }
+
+        .design-modal-content .shadow {
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+        }
+
+        .design-modal-content .shadow-md {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+        }
+
+        .design-modal-content .shadow-lg {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .design-modal-content .hover\\:shadow-lg:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .design-modal-content .transition-shadow {
+            transition-property: box-shadow !important;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+            transition-duration: 150ms !important;
+        }
+
+        .design-modal-content .duration-200 {
+            transition-duration: 200ms !important;
+        }
+
+        .design-modal-content .overflow-hidden {
+            overflow: hidden !important;
+        }
+
+        .design-modal-content .aspect-square {
+            aspect-ratio: 1 / 1 !important;
+        }
+
+        .design-modal-content .bg-gray-100 {
+            background-color: #f3f4f6 !important;
+        }
+
+        .design-modal-content .w-full {
+            width: 100% !important;
+        }
+
+        .design-modal-content .h-full {
+            height: 100% !important;
+        }
+
+        .design-modal-content .object-cover {
+            object-fit: cover !important;
+        }
+
+        .design-modal-content .cursor-pointer {
+            cursor: pointer !important;
+        }
+
+        .design-modal-content .relative {
+            position: relative !important;
+        }
+
+        .design-modal-content .absolute {
+            position: absolute !important;
+        }
+
+        .design-modal-content .top-2 {
+            top: 0.5rem !important;
+        }
+
+        .design-modal-content .right-2 {
+            right: 0.5rem !important;
+        }
+
+        .design-modal-content .w-4 {
+            width: 1rem !important;
+        }
+
+        .design-modal-content .h-4 {
+            height: 1rem !important;
+        }
+
+        .design-modal-content .text-blue-600 {
+            color: #2563eb !important;
+        }
+
+        .design-modal-content .bg-gray-100 {
+            background-color: #f3f4f6 !important;
+        }
+
+        .design-modal-content .border-gray-300 {
+            border-color: #d1d5db !important;
+        }
+
+        .design-modal-content .rounded {
+            border-radius: 0.25rem !important;
+        }
+
+        .design-modal-content .focus\\:ring-blue-500:focus {
+            --tw-ring-color: #3b82f6 !important;
+        }
+
+        .design-modal-content .focus\\:ring-2:focus {
+            --tw-ring-offset-width: 2px !important;
+            box-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color) !important;
+        }
+
+        .design-modal-content .font-medium {
+            font-weight: 500 !important;
+        }
+
+        .design-modal-content .text-sm {
+            font-size: 0.875rem !important;
+            line-height: 1.25rem !important;
+        }
+
+        .design-modal-content .text-gray-900 {
+            color: #111827 !important;
+        }
+
+        .design-modal-content .truncate {
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+        }
+
+        .design-modal-content .text-xs {
+            font-size: 0.75rem !important;
+            line-height: 1rem !important;
+        }
+
+        .design-modal-content .text-gray-500 {
+            color: #6b7280 !important;
+        }
+
+        .design-modal-content .mt-1 {
+            margin-top: 0.25rem !important;
+        }
+
+        .design-modal-content .mt-2 {
+            margin-top: 0.5rem !important;
+        }
+
+        .design-modal-content .mb-2 {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .design-modal-content .px-2 {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+
+        .design-modal-content .py-1 {
+            padding-top: 0.25rem !important;
+            padding-bottom: 0.25rem !important;
+        }
+
+        .design-modal-content .border {
+            border-width: 1px !important;
+        }
+
+        .design-modal-content .focus\\:ring-1:focus {
+            --tw-ring-offset-width: 1px !important;
+            box-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color) !important;
+        }
+
+        .design-modal-content .focus\\:border-blue-500:focus {
+            border-color: #3b82f6 !important;
+        }
+
+        .design-modal-content .rows-2 {
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            resize: vertical !important;
+        }
+
+        .design-modal-content .text-center {
+            text-align: center !important;
+        }
+
+        .design-modal-content .py-8 {
+            padding-top: 2rem !important;
+            padding-bottom: 2rem !important;
+        }
+
+        .design-modal-content .text-gray-500 {
+            color: #6b7280 !important;
+        }
+
+        .design-modal-content .col-span-full {
+            grid-column: 1 / -1 !important;
+        }
+
+        .design-modal-content .mx-auto {
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
+        .design-modal-content .h-12 {
+            height: 3rem !important;
+        }
+
+        .design-modal-content .w-12 {
+            width: 3rem !important;
+        }
+
+        .design-modal-content .text-gray-400 {
+            color: #9ca3af !important;
+        }
+
+        .design-modal-content .mt-2 {
+            margin-top: 0.5rem !important;
+        }
+
+        .design-modal-content .text-sm {
+            font-size: 0.875rem !important;
+            line-height: 1.25rem !important;
+        }
+
+        .design-modal-content .font-medium {
+            font-weight: 500 !important;
+        }
+
+        .design-modal-content .text-gray-900 {
+            color: #111827 !important;
+        }
+
+        .design-modal-content .mt-1 {
+            margin-top: 0.25rem !important;
+        }
+
+        /* Input and form styles */
+        .design-modal-content input,
+        .design-modal-content select,
+        .design-modal-content textarea {
+            font-family: 'Cairo', sans-serif !important;
+            direction: rtl !important;
+        }
+
+        .design-modal-content .block {
+            display: block !important;
+        }
+
+        .design-modal-content .text-sm {
+            font-size: 0.875rem !important;
+            line-height: 1.25rem !important;
+        }
+
+        .design-modal-content .font-medium {
+            font-weight: 500 !important;
+        }
+
+        .design-modal-content .text-gray-700 {
+            color: #374151 !important;
+        }
+
+        .design-modal-content .mb-2 {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .design-modal-content .relative {
+            position: relative !important;
+        }
+
+        .design-modal-content .w-full {
+            width: 100% !important;
+        }
+
+        .design-modal-content .px-4 {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+
+        .design-modal-content .py-2 {
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+        }
+
+        .design-modal-content .border {
+            border-width: 1px !important;
+        }
+
+        .design-modal-content .border-gray-300 {
+            border-color: #d1d5db !important;
+        }
+
+        .design-modal-content .rounded-md {
+            border-radius: 0.375rem !important;
+        }
+
+        .design-modal-content .focus\\:ring-2:focus {
+            --tw-ring-offset-width: 2px !important;
+            box-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color) !important;
+        }
+
+        .design-modal-content .focus\\:ring-blue-500:focus {
+            --tw-ring-color: #3b82f6 !important;
+        }
+
+        .design-modal-content .focus\\:border-blue-500:focus {
+            border-color: #3b82f6 !important;
+        }
+
+        .design-modal-content .inset-y-0 {
+            top: 0 !important;
+            bottom: 0 !important;
+        }
+
+        .design-modal-content .right-0 {
+            right: 0 !important;
+        }
+
+        .design-modal-content .pr-3 {
+            padding-right: 0.75rem !important;
+        }
+
+        .design-modal-content .flex {
+            display: flex !important;
+        }
+
+        .design-modal-content .items-center {
+            align-items: center !important;
+        }
+
+        .design-modal-content .h-5 {
+            height: 1.25rem !important;
+        }
+
+        .design-modal-content .w-5 {
+            width: 1.25rem !important;
+        }
+
+        .design-modal-content .text-gray-400 {
+            color: #9ca3af !important;
+        }
+
+        .design-modal-content .items-end {
+            align-items: flex-end !important;
+        }
+
+        .design-modal-content .bg-blue-600 {
+            background-color: #2563eb !important;
+        }
+
+        .design-modal-content .text-white {
+            color: #ffffff !important;
+        }
+
+        .design-modal-content .hover\\:bg-blue-700:hover {
+            background-color: #1d4ed8 !important;
+        }
+
+        .design-modal-content .focus\\:ring-offset-2:focus {
+            --tw-ring-offset-width: 2px !important;
+        }
+
+        .design-modal-content .disabled\\:opacity-50:disabled {
+            opacity: 0.5 !important;
+        }
+
+        .design-modal-content .inline-flex {
+            display: inline-flex !important;
+        }
+
+        .design-modal-content .items-center {
+            align-items: center !important;
+        }
+
+        .design-modal-content .font-semibold {
+            font-weight: 600 !important;
+        }
+
+        .design-modal-content .leading-6 {
+            line-height: 1.5rem !important;
+        }
+
+        .design-modal-content .text-sm {
+            font-size: 0.875rem !important;
+            line-height: 1.25rem !important;
+        }
+
+        .design-modal-content .shadow {
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+        }
+
+        .design-modal-content .rounded {
+            border-radius: 0.25rem !important;
+        }
+
+        .design-modal-content .text-white {
+            color: #ffffff !important;
+        }
+
+        .design-modal-content .bg-blue-500 {
+            background-color: #3b82f6 !important;
+        }
+
+        .design-modal-content .hover\\:bg-blue-400:hover {
+            background-color: #60a5fa !important;
+        }
+
+        .design-modal-content .transition {
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke !important;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+            transition-duration: 150ms !important;
+        }
+
+        .design-modal-content .ease-in-out {
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        .design-modal-content .duration-150 {
+            transition-duration: 150ms !important;
+        }
+
+        .design-modal-content .cursor-not-allowed {
+            cursor: not-allowed !important;
+        }
+
+        .design-modal-content .animate-spin {
+            animation: spin 1s linear infinite !important;
+        }
+
+        .design-modal-content .-ml-1 {
+            margin-left: -0.25rem !important;
+        }
+
+        .design-modal-content .mr-3 {
+            margin-right: 0.75rem !important;
+        }
+
+        .design-modal-content .h-5 {
+            height: 1.25rem !important;
+        }
+
+        .design-modal-content .w-5 {
+            width: 1.25rem !important;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg) !important;
+            }
+
+            to {
+                transform: rotate(360deg) !important;
+            }
+        }
+
+        .design-modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            background: #f8f9fa;
+        }
+
+        .save-designs-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .save-designs-btn:hover {
+            background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .cancel-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .cancel-btn:hover {
+            background: #5a6268;
         }
 
         /* Order Summary */

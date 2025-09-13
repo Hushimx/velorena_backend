@@ -70,4 +70,10 @@ return [
     'invalid_product' => 'منتج غير صالح.',
     'quantity_minimum' => 'الحد الأدنى للكمية هو 1. استخدم زر الإزالة لحذف العنصر.',
     'success' => 'تمت الإضافة!',
+
+    // Design-related translations
+    'select_designs' => 'اختر التصاميم',
+    'save_designs' => 'حفظ التصاميم',
+    'selected_designs' => 'التصاميم المختارة',
+    'confirm_remove_design' => 'هل أنت متأكد من أنك تريد إزالة :design من :product؟',
 ];

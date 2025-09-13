@@ -11,15 +11,15 @@
             <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" aria-current="page"
-                        href="{{ route('home') }}">{{ __('Home') }}</a>
+                        href="{{ route('home') }}">{{ trans('Home') }}</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('user.products.*') ? 'active' : '' }}"
-                        href="{{ route('user.products.index') }}">{{ __('Products') }}</a>
+                        href="{{ route('user.products.index') }}">{{ trans('Products') }}</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('user.orders.*') ? 'active' : '' }}"
-                        href="{{ route('user.orders.index') }}">{{ __('Orders') }}</a>
+                        href="{{ route('user.orders.index') }}">{{ trans('Orders') }}</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('cart.*') ? 'active' : '' }}"
@@ -30,7 +30,7 @@
                         href="{{ route('appointments.index') }}">{{ trans('Appointments') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">{{ __('AI Design') }}</a>
+                    <a class="nav-link" href="#">{{ trans('AI Design') }}</a>
                 </li>
             </ul>
             <ul class="navbar-nav mb-2 mb-lg-0">
@@ -39,7 +39,7 @@
                 </li>
                 <li class="nav-item">
                     <a class="btn btn-dark" type="submit">
-                        <span class="ms-2">{{ __('Book with Designer') }}</span>
+                        <span class="ms-2">{{ trans('Book with Designer') }}</span>
                         <i class="fa fa-arrow-left"></i>
                     </a>
                 </li>
