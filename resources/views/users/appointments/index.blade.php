@@ -392,6 +392,7 @@
             display: flex;
             gap: 1rem;
             align-items: center;
+            z-index: 3
         }
 
         .new-appointment-btn {
@@ -407,6 +408,7 @@
             font-size: 1rem;
             box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .new-appointment-btn:hover {
@@ -632,7 +634,7 @@
         .action-dropdown {
             position: absolute;
             top: 100%;
-            right: 0;
+            left: 0;
             background: white;
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -922,6 +924,7 @@
                 flex-direction: column;
                 gap: 0.75rem;
                 width: 100%;
+                z-index: 3
             }
 
             .new-appointment-btn,
@@ -930,6 +933,7 @@
                 justify-content: center;
                 padding: 0.875rem 1.5rem;
                 font-size: 0.9rem;
+                cursor: pointer;
             }
 
             .stats-content {
