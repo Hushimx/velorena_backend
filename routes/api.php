@@ -54,6 +54,7 @@ Route::prefix('categories')->group(function () {
 
 Route::prefix('products')->group(function () {
     Route::get('/', [ProductController::class, 'index']);
+    Route::get('/search', [ProductController::class, 'search']);
     Route::get('/{product}', [ProductController::class, 'show']);
 });
 

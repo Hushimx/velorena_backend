@@ -196,3 +196,4 @@ function filterAppointments(filter) {
 }
 </script>
 @endsection
+
