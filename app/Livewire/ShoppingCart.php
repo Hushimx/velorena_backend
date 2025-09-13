@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Log;
 class ShoppingCart extends Component
 {
     public $cartItems = [];
+    public $subtotal = 0;
+    public $tax = 0;
     public $total = 0;
     public $itemCount = 0;
     public $showCheckoutForm = false;
@@ -39,6 +41,8 @@ class ShoppingCart extends Component
     {
         if (!Auth::check()) {
             $this->cartItems = [];
+            $this->subtotal = 0;
+            $this->tax = 0;
             $this->total = 0;
             $this->itemCount = 0;
             return;
@@ -50,6 +54,8 @@ class ShoppingCart extends Component
             ->get();
 
         $this->cartItems = [];
+        $this->subtotal = 0;
+        $this->tax = 0;
         $this->total = 0;
         $this->itemCount = 0;
 
@@ -126,8 +132,14 @@ class ShoppingCart extends Component
                 'total_price' => $item->total_price
             ];
 
-            $this->total += $item->total_price;
+            $this->subtotal += $item->total_price;
         }
+
+        // Calculate tax (assuming 15% VAT rate)
+        $this->tax = $this->subtotal * 0.15;
+
+        // Calculate total
+        $this->total = $this->subtotal + $this->tax;
 
         $this->itemCount = count($this->cartItems);
     }

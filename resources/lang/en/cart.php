@@ -10,6 +10,7 @@ return [
     'empty_cart' => 'Your cart is empty',
     'empty_cart_message' => 'Add some products to get started!',
     'continue_shopping' => 'Continue Shopping',
+    'manage_your_cart_items' => 'Manage your shopping cart items',
 
     // Cart Items
     'base_price' => 'Base Price',

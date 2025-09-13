@@ -10,6 +10,7 @@ return [
     'empty_cart' => 'سلتك فارغة',
     'empty_cart_message' => 'أضف بعض المنتجات للبدء!',
     'continue_shopping' => 'متابعة التسوق',
+    'manage_your_cart_items' => 'إدارة عناصر سلة التسوق الخاصة بك',
 
     // Cart Items
     'base_price' => 'السعر الأساسي',
