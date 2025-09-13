@@ -203,13 +203,11 @@
             border: 2px solid transparent;
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
             padding: 2rem;
             margin-bottom: 2rem;
         }
 
         .search-filters-card:hover {
-            transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             border-color: #c4a700;
         }
@@ -239,7 +237,6 @@
             border: 2px solid #e5e7eb;
             border-radius: 8px;
             font-size: 1rem;
-            transition: all 0.3s ease;
             background: #fff;
             font-family: 'Cairo', sans-serif;
         }
@@ -257,12 +254,10 @@
             border: 2px solid transparent;
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
             overflow: hidden;
         }
 
         .orders-table-card:hover {
-            transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             border-color: #c4a700;
         }
@@ -300,12 +295,10 @@
 
         .table-row {
             border-bottom: 1px solid #e5e7eb;
-            transition: all 0.3s ease;
         }
 
         .table-row:hover {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            transform: translateX(-5px);
         }
 
         .table-cell {
@@ -411,7 +404,6 @@
             border-radius: 8px;
             font-weight: 600;
             font-size: 0.85rem;
-            transition: all 0.3s ease;
             text-decoration: none;
             border: none;
             cursor: pointer;
@@ -426,7 +418,6 @@
 
         .view-btn:hover {
             background: linear-gradient(135deg, #c3e6cb 0%, #a3d9a4 100%);
-            transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
 
@@ -438,7 +429,6 @@
 
         .delete-btn:hover {
             background: linear-gradient(135deg, #f5c6cb 0%, #f1aeb5 100%);
-            transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
         }
 
@@ -498,18 +488,8 @@
             padding: 20px;
             box-sizing: border-box;
             z-index: 9999;
-            animation: fadeIn 0.2s ease-in-out;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
 
         .delete-modal-container {
             background: white;
@@ -518,21 +498,9 @@
             max-width: 400px;
             width: 100%;
             position: relative;
-            animation: slideIn 0.3s ease-out;
             transform-origin: center;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9) translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
 
         .delete-modal-content {
             padding: 2rem;
@@ -589,7 +557,6 @@
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
             font-family: 'Cairo', cursive;
             font-size: 1rem;
             border: 2px solid;
@@ -605,7 +572,6 @@
 
         .modal-btn.delete-btn:hover {
             background: linear-gradient(135deg, #f5c6cb 0%, #f1aeb5 100%);
-            transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
         }
 
@@ -618,7 +584,6 @@
         .modal-btn.cancel-btn:hover {
             background: #FFEBC6;
             border-color: #c4a700;
-            transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(196, 167, 0, 0.2);
         }
 

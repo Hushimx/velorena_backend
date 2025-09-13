@@ -198,7 +198,6 @@
             align-items: center;
             gap: 0.75rem;
             box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
-            animation: slideInDown 0.3s ease-out;
         }
 
         .success-message i {
@@ -217,7 +216,6 @@
             align-items: center;
             gap: 0.75rem;
             box-shadow: 0 4px 12px rgba(220, 53, 69, 0.15);
-            animation: slideInDown 0.3s ease-out;
         }
 
         .error-message i {
@@ -233,7 +231,6 @@
             border-radius: 8px;
             font-size: 0.875rem;
             cursor: pointer;
-            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -242,7 +239,6 @@
 
         .refresh-btn:hover {
             background: rgba(255, 255, 255, 1);
-            transform: translateY(-1px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
@@ -254,11 +250,9 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             overflow: hidden;
             backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
         }
 
         .items-table-card:hover {
-            transform: translateY(-2px);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
 
@@ -303,13 +297,11 @@
         }
 
         .table-row {
-            transition: all 0.3s ease;
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .table-row:hover {
             background: linear-gradient(135deg, rgba(255, 235, 198, 0.1) 0%, rgba(244, 208, 63, 0.05) 100%);
-            transform: scale(1.01);
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         }
 
@@ -339,11 +331,9 @@
             border-radius: 12px;
             object-fit: cover;
             border: 2px solid rgba(255, 235, 198, 0.3);
-            transition: all 0.3s ease;
         }
 
         .product-image img:hover {
-            transform: scale(1.1);
             border-color: #F4D03F;
         }
 
@@ -434,7 +424,6 @@
             font-size: 0.875rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
             text-decoration: none;
         }
 
@@ -447,7 +436,6 @@
         .action-btn.delete-btn:hover {
             background: linear-gradient(135deg, #ffcdd2 0%, #ef9a9a 100%);
             color: #b71c1c;
-            transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
         }
 
@@ -573,7 +561,6 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            animation: fadeIn 0.3s ease-out;
         }
 
         .delete-modal-container {
@@ -584,7 +571,6 @@
             max-width: 500px;
             width: 90%;
             margin: 1rem;
-            animation: slideInUp 0.3s ease-out;
             overflow: hidden;
         }
 
@@ -645,7 +631,6 @@
             font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
             text-decoration: none;
             min-width: 120px;
             justify-content: center;
@@ -660,7 +645,6 @@
         .modal-btn.delete-btn:hover {
             background: linear-gradient(135deg, #ffcdd2 0%, #ef9a9a 100%);
             color: #b71c1c;
-            transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(211, 47, 47, 0.3);
         }
 
@@ -673,14 +657,12 @@
         .modal-btn.cancel-btn:hover {
             background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
             color: #495057;
-            transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(108, 117, 125, 0.3);
         }
 
         .modal-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none !important;
         }
 
         .loading-spinner {
@@ -689,40 +671,6 @@
             gap: 0.5rem;
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
 
         /* Responsive Design */
         @media (max-width: 768px) {

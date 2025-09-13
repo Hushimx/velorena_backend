@@ -145,7 +145,7 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-family: 'Caveat', cursive;
+            font-family: 'Cairo', cursive;
             font-weight: 600;
             font-size: 1.1rem;
             color: #2C2C2C;
@@ -264,7 +264,7 @@
             gap: 0.5rem;
             transition: all 0.3s ease;
             text-decoration: none;
-            font-family: 'Caveat', cursive;
+            font-family: 'Cairo', cursive;
             font-size: 1.1rem;
             box-shadow: 0 4px 15px rgba(255, 235, 198, 0.3);
         }
@@ -298,7 +298,7 @@
         }
 
         .product-title {
-            font-family: 'Caveat', cursive;
+            font-family: 'Cairo', cursive;
             font-weight: 700;
             color: #2C2C2C;
             font-size: 1.3rem;
@@ -330,7 +330,7 @@
 
         .product-price {
             color: #c4a700;
-            font-family: 'Caveat', cursive;
+            font-family: 'Cairo', cursive;
             font-size: 1.3rem;
             font-weight: 700;
         }
@@ -429,7 +429,7 @@
         }
 
         .no-products-title {
-            font-family: 'Caveat', cursive;
+            font-family: 'Cairo', cursive;
             font-weight: 700;
             color: #2C2C2C;
             font-size: 1.8rem;

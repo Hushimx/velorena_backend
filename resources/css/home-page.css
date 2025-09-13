@@ -295,7 +295,7 @@ body {
 }
 
 .product-image {
-    width: 100%;
+    width: fit-content;
     height: 60px;
     object-fit: cover;
     border-radius: 4px;
