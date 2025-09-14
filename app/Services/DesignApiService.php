@@ -13,7 +13,7 @@ class DesignApiService
 
     public function __construct()
     {
-        $this->apiKey = config('services.freepik.api_key', 'FPSX853eec3a2a8b4fe1da2d17e3e27114b3');
+        $this->apiKey = config('services.freepik.api_key');
         $this->baseUrl = config('services.freepik.base_url', 'https://api.freepik.com/v1');
     }
 
@@ -164,34 +164,53 @@ class DesignApiService
      */
     public function fetchExternalDesigns($params = [])
     {
+        if (!$this->apiKey) {
+            Log::warning('No Freepik API key configured, using mock data');
+            return $this->getMockDesignData($params);
+        }
+
         try {
-            // Try different authentication methods for FreeAPI
+            // Use the correct Freepik API authentication header
             $response = Http::withHeaders([
                 'Accept' => 'application/json',
-                'Authorization' => 'API-Key ' . $this->apiKey, // Try API-Key format
+                'x-freepik-api-key' => $this->apiKey, // Correct Freepik API header
             ])->get($this->baseUrl . '/resources', array_merge([
                 'limit' => 50,
                 'page' => 1,
             ], $params));
 
+            Log::info('Freepik API request', [
+                'url' => $this->baseUrl . '/resources',
+                'params' => $params,
+                'status' => $response->status()
+            ]);
+
             if ($response->successful()) {
-                return $response->json();
+                $data = $response->json();
+                Log::info('Freepik API success', ['results_count' => count($data['data'] ?? [])]);
+                
+                // Transform the real API response to match our expected format
+                if (isset($data['data'])) {
+                    $data['data'] = array_map([$this, 'transformFreepikResponse'], $data['data']);
+                }
+                
+                return $data;
             }
 
-            Log::error('External Design API request failed', [
+            Log::error('Freepik API request failed', [
                 'status' => $response->status(),
                 'response' => $response->body()
             ]);
 
-            // Return mock data for testing
+            // Return mock data as fallback
             return $this->getMockDesignData($params);
         } catch (\Exception $e) {
-            Log::error('External Design API exception', [
+            Log::error('Freepik API exception', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
 
-            // Return mock data for testing
+            // Return mock data as fallback
             return $this->getMockDesignData($params);
         }
     }
@@ -201,9 +220,62 @@ class DesignApiService
      */
     public function searchExternalDesigns($query, $params = [])
     {
-        return $this->fetchExternalDesigns(array_merge([
-            'q' => $query,
-        ], $params));
+        if (!$this->apiKey) {
+            Log::warning('No Freepik API key configured, using mock data for search');
+            return $this->getMockDesignData(array_merge(['q' => $query], $params));
+        }
+
+        try {
+            // Use the correct Freepik API authentication header
+            $response = Http::withHeaders([
+                'Accept' => 'application/json',
+                'x-freepik-api-key' => $this->apiKey, // Correct Freepik API header
+            ])->get($this->baseUrl . '/resources', array_merge([
+                'term' => $query, // Use 'term' instead of 'q' for proper search
+                'limit' => 50,
+                'page' => 1,
+            ], $params));
+
+            Log::info('Freepik API search request', [
+                'url' => $this->baseUrl . '/resources',
+                'query' => $query,
+                'params' => $params,
+                'status' => $response->status()
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                Log::info('Freepik API search success', [
+                    'query' => $query,
+                    'results_count' => count($data['data'] ?? [])
+                ]);
+                
+                // Transform the real API response to match our expected format
+                if (isset($data['data'])) {
+                    $data['data'] = array_map([$this, 'transformFreepikResponse'], $data['data']);
+                }
+                
+                return $data;
+            }
+
+            Log::error('Freepik API search failed', [
+                'query' => $query,
+                'status' => $response->status(),
+                'response' => $response->body()
+            ]);
+
+            // Return mock data as fallback
+            return $this->getMockDesignData(array_merge(['q' => $query], $params));
+        } catch (\Exception $e) {
+            Log::error('Freepik API search exception', [
+                'query' => $query,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // Return mock data as fallback
+            return $this->getMockDesignData(array_merge(['q' => $query], $params));
+        }
     }
 
     /**
@@ -211,9 +283,62 @@ class DesignApiService
      */
     public function getExternalDesignsByCategory($category, $params = [])
     {
-        return $this->fetchExternalDesigns(array_merge([
+        if (!$this->apiKey) {
+            Log::warning('No Freepik API key configured, using mock data for category');
+            return $this->getMockDesignData(array_merge(['category' => $category], $params));
+        }
+
+        try {
+            // Use the correct Freepik API authentication header
+            $response = Http::withHeaders([
+                'Accept' => 'application/json',
+                'x-freepik-api-key' => $this->apiKey, // Correct Freepik API header
+            ])->get($this->baseUrl . '/resources', array_merge([
             'category' => $category,
+                'limit' => 50,
+                'page' => 1,
         ], $params));
+
+            Log::info('Freepik API category request', [
+                'url' => $this->baseUrl . '/resources',
+                'category' => $category,
+                'params' => $params,
+                'status' => $response->status()
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                Log::info('Freepik API category success', [
+                    'category' => $category,
+                    'results_count' => count($data['data'] ?? [])
+                ]);
+                
+                // Transform the real API response to match our expected format
+                if (isset($data['data'])) {
+                    $data['data'] = array_map([$this, 'transformFreepikResponse'], $data['data']);
+                }
+                
+                return $data;
+            }
+
+            Log::error('Freepik API category failed', [
+                'category' => $category,
+                'status' => $response->status(),
+                'response' => $response->body()
+            ]);
+
+            // Return mock data as fallback
+            return $this->getMockDesignData(array_merge(['category' => $category], $params));
+        } catch (\Exception $e) {
+            Log::error('Freepik API category exception', [
+                'category' => $category,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // Return mock data as fallback
+            return $this->getMockDesignData(array_merge(['category' => $category], $params));
+        }
     }
 
     /**
@@ -261,6 +386,33 @@ class DesignApiService
     }
 
     /**
+     * Transform Freepik API response to our expected format
+     */
+    private function transformFreepikResponse($item)
+    {
+        return [
+            'id' => $item['id'] ?? 'unknown',
+            'title' => $item['title'] ?? 'Untitled Design',
+            'description' => $item['title'] ?? 'Design from Freepik',
+            'image_url' => $item['image']['source']['url'] ?? null,
+            'thumbnail_url' => $item['image']['source']['url'] ?? null, // Use same URL for now
+            'category' => $item['image']['type'] ?? 'general',
+            'type' => $item['image']['type'] ?? 'vector',
+            'orientation' => $item['image']['orientation'] ?? 'square',
+            'width' => $item['image']['source']['size'] ? explode('x', $item['image']['source']['size'])[0] : 800,
+            'height' => $item['image']['source']['size'] ? explode('x', $item['image']['source']['size'])[1] : 600,
+            'tags' => ['freepik', $item['image']['type'] ?? 'vector'],
+            'featured' => false,
+            'price' => 0, // Free designs
+            'downloads' => $item['stats']['downloads'] ?? 0,
+            'rating' => 4.5, // Default rating
+            'author' => $item['author']['name'] ?? 'Unknown',
+            'freepik_url' => $item['url'] ?? null,
+            'licenses' => $item['licenses'] ?? []
+        ];
+    }
+
+    /**
      * Generate mock design data for testing
      */
     private function getMockDesignData($params = [])
@@ -270,84 +422,168 @@ class DesignApiService
         $limit = $params['limit'] ?? 10;
         $page = $params['page'] ?? 1;
 
-        $mockDesigns = [
-            [
-                'id' => 'mock-001',
-                'title' => ucfirst($query) . ' Design Template',
-                'description' => 'Beautiful ' . $query . ' design template perfect for your projects',
-                'image_url' => 'https://via.placeholder.com/800x600/007bff/ffffff?text=' . urlencode($query),
-                'thumbnail_url' => 'https://via.placeholder.com/300x200/007bff/ffffff?text=' . urlencode($query),
-                'category' => $category,
-                'type' => 'vector',
-                'orientation' => 'horizontal',
-                'width' => 800,
-                'height' => 600,
-                'tags' => [$query, $category, 'template', 'design'],
-                'featured' => false
+        // Real design images from Unsplash for better demo
+        $designImages = [
+            'business' => [
+                'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&h=600&fit=crop'
             ],
-            [
-                'id' => 'mock-002',
-                'title' => 'Modern ' . ucfirst($query) . ' Layout',
-                'description' => 'Clean and modern ' . $query . ' layout design',
-                'image_url' => 'https://via.placeholder.com/800x600/28a745/ffffff?text=Modern+' . urlencode($query),
-                'thumbnail_url' => 'https://via.placeholder.com/300x200/28a745/ffffff?text=Modern+' . urlencode($query),
-                'category' => $category,
-                'type' => 'photo',
-                'orientation' => 'vertical',
-                'width' => 600,
-                'height' => 800,
-                'tags' => [$query, 'modern', 'layout', 'clean'],
-                'featured' => true
+            'technology' => [
+                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=600&fit=crop'
             ],
-            [
-                'id' => 'mock-003',
-                'title' => 'Creative ' . ucfirst($query) . ' Concept',
-                'description' => 'Innovative and creative ' . $query . ' concept design',
-                'image_url' => 'https://via.placeholder.com/800x600/dc3545/ffffff?text=Creative+' . urlencode($query),
-                'thumbnail_url' => 'https://via.placeholder.com/300x200/dc3545/ffffff?text=Creative+' . urlencode($query),
-                'category' => $category,
-                'type' => 'vector',
-                'orientation' => 'square',
-                'width' => 500,
-                'height' => 500,
-                'tags' => [$query, 'creative', 'concept', 'innovative'],
-                'featured' => false
+            'nature' => [
+                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop'
             ],
-            [
-                'id' => 'mock-004',
-                'title' => 'Professional ' . ucfirst($query) . ' Style',
-                'description' => 'Professional grade ' . $query . ' style design',
-                'image_url' => 'https://via.placeholder.com/800x600/6f42c1/ffffff?text=Professional+' . urlencode($query),
-                'thumbnail_url' => 'https://via.placeholder.com/300x200/6f42c1/ffffff?text=Professional+' . urlencode($query),
-                'category' => $category,
-                'type' => 'photo',
-                'orientation' => 'horizontal',
-                'width' => 1200,
-                'height' => 800,
-                'tags' => [$query, 'professional', 'business', 'corporate'],
-                'featured' => true
+            'gaming' => [
+                'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&h=600&fit=crop'
             ],
-            [
-                'id' => 'mock-005',
-                'title' => 'Minimalist ' . ucfirst($query) . ' Design',
-                'description' => 'Simple and elegant minimalist ' . $query . ' design',
-                'image_url' => 'https://via.placeholder.com/800x600/20c997/ffffff?text=Minimalist+' . urlencode($query),
-                'thumbnail_url' => 'https://via.placeholder.com/300x200/20c997/ffffff?text=Minimalist+' . urlencode($query),
-                'category' => $category,
-                'type' => 'vector',
-                'orientation' => 'vertical',
-                'width' => 400,
-                'height' => 600,
-                'tags' => [$query, 'minimalist', 'simple', 'elegant'],
-                'featured' => false
+            'food' => [
+                'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=600&fit=crop',
+                'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=600&fit=crop'
             ]
         ];
 
-        // Limit the results based on the limit parameter
-        $limitedDesigns = array_slice($mockDesigns, 0, min($limit, count($mockDesigns)));
+        // Generate dynamic titles and descriptions based on search query
+        $searchTerm = strtolower($query);
+        
+        // Select appropriate images based on search term
+        $imageCategory = 'business'; // default
+        if (strpos($searchTerm, 'gaming') !== false) {
+            $imageCategory = 'gaming';
+        } elseif (strpos($searchTerm, 'tech') !== false || strpos($searchTerm, 'technology') !== false) {
+            $imageCategory = 'technology';
+        } elseif (strpos($searchTerm, 'nature') !== false) {
+            $imageCategory = 'nature';
+        } elseif (strpos($searchTerm, 'food') !== false || strpos($searchTerm, 'restaurant') !== false) {
+            $imageCategory = 'food';
+        } elseif ($category && isset($designImages[$category])) {
+            $imageCategory = $category;
+        }
+        
+        $images = $designImages[$imageCategory] ?? $designImages['business'];
+        $titles = [];
+        $descriptions = [];
+        
+        if (strpos($searchTerm, 'gaming') !== false) {
+            $titles = [
+                'Gaming Setup Design',
+                'Pro Gaming Station Layout', 
+                'Gaming Room Concept',
+                'Gaming Equipment Design',
+                'Gaming Accessories Layout'
+            ];
+            $descriptions = [
+                'Perfect gaming setup design for your gaming room',
+                'Professional gaming station layout design',
+                'Modern gaming room concept design',
+                'Gaming equipment and accessories design',
+                'Gaming accessories layout and organization'
+            ];
+        } elseif (strpos($searchTerm, 'tech') !== false || strpos($searchTerm, 'technology') !== false) {
+            $titles = [
+                'Technology Dashboard',
+                'Tech Innovation Layout', 
+                'Digital Technology Design',
+                'Tech Startup Concept',
+                'Modern Tech Interface'
+            ];
+            $descriptions = [
+                'Modern technology dashboard design',
+                'Tech innovation and digital layout',
+                'Digital technology interface design',
+                'Tech startup company concept',
+                'Modern technology interface design'
+            ];
+        } elseif (strpos($searchTerm, 'nature') !== false) {
+            $titles = [
+                'Nature Landscape Design',
+                'Natural Environment Layout', 
+                'Eco-Friendly Concept',
+                'Nature Conservation Design',
+                'Green Nature Theme'
+            ];
+            $descriptions = [
+                'Beautiful nature landscape design',
+                'Natural environment layout concept',
+                'Eco-friendly and sustainable design',
+                'Nature conservation awareness design',
+                'Green nature theme and concept'
+            ];
+        } elseif (strpos($searchTerm, 'food') !== false || strpos($searchTerm, 'restaurant') !== false) {
+            $titles = [
+                'Restaurant Menu Design',
+                'Food Presentation Layout', 
+                'Culinary Concept Design',
+                'Food Service Design',
+                'Gourmet Food Layout'
+            ];
+            $descriptions = [
+                'Professional restaurant menu design',
+                'Food presentation and layout design',
+                'Culinary concept and food design',
+                'Food service and restaurant design',
+                'Gourmet food presentation layout'
+            ];
+        } else {
+            // Default business designs
+            $titles = [
+                ucfirst($query) . ' Design Template',
+                'Modern ' . ucfirst($query) . ' Layout', 
+                'Creative ' . ucfirst($query) . ' Concept',
+                'Professional ' . ucfirst($query) . ' Style',
+                'Minimalist ' . ucfirst($query) . ' Design'
+            ];
+            $descriptions = [
+                'Beautiful ' . $query . ' design template perfect for your projects',
+                'Clean and modern ' . $query . ' layout design',
+                'Innovative and creative ' . $query . ' concept design',
+                'Professional grade ' . $query . ' style design',
+                'Simple and elegant minimalist ' . $query . ' design'
+            ];
+        }
+
+        $mockDesigns = [];
+        for ($i = 0; $i < min(5, $limit); $i++) {
+            $imageIndex = $i % count($images);
+            $mockDesigns[] = [
+                'id' => 'mock-' . str_pad($i + 1, 3, '0', STR_PAD_LEFT),
+                'title' => $titles[$i] ?? ucfirst($query) . ' Design ' . ($i + 1),
+                'description' => $descriptions[$i] ?? 'Beautiful ' . $query . ' design template',
+                'image_url' => $images[$imageIndex],
+                'thumbnail_url' => str_replace('w=800&h=600', 'w=300&h=200', $images[$imageIndex]),
+                'category' => $category,
+                'type' => $i % 2 === 0 ? 'vector' : 'photo',
+                'orientation' => ['horizontal', 'vertical', 'square'][$i % 3],
+                'width' => [800, 600, 500, 1200, 400][$i],
+                'height' => [600, 800, 500, 800, 600][$i],
+                'tags' => [$query, $category, 'template', 'design', 'professional'],
+                'featured' => $i % 3 === 0,
+                'price' => 0, // Free designs
+                'downloads' => rand(100, 5000),
+                'rating' => round(4.0 + (rand(0, 20) / 10), 1)
+            ];
+        }
 
         return [
-            'data' => $limitedDesigns,
+            'data' => $mockDesigns,
             'pagination' => [
                 'current_page' => $page,
                 'total_pages' => ceil(count($mockDesigns) / $limit),

@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class DesignController extends Controller
@@ -983,6 +984,152 @@ class DesignController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error fetching featured designs: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // ========================================
+    // CART DESIGN INTEGRATION
+    // ========================================
+
+    /**
+     * Select designs for a product in cart
+     */
+    public function selectDesignsForProduct(Request $request): JsonResponse
+    {
+        $request->validate([
+            'product_id' => 'required|integer|exists:products,id',
+            'design_ids' => 'required|array|min:1',
+            'design_ids.*' => 'integer|exists:designs,id',
+            'notes' => 'nullable|array',
+            'notes.*' => 'nullable|string|max:1000'
+        ]);
+
+        $user = Auth::user();
+        $productId = $request->get('product_id');
+        $designIds = $request->get('design_ids');
+        $notes = $request->get('notes', []);
+
+        try {
+            DB::beginTransaction();
+
+            // Remove existing designs for this product
+            \App\Models\ProductDesign::where('user_id', $user->id)
+                ->where('product_id', $productId)
+                ->delete();
+
+            // Add new designs
+            foreach ($designIds as $index => $designId) {
+                \App\Models\ProductDesign::create([
+                    'user_id' => $user->id,
+                    'product_id' => $productId,
+                    'design_id' => $designId,
+                    'notes' => $notes[$designId] ?? '',
+                    'priority' => $index + 1
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Designs selected successfully',
+                'selected_count' => count($designIds)
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to select designs for product', [
+                'user_id' => $user->id,
+                'product_id' => $productId,
+                'design_ids' => $designIds,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to select designs: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get selected designs for a product
+     */
+    public function getSelectedDesignsForProduct(Request $request, $productId): JsonResponse
+    {
+        $user = Auth::user();
+
+        try {
+            $selectedDesigns = \App\Models\ProductDesign::where('user_id', $user->id)
+                ->where('product_id', $productId)
+                ->with('design')
+                ->orderBy('priority')
+                ->get()
+                ->map(function ($productDesign) {
+                    return [
+                        'id' => $productDesign->design->id,
+                        'title' => $productDesign->design->title,
+                        'image_url' => $productDesign->design->image_url,
+                        'thumbnail_url' => $productDesign->design->thumbnail_url,
+                        'notes' => $productDesign->notes,
+                        'priority' => $productDesign->priority,
+                        'selected_at' => $productDesign->created_at
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'data' => $selectedDesigns
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to get selected designs for product', [
+                'user_id' => $user->id,
+                'product_id' => $productId,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get selected designs: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Remove design from product selection
+     */
+    public function removeDesignFromProduct(Request $request, $productId, $designId): JsonResponse
+    {
+        $user = Auth::user();
+
+        try {
+            $deleted = \App\Models\ProductDesign::where('user_id', $user->id)
+                ->where('product_id', $productId)
+                ->where('design_id', $designId)
+                ->delete();
+
+            if ($deleted) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Design removed successfully'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Design not found in selection'
+                ], 404);
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to remove design from product', [
+                'user_id' => $user->id,
+                'product_id' => $productId,
+                'design_id' => $designId,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to remove design: ' . $e->getMessage()
             ], 500);
         }
     }

@@ -320,6 +320,12 @@
                     <i class="fas fa-box"></i>
                     <span>{{ trans('orders.my_orders') }}</span>
                 </a>
+
+                <a href="{{ route('client.index') }}"
+                    class="sidebar-link {{ request()->routeIs('client.*') ? 'active' : '' }}">
+                    <i class="fas fa-user-circle"></i>
+                    <span>{{ trans('حسابي') }}</span>
+                </a>
             </nav>
             <div class="mt-auto mb-4 px-2">
                 <form action="{{ route('logout') }}" method="POST">
@@ -458,6 +464,11 @@
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         <i class="fas fa-calendar-alt mr-2"></i>
                                         {{ trans('sidebar.my_appointments') }}
+                                    </a>
+                                    <a href="{{ route('client.index') }}"
+                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-user-circle mr-2"></i>
+                                        {{ trans('حسابي') }}
                                     </a>
                                     <div class="border-t border-gray-100"></div>
                                     <form action="{{ route('logout') }}" method="POST">

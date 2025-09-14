@@ -76,6 +76,18 @@ Route::prefix('home-banners')->group(function () {
 Route::prefix('designs')->group(function () {
     // GET /api/designs/categories - Get available design categories
     Route::get('/categories', [DesignController::class, 'categories']);
+    
+    // GET /api/designs/search - Search designs (public)
+    Route::get('/search', [DesignController::class, 'search']);
+    
+    // GET /api/designs/external/search - Search external designs from Freepik API
+    Route::get('/external/search', [DesignController::class, 'searchExternal']);
+    
+    // GET /api/designs/external/categories - Get external categories from Freepik API
+    Route::get('/external/categories', [DesignController::class, 'getExternalCategories']);
+    
+    // GET /api/designs/external/featured - Get featured designs from Freepik API
+    Route::get('/external/featured', [DesignController::class, 'getExternalFeatured']);
 });
 
 // ========================================
@@ -190,6 +202,22 @@ Route::middleware('auth:sanctum')->group(function () {
         // GET /api/designs/{design}
         // Get specific design details
         Route::get('/{design}', [DesignController::class, 'show']);
+        
+        // ========================================
+        // CART DESIGN INTEGRATION
+        // ========================================
+        
+        // POST /api/designs/select-for-product
+        // Select designs for a product in cart
+        Route::post('/select-for-product', [DesignController::class, 'selectDesignsForProduct']);
+        
+        // GET /api/designs/selected-for-product/{productId}
+        // Get selected designs for a product
+        Route::get('/selected-for-product/{productId}', [DesignController::class, 'getSelectedDesignsForProduct']);
+        
+        // DELETE /api/designs/selected-for-product/{productId}/{designId}
+        // Remove design from product selection
+        Route::delete('/selected-for-product/{productId}/{designId}', [DesignController::class, 'removeDesignFromProduct']);
         
     });
 

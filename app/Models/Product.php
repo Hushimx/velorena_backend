@@ -17,7 +17,6 @@ class Product extends Model
         'name_ar',
         'description',
         'description_ar',
-        'image',
         'base_price',
         'is_active',
         'sort_order',
@@ -39,6 +38,24 @@ class Product extends Model
     public function options(): HasMany
     {
         return $this->hasMany(ProductOption::class);
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('sort_order');
+    }
+
+    public function primaryImage(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->where('is_primary', true);
+    }
+
+    /**
+     * Get the primary image for this product
+     */
+    public function getPrimaryImageAttribute()
+    {
+        return $this->images()->where('is_primary', true)->first() ?? $this->images()->first();
     }
 
     // Relationship with designs through product_designs pivot table

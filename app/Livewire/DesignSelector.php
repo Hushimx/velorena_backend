@@ -19,6 +19,8 @@ class DesignSelector extends Component
     public $isLoading = false;
     public $showDesignModal = false;
     public $selectedDesignForModal = null;
+    public $apiDesigns = [];
+    public $useApiDesigns = false;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -34,36 +36,76 @@ class DesignSelector extends Component
     {
         $this->selectedDesigns = [];
         $this->designNotes = [];
+        
+        // Don't load designs automatically, wait for user to click search
+        $this->apiDesigns = [];
     }
 
     public function updatedSearch()
     {
+        // Don't auto-search, wait for button click
+        // Just reset page when search text changes
         $this->resetPage();
-        $this->syncDesignsFromApi();
     }
 
     public function updatedSelectedCategory()
     {
+        // Don't auto-search, wait for button click
+        // Just reset page when category changes
         $this->resetPage();
-        $this->syncDesignsFromApi();
     }
 
-    public function syncDesignsFromApi()
+    public function searchDesignsFromApi()
     {
         $this->isLoading = true;
+        $this->useApiDesigns = true;
+        $this->apiDesigns = []; // Clear previous results immediately
 
         try {
             $apiService = new DesignApiService();
+            $searchQuery = trim($this->search);
+            $category = trim($this->selectedCategory);
 
-            if ($this->search) {
-                $apiService->searchDesigns($this->search);
-            } elseif ($this->selectedCategory) {
-                $apiService->getDesignsByCategory($this->selectedCategory);
+            Log::info('Searching designs (fresh search):', [
+                'search' => $searchQuery,
+                'category' => $category,
+                'timestamp' => now()
+            ]);
+
+            if ($searchQuery) {
+                // Search designs from Freepik API with search query
+                $result = $apiService->searchExternalDesigns($searchQuery, ['limit' => 20]);
+                Log::info('Search result for query "' . $searchQuery . '":', ['found' => $result ? count($result['data'] ?? []) : 0]);
+            } elseif ($category) {
+                // Get designs by category from Freepik API
+                $result = $apiService->getExternalDesignsByCategory($category, ['limit' => 20]);
+                Log::info('Category result for "' . $category . '":', ['found' => $result ? count($result['data'] ?? []) : 0]);
             } else {
-                $apiService->syncDesigns(50);
+                // Get general designs from Freepik API
+                $result = $apiService->fetchExternalDesigns(['limit' => 20]);
+                Log::info('General designs result:', ['found' => $result ? count($result['data'] ?? []) : 0]);
+            }
+
+            if ($result && isset($result['data']) && !empty($result['data'])) {
+                $this->apiDesigns = $result['data'];
+                Log::info('API designs loaded successfully (fresh):', [
+                    'count' => count($this->apiDesigns),
+                    'search' => $searchQuery,
+                    'category' => $category,
+                    'timestamp' => now()
+                ]);
+            } else {
+                $this->apiDesigns = [];
+                Log::warning('No designs found from API', [
+                    'search' => $searchQuery,
+                    'category' => $category
+                ]);
+                session()->flash('warning', 'No designs found for your search criteria.');
             }
         } catch (\Exception $e) {
-            session()->flash('error', 'Failed to sync designs from API: ' . $e->getMessage());
+            Log::error('Failed to search designs from Freepik API: ' . $e->getMessage());
+            $this->apiDesigns = [];
+            session()->flash('error', 'Failed to search designs from API: ' . $e->getMessage());
         } finally {
             $this->isLoading = false;
         }
@@ -115,7 +157,13 @@ class DesignSelector extends Component
 
     public function openDesignModal($designId)
     {
-        $this->selectedDesignForModal = Design::find($designId);
+        if ($this->useApiDesigns) {
+            // Find design in API designs
+            $this->selectedDesignForModal = collect($this->apiDesigns)->firstWhere('id', $designId);
+        } else {
+            // Find design in database
+            $this->selectedDesignForModal = Design::find($designId);
+        }
         $this->showDesignModal = true;
     }
 
@@ -127,15 +175,32 @@ class DesignSelector extends Component
 
     public function getSelectedDesignsData()
     {
-        return Design::whereIn('id', $this->selectedDesigns)->get()->map(function ($design) {
-            return [
-                'id' => $design->id,
-                'title' => $design->title,
-                'image_url' => $design->image_url,
-                'thumbnail_url' => $design->thumbnail_url,
-                'notes' => $this->designNotes[$design->id] ?? '',
-            ];
-        });
+        if ($this->useApiDesigns) {
+            // Get selected designs from API designs
+            return collect($this->apiDesigns)
+                ->whereIn('id', $this->selectedDesigns)
+                ->map(function ($design) {
+                    return [
+                        'id' => $design['id'],
+                        'title' => $design['title'],
+                        'image_url' => $design['image_url'],
+                        'thumbnail_url' => $design['thumbnail_url'],
+                        'notes' => $this->designNotes[$design['id']] ?? '',
+                    ];
+                })
+                ->values();
+        } else {
+            // Get selected designs from database
+            return Design::whereIn('id', $this->selectedDesigns)->get()->map(function ($design) {
+                return [
+                    'id' => $design->id,
+                    'title' => $design->title,
+                    'image_url' => $design->image_url,
+                    'thumbnail_url' => $design->thumbnail_url,
+                    'notes' => $this->designNotes[$design->id] ?? '',
+                ];
+            });
+        }
     }
 
     public function getSelectedDesignsCount()
@@ -143,31 +208,69 @@ class DesignSelector extends Component
         return count($this->selectedDesigns);
     }
 
+    public function performSearch()
+    {
+        $this->resetPage();
+        $this->useApiDesigns = true;
+        $this->apiDesigns = []; // Clear previous results
+        $this->searchDesignsFromApi();
+    }
+
+    public function clearSearch()
+    {
+        $this->search = '';
+        $this->selectedCategory = '';
+        $this->resetPage();
+        $this->useApiDesigns = true;
+        $this->apiDesigns = []; // Clear previous results
+        $this->searchDesignsFromApi();
+    }
+
 
     public function render()
     {
-        $query = Design::active();
-
-        if ($this->search) {
-            $query->search($this->search);
+        // If we have search or category, use API designs
+        if ($this->search || $this->selectedCategory) {
+            // Always search when we have search/category to ensure fresh results
+            if (empty($this->apiDesigns) || $this->isLoading) {
+                // Don't call searchDesignsFromApi here to avoid infinite loops
+                // The search should be triggered by user actions
+            }
+            
+            // Create a paginated collection from API designs
+            $designs = collect($this->apiDesigns);
+            $perPage = 20;
+            $currentPage = $this->getPage();
+            $offset = ($currentPage - 1) * $perPage;
+            $paginatedDesigns = $designs->slice($offset, $perPage)->values();
+            
+            // Create a custom paginator
+            $designs = new \Illuminate\Pagination\LengthAwarePaginator(
+                $paginatedDesigns,
+                $designs->count(),
+                $perPage,
+                $currentPage,
+                ['path' => request()->url(), 'pageName' => 'page']
+            );
+            
+            $categories = ['business', 'technology', 'nature', 'design', 'creative'];
+        } else {
+            // Use database designs when no search/category
+            $this->useApiDesigns = false;
+            $query = Design::active();
+            $designs = $query->orderBy('created_at', 'desc')->paginate(20);
+            
+            $categories = Design::active()
+                ->distinct()
+                ->pluck('category')
+                ->filter()
+                ->values();
         }
-
-        if ($this->selectedCategory) {
-            $query->byCategory($this->selectedCategory);
-        }
-
-        $designs = $query->orderBy('created_at', 'desc')
-            ->paginate(20);
-
-        $categories = Design::active()
-            ->distinct()
-            ->pluck('category')
-            ->filter()
-            ->values();
 
         return view('livewire.design-selector', [
             'designs' => $designs,
             'categories' => $categories,
+            'useApiDesigns' => $this->useApiDesigns,
         ]);
     }
 }

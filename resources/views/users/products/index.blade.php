@@ -17,10 +17,28 @@
                         <p class="products-subtitle">{{ trans('products.browse_our_products') }}</p>
                     </div>
                     <div class="col-md-4 text-md-end d-flex justify-content-end">
-                        <a href="{{ route('home') }}" class="back-btn">
-                            <i class="fas fa-arrow-left"></i>
-                            <span>{{ trans('dashboard.back_to_dashboard') }}</span>
-                        </a>
+                        <div class="header-actions">
+                            <a href="{{ route('client.index') }}" class="header-btn client-btn">
+                                <i class="fas fa-user-circle"></i>
+                                <span>{{ trans('حسابي') }}</span>
+                            </a>
+                            <a href="{{ route('cart.index') }}" class="header-btn cart-btn">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>{{ trans('cart.cart') }}</span>
+                            </a>
+                            <a href="{{ route('user.orders.index') }}" class="header-btn orders-btn">
+                                <i class="fas fa-box"></i>
+                                <span>{{ trans('orders.my_orders') }}</span>
+                            </a>
+                            <a href="{{ route('appointments.index') }}" class="header-btn appointments-btn">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>{{ trans('sidebar.my_appointments') }}</span>
+                            </a>
+                            <a href="{{ route('home') }}" class="back-btn">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>{{ trans('dashboard.back_to_dashboard') }}</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -108,6 +126,80 @@
             opacity: 0;
             position: relative;
             z-index: 1;
+        }
+
+        /* Header Actions */
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .header-btn {
+            background: #FFEBC6;
+            color: #2C2C2C;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-family: 'Cairo', cursive;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(255, 235, 198, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-btn:hover {
+            background: #FFD700;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 235, 198, 0.4);
+            color: #2C2C2C;
+        }
+
+        .client-btn {
+            background: #8B4513;
+            color: #FFEBC6;
+        }
+
+        .client-btn:hover {
+            background: #A0522D;
+            color: #FFEBC6;
+        }
+
+        .cart-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .cart-btn:hover {
+            background: #218838;
+            color: white;
+        }
+
+        .orders-btn {
+            background: #007bff;
+            color: white;
+        }
+
+        .orders-btn:hover {
+            background: #0056b3;
+            color: white;
+        }
+
+        .appointments-btn {
+            background: #6f42c1;
+            color: white;
+        }
+
+        .appointments-btn:hover {
+            background: #5a32a3;
+            color: white;
         }
 
         /* Back Button */
@@ -345,9 +437,18 @@
                 font-size: 1rem;
             }
 
-            .back-btn {
-                padding: 0.6rem 1.2rem;
-                font-size: 1rem;
+            .header-actions {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .header-btn, .back-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .header-btn span, .back-btn span {
+                display: none;
             }
         }
 

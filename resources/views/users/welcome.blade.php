@@ -4,6 +4,8 @@
 
     <x-main-content />
 
+    <x-product-slider />
+
     <x-services />
 
     <x-why-choose-us />

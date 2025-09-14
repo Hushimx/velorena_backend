@@ -2,8 +2,12 @@
 
 namespace App\Livewire;
 
-use App\Models\Product;
 use App\Models\CartItem;
+use App\Models\Product;
+use App\Models\OptionValue;
+use App\Models\Design;
+use App\Models\ProductDesign;
+use App\Services\DesignApiService;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -14,19 +18,61 @@ class AddToCart extends Component
     public $quantity = 1;
     public $selectedOptions = [];
     public $notes = '';
-    public $showModal = false;
+    public $isLoading = false;
+    public $showDesignModal = false;
+    public $selectedDesigns = [];
+    public $designNotes = [];
 
     protected $rules = [
         'quantity' => 'required|integer|min:1|max:100',
         'notes' => 'nullable|string|max:500',
     ];
 
+    protected $listeners = [
+        'design-added' => 'handleDesignAdded',
+        'design-removed' => 'handleDesignRemoved',
+        'design-note-updated' => 'handleDesignNoteUpdated'
+    ];
+
     public function mount(Product $product)
     {
         $this->product = $product;
-        // Initialize selectedOptions with empty values for each option
+        // Initialize selectedOptions with first value for each option
         foreach ($this->product->options as $option) {
-            $this->selectedOptions[$option->id] = null;
+            if ($option->values->count() > 0) {
+                if ($option->type === 'checkbox') {
+                    // For checkboxes, initialize as empty array
+                    $this->selectedOptions[$option->id] = [];
+                } else {
+                    // For radio/select, use first value
+                    $this->selectedOptions[$option->id] = $option->values->first()->id;
+                }
+            }
+        }
+    }
+
+    public function updatedSelectedOptions()
+    {
+        // Validate that all required options are selected
+        $this->validateRequiredOptions();
+    }
+
+    public function updatedQuantity()
+    {
+        $this->validate(['quantity' => 'required|integer|min:1|max:100']);
+    }
+
+    public function updatedNotes()
+    {
+        $this->validate(['notes' => 'nullable|string|max:500']);
+    }
+
+    protected function validateRequiredOptions()
+    {
+        foreach ($this->product->options as $option) {
+            if ($option->is_required && !isset($this->selectedOptions[$option->id])) {
+                $this->addError('selectedOptions.' . $option->id, 'This option is required.');
+            }
         }
     }
 
@@ -37,121 +83,229 @@ class AddToCart extends Component
             return;
         }
 
-        Log::info('addToCart called', [
-            'product_id' => $this->product->id,
-            'quantity' => $this->quantity,
-            'selectedOptions' => $this->selectedOptions,
-            'notes' => $this->notes
-        ]);
+        $this->isLoading = true;
 
-        $this->validate();
-        $this->validateRequiredOptions();
+        try {
+            // Validate all inputs
+            $this->validate();
+            $this->validateRequiredOptions();
 
-        // Check if there are any validation errors
-        if ($this->getErrorBag()->count() > 0) {
-            Log::error('Validation errors in addToCart', ['errors' => $this->getErrorBag()->toArray()]);
+            if ($this->getErrorBag()->count() > 0) {
+                $this->isLoading = false;
+                return;
+            }
+
+            $user = Auth::user();
+
+            // Check if this exact product with these options already exists in cart
+            $existingCartItem = CartItem::where('user_id', $user->id)
+                ->where('product_id', $this->product->id)
+                ->where('selected_options', json_encode($this->selectedOptions))
+                ->first();
+
+            if ($existingCartItem) {
+                // Update quantity of existing item
+                $existingCartItem->quantity += $this->quantity;
+                $existingCartItem->updatePrices();
+                $existingCartItem->save();
+                
+                $message = 'Product quantity updated in cart!';
+            } else {
+                // Create new cart item
+                $cartItem = new CartItem([
+                    'user_id' => $user->id,
+                    'product_id' => $this->product->id,
+                    'quantity' => $this->quantity,
+                    'selected_options' => $this->selectedOptions,
+                    'notes' => $this->notes,
+                ]);
+
+                $cartItem->updatePrices();
+                $cartItem->save();
+                
+                $message = 'Product added to cart successfully!';
+            }
+
+            // Reset form
+            $this->quantity = 1;
+            $this->notes = '';
+            
+            // Reset options to first values
+            foreach ($this->product->options as $option) {
+                if ($option->values->count() > 0) {
+                    $this->selectedOptions[$option->id] = $option->values->first()->id;
+                }
+            }
+
+            $this->isLoading = false;
+            session()->flash('success', $message);
+            
+            // Dispatch event to update cart count in other components
+            $this->dispatch('cartUpdated');
+
+        } catch (\Exception $e) {
+            $this->isLoading = false;
+            Log::error('Add to cart error: ' . $e->getMessage());
+            session()->flash('error', 'Failed to add product to cart. Please try again.');
+        }
+    }
+
+    public function buyNow()
+    {
+        if (!Auth::check()) {
+            session()->flash('error', 'Please login to purchase items');
             return;
         }
 
-        Log::info('Validation passed, proceeding to add to cart');
+        $this->isLoading = true;
 
-        $user = Auth::user();
-
-        // Check if item already exists with same options
-        $existingItem = CartItem::where('user_id', $user->id)
-            ->where('product_id', $this->product->id)
-            ->where('selected_options', json_encode($this->selectedOptions))
-            ->first();
-
-        if ($existingItem) {
-            // Update quantity
-            $existingItem->quantity += $this->quantity;
-            $existingItem->updatePrices();
-
-            Log::info('Updated existing cart item', ['cart_item_id' => $existingItem->id]);
-            session()->flash('success', 'Item quantity updated in cart');
-        } else {
-            // Create new cart item
-            $cartItem = CartItem::create([
-                'user_id' => $user->id,
-                'product_id' => $this->product->id,
-                'quantity' => $this->quantity,
-                'selected_options' => $this->selectedOptions,
-                'notes' => $this->notes
-            ]);
-
-            $cartItem->updatePrices();
-
-            Log::info('Created new cart item', ['cart_item_id' => $cartItem->id]);
-        }
-
-        // Reset form
-        $this->quantity = 1;
-        $this->notes = '';
-
-        // Close modal immediately
-        $this->showModal = false;
-
-        // Show success toast message
-        $this->dispatch('showSuccessToast', message: 'Item added to cart successfully!');
-
-        // Reset selected options
-        foreach ($this->product->options as $option) {
-            $this->selectedOptions[$option->id] = null;
-        }
-
-        // Dispatch event to update cart count
-        $this->dispatch('cartUpdated');
-
-        // Also dispatch a browser event
-        $this->dispatch('cartUpdated');
-    }
-
-    public function validateRequiredOptions()
-    {
-        foreach ($this->product->options as $option) {
-            if ($option->is_required && empty($this->selectedOptions[$option->id])) {
-                $this->addError('selectedOptions.' . $option->id, 'Please select ' . $option->name);
+        try {
+            // First add to cart
+            $this->addToCart();
+            
+            if ($this->getErrorBag()->count() > 0) {
+                $this->isLoading = false;
+                return;
             }
+
+            $this->isLoading = false;
+            
+            // Redirect to cart page
+            return redirect()->route('cart.index');
+
+        } catch (\Exception $e) {
+            $this->isLoading = false;
+            Log::error('Buy now error: ' . $e->getMessage());
+            session()->flash('error', 'Failed to process purchase. Please try again.');
         }
     }
 
-    public function calculateTotalPrice()
+    public function incrementQuantity()
     {
-        $price = $this->product->base_price;
+        if ($this->quantity < 100) {
+            $this->quantity++;
+        }
+    }
 
-        // Add option prices
+    public function decrementQuantity()
+    {
+        if ($this->quantity > 1) {
+            $this->quantity--;
+        }
+    }
+
+    public function getTotalPriceProperty()
+    {
+        $basePrice = (float) $this->product->base_price;
+        $totalPrice = $basePrice;
+
+        // Add option price adjustments
         foreach ($this->selectedOptions as $optionId => $valueId) {
             if ($valueId) {
-                $optionValue = \App\Models\OptionValue::find($valueId);
-                if ($optionValue && $optionValue->price_adjustment) {
-                    $price += $optionValue->price_adjustment;
+                // Handle checkbox arrays
+                if (is_array($valueId)) {
+                    foreach ($valueId as $singleValueId) {
+                        $optionValue = OptionValue::find($singleValueId);
+                        if ($optionValue && $optionValue->price_adjustment) {
+                            $totalPrice += (float) $optionValue->price_adjustment;
+                        }
+                    }
+                } else {
+                    // Handle single values (radio/select)
+                    $optionValue = OptionValue::find($valueId);
+                    if ($optionValue && $optionValue->price_adjustment) {
+                        $totalPrice += (float) $optionValue->price_adjustment;
+                    }
                 }
             }
         }
 
-        return $price * $this->quantity;
+        return $totalPrice * $this->quantity;
     }
 
-    public function openModal()
+    public function calculateTotalPrice()
     {
-        $this->showModal = true;
-        $this->dispatch('modal-opened');
+        return $this->totalPrice;
     }
 
-    public function closeModal()
+    public function openDesignModal()
     {
-        $this->showModal = false;
-        $this->dispatch('modal-closed');
-        // Reset form when closing
-        $this->quantity = 1;
-        $this->notes = '';
-        foreach ($this->product->options as $option) {
-            $this->selectedOptions[$option->id] = null;
+        if (!Auth::check()) {
+            session()->flash('error', 'Please login to select designs');
+            return;
+        }
+
+        $this->showDesignModal = true;
+        
+        // Load existing designs for this product
+        $user = Auth::user();
+        $existingDesigns = ProductDesign::where('user_id', $user->id)
+            ->where('product_id', $this->product->id)
+            ->get();
+
+        $this->selectedDesigns = $existingDesigns->pluck('design_id')->toArray();
+        $this->designNotes = $existingDesigns->pluck('notes', 'design_id')->toArray();
+    }
+
+    public function closeDesignModal()
+    {
+        $this->showDesignModal = false;
+        $this->selectedDesigns = [];
+        $this->designNotes = [];
+    }
+
+    public function handleDesignAdded($designId, $notes = '')
+    {
+        if (!in_array($designId, $this->selectedDesigns)) {
+            $this->selectedDesigns[] = $designId;
+        }
+        $this->designNotes[$designId] = $notes;
+    }
+
+    public function handleDesignRemoved($designId)
+    {
+        $this->selectedDesigns = array_diff($this->selectedDesigns, [$designId]);
+        unset($this->designNotes[$designId]);
+    }
+
+    public function handleDesignNoteUpdated($designId, $notes)
+    {
+        $this->designNotes[$designId] = $notes;
+    }
+
+    public function saveSelectedDesigns()
+    {
+        if (!Auth::check()) {
+            session()->flash('error', 'Please login to save designs');
+            return;
+        }
+
+        $user = Auth::user();
+
+        try {
+            // Remove existing designs for this product
+            ProductDesign::where('user_id', $user->id)
+                ->where('product_id', $this->product->id)
+                ->delete();
+
+            // Add new designs
+            foreach ($this->selectedDesigns as $index => $designId) {
+                ProductDesign::create([
+                    'user_id' => $user->id,
+                    'product_id' => $this->product->id,
+                    'design_id' => $designId,
+                    'notes' => $this->designNotes[$designId] ?? '',
+                    'priority' => $index + 1
+                ]);
+            }
+
+            $this->closeDesignModal();
+            session()->flash('success', 'Designs saved successfully! ' . count($this->selectedDesigns) . ' designs saved.');
+        } catch (\Exception $e) {
+            Log::error('Failed to save designs', ['error' => $e->getMessage()]);
+            session()->flash('error', 'Failed to save designs: ' . $e->getMessage());
         }
     }
-
-
 
     public function render()
     {

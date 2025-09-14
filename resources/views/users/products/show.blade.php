@@ -4,744 +4,781 @@
 @section('title', $product->name)
 
 @section('content')
-    <!-- Navbar from Welcome Page -->
+    <!-- Navbar -->
     <x-navbar />
 
-    <div class="product-show-page">
-        <!-- Header Section -->
-        <div class="product-show-header">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <!-- Breadcrumb -->
-                        <nav class="breadcrumb-nav" aria-label="Breadcrumb">
-                            <ol class="breadcrumb-list">
-                                <li class="breadcrumb-item">
-                                    <a href="{{ route('home') }}" class="breadcrumb-link">
-                                        <i class="fas fa-home"></i>
-                                        {{ trans('dashboard.dashboard') }}
-                                    </a>
-                                </li>
-                                <li class="breadcrumb-item">
-                                    <a href="{{ route('user.products.index') }}" class="breadcrumb-link">
-                                        {{ trans('products.products') }}
-                                    </a>
-                                </li>
-                                <li class="breadcrumb-item active" aria-current="page">
-                                    {{ $product->name }}
-                                </li>
-                            </ol>
-                        </nav>
+    <div class="product-page" dir="rtl">
+        <div class="container-fluid">
+            <div class="row min-vh-100">
+                <!-- Product Image Section (Left Side) -->
+                <div class="col-lg-6 col-md-12 product-image-section">
+                    <div class="image-container">
+                        @php
+                            // Get all product images
+                            $productImages = [];
+                            
+                            // Add main product image if exists
+                            if ($product->image && file_exists(public_path($product->image))) {
+                                $productImages[] = $product->image;
+                            }
+                            
+                            // Add additional images from product_designs if they exist
+                            if (method_exists($product, 'designs') && $product->designs) {
+                                foreach ($product->designs as $design) {
+                                    if ($design->image && file_exists(public_path($design->image))) {
+                                        $productImages[] = $design->image;
+                                    }
+                                }
+                            }
+                            
+                            // Add images from product_images if they exist
+                            if (method_exists($product, 'images') && $product->images) {
+                                foreach ($product->images as $image) {
+                                    if ($image->image_path && file_exists(public_path($image->image_path))) {
+                                        $productImages[] = $image->image_path;
+                                    }
+                                }
+                            }
+                        @endphp
 
-                        <h1 class="product-show-title">{{ $product->name }}</h1>
-                        <p class="product-show-subtitle">{{ $product->category->name ?? trans('products.no_category') }}</p>
-                    </div>
-                    <div class="col-md-4 text-md-end d-flex justify-content-end">
-                        <a href="{{ route('user.products.index') }}" class="back-btn">
-                            <i class="fas fa-arrow-left"></i>
-                            <span>{{ trans('products.back_to_products') }}</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
+                        @if (count($productImages) > 0)
+                            <!-- Product Images Carousel -->
+                            <div class="product-images-carousel">
+                                <div class="main-image-container">
+                                    <img src="{{ asset($productImages[0]) }}" alt="{{ $product->name }}" class="product-image active" id="main-product-image">
         </div>
 
-        <!-- Product Details -->
-        <div class="product-details-section">
-            <div class="container">
-                <div class="row">
-                    <!-- Product Image -->
-                    <div class="col-lg-6 mb-4">
-                        <div class="product-image-card">
-                            @if ($product->image && file_exists(public_path($product->image)))
-                                <img class="product-main-image" src="{{ asset($product->image) }}"
-                                    alt="{{ $product->name }}">
+                                @if (count($productImages) > 1)
+                                    <!-- Thumbnail Images -->
+                                    <div class="thumbnail-images">
+                                        @foreach ($productImages as $index => $image)
+                                            <img src="{{ asset($image) }}" alt="{{ $product->name }}" 
+                                                 class="thumbnail-image {{ $index === 0 ? 'active' : '' }}" 
+                                                 data-index="{{ $index }}"
+                                                 onclick="changeMainImage('{{ asset($image) }}', {{ $index }})">
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
                             @else
-                                <div class="product-image-placeholder">
+                            <!-- Simple product placeholder -->
+                            <div class="product-placeholder">
+                                <div class="placeholder-icon">
                                     <i class="fas fa-box"></i>
                                 </div>
+                                <p class="placeholder-text">صورة المنتج</p>
+                                </div>
                             @endif
+                        
+                        <!-- Image Navigation Dots -->
+                        @if (count($productImages) > 1)
+                            <div class="image-navigation">
+                                @foreach ($productImages as $index => $image)
+                                    <span class="nav-dot {{ $index === 0 ? 'active' : '' }}" 
+                                          data-index="{{ $index }}"
+                                          onclick="changeMainImage('{{ asset($image) }}', {{ $index }})"></span>
+                                @endforeach
                         </div>
+                        @endif
                     </div>
-
-                    <!-- Product Information -->
-                    <div class="col-lg-6 mb-4">
-                        <div class="product-info-card">
-                            <div class="product-info-content">
-                                <!-- Category Badge -->
-                                <div class="product-category-badge">
-                                    {{ $product->category->name ?? trans('products.no_category') }}
                                 </div>
 
-                                <!-- Price -->
-                                <div class="product-price-section">
-                                    <h2 class="product-price">
-                                        {{ number_format($product->base_price, 2) }} {{ trans('products.currency') }}
-                                    </h2>
-                                </div>
-
-                                <!-- Description -->
-                                <div class="product-description-section">
-                                    <h3 class="section-title">{{ trans('products.description') }}</h3>
-                                    <p class="product-description-text">
-                                        {{ $product->description ?: trans('products.not_provided') }}
-                                    </p>
-                                </div>
-
-                                <!-- Specifications -->
-                                @if ($product->specifications && is_array($product->specifications))
-                                    <div class="product-specifications-section">
-                                        <h3 class="section-title">{{ trans('products.specifications') }}</h3>
-                                        <div class="specifications-container">
-                                            @foreach ($product->specifications as $key => $value)
-                                                <div class="specification-item">
-                                                    <span class="specification-key">{{ $key }}:</span>
-                                                    <span class="specification-value">{{ $value }}</span>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endif
-
-                                <!-- Product Options -->
-                                @if ($product->options->count() > 0)
-                                    <div class="product-options-section">
-                                        <h3 class="section-title">{{ trans('products.product_options') }}</h3>
-                                        <div class="options-container">
-                                            @foreach ($product->options as $option)
-                                                <div class="option-card">
-                                                    <div class="option-header">
-                                                        <span class="option-name">{{ $option->name }}</span>
-                                                        @if ($option->is_required)
-                                                            <span class="option-badge required">
-                                                                {{ trans('products.required') }}
-                                                            </span>
-                                                        @else
-                                                            <span class="option-badge optional">
-                                                                {{ trans('products.optional') }}
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                    @if ($option->values->count() > 0)
-                                                        <div class="option-values">
-                                                            @foreach ($option->values as $value)
-                                                                <div class="option-value-item">
-                                                                    <span class="value-name">{{ $value->name }}</span>
-                                                                    @if ($value->price_adjustment != 0)
-                                                                        <span
-                                                                            class="value-price {{ $value->price_adjustment > 0 ? 'positive' : 'negative' }}">
-                                                                            {{ $value->price_adjustment > 0 ? '+' : '' }}{{ number_format($value->price_adjustment, 2) }}
-                                                                            {{ trans('products.currency') }}
-                                                                        </span>
-                                                                    @endif
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endif
-
-                                <!-- Actions -->
-                                <div class="product-actions-section">
-                                    <div class="actions-container">
-                                        @livewire('add-to-cart', ['product' => $product])
-                                        <button class="favorite-btn">
-                                            <i class="fas fa-heart"></i>
-                                            {{ trans('products.add_to_favorites') }}
-                                        </button>
-                                    </div>
+                <!-- Product Options Section (Right Side) -->
+                <div class="col-lg-6 col-md-12 product-options-section">
+                    @livewire('add-to-cart', ['product' => $product])
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Related Products Section -->
-        @php
-            $relatedProducts = \App\Models\Product::where('is_active', true)
-                ->where('id', '!=', $product->id)
-                ->where('category_id', $product->category_id)
-                ->take(4)
-                ->get();
-        @endphp
-
-        @if ($relatedProducts->count() > 0)
-            <div class="related-products-section">
-                <div class="container">
-                    <div class="related-products-card">
-                        <h3 class="related-products-title">{{ trans('products.related_products') }}</h3>
-                        <div class="row">
-                            @foreach ($relatedProducts as $relatedProduct)
-                                <div class="col-lg-3 col-md-6 mb-4">
-                                    <a href="{{ route('user.products.show', $relatedProduct) }}"
-                                        class="related-product-card">
-                                        @if ($relatedProduct->image && file_exists(public_path($relatedProduct->image)))
-                                            <img class="related-product-image" src="{{ asset($relatedProduct->image) }}"
-                                                alt="{{ $relatedProduct->name }}">
-                                        @else
-                                            <div class="related-product-placeholder">
-                                                <i class="fas fa-box"></i>
                                             </div>
-                                        @endif
-                                        <div class="related-product-info">
-                                            <h4 class="related-product-name">{{ $relatedProduct->name }}</h4>
-                                            <p class="related-product-price">
-                                                {{ number_format($relatedProduct->base_price, 2) }}
-                                                {{ trans('products.currency') }}
-                                            </p>
-                                        </div>
-                                    </a>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-    </div>
 
 
-    <!-- Footer from Welcome Page -->
+    <!-- Footer -->
     <x-footer />
 
     <style>
-        /* Product Show Page Styles - Based on Welcome Page Design */
-        .product-show-page {
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
+        
+        /* Brand Colors */
+        :root {
+            /* Brand Colors */
+            --brand-yellow: #ffde9f;
+            --brand-yellow-dark: #f5d182;
+            --brand-brown: #2a1e1e;
+            --brand-brown-light: #3a2e2e;
+            
+            /* Extended Brand Palette */
+            --brand-yellow-light: #fff4e6;
+            --brand-yellow-hover: #f0d4a0;
+            --brand-brown-dark: #1a1414;
+            --brand-brown-hover: #4a3e3e;
+            
+            /* Status Colors */
+            --status-pending: #fbbf24;
+            --status-processing: #3b82f6;
+            --status-completed: #10b981;
+            --status-cancelled: #ef4444;
+            --status-active: #10b981;
+            --status-inactive: #6b7280;
+            --status-suspended: #f59e0b;
+        }
+
+        .product-page {
             font-family: 'Cairo', sans-serif;
-            background: linear-gradient(180deg, #FFEBC6 0%, #FFFFFF 100%);
-            min-height: calc(100vh - 96px);
+            background: linear-gradient(135deg, var(--brand-yellow-light) 0%, var(--brand-yellow) 100%);
+            min-height: 100vh;
             direction: rtl;
-            padding-top: 0;
         }
 
-        /* Header Styles */
-        .product-show-header {
-            background: linear-gradient(135deg, #2C2C2C 0%, #404040 100%);
-            color: #FFEBC6;
-            padding: 3rem 0;
-            margin-bottom: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .product-show-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 235, 198, 0.1) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
-        }
-
-        @keyframes rotate {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Breadcrumb */
-        .breadcrumb-nav {
-            margin-bottom: 1rem;
-        }
-
-        .breadcrumb-list {
-            display: flex;
-            align-items: center;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            flex-wrap: wrap;
-        }
-
-        .breadcrumb-item {
-            display: flex;
-            align-items: center;
-        }
-
-        .breadcrumb-item:not(:last-child)::after {
-            content: '>';
-            margin: 0 0.5rem;
-            color: #FFEBC6;
-            opacity: 0.7;
-        }
-
-        .breadcrumb-link {
-            color: #FFEBC6;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .breadcrumb-link:hover {
-            color: #FFD700;
-        }
-
-        .breadcrumb-item.active {
-            color: #FFEBC6;
-            opacity: 0.8;
-            font-size: 0.9rem;
-        }
-
-        .product-show-title {
-            font-family: 'Cairo', cursive;
-            font-size: 3.5rem;
-            font-weight: 700;
-            color: #FFEBC6;
-            margin-bottom: 1rem;
-            animation: fadeInUp 0.8s ease forwards;
-            position: relative;
-            z-index: 1;
-        }
-
-        .product-show-subtitle {
-            font-size: 1.2rem;
-            color: #FFEBC6;
-            opacity: 0.9;
-            animation: fadeInUp 0.8s ease 0.2s forwards;
-            opacity: 0;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Back Button */
-        .back-btn {
-            background: #FFEBC6;
-            color: #2C2C2C;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            font-family: 'Cairo', cursive;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 15px rgba(255, 235, 198, 0.3);
-            position: relative;
-            z-index: 1;
-        }
-
-        .back-btn:hover {
-            background: #FFD700;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 235, 198, 0.4);
-            color: #2C2C2C;
-        }
-
-        /* Product Details Section */
-        .product-details-section {
-            padding: 2rem 0;
-        }
-
-        /* Product Image Card */
-        .product-image-card {
-            background: #fff;
-            border: 2px solid transparent;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            /* transition: all 0.3s ease; */
-            overflow: hidden;
-            padding: 1.5rem;
-        }
-
-        .product-image-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            border-color: #c4a700;
-        }
-
-        .product-main-image {
-            width: 100%;
-            height: 400px;
-            object-fit: cover;
-            border-radius: 10px;
-            /* transition: transform 0.3s ease; */
-        }
-
-        .product-image-card:hover .product-main-image {
-            transform: scale(1.02);
-        }
-
-        .product-image-placeholder {
-            width: 100%;
-            height: 400px;
-            background: linear-gradient(135deg, #FFEBC6 0%, #FFD700 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #2C2C2C;
-            font-size: 4rem;
-            border-radius: 10px;
-        }
-
-        /* Product Info Card */
-        .product-info-card {
-            background: #fff;
-            border: 2px solid transparent;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+        .product-options-section {
+            background: linear-gradient(135deg, var(--brand-yellow-light) 0%, var(--brand-yellow) 100%);
             padding: 2rem;
-            height: 100%;
-        }
-
-        .product-info-content {
             display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
         }
 
-        /* Category Badge */
-        .product-category-badge {
-            background: linear-gradient(135deg, #FFEBC6 0%, #FFD700 100%);
-            color: #2C2C2C;
-            border: 1px solid #c4a700;
-            font-weight: 600;
-            font-size: 0.9rem;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            display: inline-block;
-            width: fit-content;
-        }
-
-        /* Price Section */
-        .product-price-section {
-            margin: 1rem 0;
-        }
-
-        .product-price {
-            color: #c4a700;
-            font-family: 'Cairo', cursive;
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        /* Section Titles */
-        .section-title {
-            font-family: 'Cairo', cursive;
-            font-weight: 700;
-            color: #2C2C2C;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        /* Description */
-        .product-description-text {
-            color: #666;
-            font-size: 1rem;
-            line-height: 1.6;
-            margin: 0;
-        }
-
-        /* Specifications */
-        .specifications-container {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 10px;
-            padding: 1.5rem;
-            border: 1px solid #e5e7eb;
-        }
-
-        .specification-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .specification-item:last-child {
-            border-bottom: none;
-        }
-
-        .specification-key {
-            font-weight: 600;
-            color: #2C2C2C;
-        }
-
-        .specification-value {
-            color: #666;
-        }
-
-        /* Options */
         .options-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+            width: 100%;
+            max-width: 500px;
         }
 
-        .option-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 10px;
-            padding: 1.5rem;
-            border: 1px solid #e5e7eb;
-            transition: all 0.3s ease;
-        }
-
-        .option-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .option-name {
-            font-weight: 600;
-            color: #2C2C2C;
-            font-size: 1.1rem;
-        }
-
-        .option-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .option-badge.required {
-            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
-            color: #c62828;
-            border: 1px solid #ef5350;
-        }
-
-        .option-badge.optional {
-            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
-            color: #2e7d32;
-            border: 1px solid #4caf50;
-        }
-
-        .option-values {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 0.75rem;
-        }
-
-        .option-value-item {
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 0.75rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-
-        .value-name {
-            color: #2C2C2C;
-            font-weight: 500;
-        }
-
-        .value-price {
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .value-price.positive {
-            color: #2e7d32;
-        }
-
-        .value-price.negative {
-            color: #c62828;
-        }
-
-        /* Actions */
-        .product-actions-section {
-            padding-top: 2rem;
-            border-top: 2px solid #e5e7eb;
-            margin-top: 2rem;
-        }
-
-        .actions-container {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .favorite-btn {
-            background: #fff;
-            color: #2C2C2C;
-            border: 2px solid #e5e7eb;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            font-family: 'Cairo', cursive;
-            font-size: 1.1rem;
-        }
-
-        /* Related Products */
-        .related-products-section {
-            padding: 3rem 0;
-        }
-
-        .related-products-card {
-            background: #fff;
-            border: 2px solid transparent;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            padding: 2rem;
-        }
-
-
-        .related-products-title {
-            font-family: 'Cairo', cursive;
-            font-weight: 700;
-            color: #2C2C2C;
-            font-size: 2rem;
+        .product-header {
             margin-bottom: 2rem;
-            text-align: center;
         }
 
-        .related-product-card {
-            background: #fff;
-            border: 2px solid transparent;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            overflow: hidden;
-            text-decoration: none;
-            display: block;
-            height: 100%;
-        }
-
-
-        .related-product-image {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-
-        .related-product-card:hover .related-product-image {
-            transform: scale(1.05);
-        }
-
-        .related-product-placeholder {
-            width: 100%;
-            height: 150px;
-            background: linear-gradient(135deg, #FFEBC6 0%, #FFD700 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .product-title {
+            font-size: 2.5rem;
+            font-weight: 900;
             color: #2C2C2C;
-            font-size: 2rem;
-        }
-
-        .related-product-info {
-            padding: 1rem;
-        }
-
-        .related-product-name {
-            font-family: 'Cairo', cursive;
-            font-weight: 700;
-            color: #2C2C2C;
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem;
             line-height: 1.2;
         }
 
-        .related-product-price {
-            color: #c4a700;
-            font-family: 'Cairo', cursive;
+        .product-description {
+            font-size: 1rem;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+
+        .option-group {
+            margin-bottom: 2rem;
+        }
+
+        .option-title {
             font-size: 1.2rem;
             font-weight: 700;
+            color: #2C2C2C;
+            margin-bottom: 1rem;
+        }
+
+        .option-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .option-btn {
+            position: relative;
+            cursor: pointer;
             margin: 0;
         }
 
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
+        .option-btn input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .option-btn span {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #fff;
+            border: 2px solid #E0E0E0;
+            border-radius: 25px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .option-btn input:checked + span {
+            background: #2C2C2C;
+            color: #fff;
+            border-color: #2C2C2C;
+        }
+
+        .option-btn:hover span {
+            border-color: #2C2C2C;
+        }
+
+        .shape-selector select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #E0E0E0;
+            border-radius: 25px;
+            background: #fff;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            color: #2C2C2C;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .shape-selector select:focus {
+            border-color: #2C2C2C;
+        }
+
+        .price-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .price-display {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+
+        .price {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #2C2C2C;
+        }
+
+        .currency {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            background: #F5F5F5;
+            border-radius: 25px;
+            overflow: hidden;
+        }
+
+        .qty-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--brand-brown);
+            color: var(--brand-yellow-light);
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .qty-btn:hover {
+            background: var(--brand-brown-hover);
+        }
+
+        .qty-input {
+            width: 60px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--brand-brown);
+            outline: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-add-cart,
+        .btn-buy-now {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-add-cart {
+            background: var(--brand-yellow-light);
+            color: var(--brand-brown);
+            border: 2px solid var(--brand-brown);
+        }
+
+        .btn-add-cart:hover {
+            background: var(--brand-brown);
+            color: var(--brand-yellow-light);
+        }
+
+        .btn-buy-now {
+            background: var(--brand-brown);
+            color: var(--brand-yellow-light);
+        }
+
+        .btn-buy-now:hover {
+            background: var(--brand-brown-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(42, 30, 30, 0.3);
+        }
+
+        /* Button Loading States */
+        .btn-add-cart.loading .btn-text,
+        .btn-buy-now.loading .btn-text {
+            display: none;
+        }
+
+        .btn-add-cart.loading .btn-loading,
+        .btn-buy-now.loading .btn-loading {
+            display: inline-flex !important;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Sticky Cart Container */
+        .sticky-cart-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, var(--brand-brown) 0%, var(--brand-brown-light) 100%);
+            border-top: 3px solid var(--brand-yellow-dark);
+            box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .sticky-cart-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 2rem;
+        }
+
+        .sticky-cart-info {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .sticky-cart-price {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+
+        .sticky-price {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--brand-yellow);
+            font-family: 'Cairo', cursive;
+        }
+
+        .sticky-currency {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--brand-yellow-light);
+        }
+
+        .sticky-cart-quantity {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sticky-qty-btn {
+            width: 35px;
+            height: 35px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sticky-qty-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .sticky-qty-input {
+            width: 50px;
+            height: 35px;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #fff;
+            outline: none;
+        }
+
+        .sticky-cart-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .sticky-btn-add-cart,
+        .sticky-btn-buy-now {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sticky-btn-add-cart {
+            background: linear-gradient(135deg, var(--brand-yellow-light) 0%, var(--brand-yellow) 100%);
+            color: var(--brand-brown);
+            border: 2px solid var(--brand-yellow-dark);
+        }
+
+        .sticky-btn-add-cart:hover {
+            background: linear-gradient(135deg, var(--brand-yellow) 0%, var(--brand-yellow-hover) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .sticky-btn-buy-now {
+            background: linear-gradient(135deg, var(--brand-yellow-dark) 0%, var(--brand-yellow) 100%);
+            color: var(--brand-brown);
+        }
+
+        .sticky-btn-buy-now:hover {
+            background: linear-gradient(135deg, var(--brand-yellow) 0%, var(--brand-yellow-hover) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        /* Sticky Button Loading States */
+        .sticky-btn-add-cart.loading .sticky-btn-text,
+        .sticky-btn-buy-now.loading .sticky-btn-text {
+            display: none;
+        }
+
+        .sticky-btn-add-cart.loading .sticky-btn-loading,
+        .sticky-btn-buy-now.loading .sticky-btn-loading {
+            display: inline-flex !important;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            padding: 1rem 1.5rem;
+            z-index: 10000;
+            transform: translateX(400px);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid var(--brand-yellow-dark);
+            max-width: 350px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-success {
+            border-left-color: #4CAF50;
+        }
+
+        .notification-info {
+            border-left-color: #2196F3;
+        }
+
+        .notification-error {
+            border-left-color: #f44336;
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .notification-content i {
+            font-size: 1.2rem;
+        }
+
+        .notification-success .notification-content i {
+            color: #4CAF50;
+        }
+
+        .notification-info .notification-content i {
+            color: #2196F3;
+        }
+
+        .notification-error .notification-content i {
+            color: #f44336;
+        }
+
+        .notification-content span {
+            color: var(--brand-brown);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Product Image Section */
+        .product-image-section {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            height: 20%;
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-image {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 15px;
+            transition: opacity 0.3s ease;
+        }
+
+        .product-images-carousel {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .main-image-container {
+            width: 100%;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 15px;
+        }
+
+        .thumbnail-images {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .thumbnail-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .thumbnail-image:hover,
+        .thumbnail-image.active {
+            border-color: #2C2C2C;
+            transform: scale(1.1);
+        }
+
+        /* Simple Product Placeholder */
+        .product-placeholder {
+            width: 100%;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .placeholder-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .placeholder-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .image-navigation {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: #fff;
+        }
+
+
+        /* RTL Layout - Image on right, options on left */
+        
+        .product-options-section {
+            order: 1;
         }
 
         /* Responsive Design */
-        @media (max-width: 768px) {
-            .product-show-title {
-                font-size: 2.5rem;
+        @media (max-width: 991px) {
+            .product-options-section {
+                order: 2;
             }
-
-            .product-show-subtitle {
-                font-size: 1rem;
+            
+            .product-image-section {
+                order: 1;
+                min-height: 400px;
             }
-
-            .back-btn {
-                padding: 0.6rem 1.2rem;
-                font-size: 1rem;
+            
+            .product-title {
+                font-size: 2rem;
             }
-
-            .product-main-image,
-            .product-image-placeholder {
-                height: 300px;
-            }
-
-            .product-price {
+            
+            .price {
                 font-size: 2rem;
             }
 
-            .actions-container {
+            .action-buttons {
                 flex-direction: column;
-            }
-
-            .option-values {
-                grid-template-columns: 1fr;
             }
         }
 
-        @media (max-width: 576px) {
-            .product-show-header {
-                padding: 2rem 0;
+        @media (max-width: 768px) {
+            .product-options-section,
+            .product-image-section {
+                padding: 1rem;
             }
-
-            .product-show-title {
-                font-size: 2rem;
+            
+            .product-title {
+                font-size: 1.8rem;
             }
-
-            .product-show-subtitle {
-                font-size: 0.9rem;
-            }
-
-            .breadcrumb-list {
+            
+            .option-buttons {
                 flex-direction: column;
-                align-items: flex-start;
             }
-
-            .breadcrumb-item:not(:last-child)::after {
-                display: none;
+            
+            .option-btn span {
+                display: block;
+                text-align: center;
             }
-
-            .product-main-image,
-            .product-image-placeholder {
-                height: 250px;
+            
+            .price-section {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .product-placeholder {
+                height: 300px;
+            }
+            
+            /* Sticky cart responsive */
+            .sticky-cart-content {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .sticky-cart-info {
+                flex-direction: column;
+                gap: 1rem;
+                width: 100%;
+            }
+            
+            .sticky-cart-actions {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .sticky-btn-add-cart,
+            .sticky-btn-buy-now {
+                flex: 1;
+                justify-content: center;
             }
         }
     </style>
+
+    <script>
+        // Image switching functionality
+        function changeMainImage(imageSrc, index) {
+            // Update main image
+            const mainImage = document.getElementById('main-product-image');
+            if (mainImage) {
+                mainImage.src = imageSrc;
+            }
+
+            // Update thumbnail active state
+            document.querySelectorAll('.thumbnail-image').forEach((thumb, i) => {
+                thumb.classList.toggle('active', i === index);
+            });
+
+            // Update navigation dots
+            document.querySelectorAll('.nav-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+    </script>
 @endsection

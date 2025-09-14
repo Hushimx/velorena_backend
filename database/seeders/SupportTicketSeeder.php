@@ -275,3 +275,5 @@ class SupportTicketSeeder extends Seeder
         return $notes[$status] ?? null;
     }
 }
+
+

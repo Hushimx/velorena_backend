@@ -1,25 +1,28 @@
 @extends('marketer.layouts.app')
 
-@section('pageTitle', 'Marketer | Edit Lead')
 @section('title', 'تعديل الـ Lead')
 
 @section('content')
-    <div class="space-y-6">
-        <!-- Header -->
-        <div class="flex justify-between items-center">
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="rounded-xl p-6 text-white" style="background-color: #2a1e1e;">
+        <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">تعديل الـ Lead</h1>
-                <p class="text-gray-600">تعديل بيانات الـ lead: {{ $lead->company_name }}</p>
+                <h1 class="text-2xl font-bold">تعديل الـ Lead</h1>
+                <p class="mt-1" style="color: #ffde9f;">تعديل بيانات الـ lead: {{ $lead->company_name }}</p>
             </div>
-            <a href="{{ route('marketer.leads.index') }}"
-                class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
-                <i class="fas fa-arrow-right pl-2"></i>
-                <span>العودة للقائمة</span>
-            </a>
+            <div class="flex items-center gap-4">
+                <a href="{{ route('marketer.leads.index') }}"
+                    class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2">
+                    <i class="fas fa-arrow-right"></i>
+                    <span class="hidden sm:block">العودة للقائمة</span>
+                </a>
+            </div>
         </div>
+    </div>
 
-        <!-- Edit Form -->
-        <div class="bg-white rounded-lg shadow p-6">
+    <!-- Edit Form -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <form action="{{ route('marketer.leads.update', $lead) }}" method="POST">
                 @csrf
                 @method('PUT')

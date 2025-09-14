@@ -471,3 +471,5 @@ response = requests.post(
 - Closed tickets cannot accept new replies
 - Ticket numbers are auto-generated in format: `TKT-YYYY-XXXXXX`
 - All endpoints return JSON responses with `success` boolean field
+
+

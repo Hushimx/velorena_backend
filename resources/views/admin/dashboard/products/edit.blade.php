@@ -133,63 +133,69 @@
                                 @enderror
                             </div>
 
-                            <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                                <label for="sort_order"
-                                    class="block text-sm font-semibold text-gray-700 mb-2">{{ trans('products.sort_order') }}</label>
-                                <input type="number" name="sort_order" id="sort_order"
-                                    value="{{ old('sort_order', $product->sort_order) }}" min="0" placeholder="0"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 bg-gray-50 hover:bg-white focus:bg-white">
-                                @error('sort_order')
-                                    <p class="mt-2 text-sm text-red-600 flex items-center">
-                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
-                                    </p>
-                                @enderror
-                            </div>
 
                             <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                                <label for="image"
-                                    class="block text-sm font-semibold text-gray-700 mb-2">{{ trans('products.image') }}</label>
-                                @if ($product->image && file_exists(public_path($product->image)))
-                                    <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                                        <p class="text-sm text-gray-600 mb-2">{{ trans('products.current_image') }}:</p>
-                                        <img src="{{ asset($product->image) }}" alt="{{ $product->name }}"
-                                            class="w-32 h-auto object-cover rounded-lg shadow-sm">
+                                <label for="images"
+                                    class="block text-sm font-semibold text-gray-700 mb-2">{{ trans('products.images') }}</label>
+                                
+                                <!-- Existing Images -->
+                                @if($product->images && $product->images->count() > 0)
+                                    <div class="mb-4">
+                                        <p class="text-sm text-gray-600 mb-3">{{ trans('products.current_images') }}:</p>
+                                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="existing-images">
+                                            @foreach($product->images as $image)
+                                                <div class="relative group existing-image" data-image-id="{{ $image->id }}">
+                                                    <img src="{{ asset($image->image_path) }}" alt="{{ $image->alt_text }}"
+                                                        class="w-full h-32 object-cover rounded-lg border-2 {{ $image->is_primary ? 'border-green-500' : 'border-gray-200' }}">
+                                                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg flex items-center justify-center">
+                                                        <button type="button" class="remove-image-btn opacity-0 group-hover:opacity-100 bg-red-600 text-white px-3 py-1 rounded text-sm transition-all duration-200">
+                                                            Remove
+                                                        </button>
+                                                    </div>
+                                                    @if($image->is_primary)
+                                                        <div class="absolute top-2 left-2">
+                                                            <span class="bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow-sm">Primary</span>
+                                                        </div>
+                                                    @endif
+                                                    <div class="absolute top-2 right-2">
+                                                        <button type="button" class="set-primary-existing-btn bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow-sm {{ $image->is_primary ? 'hidden' : '' }}" data-image-id="{{ $image->id }}">
+                                                            Set Primary
+                                                        </button>
+                                                    </div>
+                                                    <input type="hidden" name="existing_images[]" value="{{ $image->id }}" class="existing-image-input">
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     </div>
                                 @endif
+
+                                <!-- New Images Upload -->
                                 <div
                                     class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition duration-200">
-                                    <input type="file" name="image" id="image" accept="image/*"
+                                    <input type="file" name="images[]" id="images" accept="image/*" multiple
                                         class="hidden">
-                                    <label for="image" class="cursor-pointer">
+                                    <label for="images" class="cursor-pointer">
                                         <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
-                                        <p class="text-sm text-gray-600">{{ trans('products.click_to_upload_image') }}</p>
-                                        <p class="text-xs text-gray-500 mt-1">{{ trans('products.image_requirements') }}
-                                        </p>
+                                        <p class="text-sm text-gray-600">{{ trans('products.click_to_upload_images') }}</p>
+                                        <p class="text-xs text-gray-500 mt-1">{{ trans('products.images_requirements') }}</p>
                                     </label>
                                 </div>
-                                @error('image')
+                                <div id="image-preview" class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4 hidden">
+                                    <!-- New image previews will be added here -->
+                                </div>
+                                <input type="hidden" name="primary_image" id="primary_image" value="">
+                                @error('images')
                                     <p class="mt-2 text-sm text-red-600 flex items-center">
                                         <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
                                     </p>
                                 @enderror
                             </div>
 
-                            <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                                <label
-                                    class="block text-sm font-semibold text-gray-700 mb-2">{{ trans('products.is_active') }}</label>
-                                <div class="flex items-center">
-                                    <input type="checkbox" name="is_active" id="is_active" value="1"
-                                        {{ old('is_active', $product->is_active) ? 'checked' : '' }}
-                                        class="toggle-switch">
-                                    <label for="is_active"
-                                        class="mx-2 text-sm text-gray-700">{{ trans('products.is_active') }}</label>
-                                </div>
-                            </div>
 
                             <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
                                 <label for="specifications"
                                     class="block text-sm font-semibold text-gray-700 mb-2">{{ trans('products.specifications') }}</label>
-                                <textarea name="specifications" id="specifications" rows="6"
+                                <textarea name="specifications" id="specifications" rows="4"
                                     placeholder="{{ trans('products.specifications_placeholder') }}"
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 bg-gray-50 hover:bg-white focus:bg-white resize-none font-mono text-sm">{{ old('specifications', $product->specifications ? json_encode($product->specifications, JSON_PRETTY_PRINT) : '') }}</textarea>
                                 <p class="mt-2 text-sm text-gray-500 flex items-center">
@@ -204,6 +210,13 @@
                         </div>
                     </div>
 
+                    <!-- Product Options Management -->
+                    <div class="mt-8">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Product Options</h3>
+                        <p class="text-sm text-gray-600 mb-6">Manage product options like size, color, material, etc.</p>
+                        @livewire('product-options-manager', ['product' => $product])
+                    </div>
+
                     <!-- Form Actions -->
                     <div class="mt-8 flex justify-end space-x-3 gap-3">
                         <a href="{{ route('admin.products.show', $product) }}"
@@ -211,7 +224,10 @@
                             {{ trans('products.cancel') }}
                         </a>
                         <button type="submit"
-                            class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest transition ease-in-out duration-150"
+                            style="background: var(--brand-brown);"
+                            onmouseover="this.style.background='var(--brand-brown-hover)'"
+                            onmouseout="this.style.background='var(--brand-brown)'">
                             <i class="fas fa-save mx-2"></i>
                             {{ trans('products.update_product_button') }}
                         </button>
@@ -220,4 +236,113 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageInput = document.getElementById('images');
+            const imagePreview = document.getElementById('image-preview');
+            const primaryImageInput = document.getElementById('primary_image');
+
+            // Handle new image uploads
+            imageInput.addEventListener('change', function(e) {
+                const files = Array.from(e.target.files);
+                imagePreview.innerHTML = '';
+                imagePreview.classList.remove('hidden');
+
+                files.forEach((file, index) => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const imageContainer = document.createElement('div');
+                            imageContainer.className = 'relative group';
+                            imageContainer.innerHTML = `
+                                <img src="${e.target.result}" alt="Preview ${index + 1}" 
+                                     class="w-full h-32 object-cover rounded-lg border-2 border-gray-200">
+                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg flex items-center justify-center">
+                                    <button type="button" class="set-primary-new-btn opacity-0 group-hover:opacity-100 bg-green-600 text-white px-3 py-1 rounded text-sm transition-all duration-200" data-index="${index}">
+                                        Set as Primary
+                                    </button>
+                                </div>
+                                <div class="absolute top-2 right-2">
+                                    <span class="bg-white text-gray-800 text-xs px-2 py-1 rounded-full shadow-sm">New ${index + 1}</span>
+                                </div>
+                            `;
+                            imagePreview.appendChild(imageContainer);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            });
+
+            // Handle existing image removal
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-image-btn')) {
+                    const imageContainer = e.target.closest('.existing-image');
+                    const imageInput = imageContainer.querySelector('.existing-image-input');
+                    imageInput.remove();
+                    imageContainer.remove();
+                }
+            });
+
+            // Handle primary image selection for existing images
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('set-primary-existing-btn')) {
+                    const imageId = e.target.dataset.imageId;
+                    primaryImageInput.value = imageId;
+                    
+                    // Update visual indicators
+                    document.querySelectorAll('.existing-image').forEach(container => {
+                        const img = container.querySelector('img');
+                        const btn = container.querySelector('.set-primary-existing-btn');
+                        const badge = container.querySelector('.bg-green-600');
+                        
+                        img.classList.remove('border-green-500');
+                        img.classList.add('border-gray-200');
+                        btn.classList.remove('hidden');
+                        if (badge) badge.remove();
+                    });
+                    
+                    const currentContainer = e.target.closest('.existing-image');
+                    const currentImg = currentContainer.querySelector('img');
+                    currentImg.classList.remove('border-gray-200');
+                    currentImg.classList.add('border-green-500');
+                    e.target.classList.add('hidden');
+                    
+                    // Add primary badge
+                    const badge = document.createElement('div');
+                    badge.className = 'absolute top-2 left-2';
+                    badge.innerHTML = '<span class="bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow-sm">Primary</span>';
+                    currentContainer.appendChild(badge);
+                }
+            });
+
+            // Handle primary image selection for new images
+            imagePreview.addEventListener('click', function(e) {
+                if (e.target.classList.contains('set-primary-new-btn')) {
+                    const index = parseInt(e.target.dataset.index);
+                    primaryImageInput.value = 'new_' + index;
+                    
+                    // Update visual indicators for new images
+                    document.querySelectorAll('.set-primary-new-btn').forEach(btn => {
+                        btn.textContent = 'Set as Primary';
+                        btn.classList.remove('bg-green-800');
+                        btn.classList.add('bg-green-600');
+                    });
+                    
+                    e.target.textContent = 'Primary';
+                    e.target.classList.remove('bg-green-600');
+                    e.target.classList.add('bg-green-800');
+                }
+            });
+
+            // Initialize primary image selection on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                const existingPrimary = document.querySelector('.existing-image .bg-green-600');
+                if (existingPrimary) {
+                    const imageId = existingPrimary.closest('.existing-image').dataset.imageId;
+                    primaryImageInput.value = imageId;
+                }
+            });
+        });
+    </script>
 @endsection
