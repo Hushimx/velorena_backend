@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Marketer;
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
 use App\Models\LeadCommunication;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class LeadController extends Controller
 {
@@ -25,7 +28,8 @@ class LeadController extends Controller
      */
     public function index()
     {
-        return view('marketer.leads.index');
+        $canRequestNew = $this->canRequestNewLeads();
+        return view('marketer.leads.index', compact('canRequestNew'));
     }
 
     /**
@@ -85,13 +89,16 @@ class LeadController extends Controller
     {
         // Check if the lead is assigned to the current marketer
         if ($lead->marketer_id !== Auth::guard('marketer')->id()) {
-            abort(403, 'غير مصرح لك بإضافة تواصل لهذا الـ lead');
+            return redirect()->route('marketer.leads.index')
+                ->with('error', __('marketer.unauthorized_lead_access'));
         }
 
         $request->validate([
             'type' => 'required|in:call,email,meeting,whatsapp,other',
             'notes' => 'required|string',
             'communication_date' => 'required|date',
+            'status' => 'nullable|in:new,contacted,qualified,proposal_sent,negotiation,closed_won,closed_lost',
+            'next_follow_up' => 'nullable|date|after:communication_date',
         ]);
 
         LeadCommunication::create([
@@ -102,11 +109,21 @@ class LeadController extends Controller
             'communication_date' => $request->communication_date,
         ]);
 
-        // Update lead's last contact date
-        $lead->update(['last_contact_date' => $request->communication_date]);
+        // Update lead's last contact date and optionally status and next follow-up
+        $updateData = ['last_contact_date' => $request->communication_date];
+        
+        if ($request->filled('status')) {
+            $updateData['status'] = $request->status;
+        }
+        
+        if ($request->filled('next_follow_up')) {
+            $updateData['next_follow_up'] = $request->next_follow_up;
+        }
+        
+        $lead->update($updateData);
 
         return redirect()->route('marketer.leads.show', $lead)
-            ->with('success', 'تم إضافة التواصل بنجاح');
+            ->with('success', __('marketer.communication_added_successfully'));
     }
 
     /**
@@ -131,30 +148,84 @@ class LeadController extends Controller
     {
         if (!$this->canRequestNewLeads()) {
             return redirect()->route('marketer.leads.index')
-                ->with('error', 'يجب إنهاء جميع الـ leads الحالية قبل طلب leads جديدة');
+                ->with('error', __('marketer.must_complete_current_leads'));
         }
 
         $marketer = Auth::guard('marketer')->user();
+        $maxLeads = 10;
+        $assignedLeads = collect();
         
-        // Find unassigned leads in the same category as the marketer
-        $unassignedLeads = Lead::whereNull('marketer_id')
-            ->where('category_id', $marketer->category_id)
-            ->where('status', 'new')
-            ->limit(5) // Assign 5 leads at a time
+        // Priority 1: Get follow-up due leads first (most urgent)
+        $followUpLeads = Lead::where('category_id', $marketer->category_id)
+            ->whereNull('marketer_id')
+            ->whereNotNull('next_follow_up')
+            ->where('next_follow_up', '<=', now())
+            ->whereNotIn('status', ['closed_won', 'closed_lost'])
+            ->orderBy('next_follow_up', 'asc') // Most overdue first
+            ->limit($maxLeads)
             ->get();
 
-        if ($unassignedLeads->isEmpty()) {
+        $assignedLeads = $assignedLeads->merge($followUpLeads);
+        $remainingSlots = $maxLeads - $assignedLeads->count();
+
+        // Priority 2: If we have slots left, get new leads
+        if ($remainingSlots > 0) {
+            $newLeads = Lead::where('category_id', $marketer->category_id)
+                ->whereNull('marketer_id')
+                ->where('status', 'new')
+                ->orderBy('created_at', 'asc') // Oldest first
+                ->limit($remainingSlots)
+                ->get();
+
+            $assignedLeads = $assignedLeads->merge($newLeads);
+            $remainingSlots = $maxLeads - $assignedLeads->count();
+        }
+
+        // Priority 3: If still have slots, get any other unassigned leads (not closed)
+        if ($remainingSlots > 0) {
+            $otherLeads = Lead::where('category_id', $marketer->category_id)
+                ->whereNull('marketer_id')
+                ->whereNotIn('status', ['closed_won', 'closed_lost', 'new'])
+                ->where(function ($query) {
+                    $query->whereNull('next_follow_up')
+                        ->orWhere('next_follow_up', '>', now());
+                })
+                ->orderBy('created_at', 'asc')
+                ->limit($remainingSlots)
+                ->get();
+
+            $assignedLeads = $assignedLeads->merge($otherLeads);
+        }
+
+        if ($assignedLeads->isEmpty()) {
             return redirect()->route('marketer.leads.index')
-                ->with('info', 'لا توجد leads جديدة متاحة في فئتك حالياً');
+                ->with('info', __('marketer.no_new_leads_available'));
         }
 
         // Assign leads to marketer
-        foreach ($unassignedLeads as $lead) {
+        foreach ($assignedLeads as $lead) {
             $lead->update(['marketer_id' => $marketer->id]);
         }
 
+        // Prepare success message with breakdown
+        $followUpCount = $followUpLeads->count();
+        $newCount = $assignedLeads->where('status', 'new')->count();
+        $otherCount = $assignedLeads->count() - $followUpCount - $newCount;
+
+        $message = __('marketer.leads_requested_successfully', ['count' => $assignedLeads->count()]);
+        
+        if ($followUpCount > 0) {
+            $message .= ' ' . __('marketer.follow_up_leads_assigned', ['count' => $followUpCount]);
+        }
+        if ($newCount > 0) {
+            $message .= ' ' . __('marketer.new_leads_assigned', ['count' => $newCount]);
+        }
+        if ($otherCount > 0) {
+            $message .= ' ' . __('marketer.other_leads_assigned', ['count' => $otherCount]);
+        }
+
         return redirect()->route('marketer.leads.index')
-            ->with('success', 'تم تعيين ' . $unassignedLeads->count() . ' leads جديدة لك');
+            ->with('success', $message);
     }
 
     /**
@@ -176,5 +247,79 @@ class LeadController extends Controller
         ];
 
         return view('marketer.dashboard.main', compact('stats'));
+    }
+
+    /**
+     * Create a user account from lead data
+     */
+    public function createUserFromLead(Request $request, Lead $lead)
+    {
+        // Check if the lead is assigned to the current marketer
+        if ($lead->marketer_id !== Auth::guard('marketer')->id()) {
+            abort(403, 'غير مصرح لك بإنشاء حساب لهذا الـ lead');
+        }
+
+        // Check if user already exists with this email
+        $existingUser = User::where('email', $lead->email)->first();
+        if ($existingUser) {
+            return redirect()->route('marketer.leads.show', $lead)
+                ->with('error', __('marketer.email_already_exists'));
+        }
+
+        $request->validate([
+            'client_type' => 'required|in:individual,company',
+            'password' => 'required|string|min:8|confirmed',
+            'city' => 'nullable|string|max:100',
+            'country' => 'nullable|string|max:100',
+            'vat_number' => 'nullable|string|max:50',
+            'cr_number' => 'nullable|string|max:50',
+        ]);
+
+        try {
+            // Prepare user data from lead
+            $userData = [
+                'client_type' => $request->client_type,
+                'email' => $lead->email,
+                'phone' => $lead->phone,
+                'address' => $lead->address,
+                'city' => $request->city,
+                'country' => $request->country,
+                'vat_number' => $request->vat_number,
+                'cr_number' => $request->cr_number,
+                'password' => Hash::make($request->password),
+                'notes' => 'تم إنشاء الحساب من lead بواسطة المسوق: ' . Auth::guard('marketer')->user()->name,
+            ];
+
+            // Set name fields based on client type
+            if ($request->client_type === 'individual') {
+                $userData['full_name'] = $lead->contact_person;
+                $userData['company_name'] = $lead->company_name;
+            } else {
+                $userData['company_name'] = $lead->company_name;
+                $userData['contact_person'] = $lead->contact_person;
+            }
+
+            // Create user
+            $user = User::create($userData);
+
+            // Link user to lead
+            $lead->update(['user_id' => $user->id]);
+
+            // Add communication record
+            LeadCommunication::create([
+                'lead_id' => $lead->id,
+                'marketer_id' => Auth::guard('marketer')->id(),
+                'type' => 'other',
+                'notes' => __('marketer.user_creation_communication', ['email' => $user->email]),
+                'communication_date' => now(),
+            ]);
+
+            return redirect()->route('marketer.leads.show', $lead)
+                ->with('success', __('marketer.user_created_successfully'));
+
+        } catch (\Exception $e) {
+            return redirect()->route('marketer.leads.show', $lead)
+                ->with('error', __('marketer.user_creation_error') . ': ' . $e->getMessage());
+        }
     }
 }

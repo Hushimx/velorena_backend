@@ -3,6 +3,7 @@
 use Livewire\Livewire;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log;
 
 // Import middleware classes directly
 use App\Http\Controllers\HomeController;
@@ -60,6 +61,24 @@ Route::group(
                 if (!$product->is_active) {
                     abort(404);
                 }
+                // Load product with options and their values
+                $product->load(['category', 'options.values']);
+                
+                // Debug: Log the product data
+                Log::info('Product loaded:', [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'options_count' => $product->options->count(),
+                    'options' => $product->options->map(function($option) {
+                        return [
+                            'id' => $option->id,
+                            'name' => $option->name,
+                            'type' => $option->type,
+                            'values_count' => $option->values->count()
+                        ];
+                    })
+                ]);
+                
                 return view('users.products.show', compact('product'));
             })->name('user.products.show');
 
@@ -77,6 +96,16 @@ Route::group(
             // Orders routes
             Route::get('/orders', [App\Http\Controllers\UserOrderController::class, 'index'])->name('user.orders.index');
             Route::get('/orders/{order}', [App\Http\Controllers\UserOrderController::class, 'show'])->name('user.orders.show');
+            Route::delete('/orders/{order}', [App\Http\Controllers\UserOrderController::class, 'destroy'])->name('user.orders.destroy');
+
+            // Client Area routes
+            Route::prefix('client')->name('client.')->group(function () {
+                Route::get('/', [App\Http\Controllers\ClientAreaController::class, 'index'])->name('index');
+                Route::get('/orders', [App\Http\Controllers\ClientAreaController::class, 'orders'])->name('orders');
+                Route::get('/appointments', [App\Http\Controllers\ClientAreaController::class, 'appointments'])->name('appointments');
+                Route::get('/orders/{order}', [App\Http\Controllers\ClientAreaController::class, 'orderDetails'])->name('order.details');
+                Route::get('/appointments/{appointment}', [App\Http\Controllers\ClientAreaController::class, 'appointmentDetails'])->name('appointment.details');
+            });
 
             // Product Design Selection routes
             Route::get('/products/{product}/designs', [App\Http\Controllers\ProductDesignController::class, 'index'])->name('user.product.designs');
@@ -100,3 +129,12 @@ Route::group(
         })->name('payment.cancel');
     }
 );
+
+// Design selection routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/designs', [App\Http\Controllers\DesignController::class, 'index'])->name('designs.index');
+    Route::get('/designs/select-for-product/{product}', [App\Http\Controllers\DesignController::class, 'selectForProduct'])->name('designs.select-for-product');
+    Route::post('/designs/save-for-product/{product}', [App\Http\Controllers\DesignController::class, 'saveDesignsForProduct'])->name('designs.save-for-product');
+    Route::delete('/designs/remove-from-product/{product}/{design}', [App\Http\Controllers\DesignController::class, 'removeDesignFromProduct'])->name('designs.remove-from-product');
+    Route::post('/designs/sync-from-api', [App\Http\Controllers\DesignController::class, 'syncFromApi'])->name('designs.sync-from-api');
+});

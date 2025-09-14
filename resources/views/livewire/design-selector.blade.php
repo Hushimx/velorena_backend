@@ -6,8 +6,11 @@
             <div class="col-md-4 mb-3">
                 <label for="search" class="form-label">Search Designs</label>
                 <div class="input-group">
-                    <input type="text" id="search" wire:model.live.debounce.300ms="search"
+                    <input type="text" id="search" wire:model="search"
                         placeholder="Search for designs..." class="form-control">
+                    <button wire:click="clearSearch" class="btn btn-outline-secondary" type="button" title="Clear search">
+                        <i class="fas fa-times"></i>
+                    </button>
                     <span class="input-group-text">
                         <i class="fas fa-search"></i>
                     </span>
@@ -17,7 +20,7 @@
             <!-- Category Filter -->
             <div class="col-md-4 mb-3">
                 <label for="category" class="form-label">Category</label>
-                <select id="category" wire:model.live="selectedCategory" class="form-select">
+                <select id="category" wire:model="selectedCategory" class="form-select">
                     <option value="">All Categories</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category }}">{{ ucfirst($category) }}</option>
@@ -25,14 +28,14 @@
                 </select>
             </div>
 
-            <!-- Sync Button -->
+            <!-- Search Button -->
             <div class="col-md-4 mb-3 d-flex align-items-end">
-                <button wire:click="syncDesignsFromApi" wire:loading.attr="disabled" class="btn btn-primary w-100">
+                <button wire:click="performSearch" wire:loading.attr="disabled" class="btn btn-primary w-100">
                     <span wire:loading.remove>
-                        <i class="fas fa-sync-alt me-2"></i>Sync from API
+                        <i class="fas fa-search me-2"></i>Search Designs
                     </span>
                     <span wire:loading>
-                        <i class="fas fa-spinner fa-spin me-2"></i>Syncing...
+                        <i class="fas fa-spinner fa-spin me-2"></i>Searching...
                     </span>
                 </button>
             </div>
@@ -57,9 +60,16 @@
                 <div class="card h-100 shadow-sm design-card">
                     <!-- Design Image -->
                     <div class="position-relative design-image-container">
-                        @if ($design->thumbnail_url)
-                            <img src="{{ $design->thumbnail_url }}" alt="{{ $design->title }}"
-                                class="card-img-top design-image" wire:click="openDesignModal({{ $design->id }})"
+                        @php
+                            $designId = $useApiDesigns ? $design['id'] : $design->id;
+                            $designTitle = $useApiDesigns ? $design['title'] : $design->title;
+                            $designThumbnail = $useApiDesigns ? $design['thumbnail_url'] : $design->thumbnail_url;
+                            $designCategory = $useApiDesigns ? $design['category'] : $design->category;
+                        @endphp
+                        
+                        @if ($designThumbnail)
+                            <img src="{{ $designThumbnail }}" alt="{{ $designTitle }}"
+                                class="card-img-top design-image" wire:click="openDesignModal({{ $designId }})"
                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                             <div class="design-placeholder d-none align-items-center justify-content-center">
                                 <div class="text-center">
@@ -79,27 +89,27 @@
                         <!-- Selection Checkbox -->
                         <div class="position-absolute top-0 end-0 m-2">
                             <div class="form-check">
-                                <input type="checkbox" id="design_{{ $design->id }}"
-                                    wire:click="toggleDesignSelection({{ $design->id }})"
-                                    @if (in_array($design->id, $selectedDesigns)) checked @endif class="form-check-input">
+                                <input type="checkbox" id="design_{{ $designId }}"
+                                    wire:click="toggleDesignSelection({{ $designId }})"
+                                    @if (in_array($designId, $selectedDesigns)) checked @endif class="form-check-input">
                             </div>
                         </div>
                     </div>
 
                     <!-- Design Info -->
                     <div class="card-body p-2">
-                        <h6 class="card-title small mb-1 text-truncate" title="{{ $design->title }}">
-                            {{ $design->title }}
+                        <h6 class="card-title small mb-1 text-truncate" title="{{ $designTitle }}">
+                            {{ $designTitle }}
                         </h6>
 
-                        @if ($design->category)
-                            <p class="small text-muted mb-2">{{ ucfirst($design->category) }}</p>
+                        @if ($designCategory)
+                            <p class="small text-muted mb-2">{{ ucfirst($designCategory) }}</p>
                         @endif
 
                         <!-- Notes Input for Selected Design -->
-                        @if (in_array($design->id, $selectedDesigns))
+                        @if (in_array($designId, $selectedDesigns))
                             <div class="mt-2">
-                                <textarea wire:model.live="designNotes.{{ $design->id }}" placeholder="Add notes..."
+                                <textarea wire:model.live="designNotes.{{ $designId }}" placeholder="Add notes..."
                                     class="form-control form-control-sm" rows="2"></textarea>
                             </div>
                         @endif
@@ -130,7 +140,9 @@
             <div class="modal-dialog modal-lg modal-dialog-centered" wire:click.stop>
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">{{ $selectedDesignForModal->title }}</h5>
+                        <h5 class="modal-title">
+                            {{ $useApiDesigns ? $selectedDesignForModal['title'] : $selectedDesignForModal->title }}
+                        </h5>
                         <button type="button" wire:click="closeDesignModal" class="btn-close"></button>
                     </div>
                     <div class="modal-body">
@@ -138,46 +150,58 @@
                             <!-- Design Image -->
                             <div class="col-md-6">
                                 <div class="ratio ratio-1x1">
-                                    @if ($selectedDesignForModal->image_url)
-                                        <img src="{{ $selectedDesignForModal->image_url }}"
-                                            alt="{{ $selectedDesignForModal->title }}" class="rounded">
+                                    @php
+                                        $modalImageUrl = $useApiDesigns ? $selectedDesignForModal['image_url'] : $selectedDesignForModal->image_url;
+                                        $modalTitle = $useApiDesigns ? $selectedDesignForModal['title'] : $selectedDesignForModal->title;
+                                        $modalDescription = $useApiDesigns ? $selectedDesignForModal['description'] : $selectedDesignForModal->description;
+                                        $modalCategory = $useApiDesigns ? $selectedDesignForModal['category'] : $selectedDesignForModal->category;
+                                        $modalTags = $useApiDesigns ? $selectedDesignForModal['tags'] : $selectedDesignForModal->tags;
+                                        $modalId = $useApiDesigns ? $selectedDesignForModal['id'] : $selectedDesignForModal->id;
+                                    @endphp
+                                    
+                                    @if ($modalImageUrl)
+                                        <img src="{{ $modalImageUrl }}" alt="{{ $modalTitle }}" class="rounded">
                                     @endif
                                 </div>
                             </div>
 
                             <!-- Design Details -->
                             <div class="col-md-6">
-                                @if ($selectedDesignForModal->description)
-                                    <p class="text-muted mb-3">{{ $selectedDesignForModal->description }}</p>
+                                @if ($modalDescription)
+                                    <p class="text-muted mb-3">{{ $modalDescription }}</p>
                                 @endif
 
-                                @if ($selectedDesignForModal->category)
+                                @if ($modalCategory)
                                     <p class="small mb-2">
-                                        <strong>Category:</strong> {{ ucfirst($selectedDesignForModal->category) }}
+                                        <strong>Category:</strong> {{ ucfirst($modalCategory) }}
                                     </p>
                                 @endif
 
-                                @if ($selectedDesignForModal->tags)
+                                @if ($modalTags)
                                     <div class="mb-3">
                                         <p class="small mb-2"><strong>Tags:</strong></p>
                                         <div class="d-flex flex-wrap gap-1">
-                                            @foreach ($selectedDesignForModal->tags_array as $tag)
-                                                <span class="badge bg-light text-dark">{{ $tag }}</span>
-                                            @endforeach
+                                            @if ($useApiDesigns)
+                                                @foreach ($modalTags as $tag)
+                                                    <span class="badge bg-light text-dark">{{ $tag }}</span>
+                                                @endforeach
+                                            @else
+                                                @foreach ($selectedDesignForModal->tags_array as $tag)
+                                                    <span class="badge bg-light text-dark">{{ $tag }}</span>
+                                                @endforeach
+                                            @endif
                                         </div>
                                     </div>
                                 @endif
 
                                 <!-- Selection Controls -->
                                 <div class="mt-4">
-                                    @if (in_array($selectedDesignForModal->id, $selectedDesigns))
-                                        <button wire:click="removeDesign({{ $selectedDesignForModal->id }})"
-                                            class="btn btn-danger w-100">
+                                    @if (in_array($modalId, $selectedDesigns))
+                                        <button wire:click="removeDesign({{ $modalId }})" class="btn btn-danger w-100">
                                             <i class="fas fa-times me-2"></i>Remove from Selection
                                         </button>
                                     @else
-                                        <button wire:click="toggleDesignSelection({{ $selectedDesignForModal->id }})"
-                                            class="btn btn-primary w-100">
+                                        <button wire:click="toggleDesignSelection({{ $modalId }})" class="btn btn-primary w-100">
                                             <i class="fas fa-plus me-2"></i>Add to Selection
                                         </button>
                                     @endif

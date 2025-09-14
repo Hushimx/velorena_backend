@@ -41,7 +41,7 @@
                             <div class="product-card">
                                 <!-- Product Image -->
                                 <div class="product-image-container">
-                                    <a href="{{ route('user.products.show', $product) }}">
+                                    <a href="{{ route('user.products.show', $product) }}" wire:ignore>
                                         @if ($product->image && file_exists(public_path($product->image)))
                                             <img class="product-image" src="{{ asset($product->image) }}"
                                                 alt="{{ $product->name }}">
@@ -52,7 +52,7 @@
                                         @endif
                                     </a>
                                     <div class="product-overlay">
-                                        <a href="{{ route('user.products.show', $product) }}" class="view-btn">
+                                        <a href="{{ route('user.products.show', $product) }}" class="view-btn" wire:ignore>
                                             <i class="fas fa-eye"></i>
                                             {{ trans('products.view_details') }}
                                         </a>
@@ -66,7 +66,7 @@
                                     </div>
 
                                     <h3 class="product-title">
-                                        <a href="{{ route('user.products.show', $product) }}">
+                                        <a href="{{ route('user.products.show', $product) }}" wire:ignore>
                                             {{ $product->name }}
                                         </a>
                                     </h3>

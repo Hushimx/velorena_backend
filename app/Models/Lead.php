@@ -25,6 +25,7 @@ class Lead extends Model
         'priority',
         'marketer_id',
         'category_id',
+        'user_id',
         'last_contact_date',
         'next_follow_up',
     ];
@@ -69,5 +70,13 @@ class Lead extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * Get the user associated with this lead (if converted)
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

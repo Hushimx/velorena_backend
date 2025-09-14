@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 
 class ProductsController extends Controller
 {
@@ -43,39 +45,45 @@ class ProductsController extends Controller
             'description_ar' => 'required|string',
             'category_id' => 'required|exists:categories,id',
             'base_price' => 'required|numeric|min:0',
-            'sort_order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean',
             'specifications' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'primary_image' => 'nullable|integer|min:0'
         ]);
 
         try {
             $data = $request->all();
 
-            // Handle image upload
-            if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $imageName = time() . '_' . $image->getClientOriginalName();
-                $image->move(public_path('uploads/products'), $imageName);
-                $data['image'] = 'uploads/products/' . $imageName;
-            }
-
-            // Handle is_active checkbox
-            $data['is_active'] = $request->has('is_active');
+            // Set is_active to true by default
+            $data['is_active'] = true;
 
             // Handle specifications as JSON
             if ($request->filled('specifications')) {
-                $data['specifications'] = json_decode($request->specifications, true);
+                $specifications = json_decode($request->specifications, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $data['specifications'] = $specifications;
+                } else {
+                    $data['specifications'] = null;
+                }
             }
 
-            Product::create($data);
+            // Remove image-related fields from data
+            unset($data['images'], $data['primary_image']);
+
+            $product = Product::create($data);
+
+            // Handle multiple image uploads
+            if ($request->hasFile('images')) {
+                $this->handleImageUploads($product, $request->file('images'), $request->input('primary_image', 0));
+            }
 
             return redirect()->route('admin.products.index')
                 ->with('success', trans('products.product_created_successfully'));
         } catch (\Exception $e) {
+            \Log::error('Product creation error: ' . $e->getMessage());
             return redirect()->back()
                 ->withInput()
-                ->with('error', trans('products.error_creating_product'));
+                ->with('error', 'Error creating product: ' . $e->getMessage());
         }
     }
 
@@ -84,7 +92,7 @@ class ProductsController extends Controller
      */
     public function show(string $id)
     {
-        $product = Product::with(['category', 'options.values'])->findOrFail($id);
+        $product = Product::with(['category', 'options.values', 'images'])->findOrFail($id);
         return view('admin.dashboard.products.show', compact('product'));
     }
 
@@ -93,7 +101,7 @@ class ProductsController extends Controller
      */
     public function edit(string $id)
     {
-        $product = Product::with(['category', 'options.values'])->findOrFail($id);
+        $product = Product::with(['category', 'options.values', 'images'])->findOrFail($id);
         $categories = Category::where('is_active', true)->orderBy('name')->get();
         return view('admin.dashboard.products.edit', compact('product', 'categories'));
     }
@@ -110,45 +118,46 @@ class ProductsController extends Controller
             'description_ar' => 'required|string',
             'category_id' => 'required|exists:categories,id',
             'base_price' => 'required|numeric|min:0',
-            'sort_order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean',
             'specifications' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'primary_image' => 'nullable|integer|min:0',
+            'existing_images' => 'nullable|array',
+            'existing_images.*' => 'integer|exists:product_images,id'
         ]);
 
         try {
             $product = Product::findOrFail($id);
             $data = $request->all();
 
-            // Handle image upload
-            if ($request->hasFile('image')) {
-                // Delete old image if exists
-                if ($product->image && file_exists(public_path($product->image))) {
-                    unlink(public_path($product->image));
-                }
-
-                $image = $request->file('image');
-                $imageName = time() . '_' . $image->getClientOriginalName();
-                $image->move(public_path('uploads/products'), $imageName);
-                $data['image'] = 'uploads/products/' . $imageName;
-            }
-
-            // Handle is_active checkbox
-            $data['is_active'] = $request->has('is_active');
+            // Set is_active to true by default
+            $data['is_active'] = true;
 
             // Handle specifications as JSON
             if ($request->filled('specifications')) {
-                $data['specifications'] = json_decode($request->specifications, true);
+                $specifications = json_decode($request->specifications, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $data['specifications'] = $specifications;
+                } else {
+                    $data['specifications'] = null;
+                }
             }
 
+            // Remove image-related fields from data
+            unset($data['images'], $data['primary_image'], $data['existing_images']);
+
             $product->update($data);
+
+            // Handle image updates
+            $this->handleImageUpdates($product, $request);
 
             return redirect()->route('admin.products.index')
                 ->with('success', trans('products.product_updated_successfully'));
         } catch (\Exception $e) {
+            \Log::error('Product update error: ' . $e->getMessage());
             return redirect()->back()
                 ->withInput()
-                ->with('error', trans('products.error_updating_product'));
+                ->with('error', 'Error updating product: ' . $e->getMessage());
         }
     }
 
@@ -166,6 +175,77 @@ class ProductsController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', trans('products.error_deleting_product'));
+        }
+    }
+
+    /**
+     * Handle multiple image uploads for a product
+     */
+    private function handleImageUploads(Product $product, array $images, $primaryImageIndex = 0)
+    {
+        $uploadedImages = [];
+        
+        foreach ($images as $index => $image) {
+            $imageName = time() . '_' . $index . '_' . $image->getClientOriginalName();
+            $imagePath = 'uploads/products/' . $imageName;
+            $image->move(public_path('uploads/products'), $imageName);
+
+            $uploadedImage = $product->images()->create([
+                'image_path' => $imagePath,
+                'alt_text' => $product->name,
+                'is_primary' => false, // Will be set later if needed
+                'sort_order' => $product->images()->count()
+            ]);
+            
+            $uploadedImages[] = $uploadedImage;
+        }
+        
+        // Set primary image if specified
+        if ($primaryImageIndex !== null && $primaryImageIndex !== '') {
+            if (is_numeric($primaryImageIndex) && isset($uploadedImages[$primaryImageIndex])) {
+                $uploadedImages[$primaryImageIndex]->update(['is_primary' => true]);
+            }
+        } elseif (count($uploadedImages) > 0 && $product->images()->where('is_primary', true)->count() === 0) {
+            // If no primary image is set and this is the first upload, set the first image as primary
+            $uploadedImages[0]->update(['is_primary' => true]);
+        }
+    }
+
+    /**
+     * Handle image updates for a product
+     */
+    private function handleImageUpdates(Product $product, Request $request)
+    {
+        // Handle existing images - remove those not in the list
+        if ($request->has('existing_images')) {
+            $existingImageIds = $request->input('existing_images', []);
+            $product->images()->whereNotIn('id', $existingImageIds)->delete();
+        }
+
+        // Handle new image uploads
+        if ($request->hasFile('images')) {
+            $this->handleImageUploads($product, $request->file('images'), $request->input('primary_image', 0));
+        }
+
+        // Update primary image
+        if ($request->has('primary_image') && $request->input('primary_image')) {
+            $primaryImageValue = $request->input('primary_image');
+            
+            // Reset all images to non-primary
+            $product->images()->update(['is_primary' => false]);
+            
+            // Set the selected image as primary
+            if (is_numeric($primaryImageValue)) {
+                // Existing image ID
+                $product->images()->where('id', $primaryImageValue)->update(['is_primary' => true]);
+            } elseif (str_starts_with($primaryImageValue, 'new_')) {
+                // New image index
+                $newIndex = (int) str_replace('new_', '', $primaryImageValue);
+                $newImages = $product->images()->orderBy('created_at', 'desc')->get();
+                if (isset($newImages[$newIndex])) {
+                    $newImages[$newIndex]->update(['is_primary' => true]);
+                }
+            }
         }
     }
 }

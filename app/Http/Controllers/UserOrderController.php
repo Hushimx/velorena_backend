@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class UserOrderController extends Controller
 {
@@ -35,6 +36,34 @@ class UserOrderController extends Controller
         return view('users.orders.show', compact('order'));
     }
 
+    public function destroy(Order $order)
+    {
+        // Ensure the order belongs to the authenticated user
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to order.');
+        }
+
+        // Only allow deletion of pending orders
+        if ($order->status !== 'pending') {
+            return redirect()->back()
+                ->with('error', 'Only pending orders can be cancelled.');
+        }
+
+        try {
+            // Delete order items first (due to foreign key constraints)
+            $order->items()->delete();
+            
+            // Delete the order
+            $order->delete();
+
+            return redirect()->route('user.orders.index')
+                ->with('success', 'Order has been cancelled successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Failed to cancel order. Please try again.');
+        }
+    }
+
     /**
      * Clean up orders that don't have any items for the current user
      */
@@ -55,7 +84,7 @@ class UserOrderController extends Controller
                 ->delete();
 
             // Log the cleanup for debugging purposes
-            \Log::info("Cleaned up {$deletedCount} empty orders for user {$userId}");
+            Log::info("Cleaned up {$deletedCount} empty orders for user {$userId}");
         }
     }
 }

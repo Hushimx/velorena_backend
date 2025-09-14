@@ -33,9 +33,12 @@
                     <div class="flex items-center space-x-4 gap-3">
                         <!-- Product Image -->
                         <div class="flex-shrink-0">
-                            @if ($product->image && file_exists(public_path($product->image)))
-                                <a href="{{ asset($product->image) }}" class="glightbox" data-gallery="product">
-                                    <img src="{{ asset($product->image) }}" alt="{{ $product->name }}"
+                            @if ($product->images && $product->images->count() > 0)
+                                @php
+                                    $primaryImage = $product->images->where('is_primary', true)->first() ?? $product->images->first();
+                                @endphp
+                                <a href="{{ asset($primaryImage->image_path) }}" class="glightbox" data-gallery="product">
+                                    <img src="{{ asset($primaryImage->image_path) }}" alt="{{ $primaryImage->alt_text }}"
                                         class="w-20 h-20 rounded-xl object-cover shadow-md">
                                 </a>
                             @else
@@ -198,98 +201,63 @@
                     </div>
                 @endif
 
-                <!-- Product Options Card -->
-                @if ($product->options && $product->options->count() > 0)
+                <!-- Product Options Management -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="px-6 py-4 border-b border-gray-100">
+                        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-list-ul mr-2 text-indigo-500"></i>
+                            {{ trans('products.product_options') }}
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        @livewire('product-options-manager', ['product' => $product])
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Additional Information -->
+            <div class="space-y-6">
+                <!-- Product Images Card -->
+                @if ($product->images && $product->images->count() > 0)
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100">
                         <div class="px-6 py-4 border-b border-gray-100">
-                            <h2 class="text-lg font-semibold text-gray-900 flex items-center">
-                                <i class="fas fa-list-ul mr-2 text-indigo-500"></i>
-                                {{ trans('products.product_options') }}
-                                <span
-                                    class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                                    {{ $product->options->count() }}
+                            <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-3">
+                                <i class="fas fa-images text-pink-500"></i>
+                                {{ trans('products.images') }}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+                                    {{ $product->images->count() }}
                                 </span>
                             </h2>
                         </div>
                         <div class="p-6">
-                            <div class="space-y-4">
-                                @foreach ($product->options as $option)
-                                    <div
-                                        class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition duration-200">
-                                        <div class="flex justify-between items-start mb-4">
-                                            <div>
-                                                <h4 class="font-semibold text-gray-900 text-lg">{{ $option->name }}</h4>
-                                                @if ($option->name_ar)
-                                                    <p class="text-sm text-gray-600 mt-1">{{ $option->name_ar }}</p>
-                                                @endif
-                                            </div>
-                                            <div class="flex items-center space-x-2">
-                                                <span
-                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $option->is_required ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800' }}">
-                                                    <i
-                                                        class="fas fa-{{ $option->is_required ? 'exclamation' : 'info' }}-circle mr-1"></i>
-                                                    {{ $option->is_required ? trans('products.required') : trans('products.optional') }}
-                                                </span>
-                                                <span
-                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $option->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                    <i class="fas fa-circle mr-1"></i>
-                                                    {{ $option->is_active ? trans('products.active') : trans('products.inactive') }}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        @if ($option->values && $option->values->count() > 0)
-                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                                @foreach ($option->values as $value)
-                                                    <div
-                                                        class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
-                                                        <div class="flex justify-between items-start">
-                                                            <div class="flex-1">
-                                                                <p class="font-medium text-gray-900">{{ $value->value }}
-                                                                </p>
-                                                                @if ($value->value_ar)
-                                                                    <p class="text-sm text-gray-600 mt-1" dir="rtl">
-                                                                        {{ $value->value_ar }}</p>
-                                                                @endif
-                                                            </div>
-                                                            <div class="text-right ml-3">
-                                                                <p class="text-lg font-bold text-green-600">
-                                                                    {{ number_format($value->price_adjustment, 2) }}
-                                                                </p>
-                                                                <p class="text-xs text-gray-500">
-                                                                    {{ trans('products.currency') }}</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                @foreach($product->images as $image)
+                                    <div class="relative group">
+                                        <img src="{{ asset($image->image_path) }}" alt="{{ $image->alt_text }}"
+                                            class="w-full h-48 object-cover rounded-lg shadow-md group-hover:shadow-lg transition duration-200">
+                                        @if($image->is_primary)
+                                            <div class="absolute top-2 left-2">
+                                                <span class="bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow-sm">Primary</span>
                                             </div>
                                         @endif
+                                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition duration-200 rounded-lg"></div>
                                     </div>
                                 @endforeach
                             </div>
                         </div>
                     </div>
-                @endif
-            </div>
-
-            <!-- Right Column - Additional Information -->
-            <div class="space-y-6">
-                <!-- Product Image Card -->
-                @if ($product->image)
+                @else
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100">
                         <div class="px-6 py-4 border-b border-gray-100">
                             <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-3">
-                                <i class="fas fa-image text-pink-500"></i>
-                                {{ trans('products.image') }}
+                                <i class="fas fa-images text-pink-500"></i>
+                                {{ trans('products.images') }}
                             </h2>
                         </div>
                         <div class="p-6">
-                            <div class="relative group">
-                                <img src="{{ asset($product->image) }}" alt="{{ $product->name }}"
-                                    class="w-full h-64 object-cover rounded-lg shadow-md group-hover:shadow-lg transition duration-200">
-                                <div
-                                    class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition duration-200 rounded-lg">
-                                </div>
+                            <div class="text-center py-8 text-gray-500">
+                                <i class="fas fa-image text-4xl mb-4"></i>
+                                <p>No images uploaded yet.</p>
                             </div>
                         </div>
                     </div>

@@ -228,3 +228,4 @@ class SupportTicketController extends Controller
         return view('admin.dashboard.support-tickets.statistics', compact('stats'));
     }
 }
+

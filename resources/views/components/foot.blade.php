@@ -5,6 +5,44 @@
 <script>
     // Initialize Swiper
     document.addEventListener('DOMContentLoaded', function() {
+        // Product Slider Swiper
+        const productSwiper = new Swiper('.product-slider', {
+            slidesPerView: 1.2,
+            spaceBetween: 20,
+            centeredSlides: false,
+            loop: false,
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            breakpoints: {
+                640: {
+                    slidesPerView: 2.2,
+                    spaceBetween: 20,
+                    centeredSlides: false,
+                },
+                768: {
+                    slidesPerView: 3.2,
+                    spaceBetween: 25,
+                    centeredSlides: false,
+                },
+                1024: {
+                    slidesPerView: 4.2,
+                    spaceBetween: 25,
+                    centeredSlides: false,
+                },
+                1200: {
+                    slidesPerView: 5.2,
+                    spaceBetween: 25,
+                    centeredSlides: false,
+                },
+            },
+        });
+
         // Services Swiper
         const servicesSwiper = new Swiper('.servicesSwiper', {
             slidesPerView: 1,
