@@ -76,4 +76,8 @@ return [
     'save_designs' => 'حفظ التصاميم',
     'selected_designs' => 'التصاميم المختارة',
     'confirm_remove_design' => 'هل أنت متأكد من أنك تريد إزالة :design من :product؟',
+
+    // Login Modal
+    'login_required' => 'تسجيل الدخول مطلوب',
+    'login_required_message' => 'يرجى تسجيل الدخول للمتابعة مع طلبك.',
 ];

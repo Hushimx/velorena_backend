@@ -99,6 +99,7 @@ return [
     'request_new_leads' => 'طلب Leads جديدة',
     'complete_current_leads' => 'أكمل الـ Leads الحالية',
     'you_have_active_leads' => 'لديك :count leads نشطة تحتاج إلى متابعة',
+    'you_have_new_leads' => 'لديك :count leads جديدة تحتاج التواصل',
     'active_leads' => 'Leads نشطة',
     'leads_requested_successfully' => 'تم طلب :count leads بنجاح',
     'follow_up_leads_assigned' => '(منها :count تحتاج متابعة)',
@@ -106,6 +107,7 @@ return [
     'other_leads_assigned' => '(منها :count أخرى)',
     'no_new_leads_available' => 'لا توجد leads متاحة في فئتك حالياً',
     'must_complete_current_leads' => 'يجب إنهاء جميع الـ leads الحالية قبل طلب leads جديدة',
+    'must_contact_new_leads_first' => 'يجب التواصل مع الـ leads الجديدة أولاً قبل طلب أخرى جديدة',
     
     // Lead Details
     'lead_details' => 'تفاصيل الـ Lead',
@@ -145,6 +147,7 @@ return [
     'select_status' => 'اختر الحالة',
     'new' => 'جديد',
     'contacted' => 'تم التواصل',
+    'didnt_respond' => 'لم يرد',
     'qualified' => 'مؤهل',
     'proposal_sent' => 'تم إرسال العرض',
     'negotiation' => 'مفاوضات',
@@ -176,6 +179,21 @@ return [
     'user_creation_error' => 'حدث خطأ أثناء إنشاء الحساب',
     'email_already_exists' => 'يوجد بالفعل حساب بهذا البريد الإلكتروني',
     'user_creation_communication' => 'تم إنشاء حساب مستخدم في المنصة. بيانات الدخول: البريد الإلكتروني: :email',
+    
+    // Urgent Leads
+    'urgent_leads' => 'Leads عاجلة',
+    'leads_need_immediate_attention' => 'الـ leads التي تحتاج إلى اهتمام فوري',
+    'priority_level' => 'مستوى الأولوية',
+    'urgency_reason' => 'سبب الإلحاح',
+    'critical' => 'حرج',
+    'overdue' => 'متأخر',
+    'new_lead_not_contacted' => 'Lead جديد لم يتم التواصل معه',
+    'didnt_respond_no_followup' => 'لم يرد ولا يوجد متابعة',
+    'followup_overdue' => 'المتابعة متأخرة',
+    'needs_attention' => 'يحتاج اهتمام',
+    'no_urgent_leads' => 'لا توجد leads عاجلة',
+    'all_leads_under_control' => 'جميع الـ leads تحت السيطرة',
+    'view_all_leads' => 'عرض جميع الـ Leads',
     
     // Footer
     'copyright' => '© 2024 نظام إدارة الـ Leads. جميع الحقوق محفوظة.',

@@ -42,8 +42,24 @@
                                 <!-- Product Image -->
                                 <div class="product-image-container">
                                     <a href="{{ route('user.products.show', $product) }}" wire:ignore>
-                                        @if ($product->image && file_exists(public_path($product->image)))
-                                            <img class="product-image" src="{{ asset($product->image) }}"
+                                        @php
+                                            $productImage = null;
+                                            // Try to get primary image first
+                                            $primaryImage = $product->images()->where('is_primary', true)->first();
+                                            if ($primaryImage && file_exists(public_path($primaryImage->image_path))) {
+                                                $productImage = asset($primaryImage->image_path);
+                                            } else {
+                                                // Fallback to first image
+                                                $firstImage = $product->images()->first();
+                                                if ($firstImage && file_exists(public_path($firstImage->image_path))) {
+                                                    $productImage = asset($firstImage->image_path);
+                                                } elseif ($product->image && file_exists(public_path($product->image))) {
+                                                    $productImage = asset($product->image);
+                                                }
+                                            }
+                                        @endphp
+                                        @if ($productImage)
+                                            <img class="product-image" src="{{ $productImage }}"
                                                 alt="{{ $product->name }}">
                                         @else
                                             <div class="product-placeholder">

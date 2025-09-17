@@ -7,9 +7,9 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-# Velorena Backend
+# Qaads Backend
 
-A Laravel-based backend API for the Velorena printing company management system.
+A Laravel-based backend API for the Qaads printing company management system.
 
 ## 📚 Documentation
 

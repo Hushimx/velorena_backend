@@ -1,7 +1,7 @@
 @extends('components.layout')
 
-@section('pageTitle', trans('مواعيدي'))
-@section('title', trans('مواعيدي'))
+@section('pageTitle', trans('dashboard.my_appointments'))
+@section('title', trans('dashboard.my_appointments'))
 
 @section('content')
     <!-- Navbar from Welcome Page -->
@@ -19,33 +19,33 @@
                                 <li class="breadcrumb-item">
                                     <a href="{{ route('home') }}" class="breadcrumb-link">
                                         <i class="fas fa-home"></i>
-                                        {{ trans('الرئيسية') }}
+                                        {{ trans('dashboard.dashboard') }}
                                     </a>
                                 </li>
                                 <li class="breadcrumb-item">
                                     <a href="{{ route('client.index') }}" class="breadcrumb-link">
                                         <i class="fas fa-user-circle"></i>
-                                        {{ trans('حسابي') }}
+                                        {{ trans('dashboard.my_account') }}
                                     </a>
                                 </li>
                                 <li class="breadcrumb-item active" aria-current="page">
-                                    {{ trans('مواعيدي') }}
+                                    {{ trans('dashboard.my_appointments') }}
                                 </li>
                             </ol>
                         </nav>
 
-                        <h1 class="appointments-title">{{ trans('مواعيدي') }}</h1>
-                        <p class="appointments-subtitle">{{ trans('إدارة ومتابعة جميع مواعيدك مع المصممين') }}</p>
+                        <h1 class="appointments-title">{{ trans('dashboard.my_appointments') }}</h1>
+                        <p class="appointments-subtitle">{{ trans('dashboard.manage_consultations') }}</p>
                     </div>
                     <div class="col-md-4 text-md-end d-flex justify-content-end">
                         <div class="header-actions">
                             <a href="{{ route('appointments.create') }}" class="new-appointment-btn">
                                 <i class="fas fa-plus"></i>
-                                <span>{{ trans('حجز موعد جديد') }}</span>
+                                <span>{{ trans('dashboard.book_new_appointment') }}</span>
                             </a>
                             <a href="{{ route('client.index') }}" class="back-btn">
                                 <i class="fas fa-arrow-left"></i>
-                                <span>{{ trans('العودة للحساب') }}</span>
+                                <span>{{ trans('dashboard.back_to_account') }}</span>
                             </a>
                         </div>
                     </div>
@@ -81,7 +81,7 @@
                         </div>
                         <div class="stat-info">
                             <span class="stat-number">{{ $appointments->total() }}</span>
-                            <span class="stat-label">{{ trans('إجمالي المواعيد') }}</span>
+                            <span class="stat-label">{{ trans('dashboard.total_appointments') }}</span>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -90,7 +90,7 @@
                         </div>
                         <div class="stat-info">
                             <span class="stat-number">{{ $appointments->where('status', 'pending')->count() }}</span>
-                            <span class="stat-label">{{ trans('في الانتظار') }}</span>
+                            <span class="stat-label">{{ trans('dashboard.pending') }}</span>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -99,7 +99,7 @@
                         </div>
                         <div class="stat-info">
                             <span class="stat-number">{{ $appointments->where('status', 'completed')->count() }}</span>
-                            <span class="stat-label">{{ trans('مكتملة') }}</span>
+                            <span class="stat-label">{{ trans('dashboard.completed') }}</span>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -108,7 +108,7 @@
                         </div>
                         <div class="stat-info">
                             <span class="stat-number">{{ $appointments->whereNotNull('zoom_meeting_url')->count() }}</span>
-                            <span class="stat-label">{{ trans('اجتماعات زوم') }}</span>
+                            <span class="stat-label">{{ trans('dashboard.zoom_meetings') }}</span>
                         </div>
                     </div>
                 </div>
@@ -124,32 +124,16 @@
                                             <i class="fas fa-calendar-check"></i>
                                         </div>
                                         <div class="appointment-details">
-                                            <h5 class="appointment-title">{{ $appointment->formatted_date ?? $appointment->appointment_date->format('d/m/Y') }}</h5>
+                                            <h5 class="appointment-title">{{ $appointment->formatted_date ?? $appointment->appointment_date->format('M d, Y') }}</h5>
                                             <p class="appointment-time">
-                                                {{ $appointment->appointment_time->format('H:i') }} - 
-                                                {{ $appointment->appointment_time->addMinutes($appointment->duration_minutes)->format('H:i') }}
+                                                {{ $appointment->formatted_time ?? $appointment->appointment_time->format('H:i') }} - 
+                                                {{ $appointment->formatted_end_time ?? \Carbon\Carbon::parse($appointment->appointment_time)->addMinutes($appointment->duration_minutes)->format('H:i') }}
                                             </p>
                                         </div>
                                     </div>
                                     <div class="appointment-status">
                                         <span class="status-badge status-{{ $appointment->status }}">
-                                            @switch($appointment->status)
-                                                @case('pending')
-                                                    {{ trans('في الانتظار') }}
-                                                    @break
-                                                @case('accepted')
-                                                    {{ trans('مقبول') }}
-                                                    @break
-                                                @case('rejected')
-                                                    {{ trans('مرفوض') }}
-                                                    @break
-                                                @case('completed')
-                                                    {{ trans('مكتمل') }}
-                                                    @break
-                                                @case('cancelled')
-                                                    {{ trans('ملغي') }}
-                                                    @break
-                                            @endswitch
+                                            {{ trans('appointments.' . $appointment->status) }}
                                         </span>
                                     </div>
                                 </div>
@@ -163,12 +147,12 @@
                                                 <i class="fas fa-user-tie"></i>
                                             </div>
                                             <div class="detail-content">
-                                                <span class="detail-label">{{ trans('المصمم') }}</span>
+                                                <span class="detail-label">{{ trans('dashboard.designer') }}</span>
                                                 @if ($appointment->designer)
                                                     <span class="detail-value">{{ $appointment->designer->name }}</span>
                                                     <span class="detail-sub">{{ $appointment->designer->email }}</span>
                                                 @else
-                                                    <span class="detail-value pending">{{ trans('في انتظار التعيين') }}</span>
+                                                    <span class="detail-value pending">{{ trans('dashboard.pending_assignment') }}</span>
                                                 @endif
                                             </div>
                                         </div>
@@ -179,8 +163,8 @@
                                                 <i class="fas fa-clock"></i>
                                             </div>
                                             <div class="detail-content">
-                                                <span class="detail-label">{{ trans('المدة') }}</span>
-                                                <span class="detail-value">{{ $appointment->duration_minutes }} {{ trans('دقيقة') }}</span>
+                                                <span class="detail-label">{{ trans('dashboard.duration') }}</span>
+                                                <span class="detail-value">{{ $appointment->duration_minutes }} {{ trans('dashboard.minutes') }}</span>
                                             </div>
                                         </div>
 
@@ -190,8 +174,8 @@
                                                 <i class="fas fa-calendar-plus"></i>
                                             </div>
                                             <div class="detail-content">
-                                                <span class="detail-label">{{ trans('تاريخ الحجز') }}</span>
-                                                <span class="detail-value">{{ $appointment->created_at->format('d/m/Y') }}</span>
+                                                <span class="detail-label">{{ trans('dashboard.booked') }}</span>
+                                                <span class="detail-value">{{ $appointment->created_at->format('M d, Y') }}</span>
                                             </div>
                                         </div>
 
@@ -201,11 +185,11 @@
                                                 <i class="fas fa-video"></i>
                                             </div>
                                             <div class="detail-content">
-                                                <span class="detail-label">{{ trans('نوع الاجتماع') }}</span>
+                                                <span class="detail-label">{{ trans('dashboard.meeting_type') }}</span>
                                                 @if ($appointment->zoom_meeting_url)
-                                                    <span class="detail-value zoom">{{ trans('اجتماع زوم') }}</span>
+                                                    <span class="detail-value zoom">{{ trans('dashboard.zoom_meeting') }}</span>
                                                 @else
-                                                    <span class="detail-value">{{ trans('اجتماع شخصي') }}</span>
+                                                    <span class="detail-value">{{ trans('dashboard.in_person_meeting') }}</span>
                                                 @endif
                                             </div>
                                         </div>
@@ -218,15 +202,15 @@
                                                 <div class="section-icon">
                                                     <i class="fas fa-shopping-cart"></i>
                                                 </div>
-                                                <h6 class="section-title">{{ trans('الطلب المرتبط') }}</h6>
+                                                <h6 class="section-title">{{ trans('dashboard.linked_order') }}</h6>
                                             </div>
                                             <div class="order-info">
                                                 <div class="order-summary">
                                                     <div class="order-details">
-                                                        <span class="order-number">{{ trans('طلب رقم') }} #{{ $appointment->order->order_number }}</span>
-                                                        <span class="order-items">{{ $appointment->order->items->count() }} {{ trans('عنصر') }}</span>
+                                                        <span class="order-number">{{ trans('dashboard.order_number') }} #{{ $appointment->order->order_number }}</span>
+                                                        <span class="order-items">{{ $appointment->order->items->count() }} {{ trans('dashboard.items') }}</span>
                                                     </div>
-                                                    <div class="order-total">{{ number_format($appointment->order->total, 2) }} {{ trans('ريال') }}</div>
+                                                    <div class="order-total">${{ number_format($appointment->order->total, 2) }}</div>
                                                 </div>
                                                 @if ($appointment->order_notes)
                                                     <div class="order-notes">
@@ -244,7 +228,7 @@
                                                 <div class="section-icon">
                                                     <i class="fas fa-sticky-note"></i>
                                                 </div>
-                                                <h6 class="section-title">{{ trans('ملاحظاتك') }}</h6>
+                                                <h6 class="section-title">{{ trans('dashboard.your_notes') }}</h6>
                                             </div>
                                             <div class="notes-content">
                                                 {{ Str::limit($appointment->notes, 100) }}
@@ -259,7 +243,7 @@
                                                 <div class="section-icon">
                                                     <i class="fas fa-comment"></i>
                                                 </div>
-                                                <h6 class="section-title">{{ trans('رد المصمم') }}</h6>
+                                                <h6 class="section-title">{{ trans('dashboard.designer_response') }}</h6>
                                             </div>
                                             <div class="response-content">
                                                 {{ Str::limit($appointment->designer_notes, 100) }}
@@ -270,11 +254,11 @@
                                     <!-- Appointment Actions -->
                                     <div class="appointment-actions">
                                         <a href="{{ route('client.appointment.details', $appointment->id) }}" class="btn-primary">
-                                            <i class="fas fa-eye me-2"></i>{{ trans('عرض التفاصيل') }}
+                                            <i class="fas fa-eye me-2"></i>{{ trans('dashboard.view_details') }}
                                         </a>
                                         @if($appointment->zoom_meeting_url)
                                             <a href="{{ $appointment->zoom_meeting_url }}" target="_blank" class="btn-zoom">
-                                                <i class="fas fa-video me-2"></i>{{ trans('انضم للاجتماع') }}
+                                                <i class="fas fa-video me-2"></i>{{ trans('dashboard.join_meeting') }}
                                             </a>
                                         @endif
                                         @if($appointment->canBeCancelled())
@@ -282,8 +266,8 @@
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="btn-danger" 
-                                                        onclick="return confirm('{{ trans('هل أنت متأكد من إلغاء هذا الموعد؟') }}')">
-                                                    <i class="fas fa-times me-2"></i>{{ trans('إلغاء الموعد') }}
+                                                        onclick="return confirm('{{ trans('dashboard.confirm_cancel') }}')">
+                                                    <i class="fas fa-times me-2"></i>{{ trans('dashboard.cancel_appointment') }}
                                                 </button>
                                             </form>
                                         @endif
@@ -306,11 +290,11 @@
                             <div class="empty-state-icon">
                                 <i class="fas fa-calendar-times"></i>
                             </div>
-                            <h4 class="empty-state-title">{{ trans('لا توجد مواعيد حتى الآن') }}</h4>
-                            <p class="empty-state-message">{{ trans('ابدأ بحجز موعدك الأول مع أحد مصممينا المتخصصين') }}</p>
+                            <h4 class="empty-state-title">{{ trans('dashboard.no_appointments_yet') }}</h4>
+                            <p class="empty-state-message">{{ trans('dashboard.no_appointments_description') }}</p>
                             <a href="{{ route('appointments.create') }}" class="empty-state-action">
                                 <i class="fas fa-plus me-2"></i>
-                                {{ trans('حجز موعد جديد') }}
+                                {{ trans('dashboard.book_first_appointment') }}
                             </a>
                         </div>
                     </div>
@@ -326,7 +310,7 @@
         /* Appointments Page Styles - Using Brand Colors */
         .appointments-page {
             font-family: 'Cairo', sans-serif;
-            background: linear-gradient(180deg, var(--brand-yellow-light) 0%, #FFFFFF 100%);
+            background: linear-gradient(180deg, #FFEBC6 0%, #FFFFFF 100%);
             min-height: calc(100vh - 96px);
             direction: rtl;
             padding-top: 0;
@@ -334,7 +318,7 @@
 
         /* Header Section */
         .appointments-header {
-            background: linear-gradient(135deg, var(--brand-brown) 0%, var(--brand-brown-light) 100%);
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
             padding: 3rem 0;
             position: relative;
             overflow: hidden;
@@ -381,12 +365,12 @@
         .breadcrumb-item:not(:last-child)::after {
             content: '›';
             margin: 0 0.5rem;
-            color: var(--brand-yellow);
+            color: #FFEBC6;
             font-weight: 700;
         }
 
         .breadcrumb-link {
-            color: var(--brand-yellow);
+            color: #FFEBC6;
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -414,7 +398,7 @@
         .appointments-title {
             font-size: 3rem;
             font-weight: 900;
-            color: var(--brand-yellow);
+            color: #FFEBC6;
             margin: 0 0 1rem 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
             position: relative;
@@ -463,8 +447,8 @@
         }
 
         .back-btn {
-            background: linear-gradient(135deg, var(--brand-yellow) 0%, var(--brand-yellow-dark) 100%);
-            color: var(--brand-brown);
+            background: linear-gradient(135deg, #FFEBC6 0%, #F4D03F 100%);
+            color: #8B4513;
             padding: 1rem 2rem;
             border-radius: 12px;
             text-decoration: none;
@@ -479,8 +463,8 @@
         }
 
         .back-btn:hover {
-            background: linear-gradient(135deg, var(--brand-yellow-dark) 0%, var(--brand-yellow) 100%);
-            color: var(--brand-brown);
+            background: linear-gradient(135deg, #F4D03F 0%, #FFEBC6 100%);
+            color: #8B4513;
             text-decoration: none;
             box-shadow: 0 6px 20px rgba(255, 222, 159, 0.4);
             transform: translateY(-2px);
@@ -521,12 +505,12 @@
         .stat-icon {
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, var(--brand-yellow) 0%, var(--brand-yellow-dark) 100%);
+            background: linear-gradient(135deg, #FFEBC6 0%, #F4D03F 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--brand-brown);
+            color: #8B4513;
             font-size: 1.5rem;
             box-shadow: 0 4px 15px rgba(255, 222, 159, 0.3);
         }
@@ -539,7 +523,7 @@
         .stat-number {
             font-size: 2rem;
             font-weight: 900;
-            color: var(--brand-brown);
+            color: #8B4513;
             line-height: 1;
         }
 
@@ -572,7 +556,7 @@
         }
 
         .appointment-header {
-            background: linear-gradient(135deg, var(--brand-yellow-light) 0%, rgba(255, 222, 159, 0.1) 100%);
+            background: linear-gradient(135deg, #FFEBC6 0%, rgba(255, 222, 159, 0.1) 100%);
             padding: 2rem;
             display: flex;
             justify-content: space-between;
@@ -589,12 +573,12 @@
         .appointment-icon {
             width: 50px;
             height: 50px;
-            background: linear-gradient(135deg, var(--brand-yellow) 0%, var(--brand-yellow-dark) 100%);
+            background: linear-gradient(135deg, #FFEBC6 0%, #F4D03F 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--brand-brown);
+            color: #8B4513;
             font-size: 1.25rem;
             box-shadow: 0 4px 15px rgba(255, 222, 159, 0.3);
         }
@@ -607,7 +591,7 @@
         .appointment-title {
             font-size: 1.25rem;
             font-weight: 700;
-            color: var(--brand-brown);
+            color: #8B4513;
             margin: 0 0 0.25rem 0;
         }
 
@@ -678,12 +662,12 @@
         .detail-icon {
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, var(--brand-yellow) 0%, var(--brand-yellow-dark) 100%);
+            background: linear-gradient(135deg, #FFEBC6 0%, #F4D03F 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--brand-brown);
+            color: #8B4513;
             font-size: 1rem;
             flex-shrink: 0;
         }
@@ -701,7 +685,7 @@
         }
 
         .detail-value {
-            color: var(--brand-brown);
+            color: #8B4513;
             font-weight: 700;
             font-size: 1rem;
         }
@@ -751,12 +735,12 @@
         .section-icon {
             width: 30px;
             height: 30px;
-            background: linear-gradient(135deg, var(--brand-yellow) 0%, var(--brand-yellow-dark) 100%);
+            background: linear-gradient(135deg, #FFEBC6 0%, #F4D03F 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--brand-brown);
+            color: #8B4513;
             font-size: 0.875rem;
         }
 
@@ -771,7 +755,7 @@
         }
 
         .section-title {
-            color: var(--brand-brown);
+            color: #8B4513;
             font-weight: 700;
             font-size: 1.1rem;
             margin: 0;
@@ -799,7 +783,7 @@
 
         .order-number {
             font-weight: 700;
-            color: var(--brand-brown);
+            color: #8B4513;
             font-size: 1.1rem;
         }
 
@@ -856,17 +840,17 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--brand-brown) 0%, var(--brand-brown-light) 100%);
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(42, 30, 30, 0.3);
+            box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, var(--brand-brown-light) 0%, var(--brand-brown) 100%);
+            background: linear-gradient(135deg, #A0522D 0%, #8B4513 100%);
             color: white;
             text-decoration: none;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(42, 30, 30, 0.4);
+            box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
         }
 
         .btn-zoom {
@@ -921,18 +905,18 @@
         .empty-state-icon {
             width: 100px;
             height: 100px;
-            background: linear-gradient(135deg, var(--brand-yellow-light) 0%, rgba(255, 222, 159, 0.3) 100%);
+            background: linear-gradient(135deg, #FFEBC6 0%, rgba(255, 222, 159, 0.3) 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 2rem;
-            color: var(--brand-brown);
+            color: #8B4513;
             font-size: 3rem;
         }
 
         .empty-state-title {
-            color: var(--brand-brown);
+            color: #8B4513;
             font-weight: 700;
             font-size: 1.5rem;
             margin-bottom: 1rem;
@@ -948,7 +932,7 @@
         }
 
         .empty-state-action {
-            background: linear-gradient(135deg, var(--brand-brown) 0%, var(--brand-brown-light) 100%);
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
             color: white;
             padding: 1rem 2rem;
             border-radius: 12px;
@@ -958,15 +942,15 @@
             gap: 0.75rem;
             font-weight: 600;
             font-size: 1rem;
-            box-shadow: 0 4px 15px rgba(42, 30, 30, 0.3);
+            box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
             transition: all 0.3s ease;
         }
 
         .empty-state-action:hover {
-            background: linear-gradient(135deg, var(--brand-brown-light) 0%, var(--brand-brown) 100%);
+            background: linear-gradient(135deg, #A0522D 0%, #8B4513 100%);
             color: white;
             text-decoration: none;
-            box-shadow: 0 6px 20px rgba(42, 30, 30, 0.4);
+            box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
         }
 
         /* Responsive Design */

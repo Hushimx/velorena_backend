@@ -1,12 +1,9 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+@extends('components.layout')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ __('User Registration - velorena') }}</title>
+@section('pageTitle', __('User Registration - Qaads'))
+
+@section('additionalHead')
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body {
@@ -29,22 +26,24 @@
             }
         }
 
-        /* Navy Blue and Mint Green Theme - Clean & Focused */
+        /* Brand Theme - Yellow & Brown */
         :root {
-            --navy-blue: #000080;
-            --mint-green: #98FF98;
-            --navy-blue-light: rgba(0, 0, 128, 0.1);
-            --mint-green-light: rgba(152, 255, 152, 0.1);
-            --navy-blue-dark: #000066;
-            --mint-green-dark: #7FFF7F;
+            --brand-yellow: #ffde9f;
+            --brand-yellow-dark: #f5d182;
+            --brand-brown: #2a1e1e;
+            --brand-brown-light: #3a2e2e;
+            --brand-yellow-light: #fff4e6;
+            --brand-yellow-hover: #f0d4a0;
+            --brand-brown-dark: #1a1414;
+            --brand-brown-hover: #4a3e3e;
         }
 
         .gradient-bg {
-            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--mint-green) 100%);
+            background: linear-gradient(135deg, var(--brand-brown) 0%, var(--brand-yellow) 100%);
         }
 
         .card-shadow {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 128, 0.15), 0 10px 10px -5px rgba(152, 255, 152, 0.1);
+            box-shadow: 0 20px 25px -5px rgba(42, 30, 30, 0.15), 0 10px 10px -5px rgba(255, 222, 159, 0.1);
         }
 
         .input-focus {
@@ -53,117 +52,132 @@
 
         .input-focus:focus {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 128, 0.2);
-            border-color: var(--navy-blue);
+            box-shadow: 0 10px 25px -5px rgba(42, 30, 30, 0.2);
+            border-color: var(--brand-brown);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--mint-green) 100%);
+            background: linear-gradient(135deg, var(--brand-brown) 0%, var(--brand-yellow) 100%);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-primary:hover {
             transform: translateY(-1px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 128, 0.3);
+            box-shadow: 0 10px 25px -5px rgba(42, 30, 30, 0.3);
         }
 
         .btn-primary:active {
             transform: translateY(0);
         }
 
-        /* Override Tailwind focus states for Navy Blue theme */
+        /* Override Tailwind focus states for Brand theme */
         .focus\:ring-green-500:focus {
-            --tw-ring-color: var(--navy-blue) !important;
+            --tw-ring-color: var(--brand-brown) !important;
         }
 
         .focus\:border-green-500:focus {
-            border-color: var(--navy-blue) !important;
+            border-color: var(--brand-brown) !important;
         }
 
         .form-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, var(--mint-green-light) 100%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, var(--brand-yellow-light) 100%);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 0, 128, 0.15);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 128, 0.2);
+            border: 1px solid rgba(42, 30, 30, 0.15);
+            box-shadow: 0 25px 50px -12px rgba(42, 30, 30, 0.2);
+        }
+
+        /* Override Bootstrap styles for auth forms */
+        .auth-form-container {
+            position: relative;
+            z-index: 10;
+        }
+
+        .auth-form-container * {
+            box-sizing: border-box !important;
+        }
+
+        .auth-form-container input[type="email"],
+        .auth-form-container input[type="password"],
+        .auth-form-container input[type="text"],
+        .auth-form-container input[type="tel"],
+        .auth-form-container textarea {
+            display: block !important;
+            width: 100% !important;
+            padding: 0.75rem 1rem !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 0.5rem !important;
+            background-color: white !important;
+            font-size: 1rem !important;
+            line-height: 1.5 !important;
+            color: #111827 !important;
+        }
+
+        .auth-form-container input:focus,
+        .auth-form-container textarea:focus {
+            outline: none !important;
+            border-color: var(--brand-brown) !important;
+            box-shadow: 0 0 0 3px rgba(42, 30, 30, 0.1) !important;
+        }
+
+        .auth-form-container button[type="submit"] {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+            padding: 0.75rem 1rem !important;
+            border: none !important;
+            border-radius: 0.5rem !important;
+            font-size: 0.875rem !important;
+            font-weight: 500 !important;
+            color: white !important;
+            background: linear-gradient(135deg, var(--brand-brown) 0%, var(--brand-yellow) 100%) !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .auth-form-container button[type="submit"]:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 10px 25px -5px rgba(42, 30, 30, 0.3) !important;
+        }
+
+        .auth-form-container label {
+            display: block !important;
+            font-size: 0.875rem !important;
+            font-weight: 500 !important;
+            color: #374151 !important;
+            margin-bottom: 0.25rem !important;
+        }
+
+        .auth-form-container .text-red-600 {
+            color: #dc2626 !important;
+            font-size: 0.875rem !important;
+            margin-top: 0.25rem !important;
+        }
+
+        .auth-form-container .grid {
+            display: grid !important;
+        }
+
+        .auth-form-container .grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+
+        .auth-form-container .gap-4 {
+            gap: 1rem !important;
         }
     </style>
-</head>
+@endsection
 
-<body class="bg-gradient-to-br from-green-50 via-blue-50 to-green-100 min-h-screen"
-    style="background: linear-gradient(135deg, var(--mint-green-light) 0%, rgba(0, 0, 128, 0.05) 50%, var(--mint-green-light) 100%);">
-    <div class="min-h-screen flex items-center justify-center p-4 relative">
-        <!-- Language Switcher -->
-        <div class="absolute top-4 right-4 z-10">
-            @php
-                use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
-                $current = LaravelLocalization::getCurrentLocale();
-            @endphp
-
-            <div x-data="{ open: false }" class="relative">
-                <!-- Trigger Button -->
-                <button @click="open = !open" type="button"
-                    class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    aria-haspopup="listbox" :aria-expanded="open">
-                    <span class="inline-flex items-center gap-2">
-                        <span class="text-xs rounded px-2 py-0.5 border">{{ strtoupper($current) }}</span>
-                        <span class="hidden sm:inline">
-                            {{ $current === 'ar' ? 'العربية' : 'English' }}
-                        </span>
-                    </span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
-
-                <!-- Dropdown -->
-                <div x-cloak x-show="open" @click.outside="open = false"
-                    class="absolute z-50 mt-2 w-40 rounded-xl border border-gray-200 bg-white shadow-lg"
-                    :class="{
-                        'right-0': '{{ LaravelLocalization::getCurrentLocaleDirection() }}'
-                        === 'rtl',
-                        'left-0': '{{ LaravelLocalization::getCurrentLocaleDirection() }}'
-                        === 'ltr'
-                    }">
-                    <ul class="py-1" role="listbox">
-                        @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
-                            @php
-                                $url = LaravelLocalization::getLocalizedURL($localeCode, null, [], true);
-                                $active = $localeCode === $current;
-                            @endphp
-
-                            <li>
-                                <a href="{{ $url }}" hreflang="{{ $localeCode }}" rel="alternate"
-                                    class="flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 @if ($active) font-semibold @endif">
-                                    <span class="flex items-center gap-2">
-                                        <span
-                                            class="text-xs rounded px-2 py-0.5 border">{{ strtoupper($localeCode) }}</span>
-                                        <span>{{ $properties['native'] ?? strtoupper($localeCode) }}</span>
-                                    </span>
-                                    @if ($active)
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
-                                            fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M16.707 5.293a1 1 0 010 1.414l-7.364 7.364a1 1 0 01-1.414 0L3.293 10.435a1 1 0 111.414-1.414l3.222 3.222 6.657-6.657a1 1 0 011.414 0z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    @endif
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="max-w-md w-full space-y-8 p-10 form-card rounded-2xl card-shadow animate-fade-in">
+@section('content')
+    <x-navbar />
+    
+    <div class="min-h-screen flex items-center justify-center p-4 relative"
+        style="background: linear-gradient(135deg, var(--brand-yellow-light) 0%, rgba(42, 30, 30, 0.05) 50%, var(--brand-yellow-light) 100%);">
+        
+        <div class="max-w-2xl w-full space-y-8 p-10 form-card rounded-2xl card-shadow animate-fade-in auth-form-container">
             <div>
                 <div class="flex justify-center">
-                    <div class="text-center">
-                        <h1
-                            class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-green-500 mb-2">
-                            {{ __('velorena') }}</h1>
-                    </div>
+
                 </div>
                 <h2 class="mt-4 text-center text-2xl font-bold text-gray-900 tracking-tight">
                     {{ __('User Registration') }}
@@ -172,21 +186,82 @@
                     {{ __('Join our community and create your account') }}
                 </p>
             </div>
-            <form class="mt-8 space-y-6" action="{{ route('register') }}" method="POST">
+            <form class="mt-8 space-y-6" action="{{ route('register') }}" method="POST" x-data="{ clientType: '{{ old('client_type', 'individual') }}' }">
                 @csrf
                 <div class="space-y-4">
+                    <!-- Client Type Selection -->
                     <div>
-                        <label for="name"
-                            class="block text-sm font-medium text-gray-700 mb-1">{{ __('Name') }}</label>
-                        <input id="name" name="name" type="text" required value="{{ old('name') }}"
-                            class="@error('name') is-invalid @enderror input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
-                            placeholder="{{ __('Enter your full name') }}">
-                        @error('name')
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('Account Type') }}</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="client_type" value="individual" x-model="clientType" 
+                                    class="sr-only" {{ old('client_type', 'individual') === 'individual' ? 'checked' : '' }}>
+                                <div class="p-4 border-2 rounded-lg text-center transition-all duration-200"
+                                    :class="clientType === 'individual' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 hover:border-gray-300'">
+                                    <div class="text-sm font-medium text-gray-900">{{ __('Individual') }}</div>
+                                    <div class="text-xs text-gray-500 mt-1">{{ __('Personal Account') }}</div>
+                                </div>
+                            </label>
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="client_type" value="company" x-model="clientType"
+                                    class="sr-only" {{ old('client_type') === 'company' ? 'checked' : '' }}>
+                                <div class="p-4 border-2 rounded-lg text-center transition-all duration-200"
+                                    :class="clientType === 'company' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 hover:border-gray-300'">
+                                    <div class="text-sm font-medium text-gray-900">{{ __('Company') }}</div>
+                                    <div class="text-xs text-gray-500 mt-1">{{ __('Business Account') }}</div>
+                                </div>
+                            </label>
+                        </div>
+                        @error('client_type')
                             <span class="invalid-feedback text-red-600 text-sm mt-1" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
                         @enderror
                     </div>
+
+                    <!-- Individual Fields -->
+                    <div x-show="clientType === 'individual'">
+                        <label for="full_name"
+                            class="block text-sm font-medium text-gray-700 mb-1">{{ __('Full Name') }}</label>
+                        <input id="full_name" name="full_name" type="text" required value="{{ old('full_name') }}"
+                            class="@error('full_name') is-invalid @enderror input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
+                            placeholder="{{ __('Enter your full name') }}">
+                        @error('full_name')
+                            <span class="invalid-feedback text-red-600 text-sm mt-1" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <!-- Company Fields -->
+                    <div x-show="clientType === 'company'" class="space-y-4">
+                        <div>
+                            <label for="company_name"
+                                class="block text-sm font-medium text-gray-700 mb-1">{{ __('Company Name') }}</label>
+                            <input id="company_name" name="company_name" type="text" value="{{ old('company_name') }}"
+                                class="@error('company_name') is-invalid @enderror input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
+                                placeholder="{{ __('Enter company name') }}">
+                            @error('company_name')
+                                <span class="invalid-feedback text-red-600 text-sm mt-1" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                        <div>
+                            <label for="contact_person"
+                                class="block text-sm font-medium text-gray-700 mb-1">{{ __('Contact Person') }}</label>
+                            <input id="contact_person" name="contact_person" type="text" value="{{ old('contact_person') }}"
+                                class="@error('contact_person') is-invalid @enderror input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
+                                placeholder="{{ __('Enter contact person name') }}">
+                            @error('contact_person')
+                                <span class="invalid-feedback text-red-600 text-sm mt-1" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <!-- Email -->
                     <div>
                         <label for="email"
                             class="block text-sm font-medium text-gray-700 mb-1">{{ __('Email Address') }}</label>
@@ -199,24 +274,114 @@
                             </span>
                         @enderror
                     </div>
+
+                    <!-- Phone -->
                     <div>
-                        <label for="password"
-                            class="block text-sm font-medium text-gray-700 mb-1">{{ __('Password') }}</label>
-                        <input id="password" name="password" type="password" required
-                            class="@error('password') is-invalid @enderror input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
-                            placeholder="{{ __('Enter your password') }}">
-                        @error('password')
+                        <label for="phone"
+                            class="block text-sm font-medium text-gray-700 mb-1">{{ __('Phone Number') }}</label>
+                        <input id="phone" name="phone" type="tel" value="{{ old('phone') }}"
+                            class="@error('phone') is-invalid @enderror input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
+                            placeholder="{{ __('Enter your phone number') }}">
+                        @error('phone')
                             <span class="invalid-feedback text-red-600 text-sm mt-1" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
                         @enderror
                     </div>
+
+                    <!-- Address -->
                     <div>
-                        <label for="password-confirm"
-                            class="block text-sm font-medium text-gray-700 mb-1">{{ __('Confirm Password') }}</label>
-                        <input id="password-confirm" name="password_confirmation" type="password" required
-                            class="input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
-                            placeholder="{{ __('Re-enter your password') }}">
+                        <label for="address"
+                            class="block text-sm font-medium text-gray-700 mb-1">{{ __('Address') }}</label>
+                        <input id="address" name="address" type="text" value="{{ old('address') }}"
+                            class="@error('address') is-invalid @enderror input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
+                            placeholder="{{ __('Enter your address') }}">
+                        @error('address')
+                            <span class="invalid-feedback text-red-600 text-sm mt-1" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <!-- City -->
+                    <div>
+                        <label for="city"
+                            class="block text-sm font-medium text-gray-700 mb-1">{{ __('City') }}</label>
+                        <input id="city" name="city" type="text" value="{{ old('city') }}"
+                            class="@error('city') is-invalid @enderror input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
+                            placeholder="{{ __('Enter city') }}">
+                        @error('city')
+                            <span class="invalid-feedback text-red-600 text-sm mt-1" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <!-- Company-specific fields -->
+                    <div x-show="clientType === 'company'" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="vat_number"
+                                    class="block text-sm font-medium text-gray-700 mb-1">{{ __('VAT Number') }}</label>
+                                <input id="vat_number" name="vat_number" type="text" value="{{ old('vat_number') }}"
+                                    class="@error('vat_number') is-invalid @enderror input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
+                                    placeholder="{{ __('Enter VAT number') }}">
+                                @error('vat_number')
+                                    <span class="invalid-feedback text-red-600 text-sm mt-1" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                            <div>
+                                <label for="cr_number"
+                                    class="block text-sm font-medium text-gray-700 mb-1">{{ __('CR Number') }}</label>
+                                <input id="cr_number" name="cr_number" type="text" value="{{ old('cr_number') }}"
+                                    class="@error('cr_number') is-invalid @enderror input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
+                                    placeholder="{{ __('Enter CR number') }}">
+                                @error('cr_number')
+                                    <span class="invalid-feedback text-red-600 text-sm mt-1" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div>
+                        <label for="notes"
+                            class="block text-sm font-medium text-gray-700 mb-1">{{ __('Notes') }}</label>
+                        <textarea id="notes" name="notes" rows="3" value="{{ old('notes') }}"
+                            class="@error('notes') is-invalid @enderror input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
+                            placeholder="{{ __('Any additional notes or requirements') }}"></textarea>
+                        @error('notes')
+                            <span class="invalid-feedback text-red-600 text-sm mt-1" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <!-- Password Fields -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="password"
+                                class="block text-sm font-medium text-gray-700 mb-1">{{ __('Password') }}</label>
+                            <input id="password" name="password" type="password" required
+                                class="@error('password') is-invalid @enderror input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
+                                placeholder="{{ __('Enter your password') }}">
+                            @error('password')
+                                <span class="invalid-feedback text-red-600 text-sm mt-1" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                        <div>
+                            <label for="password-confirm"
+                                class="block text-sm font-medium text-gray-700 mb-1">{{ __('Confirm Password') }}</label>
+                            <input id="password-confirm" name="password_confirmation" type="password" required
+                                class="input-focus appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out"
+                                placeholder="{{ __('Re-enter your password') }}">
+                        </div>
                     </div>
                 </div>
 
@@ -250,13 +415,11 @@
                 <p class="text-sm text-gray-600">
                     {{ __('Already have an account?') }}
                     <a href="{{ route('login') }}"
-                        class="font-medium text-blue-800 hover:text-blue-600 transition-colors">
+                        class="font-medium text-yellow-600 hover:text-yellow-500 transition-colors">
                         {{ __('Login') }}
                     </a>
                 </p>
             </div>
         </div>
     </div>
-</body>
-
-</html>
+@endsection

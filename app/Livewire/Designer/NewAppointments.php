@@ -50,12 +50,8 @@ class NewAppointments extends Component
             return;
         }
 
-        // Assign to current designer
-        $appointment->update([
-            'designer_id' => Auth::guard('designer')->id(),
-            'status' => 'accepted',
-            'accepted_at' => now()
-        ]);
+        // Assign to current designer using proper method
+        $appointment->assignToDesigner(Auth::guard('designer')->id());
 
         // Refresh the appointments list
         $this->loadAppointments();

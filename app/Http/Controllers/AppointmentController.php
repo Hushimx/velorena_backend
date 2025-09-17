@@ -26,6 +26,14 @@ class AppointmentController extends Controller
     }
 
     /**
+     * Show the appointment booking success page
+     */
+    public function success()
+    {
+        return view('users.appointments.success');
+    }
+
+    /**
      * Create a new appointment and link it with orders
      */
     public function store(Request $request): JsonResponse
@@ -225,18 +233,41 @@ class AppointmentController extends Controller
                 }
             }
 
-            // Update appointment
-            $appointment->update($request->only([
+            // Handle status changes with proper methods
+            $updateData = $request->only([
                 'designer_id',
                 'appointment_date',
                 'appointment_time',
                 'duration_minutes',
                 'notes',
                 'designer_notes',
-                'status',
                 'order_id',
                 'order_notes'
-            ]));
+            ]);
+
+            // Handle status changes with proper business logic
+            if ($request->has('status')) {
+                $newStatus = $request->status;
+                $currentStatus = $appointment->status;
+
+                if ($newStatus === 'accepted' && $currentStatus === 'pending') {
+                    $appointment->accept($request->designer_notes);
+                } elseif ($newStatus === 'rejected' && $currentStatus === 'pending') {
+                    $appointment->reject($request->designer_notes);
+                } elseif ($newStatus === 'completed' && $currentStatus === 'accepted') {
+                    $appointment->complete();
+                } elseif ($newStatus === 'cancelled') {
+                    $appointment->cancel();
+                } else {
+                    // For other status changes, update directly
+                    $updateData['status'] = $newStatus;
+                }
+            }
+
+            // Update other fields
+            if (!empty($updateData)) {
+                $appointment->update($updateData);
+            }
 
             // Load relationships for response
             $appointment->load(['user', 'designer', 'order.items.product']);
@@ -374,7 +405,11 @@ class AppointmentController extends Controller
             abort(403, 'Designer access required');
         }
 
-        // Get upcoming appointments (future dates)
+        // Get current date/time for comparison
+        $now = Carbon::now();
+        $today = Carbon::today();
+
+        // Get upcoming appointments (future dates or today with future times)
         $upcomingAppointments = Appointment::with([
             'user:id,full_name,email,phone',
             'order.items.product',
@@ -382,18 +417,29 @@ class AppointmentController extends Controller
             'order.items.designs.design'
         ])
             ->where('designer_id', $designer->id)
-            ->where('appointment_date', '>', Carbon::today())
+            ->where(function ($query) use ($today, $now) {
+                // Future dates
+                $query->where('appointment_date', '>', $today)
+                    // Or today with future times
+                    ->orWhere(function ($subQuery) use ($today, $now) {
+                        $subQuery->where('appointment_date', '=', $today)
+                                ->where('appointment_time', '>=', $now->format('H:i:s'));
+                    });
+            })
             ->where('status', '!=', 'cancelled')
-            ->when($request->filter, function ($query, $filter) {
+            ->when($request->filter, function ($query, $filter) use ($now) {
                 switch ($filter) {
                     case 'tomorrow':
                         return $query->where('appointment_date', Carbon::tomorrow());
                     case 'this_week':
-                        return $query->whereBetween('appointment_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+                        return $query->whereBetween('appointment_date', [$now->startOfWeek()->toDateString(), $now->endOfWeek()->toDateString()]);
                     case 'next_week':
-                        return $query->whereBetween('appointment_date', [Carbon::now()->addWeek()->startOfWeek(), Carbon::now()->addWeek()->endOfWeek()]);
+                        $nextWeekStart = $now->copy()->addWeek()->startOfWeek();
+                        $nextWeekEnd = $now->copy()->addWeek()->endOfWeek();
+                        return $query->whereBetween('appointment_date', [$nextWeekStart->toDateString(), $nextWeekEnd->toDateString()]);
                     case 'this_month':
-                        return $query->whereMonth('appointment_date', Carbon::now()->month);
+                        return $query->whereMonth('appointment_date', $now->month)
+                                    ->whereYear('appointment_date', $now->year);
                     default:
                         return $query;
                 }
@@ -402,16 +448,32 @@ class AppointmentController extends Controller
             ->orderBy('appointment_time')
             ->paginate($request->per_page ?? 15);
 
+        // Add debug information for development
+        $debug = [];
+        if (config('app.debug')) {
+            $debug = [
+                'designer_id' => $designer->id,
+                'total_appointments' => Appointment::where('designer_id', $designer->id)->count(),
+                'total_future_appointments' => Appointment::where('designer_id', $designer->id)
+                    ->where('appointment_date', '>=', $today)
+                    ->count(),
+                'current_time' => $now->toDateTimeString(),
+                'current_date' => $today->toDateString(),
+                'query_results_count' => $upcomingAppointments->total()
+            ];
+        }
+
         // If it's an API request, return JSON
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'data' => $upcomingAppointments
+                'data' => $upcomingAppointments,
+                'debug' => $debug
             ]);
         }
 
         // For web requests, render the view
-        return view('designer.appointments.upcoming', compact('upcomingAppointments'));
+        return view('designer.appointments.upcoming', compact('upcomingAppointments', 'debug'));
     }
 
     /**
@@ -439,6 +501,15 @@ class AppointmentController extends Controller
             'order.items.product.options.values',
             'order.items.designs.design'
         ]);
+
+        // Ensure options are properly cast as arrays for each item
+        if ($appointment->order && $appointment->order->items) {
+            foreach ($appointment->order->items as $item) {
+                if (is_string($item->options)) {
+                    $item->options = json_decode($item->options, true) ?? [];
+                }
+            }
+        }
 
         // Get available orders for this user that are not linked to any appointment
         $availableOrders = Order::where('user_id', $appointment->user_id)
@@ -619,10 +690,7 @@ class AppointmentController extends Controller
             return back()->withErrors(['appointment' => 'Only pending appointments can be accepted.']);
         }
 
-        $appointment->update([
-            'status' => 'accepted',
-            'accepted_at' => now(),
-        ]);
+        $appointment->accept();
 
         return back()->with('success', 'Appointment accepted successfully.');
     }

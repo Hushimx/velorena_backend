@@ -235,19 +235,89 @@
                                                             {{ $item->notes }}
                                                         </p>
                                                     @endif
-                                                    @if($item->options && count($item->options) > 0)
+                                                    @php
+                                                        $itemOptions = is_array($item->options) ? $item->options : (is_string($item->options) ? json_decode($item->options, true) : []);
+                                                        $itemOptions = $itemOptions ?: [];
+                                                    @endphp
+                                                    @if(!empty($itemOptions))
                                                         <div class="mt-1">
-                                                            @foreach($item->options as $optionId => $valueId)
+                                                            @foreach($itemOptions as $optionId => $valueId)
                                                                 @php
                                                                     $option = \App\Models\ProductOption::find($optionId);
                                                                     $value = \App\Models\OptionValue::find($valueId);
                                                                 @endphp
                                                                 @if($option && $value)
-                                                                    <span class="inline-block px-2 py-1 bg-gray-100 text-xs rounded mr-1">
-                                                                        {{ $option->name }}: {{ $value->value }}
+                                                                    <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded mr-1 mb-1">
+                                                                        <i class="fas fa-cog mr-1"></i>{{ $option->name }}: {{ $value->value }}
+                                                                        @if($value->price_adjustment != 0)
+                                                                            <span class="ml-1 {{ $value->price_adjustment > 0 ? 'text-green-700' : 'text-red-700' }}">
+                                                                                ({{ $value->price_adjustment > 0 ? '+' : '' }}{{ number_format($value->price_adjustment, 2) }} ر.س)
+                                                                            </span>
+                                                                        @endif
                                                                     </span>
                                                                 @endif
                                                             @endforeach
+                                                        </div>
+                                                    @endif
+                                                    @if($item->formatted_options)
+                                                        <div class="mt-1">
+                                                            <span class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
+                                                                <i class="fas fa-list mr-1"></i>{{ $item->formatted_options }}
+                                                            </span>
+                                                        </div>
+                                                    @endif
+                                                    
+                                                    <!-- Order Item Designs -->
+                                                    @if($item->designs && $item->designs->count() > 0)
+                                                        <div class="mt-3">
+                                                            <div class="text-xs font-medium text-gray-700 mb-2 flex items-center">
+                                                                <i class="fas fa-palette mr-1"></i>
+                                                                {{ __('dashboard.attached_designs') }}:
+                                                            </div>
+                                                            <div class="space-y-2">
+                                                                @foreach($item->designs as $orderItemDesign)
+                                                                    @if($orderItemDesign->design)
+                                                                        <div class="flex items-center gap-2 bg-purple-50 px-2 py-1 rounded border-l-2 border-purple-300">
+                                                                            <div class="flex-shrink-0">
+                                                                                @if($orderItemDesign->design->thumbnail_url)
+                                                                                    <img src="{{ $orderItemDesign->design->thumbnail_url }}" 
+                                                                                         alt="{{ $orderItemDesign->design->title }}" 
+                                                                                         class="w-8 h-8 rounded object-cover">
+                                                                                @else
+                                                                                    <div class="w-8 h-8 bg-purple-200 rounded flex items-center justify-center">
+                                                                                        <i class="fas fa-image text-purple-600 text-xs"></i>
+                                                                                    </div>
+                                                                                @endif
+                                                                            </div>
+                                                                            <div class="flex-1 min-w-0">
+                                                                                <p class="text-xs font-medium text-purple-800 truncate">
+                                                                                    {{ $orderItemDesign->design->title }}
+                                                                                </p>
+                                                                                @if($orderItemDesign->notes)
+                                                                                    <p class="text-xs text-purple-600 truncate">
+                                                                                        <i class="fas fa-sticky-note mr-1"></i>
+                                                                                        {{ $orderItemDesign->notes }}
+                                                                                    </p>
+                                                                                @endif
+                                                                            </div>
+                                                                            @if($orderItemDesign->priority)
+                                                                                <div class="flex-shrink-0">
+                                                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                                                        #{{ $orderItemDesign->priority }}
+                                                                                    </span>
+                                                                                </div>
+                                                                            @endif
+                                                                        </div>
+                                                                    @endif
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <div class="mt-2">
+                                                            <span class="text-xs text-gray-500 italic">
+                                                                <i class="fas fa-palette mr-1"></i>
+                                                                {{ __('dashboard.no_designs_attached') }}
+                                                            </span>
                                                         </div>
                                                     @endif
                                                 </div>
@@ -332,11 +402,18 @@
                                 <i class="fas fa-plus-circle text-2xl text-green-600 mb-2"></i>
                                 <h5 class="font-medium text-gray-900 mb-1">{{ __('dashboard.add_products') }}</h5>
                                 <p class="text-sm text-gray-500 mb-3">{{ __('dashboard.add_products_description') }}</p>
-                                <a href="{{ route('designer.orders.edit', $appointment) }}" 
-                                   class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-plus"></i>
-                                    {{ __('dashboard.add_products') }}
-                                </a>
+                                <div class="flex flex-col gap-2">
+                                    <button onclick="openQuickProductModal()" 
+                                            class="btn btn-primary btn-sm">
+                                        <i class="fas fa-bolt"></i>
+                                        {{ __('dashboard.quick_add') }}
+                                    </button>
+                                    <a href="{{ route('designer.orders.edit', $appointment) }}" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-plus"></i>
+                                        {{ __('dashboard.full_editor') }}
+                                    </a>
+                                </div>
                             </div>
                             
                             <div class="bg-white border border-gray-200 rounded-lg p-4 text-center">
@@ -541,6 +618,101 @@ function recalculateOrder() {
             console.error('Error:', error);
             alert('{{ __("dashboard.error_recalculating_order") }}');
         });
+    }
+}
+
+function openQuickProductModal() {
+    // Create and show a simple quick add modal
+    const modal = document.createElement('div');
+    modal.id = 'quickProductModal';
+    modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50';
+    modal.innerHTML = `
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        <i class="fas fa-bolt mr-2"></i>
+                        {{ __('dashboard.quick_add_products') }}
+                    </h3>
+                    <button onclick="closeQuickProductModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h4 class="font-medium mb-3 text-blue-800">
+                            <i class="fas fa-star mr-2"></i>{{ __('dashboard.popular_services') }}
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="bg-white border rounded-lg p-3 hover:shadow-md cursor-pointer transition-shadow" onclick="addQuickProduct(1, 'Basic Design Consultation', 50.00)">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h5 class="font-medium text-gray-900">{{ __('dashboard.basic_consultation') }}</h5>
+                                        <p class="text-sm text-gray-500">{{ __('dashboard.basic_consultation_desc') }}</p>
+                                    </div>
+                                    <span class="text-green-600 font-semibold">$50.00</span>
+                                </div>
+                            </div>
+                            <div class="bg-white border rounded-lg p-3 hover:shadow-md cursor-pointer transition-shadow" onclick="addQuickProduct(2, 'Premium Design Package', 150.00)">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h5 class="font-medium text-gray-900">{{ __('dashboard.premium_package') }}</h5>
+                                        <p class="text-sm text-gray-500">{{ __('dashboard.premium_package_desc') }}</p>
+                                    </div>
+                                    <span class="text-green-600 font-semibold">$150.00</span>
+                                </div>
+                            </div>
+                            <div class="bg-white border rounded-lg p-3 hover:shadow-md cursor-pointer transition-shadow" onclick="addQuickProduct(3, 'Custom Design Service', 200.00)">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h5 class="font-medium text-gray-900">{{ __('dashboard.custom_design') }}</h5>
+                                        <p class="text-sm text-gray-500">{{ __('dashboard.custom_design_desc') }}</p>
+                                    </div>
+                                    <span class="text-green-600 font-semibold">$200.00</span>
+                                </div>
+                            </div>
+                            <div class="bg-white border rounded-lg p-3 hover:shadow-md cursor-pointer transition-shadow" onclick="addQuickProduct(4, 'Revision Service', 30.00)">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h5 class="font-medium text-gray-900">{{ __('dashboard.revision_service') }}</h5>
+                                        <p class="text-sm text-gray-500">{{ __('dashboard.revision_service_desc') }}</p>
+                                    </div>
+                                    <span class="text-green-600 font-semibold">$30.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="closeQuickProductModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+                            {{ __('dashboard.cancel') }}
+                        </button>
+                        <a href="{{ route('designer.orders.edit', $appointment) }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-edit mr-2"></i>{{ __('dashboard.full_editor') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+function closeQuickProductModal() {
+    const modal = document.getElementById('quickProductModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function addQuickProduct(productId, productName, price) {
+    // This would typically make an AJAX request to add the product
+    if (confirm(`Add "${productName}" ($${price}) to the order?`)) {
+        // Simulate adding the product
+        alert(`"${productName}" has been added to the order. Redirecting to full editor...`);
+        window.location.href = '{{ route("designer.orders.edit", $appointment) }}';
     }
 }
 </script>

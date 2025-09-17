@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Api;
 
 /**
  * @OA\Info(
- *     title="Velorena API",
+ *     title="Qaads API",
  *     version="2.0.0",
- *     description="Complete API for Velorena Backend - E-commerce, Orders, Appointments, and Availability Management System",
+ *     description="Complete API for Qaads Backend - E-commerce, Orders, Appointments, and Availability Management System",
  *     @OA\Contact(
- *         email="admin@velorena.com",
- *         name="Velorena Support"
+ *         email="admin@Qaads.com",
+ *         name="Qaads Support"
  *     ),
  *     @OA\License(
  *         name="MIT",
@@ -23,7 +23,7 @@ namespace App\Http\Controllers\Api;
  * )
  * 
  * @OA\Server(
- *     url="https://api.velorena.com",
+ *     url="https://api.Qaads.com",
  *     description="Production Server"
  * )
  * 

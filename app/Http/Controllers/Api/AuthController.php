@@ -12,10 +12,10 @@ use Illuminate\Support\Facades\Validator;
 /**
  * @OA\Info(
  *     version="1.0.0",
- *     title="Velorena API Documentation",
- *     description="API documentation for Velorena Backend - Authentication and User Management",
+ *     title="Qaads API Documentation",
+ *     description="API documentation for Qaads Backend - Authentication and User Management",
  *     @OA\Contact(
- *         email="admin@velorena.com"
+ *         email="admin@Qaads.com"
  *     )
  * )
  * 

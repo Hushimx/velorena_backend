@@ -12,6 +12,11 @@
                 <p class="mt-1" style="color: #ffde9f;">{{ __('marketer.manage_and_track_your_assigned_leads') }}</p>
             </div>
             <div class="flex items-center gap-4">
+                <a href="{{ route('marketer.leads.urgent') }}"
+                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span class="hidden sm:block">{{ __('marketer.urgent_leads') }}</span>
+                </a>
                 <div class="hidden md:block">
                     <i class="fas fa-users text-4xl" style="color: #ffde9f;"></i>
                 </div>
@@ -154,8 +159,8 @@
     <!-- Request New Leads Section -->
     @php
         $marketer = auth()->guard('marketer')->user();
-        $activeLeads = $marketer->leads()->whereNotIn('status', ['closed_won', 'closed_lost'])->count();
-        $canRequestNew = $activeLeads === 0;
+        $newLeads = $marketer->leads()->where('status', 'new')->count();
+        $canRequestNew = $newLeads === 0;
     @endphp
     
     @if($canRequestNew)
@@ -179,10 +184,10 @@
         <div class="flex items-center justify-between">
             <div>
                 <h3 class="text-lg font-bold text-gray-900 mb-2">{{ __('marketer.complete_current_leads') }}</h3>
-                <p class="text-gray-600">{{ __('marketer.you_have_active_leads', ['count' => $activeLeads]) }}</p>
+                <p class="text-gray-600">{{ __('marketer.you_have_new_leads', ['count' => $newLeads]) }}</p>
             </div>
             <div class="bg-gray-100 rounded-lg px-4 py-2">
-                <span class="text-lg font-semibold text-gray-700">{{ $activeLeads }} {{ __('marketer.active_leads') }}</span>
+                <span class="text-lg font-semibold text-gray-700">{{ $newLeads }} {{ __('marketer.new_leads') }}</span>
             </div>
         </div>
     </div>

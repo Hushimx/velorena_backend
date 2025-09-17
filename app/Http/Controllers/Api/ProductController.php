@@ -434,4 +434,152 @@ class ProductController extends Controller
             'data' => $product
         ]);
     }
+
+    /**
+     * Get latest products
+     * 
+     * @OA\Get(
+     *     path="/api/products/latest",
+     *     operationId="getLatestProducts",
+     *     tags={"Products"},
+     *     summary="Get latest products",
+     *     description="Retrieve the most recently added active products with their images and basic information",
+     *     @OA\Parameter(
+     *         name="limit",
+     *         in="query",
+     *         description="Number of products to return (1-20)",
+     *         required=false,
+     *         @OA\Schema(type="integer", example=5)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Latest products retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="name", type="string", example="Standard Business Cards"),
+     *                     @OA\Property(property="name_ar", type="string", example="بطاقات عمل قياسية"),
+     *                     @OA\Property(property="base_price", type="string", example="50.00"),
+     *                     @OA\Property(property="image_url", type="string", example="https://example.com/images/product1.jpg"),
+     *                     @OA\Property(property="url", type="string", example="/products/1"),
+     *                     @OA\Property(
+     *                         property="category",
+     *                         type="object",
+     *                         @OA\Property(property="id", type="integer", example=1),
+     *                         @OA\Property(property="name", type="string", example="Business Cards"),
+     *                         @OA\Property(property="name_ar", type="string", example="بطاقات عمل")
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function latest(Request $request): JsonResponse
+    {
+        $limit = min(max((int) $request->get('limit', 5), 1), 20);
+        
+        $products = Product::where('is_active', true)
+            ->with(['category', 'images'])
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get()
+            ->map(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'name_ar' => $product->name_ar,
+                    'base_price' => number_format($product->base_price, 2),
+                    'image_url' => $product->best_image_url ?? asset('assets/images/placeholder-product.jpg'),
+                    'url' => route('user.products.show', $product->id),
+                    'category' => $product->category
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $products
+        ]);
+    }
+
+    /**
+     * Get best selling products
+     * 
+     * @OA\Get(
+     *     path="/api/products/best-selling",
+     *     operationId="getBestSellingProducts",
+     *     tags={"Products"},
+     *     summary="Get best selling products",
+     *     description="Retrieve the best selling products based on order count with their images and basic information",
+     *     @OA\Parameter(
+     *         name="limit",
+     *         in="query",
+     *         description="Number of products to return (1-20)",
+     *         required=false,
+     *         @OA\Schema(type="integer", example=5)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Best selling products retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="name", type="string", example="Standard Business Cards"),
+     *                     @OA\Property(property="name_ar", type="string", example="بطاقات عمل قياسية"),
+     *                     @OA\Property(property="base_price", type="string", example="50.00"),
+     *                     @OA\Property(property="image_url", type="string", example="https://example.com/images/product1.jpg"),
+     *                     @OA\Property(property="url", type="string", example="/products/1"),
+     *                     @OA\Property(property="order_count", type="integer", example=25),
+     *                     @OA\Property(
+     *                         property="category",
+     *                         type="object",
+     *                         @OA\Property(property="id", type="integer", example=1),
+     *                         @OA\Property(property="name", type="string", example="Business Cards"),
+     *                         @OA\Property(property="name_ar", type="string", example="بطاقات عمل")
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function bestSelling(Request $request): JsonResponse
+    {
+        $limit = min(max((int) $request->get('limit', 5), 1), 20);
+        
+        $products = Product::where('is_active', true)
+            ->with(['category', 'images'])
+            ->withCount('orderItems')
+            ->orderBy('order_items_count', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get()
+            ->map(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'name_ar' => $product->name_ar,
+                    'base_price' => number_format($product->base_price, 2),
+                    'image_url' => $product->best_image_url ?? asset('assets/images/placeholder-product.jpg'),
+                    'url' => route('user.products.show', $product->id),
+                    'order_count' => $product->order_items_count,
+                    'category' => $product->category
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $products
+        ]);
+    }
 }

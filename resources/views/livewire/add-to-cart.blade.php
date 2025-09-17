@@ -171,46 +171,10 @@
                             @enderror
             </div>
 
-            <!-- Price and Actions -->
-            <div class="price-section">
-                <div class="price-display">
-                    <span class="price">{{ number_format($this->totalPrice, 2, '.', ',') }}</span>
-                    <span class="currency">ريال</span>
-                </div>
-                <div class="quantity-selector">
-                    <button type="button" class="qty-btn minus" wire:click="decrementQuantity">-</button>
-                    <input type="number" class="qty-input" wire:model.live="quantity" min="1" max="100">
-                    <button type="button" class="qty-btn plus" wire:click="incrementQuantity">+</button>
-                        </div>
-                    </div>
 
-            <!-- Design Selection Button -->
-            <div class="design-selection-section">
-                <button class="btn-choose-design" wire:click="openDesignModal">
-                    <i class="fas fa-palette"></i>
-                    <span>اختر تصميم</span>
-                </button>
-            </div>
 
+     
             <!-- Action Buttons -->
-            <div class="action-buttons">
-                <button class="btn-add-cart" wire:click="addToCart" wire:loading.attr="disabled" wire:target="addToCart">
-                                <i class="fas fa-shopping-cart"></i>
-                    <span class="btn-text" wire:loading.remove wire:target="addToCart">إضافة إلى السلة</span>
-                    <span class="btn-loading" wire:loading wire:target="addToCart">
-                                <i class="fas fa-spinner fa-spin"></i>
-                        جاري الإضافة...
-                            </span>
-                        </button>
-                <button class="btn-buy-now" wire:click="buyNow" wire:loading.attr="disabled" wire:target="buyNow">
-                    <i class="fas fa-credit-card"></i>
-                    <span class="btn-text" wire:loading.remove wire:target="buyNow">شراء</span>
-                    <span class="btn-loading" wire:loading wire:target="buyNow">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        جاري التوجيه...
-                    </span>
-                        </button>
-                    </div>
         </div>
     </div>
 
@@ -306,7 +270,6 @@
         }
 
         .product-options-section {
-            background: linear-gradient(135deg, var(--brand-yellow-light) 0%, var(--brand-yellow) 100%);
             padding: 2rem;
             display: flex;
         }

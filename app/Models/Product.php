@@ -58,6 +58,56 @@ class Product extends Model
         return $this->images()->where('is_primary', true)->first() ?? $this->images()->first();
     }
 
+    /**
+     * Get the best available image URL for this product
+     */
+    public function getBestImageUrlAttribute()
+    {
+        // Try to get primary image first
+        $primaryImage = $this->images()->where('is_primary', true)->first();
+        if ($primaryImage && file_exists(public_path($primaryImage->image_path))) {
+            return asset($primaryImage->image_path);
+        }
+        
+        // Fallback to first image
+        $firstImage = $this->images()->first();
+        if ($firstImage && file_exists(public_path($firstImage->image_path))) {
+            return asset($firstImage->image_path);
+        }
+        
+        // Fallback to legacy image field
+        if ($this->image && file_exists(public_path($this->image))) {
+            return asset($this->image);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get the best available image path for this product
+     */
+    public function getBestImagePathAttribute()
+    {
+        // Try to get primary image first
+        $primaryImage = $this->images()->where('is_primary', true)->first();
+        if ($primaryImage && file_exists(public_path($primaryImage->image_path))) {
+            return $primaryImage->image_path;
+        }
+        
+        // Fallback to first image
+        $firstImage = $this->images()->first();
+        if ($firstImage && file_exists(public_path($firstImage->image_path))) {
+            return $firstImage->image_path;
+        }
+        
+        // Fallback to legacy image field
+        if ($this->image && file_exists(public_path($this->image))) {
+            return $this->image;
+        }
+        
+        return null;
+    }
+
     // Relationship with designs through product_designs pivot table
     public function designs(): BelongsToMany
     {
@@ -81,6 +131,11 @@ class Product extends Model
             ->withPivot('sort_order')
             ->withTimestamps()
             ->orderByPivot('sort_order');
+    }
+
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
     }
 
     /**

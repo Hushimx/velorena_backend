@@ -234,7 +234,7 @@ class DesignApiService
                 'term' => $query, // Use 'term' instead of 'q' for proper search
                 'limit' => 50,
                 'page' => 1,
-            ], $params));
+        ], $params));
 
             Log::info('Freepik API search request', [
                 'url' => $this->baseUrl . '/resources',

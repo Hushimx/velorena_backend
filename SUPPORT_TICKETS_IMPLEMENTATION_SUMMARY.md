@@ -2,7 +2,7 @@
 
 ## Overview
 
-I have successfully implemented a comprehensive support ticket system for the Velorena backend application. The system includes database migrations, models, API controllers, admin management, and complete documentation.
+I have successfully implemented a comprehensive support ticket system for the Qaads backend application. The system includes database migrations, models, API controllers, admin management, and complete documentation.
 
 ## What Was Implemented
 
@@ -198,5 +198,6 @@ The support ticket system is now fully implemented and ready for use. To complet
 3. **For Testing**: Run the test file to verify all endpoints work correctly
 
 The system is production-ready and follows Laravel best practices with proper validation, security, and documentation.
+
 
 

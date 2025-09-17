@@ -126,6 +126,22 @@
                                 <p class="mt-1 text-sm font-semibold text-gray-900">{{ number_format($order->total, 2) }}
                                     {{ trans('orders.currency') }}</p>
                             </div>
+
+                            @php
+                                $totalOptionsAdjustment = $order->items->sum(function($item) {
+                                    return $item->options_price_adjustment * $item->quantity;
+                                });
+                            @endphp
+                            
+                            @if ($totalOptionsAdjustment != 0)
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">{{ trans('orders.options_adjustment') }}</label>
+                                    <p class="mt-1 text-sm {{ $totalOptionsAdjustment > 0 ? 'text-green-600' : 'text-red-600' }}">
+                                        {{ $totalOptionsAdjustment > 0 ? '+' : '' }}{{ number_format($totalOptionsAdjustment, 2) }}
+                                        {{ trans('orders.currency') }}
+                                    </p>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -198,9 +214,25 @@
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
-                                                @if ($item->product->image)
+                                                @php
+                                                    $productImage = null;
+                                                    // Try to get primary image first
+                                                    $primaryImage = $item->product->images()->where('is_primary', true)->first();
+                                                    if ($primaryImage && file_exists(public_path($primaryImage->image_path))) {
+                                                        $productImage = asset($primaryImage->image_path);
+                                                    } else {
+                                                        // Fallback to first image
+                                                        $firstImage = $item->product->images()->first();
+                                                        if ($firstImage && file_exists(public_path($firstImage->image_path))) {
+                                                            $productImage = asset($firstImage->image_path);
+                                                        } elseif ($item->product->image && file_exists(public_path($item->product->image))) {
+                                                            $productImage = asset($item->product->image);
+                                                        }
+                                                    }
+                                                @endphp
+                                                @if ($productImage)
                                                     <img class="h-10 w-10 rounded object-cover ml-3"
-                                                        src="{{ asset($item->product->image) }}"
+                                                        src="{{ $productImage }}"
                                                         alt="{{ $item->product->name }}">
                                                 @else
                                                     <div
@@ -208,11 +240,118 @@
                                                         <i class="fas fa-image text-gray-400"></i>
                                                     </div>
                                                 @endif
-                                                <div>
+                                                <div class="flex-1">
                                                     <div class="text-sm font-medium text-gray-900">
-                                                        {{ $item->product->name }}</div>
-                                                    @if ($item->formatted_options)
-                                                        <div class="text-sm text-gray-500">{{ $item->formatted_options }}
+                                                        {{ $item->product->name }}
+                                                    </div>
+                                                    
+                                                    <!-- Product Options Display -->
+                                                    @if ($item->options && is_array($item->options) && !empty($item->options))
+                                                        <div class="mt-2">
+                                                            <div class="text-xs font-medium text-gray-700 mb-2 flex items-center">
+                                                                <i class="fas fa-cog mr-1"></i>
+                                                                {{ trans('orders.selected_options') }}:
+                                                            </div>
+                                                            <div class="space-y-1">
+                                                                @foreach ($item->options as $optionId => $valueId)
+                                                                    @php
+                                                                        $option = \App\Models\ProductOption::find($optionId);
+                                                                        $value = \App\Models\OptionValue::find($valueId);
+                                                                    @endphp
+                                                                    @if ($option && $value)
+                                                                        <div class="flex items-center justify-between text-xs bg-blue-50 px-2 py-1 rounded">
+                                                                            <div class="flex items-center">
+                                                                                <span class="font-medium text-blue-800 bg-blue-100 px-2 py-0.5 rounded mr-2 flex items-center">
+                                                                                    {{ $option->name }}
+                                                                                    @if ($option->is_required)
+                                                                                        <span class="ml-1 text-red-500" title="{{ trans('orders.required') }}">*</span>
+                                                                                    @endif
+                                                                                </span>
+                                                                                <span class="text-blue-700">{{ $value->value }}</span>
+                                                                            </div>
+                                                                            @if ($value->price_adjustment != 0)
+                                                                                <span class="text-xs font-medium {{ $value->price_adjustment > 0 ? 'text-green-600' : 'text-red-600' }}">
+                                                                                    {{ $value->price_adjustment > 0 ? '+' : '' }}{{ number_format($value->price_adjustment, 2) }} {{ trans('orders.currency') }}
+                                                                                </span>
+                                                                            @else
+                                                                                <span class="text-xs text-gray-500">{{ trans('orders.no_price_change') }}</span>
+                                                                            @endif
+                                                                        </div>
+                                                                    @endif
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <div class="mt-1">
+                                                            <span class="text-xs text-gray-500 italic">
+                                                                <i class="fas fa-info-circle mr-1"></i>
+                                                                {{ trans('orders.no_options_selected') }}
+                                                            </span>
+                                                        </div>
+                                                    @endif
+                                                    
+                                                    <!-- Item Notes -->
+                                                    @if ($item->notes)
+                                                        <div class="mt-2">
+                                                            <div class="text-xs text-amber-700 bg-amber-50 px-2 py-1 rounded border-l-2 border-amber-300">
+                                                                <i class="fas fa-sticky-note mr-1"></i>
+                                                                <span class="font-medium">{{ trans('orders.item_notes') }}:</span>
+                                                                <span class="ml-1">{{ $item->notes }}</span>
+                                                            </div>
+                                                        </div>
+                                                    @endif
+                                                    
+                                                    <!-- Order Item Designs -->
+                                                    @if($item->designs && $item->designs->count() > 0)
+                                                        <div class="mt-3">
+                                                            <div class="text-xs font-medium text-gray-700 mb-2 flex items-center">
+                                                                <i class="fas fa-palette mr-1"></i>
+                                                                {{ trans('orders.attached_designs') }}:
+                                                            </div>
+                                                            <div class="space-y-2">
+                                                                @foreach($item->designs as $orderItemDesign)
+                                                                    @if($orderItemDesign->design)
+                                                                        <div class="flex items-center gap-2 bg-purple-50 px-2 py-1 rounded border-l-2 border-purple-300">
+                                                                            <div class="flex-shrink-0">
+                                                                                @if($orderItemDesign->design->thumbnail_url)
+                                                                                    <img src="{{ $orderItemDesign->design->thumbnail_url }}" 
+                                                                                         alt="{{ $orderItemDesign->design->title }}" 
+                                                                                         class="w-8 h-8 rounded object-cover">
+                                                                                @else
+                                                                                    <div class="w-8 h-8 bg-purple-200 rounded flex items-center justify-center">
+                                                                                        <i class="fas fa-image text-purple-600 text-xs"></i>
+                                                                                    </div>
+                                                                                @endif
+                                                                            </div>
+                                                                            <div class="flex-1 min-w-0">
+                                                                                <p class="text-xs font-medium text-purple-800 truncate">
+                                                                                    {{ $orderItemDesign->design->title }}
+                                                                                </p>
+                                                                                @if($orderItemDesign->notes)
+                                                                                    <p class="text-xs text-purple-600 truncate">
+                                                                                        <i class="fas fa-sticky-note mr-1"></i>
+                                                                                        {{ $orderItemDesign->notes }}
+                                                                                    </p>
+                                                                                @endif
+                                                                            </div>
+                                                                            @if($orderItemDesign->priority)
+                                                                                <div class="flex-shrink-0">
+                                                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                                                        #{{ $orderItemDesign->priority }}
+                                                                                    </span>
+                                                                                </div>
+                                                                            @endif
+                                                                        </div>
+                                                                    @endif
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <div class="mt-2">
+                                                            <span class="text-xs text-gray-500 italic">
+                                                                <i class="fas fa-palette mr-1"></i>
+                                                                {{ trans('orders.no_designs_attached') }}
+                                                            </span>
                                                         </div>
                                                     @endif
                                                 </div>

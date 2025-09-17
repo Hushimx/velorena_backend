@@ -1,6 +1,6 @@
 # Implementation Summaries
 
-This directory contains documentation files that summarize various implementation phases and features of the Velorena project.
+This directory contains documentation files that summarize various implementation phases and features of the Qaads project.
 
 ## Files Overview
 

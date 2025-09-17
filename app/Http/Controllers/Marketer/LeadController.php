@@ -33,6 +33,43 @@ class LeadController extends Controller
     }
 
     /**
+     * Display urgent leads that need immediate attention.
+     */
+    public function urgent()
+    {
+        $marketerId = Auth::guard('marketer')->id();
+        
+        // Get leads that need urgent attention
+        $urgentLeads = Lead::where('marketer_id', $marketerId)
+            ->where(function ($query) {
+                $query->where('status', 'new') // New leads that haven't been contacted
+                    ->orWhere(function ($subQuery) {
+                        // Follow-up due leads
+                        $subQuery->whereNotNull('next_follow_up')
+                            ->where('next_follow_up', '<=', now())
+                            ->whereNotIn('status', ['closed_won', 'closed_lost']);
+                    })
+                    ->orWhere(function ($subQuery) {
+                        // Didn't respond leads that need attention
+                        $subQuery->where('status', 'didnt_respond')
+                            ->whereNull('next_follow_up');
+                    });
+            })
+            ->orderByRaw("
+                CASE 
+                    WHEN status = 'new' THEN 1
+                    WHEN status = 'didnt_respond' AND next_follow_up IS NULL THEN 2
+                    WHEN next_follow_up <= NOW() THEN 3
+                    ELSE 4
+                END
+            ")
+            ->orderBy('next_follow_up', 'asc')
+            ->get();
+
+        return view('marketer.leads.urgent', compact('urgentLeads'));
+    }
+
+    /**
      * Display the specified resource.
      */
     public function show(Lead $lead)
@@ -97,7 +134,7 @@ class LeadController extends Controller
             'type' => 'required|in:call,email,meeting,whatsapp,other',
             'notes' => 'required|string',
             'communication_date' => 'required|date',
-            'status' => 'nullable|in:new,contacted,qualified,proposal_sent,negotiation,closed_won,closed_lost',
+            'status' => 'nullable|in:contacted,didnt_respond,qualified,proposal_sent,negotiation,closed_won,closed_lost',
             'next_follow_up' => 'nullable|date|after:communication_date',
         ]);
 
@@ -133,12 +170,13 @@ class LeadController extends Controller
     {
         $marketerId = Auth::guard('marketer')->id();
         
-        // Check if marketer has any leads that are not closed
-        $activeLeads = Lead::where('marketer_id', $marketerId)
-            ->whereNotIn('status', ['closed_won', 'closed_lost'])
+        // Check if marketer has any leads that are still "new" (not contacted yet)
+        // Only "new" status prevents requesting new leads
+        $newLeads = Lead::where('marketer_id', $marketerId)
+            ->where('status', 'new')
             ->count();
             
-        return $activeLeads === 0;
+        return $newLeads === 0;
     }
 
     /**
@@ -148,7 +186,7 @@ class LeadController extends Controller
     {
         if (!$this->canRequestNewLeads()) {
             return redirect()->route('marketer.leads.index')
-                ->with('error', __('marketer.must_complete_current_leads'));
+                ->with('error', __('marketer.must_contact_new_leads_first'));
         }
 
         $marketer = Auth::guard('marketer')->user();
@@ -158,8 +196,17 @@ class LeadController extends Controller
         // Priority 1: Get follow-up due leads first (most urgent)
         $followUpLeads = Lead::where('category_id', $marketer->category_id)
             ->whereNull('marketer_id')
-            ->whereNotNull('next_follow_up')
-            ->where('next_follow_up', '<=', now())
+            ->where(function ($query) {
+                $query->where(function ($subQuery) {
+                    // Follow-up date is due
+                    $subQuery->whereNotNull('next_follow_up')
+                        ->where('next_follow_up', '<=', now());
+                })->orWhere(function ($subQuery) {
+                    // Didn't respond leads (no follow-up date but status is didnt_respond)
+                    $subQuery->where('status', 'didnt_respond')
+                        ->whereNull('next_follow_up');
+                });
+            })
             ->whereNotIn('status', ['closed_won', 'closed_lost'])
             ->orderBy('next_follow_up', 'asc') // Most overdue first
             ->limit($maxLeads)

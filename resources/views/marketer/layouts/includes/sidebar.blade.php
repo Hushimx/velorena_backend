@@ -21,6 +21,10 @@
                 <i class="fas fa-chevron-left tree-toggle" id="leads-toggle"></i>
             </a>
             <div class="tree-children" id="leads-tree">
+                <a href="{{ route('marketer.leads.urgent') }}" class="sidebar-link tree-child {{ request()->routeIs('marketer.leads.urgent') ? 'active' : '' }}">
+                    <i class="fas fa-exclamation-triangle text-red-500"></i>
+                    <span>{{ __('marketer.urgent_leads') }}</span>
+                </a>
                 <a href="{{ route('marketer.leads.index') }}" class="sidebar-link tree-child {{ request()->routeIs('marketer.leads.index') ? 'active' : '' }}">
                     <i class="fas fa-list"></i>
                     <span>{{ __('marketer.all_leads') }}</span>

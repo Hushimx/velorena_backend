@@ -5,6 +5,18 @@ return [
     'orders_list' => 'Orders List',
     'manage_orders' => 'Manage all customer orders',
     'my_orders' => 'My Orders',
+    'track_manage_orders' => 'Track & Manage Orders',
+    'dashboard_overview' => 'Dashboard & Overview',
+    'schedule_view_appointments' => 'Schedule & View Appointments',
+    'manage_your_profile' => 'Manage Your Profile',
+    'sign_out_account' => 'Sign out of your account',
+    'quick_actions' => 'Quick Actions',
+    'account' => 'Account',
+    'profile_settings' => 'Profile Settings',
+    'account_settings' => 'Account Settings',
+    'manage_your_account' => 'Manage Your Account',
+    'user_account_menu' => 'User Account Menu',
+    'client' => 'Client',
     'view_your_orders' => 'View your order history',
     'order_details' => 'Order Details',
     'view_order_information' => 'View order information',
@@ -36,6 +48,17 @@ return [
     'shipped' => 'Shipped',
     'delivered' => 'Delivered',
     'cancelled' => 'Cancelled',
+
+    // Payment Status
+    'payment_status' => 'Payment Status',
+    'paid' => 'Paid',
+    'unpaid' => 'Unpaid',
+    'process_payment' => 'Process Payment',
+    'pay_now' => 'Pay Now',
+    'payment_processed' => 'Payment Processed',
+    'confirm_payment' => 'Are you sure you want to process the payment for this order?',
+    'check_payment_status' => 'Check Payment Status',
+    'payment_status_help' => 'Click to check the latest payment status from Tap',
 
     // Table
     'items_count' => 'Items Count',
@@ -103,4 +126,13 @@ return [
     'product_added_to_order' => 'Product added to order successfully',
     'addresses' => 'Addresses',
     'deleting' => 'Deleting...',
+    
+    // Product Options
+    'selected_options' => 'Selected Options',
+    'product_options' => 'Product Options',
+    'no_options_selected' => 'No options selected',
+    'options_adjustment' => 'Options Price Adjustment',
+    'item_notes' => 'Item Notes',
+    'required' => 'Required',
+    'no_price_change' => 'No price change',
 ];

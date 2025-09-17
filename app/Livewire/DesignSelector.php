@@ -132,6 +132,45 @@ class DesignSelector extends Component
         Log::info('Updated selection:', ['selectedDesigns' => $this->selectedDesigns, 'designNotes' => $this->designNotes]);
     }
 
+    public function addToCart($designId)
+    {
+        Log::info('addToCart called:', ['designId' => $designId]);
+        
+        // Find the design data
+        $designData = null;
+        if ($this->useApiDesigns) {
+            $designData = collect($this->apiDesigns)->firstWhere('id', $designId);
+        } else {
+            $design = Design::find($designId);
+            if ($design) {
+                $designData = [
+                    'id' => $design->id,
+                    'title' => $design->title,
+                    'image_url' => $design->image_url,
+                    'thumbnail_url' => $design->thumbnail_url,
+                    'category' => $design->category
+                ];
+            }
+        }
+
+        if ($designData) {
+            // Create cart design data
+            $cartDesignData = [
+                'title' => $designData['title'] ?? 'Selected Design',
+                'designData' => ['selectedDesign' => $designData],
+                'imageUrl' => $designData['image_url'] ?? $designData['thumbnail_url']
+            ];
+
+            // Emit event to save to cart
+            $this->dispatch('save-cart-design', $cartDesignData);
+            
+            // Close modal
+            $this->dispatch('close-cart-design-modal');
+            
+            session()->flash('success', 'تم إضافة التصميم إلى السلة!');
+        }
+    }
+
     public function updateDesignNote($designId, $note)
     {
         $this->designNotes[$designId] = $note;
@@ -165,12 +204,18 @@ class DesignSelector extends Component
             $this->selectedDesignForModal = Design::find($designId);
         }
         $this->showDesignModal = true;
+        
+        // Emit event for JavaScript to initialize the design studio
+        $this->dispatch('design-modal-opened');
     }
 
     public function closeDesignModal()
     {
         $this->showDesignModal = false;
         $this->selectedDesignForModal = null;
+        
+        // Emit event to parent (ShoppingCart) to close the cart design modal
+        $this->dispatch('close-cart-design-modal');
     }
 
     public function getSelectedDesignsData()

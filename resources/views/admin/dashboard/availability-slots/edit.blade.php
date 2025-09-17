@@ -4,12 +4,12 @@
 @section('title', trans('admin.edit_availability_slot'))
 
 @section('content')
-    <div style="margin-bottom: 2rem;">
+    <div class="space-y-6">
         <!-- Header -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div class="flex justify-between items-center">
             <div>
-                <h1 style="font-size: 1.875rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">{{ trans('admin.edit_availability_slot') }}</h1>
-                <p style="color: var(--text-secondary); font-size: 1rem;">{{ trans('admin.edit_availability_slot_description') }}</p>
+                <h1 class="text-2xl font-bold" style="color: var(--brand-brown);">{{ trans('admin.edit_availability_slot') }}</h1>
+                <p class="text-gray-600">{{ trans('admin.edit_availability_slot_description') }}</p>
             </div>
             <a href="{{ route('admin.availability-slots.index') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i>

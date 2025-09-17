@@ -33,12 +33,29 @@
                     <div class="flex items-center space-x-4 gap-3">
                         <!-- Product Image -->
                         <div class="flex-shrink-0">
-                            @if ($product->images && $product->images->count() > 0)
-                                @php
-                                    $primaryImage = $product->images->where('is_primary', true)->first() ?? $product->images->first();
-                                @endphp
-                                <a href="{{ asset($primaryImage->image_path) }}" class="glightbox" data-gallery="product">
-                                    <img src="{{ asset($primaryImage->image_path) }}" alt="{{ $primaryImage->alt_text }}"
+                            @php
+                                $productImage = null;
+                                $altText = $product->name;
+                                
+                                // Try to get primary image first
+                                $primaryImage = $product->images()->where('is_primary', true)->first();
+                                if ($primaryImage && file_exists(public_path($primaryImage->image_path))) {
+                                    $productImage = $primaryImage->image_path;
+                                    $altText = $primaryImage->alt_text ?: $product->name;
+                                } else {
+                                    // Fallback to first image
+                                    $firstImage = $product->images()->first();
+                                    if ($firstImage && file_exists(public_path($firstImage->image_path))) {
+                                        $productImage = $firstImage->image_path;
+                                        $altText = $firstImage->alt_text ?: $product->name;
+                                    } elseif ($product->image && file_exists(public_path($product->image))) {
+                                        $productImage = $product->image;
+                                    }
+                                }
+                            @endphp
+                            @if ($productImage)
+                                <a href="{{ asset($productImage) }}" class="glightbox" data-gallery="product">
+                                    <img src="{{ asset($productImage) }}" alt="{{ $altText }}"
                                         class="w-20 h-20 rounded-xl object-cover shadow-md">
                                 </a>
                             @else

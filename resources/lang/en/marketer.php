@@ -131,6 +131,7 @@ return [
     'select_status' => 'Select Status',
     'new' => 'New',
     'contacted' => 'Contacted',
+    'didnt_respond' => 'Didn\'t Respond',
     'qualified' => 'Qualified',
     'proposal_sent' => 'Proposal Sent',
     'negotiation' => 'Negotiation',
@@ -169,6 +170,7 @@ return [
     'request_new_leads' => 'Request New Leads',
     'complete_current_leads' => 'Complete Current Leads',
     'you_have_active_leads' => 'You have :count active leads that need follow-up',
+    'you_have_new_leads' => 'You have :count new leads that need contact',
     'active_leads' => 'Active Leads',
     'leads_requested_successfully' => 'Successfully requested :count leads',
     'follow_up_leads_assigned' => '(including :count follow-up due)',
@@ -176,6 +178,22 @@ return [
     'other_leads_assigned' => '(including :count other)',
     'no_new_leads_available' => 'No leads available in your category at the moment',
     'must_complete_current_leads' => 'You must complete all current leads before requesting new ones',
+    'must_contact_new_leads_first' => 'You must contact new leads first before requesting more',
+    
+    // Urgent Leads
+    'urgent_leads' => 'Urgent Leads',
+    'leads_need_immediate_attention' => 'Leads that need immediate attention',
+    'priority_level' => 'Priority Level',
+    'urgency_reason' => 'Urgency Reason',
+    'critical' => 'Critical',
+    'overdue' => 'Overdue',
+    'new_lead_not_contacted' => 'New lead not contacted yet',
+    'didnt_respond_no_followup' => 'Didn\'t respond, no follow-up set',
+    'followup_overdue' => 'Follow-up overdue',
+    'needs_attention' => 'Needs attention',
+    'no_urgent_leads' => 'No urgent leads',
+    'all_leads_under_control' => 'All leads are under control',
+    'view_all_leads' => 'View All Leads',
     
     // Footer
     'copyright' => '© 2024 Lead Management System. All rights reserved.',

@@ -76,4 +76,8 @@ return [
     'save_designs' => 'Save Designs',
     'selected_designs' => 'Selected Designs',
     'confirm_remove_design' => 'Are you sure you want to remove :design from :product?',
+
+    // Login Modal
+    'login_required' => 'Login Required',
+    'login_required_message' => 'Please login to continue with your order.',
 ];

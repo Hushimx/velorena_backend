@@ -205,7 +205,6 @@ class ProductFactory extends Factory
       'name_ar' => $nameAr,
       'description' => $description,
       'description_ar' => $descriptionAr,
-      'image' => $this->faker->imageUrl(640, 480, 'products', true, 'Faker'),
       'base_price' => $this->faker->randomFloat(2, 50, 2000),
       'is_active' => $this->faker->boolean(80), // 80% chance of being active
       'sort_order' => $this->faker->numberBetween(1, 100),

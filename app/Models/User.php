@@ -105,7 +105,6 @@ class User extends Authenticatable
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
             'city' => 'nullable|string|max:100',
-            'country' => 'nullable|string|max:100',
             'vat_number' => 'nullable|string|max:50',
             'cr_number' => 'nullable|string|max:50',
             'notes' => 'nullable|string|max:1000',

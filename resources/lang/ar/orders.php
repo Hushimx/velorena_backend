@@ -5,6 +5,18 @@ return [
     'orders_list' => 'قائمة الطلبات',
     'manage_orders' => 'إدارة جميع طلبات العملاء',
     'my_orders' => 'طلباتي',
+    'track_manage_orders' => 'تتبع وإدارة الطلبات',
+    'dashboard_overview' => 'لوحة التحكم والنظرة العامة',
+    'schedule_view_appointments' => 'جدولة وعرض المواعيد',
+    'manage_your_profile' => 'إدارة ملفك الشخصي',
+    'sign_out_account' => 'تسجيل الخروج من حسابك',
+    'quick_actions' => 'الإجراءات السريعة',
+    'account' => 'الحساب',
+    'profile_settings' => 'إعدادات الملف الشخصي',
+    'account_settings' => 'إعدادات الحساب',
+    'manage_your_account' => 'إدارة حسابك',
+    'user_account_menu' => 'قائمة حساب المستخدم',
+    'client' => 'عميل',
     'view_your_orders' => 'عرض سجل طلباتك',
     'order_details' => 'تفاصيل الطلب',
     'view_order_information' => 'عرض معلومات الطلب',
@@ -36,6 +48,17 @@ return [
     'shipped' => 'تم الشحن',
     'delivered' => 'تم التوصيل',
     'cancelled' => 'ملغي',
+
+    // Payment Status
+    'payment_status' => 'حالة الدفع',
+    'paid' => 'مدفوع',
+    'unpaid' => 'غير مدفوع',
+    'process_payment' => 'معالجة الدفع',
+    'pay_now' => 'ادفع الآن',
+    'payment_processed' => 'تم معالجة الدفع',
+    'confirm_payment' => 'هل أنت متأكد من معالجة الدفع لهذا الطلب؟',
+    'check_payment_status' => 'فحص حالة الدفع',
+    'payment_status_help' => 'انقر للتحقق من أحدث حالة دفع من تاب',
 
     // Table
     'items_count' => 'عدد العناصر',
@@ -103,4 +126,13 @@ return [
     'product_added_to_order' => 'تم إضافة المنتج إلى الطلب بنجاح',
     'addresses' => 'العناوين',
     'deleting' => 'جاري الحذف...',
+    
+    // Product Options
+    'selected_options' => 'الخيارات المحددة',
+    'product_options' => 'خيارات المنتج',
+    'no_options_selected' => 'لم يتم تحديد خيارات',
+    'options_adjustment' => 'تعديل سعر الخيارات',
+    'item_notes' => 'ملاحظات العنصر',
+    'required' => 'مطلوب',
+    'no_price_change' => 'لا يوجد تغيير في السعر',
 ];

@@ -4,14 +4,14 @@
 @section('title', trans('admin.view_availability_slot'))
 
 @section('content')
-    <div style="margin-bottom: 2rem;">
+    <div class="space-y-6">
         <!-- Header -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div class="flex justify-between items-center">
             <div>
-                <h1 style="font-size: 1.875rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">{{ trans('admin.view_availability_slot') }}</h1>
-                <p style="color: var(--text-secondary); font-size: 1rem;">{{ trans('admin.availability_slot_details') }}</p>
+                <h1 class="text-2xl font-bold" style="color: var(--brand-brown);">{{ trans('admin.view_availability_slot') }}</h1>
+                <p class="text-gray-600">{{ trans('admin.availability_slot_details') }}</p>
             </div>
-            <div style="display: flex; gap: 0.75rem;">
+            <div class="flex gap-3">
                 <a href="{{ route('admin.availability-slots.edit', $availabilitySlot) }}" class="btn btn-primary">
                     <i class="fas fa-edit"></i>
                     <span>{{ trans('admin.edit') }}</span>
@@ -26,17 +26,17 @@
         <!-- Availability Slot Details -->
         <div class="card">
             <div class="card-header">
-                <h3 style="font-size: 1.125rem; font-weight: 500; color: var(--text-primary);">{{ trans('admin.availability_slot_information') }}</h3>
+                <h3 class="text-lg font-medium text-gray-900">{{ trans('admin.availability_slot_information') }}</h3>
             </div>
             
             <div class="card-body">
-                <dl style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <dl class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Day of Week -->
                     <div>
-                        <dt style="font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.5rem;">{{ trans('admin.day_of_week') }}</dt>
-                        <dd style="display: flex; align-items: center; color: var(--text-primary);">
-                            <div style="width: 2rem; height: 2rem; border-radius: 50%; background: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center; margin-left: 0.75rem;">
-                                <i class="fas fa-calendar-day" style="color: #3b82f6; font-size: 0.875rem;"></i>
+                        <dt class="text-sm font-medium text-gray-500 mb-2">{{ trans('admin.day_of_week') }}</dt>
+                        <dd class="flex items-center text-gray-900">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center ml-3">
+                                <i class="fas fa-calendar-day text-blue-600 text-sm"></i>
                             </div>
                             {{ trans('admin.days.' . $availabilitySlot->day_of_week) }}
                         </dd>
@@ -44,10 +44,10 @@
 
                     <!-- Time Range -->
                     <div>
-                        <dt style="font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.5rem;">{{ trans('admin.time_range') }}</dt>
-                        <dd style="display: flex; align-items: center; color: var(--text-primary);">
-                            <div style="width: 2rem; height: 2rem; border-radius: 50%; background: rgba(16, 185, 129, 0.1); display: flex; align-items: center; justify-content: center; margin-left: 0.75rem;">
-                                <i class="fas fa-clock" style="color: #10b981; font-size: 0.875rem;"></i>
+                        <dt class="text-sm font-medium text-gray-500 mb-2">{{ trans('admin.time_range') }}</dt>
+                        <dd class="flex items-center text-gray-900">
+                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center ml-3">
+                                <i class="fas fa-clock text-green-600 text-sm"></i>
                             </div>
                             {{ $availabilitySlot->formatted_start_time }} - {{ $availabilitySlot->formatted_end_time }}
                         </dd>
@@ -55,10 +55,10 @@
 
                     <!-- Slot Duration -->
                     <div>
-                        <dt style="font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.5rem;">{{ trans('admin.slot_duration') }}</dt>
-                        <dd style="display: flex; align-items: center; color: var(--text-primary);">
-                            <div style="width: 2rem; height: 2rem; border-radius: 50%; background: rgba(147, 51, 234, 0.1); display: flex; align-items: center; justify-content: center; margin-left: 0.75rem;">
-                                <i class="fas fa-stopwatch" style="color: #9333ea; font-size: 0.875rem;"></i>
+                        <dt class="text-sm font-medium text-gray-500 mb-2">{{ trans('admin.slot_duration') }}</dt>
+                        <dd class="flex items-center text-gray-900">
+                            <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center ml-3">
+                                <i class="fas fa-stopwatch text-purple-600 text-sm"></i>
                             </div>
                             {{ $availabilitySlot->slot_duration_minutes }} {{ trans('admin.minutes') }}
                         </dd>
@@ -66,10 +66,10 @@
 
                     <!-- Total Slots -->
                     <div>
-                        <dt style="font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.5rem;">{{ trans('admin.total_slots') }}</dt>
-                        <dd style="display: flex; align-items: center; color: var(--text-primary);">
-                            <div style="width: 2rem; height: 2rem; border-radius: 50%; background: rgba(245, 158, 11, 0.1); display: flex; align-items: center; justify-content: center; margin-left: 0.75rem;">
-                                <i class="fas fa-list-ol" style="color: #f59e0b; font-size: 0.875rem;"></i>
+                        <dt class="text-sm font-medium text-gray-500 mb-2">{{ trans('admin.total_slots') }}</dt>
+                        <dd class="flex items-center text-gray-900">
+                            <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center ml-3">
+                                <i class="fas fa-list-ol text-yellow-600 text-sm"></i>
                             </div>
                             {{ $availabilitySlot->total_slots }} {{ trans('admin.slots') }}
                         </dd>
@@ -77,7 +77,7 @@
 
                     <!-- Status -->
                     <div>
-                        <dt style="font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.5rem;">{{ trans('admin.status') }}</dt>
+                        <dt class="text-sm font-medium text-gray-500 mb-2">{{ trans('admin.status') }}</dt>
                         <dd>
                             <span class="badge {{ $availabilitySlot->is_active ? 'badge-active' : 'badge-inactive' }}">
                                 {{ $availabilitySlot->is_active ? trans('admin.active') : trans('admin.inactive') }}
@@ -87,18 +87,18 @@
 
                     <!-- Created At -->
                     <div>
-                        <dt style="font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.5rem;">{{ trans('admin.created_at') }}</dt>
-                        <dd style="color: var(--text-primary);">
+                        <dt class="text-sm font-medium text-gray-500 mb-2">{{ trans('admin.created_at') }}</dt>
+                        <dd class="text-gray-900">
                             {{ $availabilitySlot->created_at->format('M d, Y H:i') }}
                         </dd>
                     </div>
 
                     <!-- Notes -->
                     @if($availabilitySlot->notes)
-                        <div style="grid-column: 1 / -1;">
-                            <dt style="font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.5rem;">{{ trans('admin.notes') }}</dt>
+                        <div class="md:col-span-2 lg:col-span-3">
+                            <dt class="text-sm font-medium text-gray-500 mb-2">{{ trans('admin.notes') }}</dt>
                             <dd>
-                                <div style="background: var(--bg-tertiary); border-radius: var(--radius-md); padding: 0.75rem; color: var(--text-primary);">
+                                <div class="bg-gray-50 rounded-lg p-4 text-gray-900">
                                     {{ $availabilitySlot->notes }}
                                 </div>
                             </dd>
@@ -111,31 +111,31 @@
         <!-- Generated Time Slots Preview -->
         <div class="card">
             <div class="card-header">
-                <h3 style="font-size: 1.125rem; font-weight: 500; color: var(--text-primary);">{{ trans('admin.generated_time_slots') }}</h3>
-                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">{{ trans('admin.time_slots_preview_description') }}</p>
+                <h3 class="text-lg font-medium text-gray-900">{{ trans('admin.generated_time_slots') }}</h3>
+                <p class="text-sm text-gray-600 mt-1">{{ trans('admin.time_slots_preview_description') }}</p>
             </div>
             
             <div class="card-body">
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.5rem;">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                     @foreach($availabilitySlot->generateTimeSlots() as $timeSlot)
-                        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: var(--radius-md); padding: 0.75rem; text-align: center;">
-                            <span style="font-size: 0.875rem; font-weight: 500; color: #1d4ed8;">{{ $timeSlot }}</span>
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+                            <span class="text-sm font-medium text-blue-800">{{ $timeSlot }}</span>
                         </div>
                     @endforeach
                 </div>
                 
                 @if(empty($availabilitySlot->generateTimeSlots()))
-                    <div style="text-align: center; padding: 2rem;">
-                        <i class="fas fa-exclamation-triangle" style="color: var(--text-muted); font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
-                        <p style="color: var(--text-secondary);">{{ trans('admin.no_time_slots_generated') }}</p>
+                    <div class="text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-gray-400 text-2xl mb-2"></i>
+                        <p class="text-gray-600">{{ trans('admin.no_time_slots_generated') }}</p>
                     </div>
                 @endif
             </div>
         </div>
 
         <!-- Actions -->
-        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
-            <form action="{{ route('admin.availability-slots.toggle-status', $availabilitySlot) }}" method="POST" style="display: inline;">
+        <div class="flex justify-end gap-3">
+            <form action="{{ route('admin.availability-slots.toggle-status', $availabilitySlot) }}" method="POST" class="inline">
                 @csrf
                 @method('PATCH')
                 <button type="submit" class="btn {{ $availabilitySlot->is_active ? 'btn-warning' : 'btn-success' }}">
@@ -144,7 +144,7 @@
                 </button>
             </form>
             
-            <form action="{{ route('admin.availability-slots.destroy', $availabilitySlot) }}" method="POST" style="display: inline;"
+            <form action="{{ route('admin.availability-slots.destroy', $availabilitySlot) }}" method="POST" class="inline"
                 onsubmit="return confirm('{{ trans('admin.confirm_delete_availability_slot') }}')">
                 @csrf
                 @method('DELETE')

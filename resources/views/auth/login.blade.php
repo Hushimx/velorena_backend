@@ -1,12 +1,9 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+@extends('components.layout')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ __('User Login - velorena') }}</title>
+@section('pageTitle', __('User Login - Qaads'))
+
+@section('additionalHead')
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body {
@@ -29,22 +26,24 @@
             }
         }
 
-        /* Navy Blue and Mint Green Theme - Clean & Focused */
+        /* Brand Theme - Yellow & Brown */
         :root {
-            --navy-blue: #000080;
-            --mint-green: #98FF98;
-            --navy-blue-light: rgba(0, 0, 128, 0.1);
-            --mint-green-light: rgba(152, 255, 152, 0.1);
-            --navy-blue-dark: #000066;
-            --mint-green-dark: #7FFF7F;
+            --brand-yellow: #ffde9f;
+            --brand-yellow-dark: #f5d182;
+            --brand-brown: #2a1e1e;
+            --brand-brown-light: #3a2e2e;
+            --brand-yellow-light: #fff4e6;
+            --brand-yellow-hover: #f0d4a0;
+            --brand-brown-dark: #1a1414;
+            --brand-brown-hover: #4a3e3e;
         }
 
         .gradient-bg {
-            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--mint-green) 100%);
+            background: linear-gradient(135deg, var(--brand-brown) 0%, var(--brand-yellow) 100%);
         }
 
         .card-shadow {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 128, 0.15), 0 10px 10px -5px rgba(152, 255, 152, 0.1);
+            box-shadow: 0 20px 25px -5px rgba(42, 30, 30, 0.15), 0 10px 10px -5px rgba(255, 222, 159, 0.1);
         }
 
         .input-focus {
@@ -53,123 +52,126 @@
 
         .input-focus:focus {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 128, 0.2);
-            border-color: var(--navy-blue);
+            box-shadow: 0 10px 25px -5px rgba(42, 30, 30, 0.2);
+            border-color: var(--brand-brown);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--mint-green) 100%);
+            background: linear-gradient(135deg, var(--brand-brown) 0%, var(--brand-yellow) 100%);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-primary:hover {
             transform: translateY(-1px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 128, 0.3);
+            box-shadow: 0 10px 25px -5px rgba(42, 30, 30, 0.3);
         }
 
         .btn-primary:active {
             transform: translateY(0);
         }
 
-        /* Override Tailwind focus states for Navy Blue theme */
+        /* Override Tailwind focus states for Brand theme */
         .focus\:ring-green-500:focus {
-            --tw-ring-color: var(--navy-blue) !important;
+            --tw-ring-color: var(--brand-brown) !important;
         }
 
         .focus\:border-green-500:focus {
-            border-color: var(--navy-blue) !important;
+            border-color: var(--brand-brown) !important;
         }
 
         .form-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, var(--mint-green-light) 100%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, var(--brand-yellow-light) 100%);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 0, 128, 0.15);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 128, 0.2);
+            border: 1px solid rgba(42, 30, 30, 0.15);
+            box-shadow: 0 25px 50px -12px rgba(42, 30, 30, 0.2);
+        }
+
+        /* Override Bootstrap styles for auth forms */
+        .auth-form-container {
+            position: relative;
+            z-index: 10;
+        }
+
+        .auth-form-container * {
+            box-sizing: border-box !important;
+        }
+
+        .auth-form-container input[type="email"],
+        .auth-form-container input[type="password"],
+        .auth-form-container input[type="text"],
+        .auth-form-container input[type="tel"],
+        .auth-form-container textarea {
+            display: block !important;
+            width: 100% !important;
+            padding: 0.75rem 1rem !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 0.5rem !important;
+            background-color: white !important;
+            font-size: 1rem !important;
+            line-height: 1.5 !important;
+            color: #111827 !important;
+        }
+
+        .auth-form-container input:focus,
+        .auth-form-container textarea:focus {
+            outline: none !important;
+            border-color: var(--brand-brown) !important;
+            box-shadow: 0 0 0 3px rgba(42, 30, 30, 0.1) !important;
+        }
+
+        .auth-form-container button[type="submit"] {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+            padding: 0.75rem 1rem !important;
+            border: none !important;
+            border-radius: 0.5rem !important;
+            font-size: 0.875rem !important;
+            font-weight: 500 !important;
+            color: white !important;
+            background: linear-gradient(135deg, var(--brand-brown) 0%, var(--brand-yellow) 100%) !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .auth-form-container button[type="submit"]:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 10px 25px -5px rgba(42, 30, 30, 0.3) !important;
+        }
+
+        .auth-form-container label {
+            display: block !important;
+            font-size: 0.875rem !important;
+            font-weight: 500 !important;
+            color: #374151 !important;
+            margin-bottom: 0.25rem !important;
+        }
+
+        .auth-form-container .text-red-600 {
+            color: #dc2626 !important;
+            font-size: 0.875rem !important;
+            margin-top: 0.25rem !important;
         }
     </style>
-</head>
+@endsection
 
-<body class="bg-gradient-to-br from-green-50 via-blue-50 to-green-100 min-h-screen"
-    style="background: linear-gradient(135deg, var(--mint-green-light) 0%, rgba(0, 0, 128, 0.05) 50%, var(--mint-green-light) 100%);">
-    <div class="min-h-screen flex items-center justify-center p-4 relative">
-        <!-- Language Switcher -->
-        <div class="absolute top-4 right-4 z-10">
-            @php
-                use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
-                $current = LaravelLocalization::getCurrentLocale();
-            @endphp
-
-            <div x-data="{ open: false }" class="relative">
-                <!-- Trigger Button -->
-                <button @click="open = !open" type="button"
-                    class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    aria-haspopup="listbox" :aria-expanded="open">
-                    <span class="inline-flex items-center gap-2">
-                        <span class="text-xs rounded px-2 py-0.5 border">{{ strtoupper($current) }}</span>
-                        <span class="hidden sm:inline">
-                            {{ $current === 'ar' ? 'العربية' : 'English' }}
-                        </span>
-                    </span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
-
-                <!-- Dropdown -->
-                <div x-cloak x-show="open" @click.outside="open = false"
-                    class="absolute z-50 mt-2 w-40 rounded-xl border border-gray-200 bg-white shadow-lg"
-                    :class="{
-                        'right-0': '{{ LaravelLocalization::getCurrentLocaleDirection() }}'
-                        === 'rtl',
-                        'left-0': '{{ LaravelLocalization::getCurrentLocaleDirection() }}'
-                        === 'ltr'
-                    }">
-                    <ul class="py-1" role="listbox">
-                        @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
-                            @php
-                                $url = LaravelLocalization::getLocalizedURL($localeCode, null, [], true);
-                                $active = $localeCode === $current;
-                            @endphp
-
-                            <li>
-                                <a href="{{ $url }}" hreflang="{{ $localeCode }}" rel="alternate"
-                                    class="flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 @if ($active) font-semibold @endif">
-                                    <span class="flex items-center gap-2">
-                                        <span
-                                            class="text-xs rounded px-2 py-0.5 border">{{ strtoupper($localeCode) }}</span>
-                                        <span>{{ $properties['native'] ?? strtoupper($localeCode) }}</span>
-                                    </span>
-                                    @if ($active)
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
-                                            fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M16.707 5.293a1 1 0 010 1.414l-7.364 7.364a1 1 0 01-1.414 0L3.293 10.435a1 1 0 111.414-1.414l3.222 3.222 6.657-6.657a1 1 0 011.414 0z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    @endif
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="max-w-md w-full space-y-8 p-10 form-card rounded-2xl card-shadow animate-fade-in">
+@section('content')
+    <x-navbar />
+    
+    <div class="min-h-screen flex items-center justify-center p-4 relative"
+        style="background: linear-gradient(135deg, var(--brand-yellow-light) 0%, rgba(42, 30, 30, 0.05) 50%, var(--brand-yellow-light) 100%);">
+        
+        <div class="max-w-md w-full space-y-8 p-10 form-card rounded-2xl card-shadow animate-fade-in auth-form-container">
             <div>
                 <div class="flex justify-center">
-                    <div class="text-center">
-                        <h1
-                            class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-green-500 mb-2">
-                            {{ __('velorena') }}</h1>
-                    </div>
+
                 </div>
                 <h2 class="mt-4 text-center text-2xl font-bold text-gray-900 tracking-tight">
                     {{ __('User Login') }}
                 </h2>
                 <p class="mt-2 text-center text-sm text-gray-600">
-                    {{ __('Enter your credentials to access the admin dashboard') }}
+                    {{ __('Enter your credentials to access your account') }}
                 </p>
             </div>
             <form class="mt-8 space-y-6" action="{{ route('login') }}" method="POST">
@@ -240,13 +242,11 @@
                 <p class="text-sm text-gray-600">
                     {{ __('Don\'t have an account?') }}
                     <a href="{{ route('register') }}"
-                        class="font-medium text-blue-800 hover:text-blue-600 transition-colors">
+                        class="font-medium text-yellow-600 hover:text-yellow-500 transition-colors">
                         {{ __('Create new account') }}
                     </a>
                 </p>
             </div>
         </div>
     </div>
-</body>
-
-</html>
+@endsection

@@ -106,6 +106,7 @@
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                 @if($lead->status == 'new') bg-gray-100 text-gray-800
                                 @elseif($lead->status == 'contacted') bg-blue-100 text-blue-800
+                                @elseif($lead->status == 'didnt_respond') bg-red-100 text-red-800
                                 @elseif($lead->status == 'qualified') bg-yellow-100 text-yellow-800
                                 @elseif($lead->status == 'proposal_sent') bg-purple-100 text-purple-800
                                 @elseif($lead->status == 'negotiation') bg-orange-100 text-orange-800
@@ -189,8 +190,8 @@
                         <select id="status" name="status"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">{{ __('marketer.select_status') }}</option>
-                            <option value="new" {{ $lead->status == 'new' ? 'selected' : '' }}>{{ __('marketer.new') }}</option>
                             <option value="contacted" {{ $lead->status == 'contacted' ? 'selected' : '' }}>{{ __('marketer.contacted') }}</option>
+                            <option value="didnt_respond" {{ $lead->status == 'didnt_respond' ? 'selected' : '' }}>{{ __('marketer.didnt_respond') }}</option>
                             <option value="qualified" {{ $lead->status == 'qualified' ? 'selected' : '' }}>{{ __('marketer.qualified') }}</option>
                             <option value="proposal_sent" {{ $lead->status == 'proposal_sent' ? 'selected' : '' }}>{{ __('marketer.proposal_sent') }}</option>
                             <option value="negotiation" {{ $lead->status == 'negotiation' ? 'selected' : '' }}>{{ __('marketer.negotiation') }}</option>

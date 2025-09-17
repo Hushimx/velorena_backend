@@ -1,4 +1,4 @@
-<div>
+<div class="designer-edit-order-wrapper">
     <div class="container-fluid">
         <!-- Header Section -->
         <div class="row mb-4">
@@ -161,13 +161,51 @@
                     </div>
                 </div>
 
+                <!-- Popular Products Quick Add -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-star me-2"></i>
+                            Popular Products - Quick Add
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @php
+                            $popularProducts = \App\Models\Product::where('is_active', true)
+                                ->whereIn('id', [1, 2, 3, 4, 5]) // You can adjust this to get actual popular products
+                                ->take(4)
+                                ->get();
+                        @endphp
+                        
+                        <div class="row g-3">
+                            @foreach($popularProducts as $product)
+                                <div class="col-md-6">
+                                    <div class="border rounded p-3 hover-shadow">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1">{{ $product->name }}</h6>
+                                                <p class="text-muted small mb-1">{{ Str::limit($product->description, 80) }}</p>
+                                                <span class="fw-bold text-success">${{ number_format($product->base_price, 2) }}</span>
+                                            </div>
+                                            <button type="button" class="btn btn-primary btn-sm ms-2" 
+                                                    wire:click="quickAddProduct({{ $product->id }})">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Add Products Section -->
                 <div class="card shadow-sm">
                     <div class="card-header bg-success text-white">
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0">
                                 <i class="fas fa-plus me-2"></i>
-                                Add Products
+                                Browse All Products
                             </h5>
                             <button type="button" class="btn btn-light btn-sm" wire:click="toggleAddProducts">
                                 @if ($showAddProducts)
@@ -222,10 +260,18 @@
                                                     <span class="fw-bold text-success">
                                                         ${{ number_format($product->base_price, 2) }}
                                                     </span>
-                                                    <button type="button" class="btn btn-primary btn-sm"
-                                                        wire:click="addToCart({{ $product->id }})">
-                                                        <i class="fas fa-plus me-1"></i>Add
-                                                    </button>
+                                                    <div class="btn-group">
+                                                        <button type="button" class="btn btn-outline-primary btn-sm"
+                                                            wire:click="quickAddProduct({{ $product->id }})"
+                                                            title="Quick Add with Options">
+                                                            <i class="fas fa-bolt"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-primary btn-sm"
+                                                            wire:click="addToCart({{ $product->id }})"
+                                                            title="Add with Default Options">
+                                                            <i class="fas fa-plus"></i>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -419,20 +465,109 @@
             </div>
         </div>
     </div>
+
+    <!-- Quick Add Product Modal -->
+    <div class="modal fade" id="quickAddModal" tabindex="-1" wire:ignore.self>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Quick Add Product
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" wire:click="closeQuickAdd"></button>
+                </div>
+                <div class="modal-body">
+                    @if($quickAddProductId)
+                        @php $quickProduct = \App\Models\Product::with(['options.values'])->find($quickAddProductId); @endphp
+                        
+                        @if($quickProduct)
+                            <div class="mb-4">
+                                <h6 class="fw-bold">{{ $quickProduct->name }}</h6>
+                                <p class="text-muted">{{ $quickProduct->description }}</p>
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="fw-bold text-success fs-5">${{ number_format($quickProduct->base_price, 2) }}</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <label for="quickQuantity" class="form-label mb-0">Quantity:</label>
+                                        <input type="number" id="quickQuantity" class="form-control form-control-sm" 
+                                               style="width: 80px;" wire:model="quickAddQuantity" min="1" max="50">
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if($quickProduct->options->count() > 0)
+                                <h6 class="fw-bold mb-3">Product Options</h6>
+                                <div class="row">
+                                    @foreach($quickProduct->options as $option)
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">
+                                                {{ $option->name }}
+                                                @if($option->is_required)
+                                                    <span class="text-danger">*</span>
+                                                @endif
+                                            </label>
+                                            
+                                            <div class="mt-2">
+                                                @foreach($option->values as $value)
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" 
+                                                               name="quick_option_{{ $option->id }}"
+                                                               value="{{ $value->id }}"
+                                                               id="quick_option_{{ $option->id }}_{{ $value->id }}"
+                                                               wire:model="quickAddOptions.{{ $option->id }}">
+                                                        <label class="form-check-label" 
+                                                               for="quick_option_{{ $option->id }}_{{ $value->id }}">
+                                                            {{ $value->value }}
+                                                            @if($value->price_adjustment != 0)
+                                                                <span class="text-success fw-bold">
+                                                                    ({{ $value->price_adjustment > 0 ? '+' : '' }}${{ number_format($value->price_adjustment, 2) }})
+                                                                </span>
+                                                            @endif
+                                                        </label>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        @endif
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" wire:click="closeQuickAdd">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" wire:click="confirmQuickAdd">
+                        <i class="fas fa-plus me-2"></i>Add to Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inline Styles -->
+    <style>
+    .hover-shadow:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: box-shadow 0.2s ease;
+    }
+    </style>
+
+    <!-- Inline Scripts -->
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('showModal', (modalId) => {
+                const modal = new bootstrap.Modal(document.getElementById(modalId[0]));
+                modal.show();
+            });
+
+            Livewire.on('hideModal', (modalId) => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById(modalId[0]));
+                if (modal) {
+                    modal.hide();
+                }
+            });
+        });
+    </script>
 </div>
-
-<script>
-    document.addEventListener('livewire:init', () => {
-        Livewire.on('showModal', (modalId) => {
-            const modal = new bootstrap.Modal(document.getElementById(modalId));
-            modal.show();
-        });
-
-        Livewire.on('hideModal', (modalId) => {
-            const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
-            if (modal) {
-                modal.hide();
-            }
-        });
-    });
-</script>

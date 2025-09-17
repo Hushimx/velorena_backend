@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             LeadSeeder::class,
             OrderSeeder::class,
             SupportTicketSeeder::class,
+            AvailabilitySlotSeeder::class,
         ]);
     }
 }

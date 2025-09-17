@@ -8,9 +8,11 @@ use App\Models\Marketer;
 use App\Models\Category;
 use App\Imports\LeadsImport;
 use App\Exports\LeadsTemplateExport;
+use App\Services\LeadsImportService;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class LeadController extends Controller
 {
@@ -147,37 +149,44 @@ class LeadController extends Controller
             }
             
             // Log the file info for debugging
-            \Log::info('Uploading file: ' . $file->getClientOriginalName());
-            \Log::info('File path: ' . $file->getPathname());
-            \Log::info('File size: ' . $file->getSize());
+            Log::info('Uploading file: ' . $file->getClientOriginalName());
+            Log::info('File path: ' . $file->getPathname());
+            Log::info('File size: ' . $file->getSize());
             
-            // Store the file temporarily to get a proper path using public disk
-            $tempPath = $file->store('temp', 'public');
-            $fullPath = storage_path('app/public/' . $tempPath);
+            // Use our custom import service directly to avoid Laravel Excel issues
+            $importService = new LeadsImportService();
+            $extension = strtolower($file->getClientOriginalExtension());
             
-            \Log::info('Stored file at: ' . $fullPath);
-            
-            // Check if the file exists
-            if (!file_exists($fullPath)) {
-                throw new \Exception('File was not stored properly');
+            if ($extension === 'csv') {
+                $results = $importService->importFromCsv($file);
+            } else {
+                try {
+                    $results = $importService->importFromExcel($file);
+                } catch (\Exception $excelError) {
+                    // If Excel processing fails, suggest CSV conversion
+                    throw new \Exception('Excel file processing failed. Please convert your Excel file to CSV format and try again. Error: ' . $excelError->getMessage());
+                }
             }
             
-            // Import the file using the stored path
-            Excel::import(new LeadsImport, $fullPath);
-            
-            // Clean up the temporary file
-            \Storage::disk('public')->delete($tempPath);
+            // Prepare success message
+            if (is_array($results)) {
+                $message = "Import completed: {$results['success']} leads imported successfully";
+                if ($results['skipped'] > 0) {
+                    $message .= ", {$results['skipped']} leads skipped";
+                }
+                if ($results['errors'] > 0) {
+                    $message .= ", {$results['errors']} errors encountered";
+                }
+            } else {
+                $message = $results;
+            }
             
             return redirect()->route('admin.leads.index')
-                ->with('success', __('admin.leads_uploaded_success'));
+                ->with('success', $message);
+                
         } catch (\Exception $e) {
-            \Log::error('Bulk upload error: ' . $e->getMessage());
-            \Log::error('Stack trace: ' . $e->getTraceAsString());
-            
-            // Clean up temporary file if it exists
-            if (isset($tempPath)) {
-                \Storage::disk('public')->delete($tempPath);
-            }
+            Log::error('Bulk upload error: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             
             return redirect()->back()
                 ->with('error', __('admin.leads_upload_error') . ': ' . $e->getMessage())

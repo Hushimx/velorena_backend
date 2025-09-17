@@ -2,6 +2,7 @@
 @import 'tailwindcss';
 @import 'home-page.css';
 @import 'client-area.css';
+@import 'design-studio.css';
 
 /* Font Awesome Icons */
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');

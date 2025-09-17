@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CartItem;
+use App\Models\CartDesign;
 use App\Models\Product;
 use App\Models\ProductDesign;
 use App\Models\Order;
@@ -456,6 +457,9 @@ class CartController extends Controller
 
             // Clear cart after successful order creation
             CartItem::where('user_id', $user->id)->delete();
+            
+            // Clear cart designs after successful order creation
+            CartDesign::where('user_id', $user->id)->delete();
 
             DB::commit();
 
@@ -486,6 +490,7 @@ class CartController extends Controller
      */
     public function index()
     {
+        // Allow both authenticated and guest users to view the cart page
         return view('users.cart.index');
     }
 }

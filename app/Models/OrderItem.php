@@ -76,4 +76,42 @@ class OrderItem extends Model
 
         return implode(', ', $formatted);
     }
+
+    // Get detailed options with price adjustments
+    public function getDetailedOptionsAttribute(): array
+    {
+        if (empty($this->options) || !is_array($this->options)) {
+            return [];
+        }
+
+        $detailedOptions = [];
+        foreach ($this->options as $optionId => $valueId) {
+            $option = ProductOption::find($optionId);
+            $value = OptionValue::find($valueId);
+
+            if ($option && $value) {
+                $detailedOptions[] = [
+                    'option_id' => $optionId,
+                    'option_name' => $option->name,
+                    'value_id' => $valueId,
+                    'value' => $value->value,
+                    'price_adjustment' => $value->price_adjustment,
+                    'is_required' => $option->is_required,
+                    'type' => $option->type,
+                ];
+            }
+        }
+
+        return $detailedOptions;
+    }
+
+    // Calculate total price adjustments from options
+    public function getOptionsPriceAdjustmentAttribute(): float
+    {
+        $adjustment = 0;
+        foreach ($this->detailed_options as $option) {
+            $adjustment += $option['price_adjustment'];
+        }
+        return $adjustment;
+    }
 }

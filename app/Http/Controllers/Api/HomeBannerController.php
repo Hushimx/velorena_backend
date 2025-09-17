@@ -29,7 +29,7 @@ class HomeBannerController extends Controller
      *                 @OA\Items(
      *                     type="object",
      *                     @OA\Property(property="id", type="integer", example=1),
-     *                     @OA\Property(property="title", type="string", example="Welcome to Velorena"),
+     *                     @OA\Property(property="title", type="string", example="Welcome to Qaads"),
      *                     @OA\Property(property="title_ar", type="string", example="مرحباً بك في فيلورينا"),
      *                     @OA\Property(property="description", type="string", example="Discover our amazing products"),
      *                     @OA\Property(property="description_ar", type="string", example="اكتشف منتجاتنا المذهلة"),
@@ -80,7 +80,7 @@ class HomeBannerController extends Controller
      *                 property="data",
      *                 type="object",
      *                 @OA\Property(property="id", type="integer", example=1),
-     *                 @OA\Property(property="title", type="string", example="Welcome to Velorena"),
+     *                 @OA\Property(property="title", type="string", example="Welcome to Qaads"),
      *                 @OA\Property(property="title_ar", type="string", example="مرحباً بك في فيلورينا"),
      *                 @OA\Property(property="description", type="string", example="Discover our amazing products"),
      *                 @OA\Property(property="description_ar", type="string", example="اكتشف منتجاتنا المذهلة"),

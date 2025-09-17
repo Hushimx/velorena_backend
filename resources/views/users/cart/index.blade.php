@@ -57,7 +57,7 @@
         /* Cart Index Page Styles - Based on Product Show Page Design */
         .cart-index-page {
             font-family: 'Cairo', sans-serif;
-            background: linear-gradient(180deg, #FFEBC6 0%, #FFFFFF 100%);
+            background: linear-gradient(180deg, var(--brand-yellow-light) 0%, #FFFFFF 100%);
             min-height: calc(100vh - 96px);
             direction: rtl;
             padding-top: 0;
@@ -65,7 +65,7 @@
 
         /* Header Section */
         .cart-index-header {
-            background: linear-gradient(135deg, #FFEBC6 0%, #F4D03F 50%, #FFEBC6 100%);
+            background: linear-gradient(135deg, var(--brand-yellow-light) 0%, var(--brand-yellow) 50%, var(--brand-yellow-light) 100%);
             padding: 3rem 0;
             position: relative;
             overflow: hidden;
@@ -112,12 +112,12 @@
         }
 
         .breadcrumb-item.active {
-            color: #8B4513;
+            color: var(--brand-brown);
             font-weight: 600;
         }
 
         .breadcrumb-link {
-            color: #8B4513;
+            color: var(--brand-brown);
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -128,8 +128,8 @@
         }
 
         .breadcrumb-link:hover {
-            background: rgba(139, 69, 19, 0.1);
-            color: #8B4513;
+            background: rgba(42, 30, 30, 0.1);
+            color: var(--brand-brown);
         }
 
         .breadcrumb-link i {
@@ -140,21 +140,21 @@
         .cart-index-title {
             font-size: 3rem;
             font-weight: 800;
-            color: #8B4513;
+            color: var(--brand-brown);
             margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(139, 69, 19, 0.1);
+            text-shadow: 2px 2px 4px rgba(42, 30, 30, 0.1);
         }
 
         .cart-index-subtitle {
             font-size: 1.25rem;
-            color: #8B4513;
+            color: var(--brand-brown);
             opacity: 0.8;
             margin-bottom: 0;
         }
 
         /* Back Button */
         .back-btn {
-            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            background: linear-gradient(135deg, var(--brand-brown) 0%, var(--brand-brown-light) 100%);
             color: white;
             padding: 1rem 2rem;
             border-radius: 12px;
@@ -164,15 +164,15 @@
             gap: 0.75rem;
             font-weight: 600;
             font-size: 1rem;
-            box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
+            box-shadow: 0 4px 15px rgba(42, 30, 30, 0.3);
             transition: all 0.3s ease;
         }
 
         .back-btn:hover {
-            background: linear-gradient(135deg, #A0522D 0%, #8B4513 100%);
+            background: linear-gradient(135deg, var(--brand-brown-light) 0%, var(--brand-brown) 100%);
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
+            box-shadow: 0 6px 20px rgba(42, 30, 30, 0.4);
         }
 
         .back-btn i {

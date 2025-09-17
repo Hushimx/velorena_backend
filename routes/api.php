@@ -56,6 +56,8 @@ Route::prefix('categories')->group(function () {
 Route::prefix('products')->group(function () {
     Route::get('/', [ProductController::class, 'index']);
     Route::get('/search', [ProductController::class, 'search']);
+    Route::get('/latest', [ProductController::class, 'latest']);
+    Route::get('/best-selling', [ProductController::class, 'bestSelling']);
     Route::get('/{product}', [ProductController::class, 'show']);
 });
 
@@ -291,4 +293,4 @@ Route::prefix('test')->group(function () {
 });
 
 // Webhook routes (no authentication required)
-Route::post('/webhooks/tap', [App\Http\Controllers\Api\TapPaymentController::class, 'webhook']);
+Route::post('/webhooks/tap', [App\Http\Controllers\Api\TapPaymentController::class, 'webhook'])->name('api.webhooks.tap');

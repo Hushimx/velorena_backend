@@ -28,6 +28,7 @@
                                 @enderror
                                 <small class="text-gray-500 text-sm">
                                     {{ __('admin.supported_files') }}: Excel (.xlsx, .xls) {{ __('admin.or') }} CSV. {{ __('admin.max_size') }}: 10MB
+                                    <br><strong>Note:</strong> If you encounter issues with Excel files, please convert them to CSV format for better compatibility.
                                 </small>
                             </div>
                             
