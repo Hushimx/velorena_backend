@@ -1,6 +1,6 @@
 # Web Application Documentation
 
-Welcome to the Velorena web application documentation. This section contains all web-related documentation, guides, and implementation details.
+Welcome to the Qaads web application documentation. This section contains all web-related documentation, guides, and implementation details.
 
 ## 📋 Web Documentation Index
 

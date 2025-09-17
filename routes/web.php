@@ -39,64 +39,103 @@ Route::group(
 
         Auth::routes();
 
-        Route::get('/', function () {
-            return view('users.welcome');
-        });
+        Route::get('/', [HomeController::class, 'welcome'])->name('welcome');
         Route::get('/home', [HomeController::class, 'index'])->name('home');
         Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
+        Route::get('/about', function () {
+            return view('about');
+        })->name('about');
         // Route::view('/success', "admin.auth.success");
 
         require __DIR__ . '/admin_routes.php';
         require __DIR__ . '/designer_routes.php';
         require __DIR__ . '/marketer_routes.php';
 
-        // User routes
-        Route::middleware(['auth'])->group(function () {
-            // Products routes
-            Route::get('/products', function () {
-                return view('users.products.index');
-            })->name('user.products.index');
+        // New Design System Routes
+        Route::group(['prefix' => 'design'], function () {
+            // Design Search Page
+            Route::get('/search', [App\Http\Controllers\DesignSearchController::class, 'index'])->name('design.search');
+            Route::post('/save-to-cart', [App\Http\Controllers\DesignSearchController::class, 'saveToCart'])->name('design.save-to-cart');
+            Route::post('/add-to-favorites', [App\Http\Controllers\DesignSearchController::class, 'addToFavorites'])->name('design.add-to-favorites');
+            
+            // Design Studio Page
+            Route::get('/studio', [App\Http\Controllers\DesignStudioController::class, 'index'])->name('design.studio');
+            Route::post('/studio/save', [App\Http\Controllers\DesignStudioController::class, 'saveDesign'])->name('design.studio.save');
+            Route::post('/studio/add-to-favorites', [App\Http\Controllers\DesignStudioController::class, 'addToFavorites'])->name('design.studio.add-to-favorites');
+        });
 
-            Route::get('/products/{product}', function (App\Models\Product $product) {
-                if (!$product->is_active) {
+        // Image proxy route for secure image loading
+        Route::get('/image-proxy/{url}', function ($url) {
+            try {
+                $decodedUrl = base64_decode($url);
+                $imageData = file_get_contents($decodedUrl);
+                
+                if ($imageData === false) {
                     abort(404);
                 }
-                // Load product with options and their values
-                $product->load(['category', 'options.values']);
                 
-                // Debug: Log the product data
-                Log::info('Product loaded:', [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'options_count' => $product->options->count(),
-                    'options' => $product->options->map(function($option) {
-                        return [
-                            'id' => $option->id,
-                            'name' => $option->name,
-                            'type' => $option->type,
-                            'values_count' => $option->values->count()
-                        ];
-                    })
-                ]);
+                $imageInfo = getimagesizefromstring($imageData);
+                $mimeType = $imageInfo['mime'] ?? 'image/jpeg';
                 
-                return view('users.products.show', compact('product'));
-            })->name('user.products.show');
+                return response($imageData)
+                    ->header('Content-Type', $mimeType)
+                    ->header('Cache-Control', 'public, max-age=3600');
+            } catch (\Exception $e) {
+                abort(404);
+            }
+        })->name('image.proxy');
 
+        // Public routes (no authentication required)
+        // Products routes
+        Route::get('/products', function () {
+            return view('users.products.index');
+        })->name('user.products.index');
+
+        Route::get('/products/{product}', function (App\Models\Product $product) {
+            if (!$product->is_active) {
+                abort(404);
+            }
+            // Load product with options and their values
+            $product->load(['category', 'options.values']);
+            
+            // Debug: Log the product data
+            Log::info('Product loaded:', [
+                'id' => $product->id,
+                'name' => $product->name,
+                'options_count' => $product->options->count(),
+                'options' => $product->options->map(function($option) {
+                    return [
+                        'id' => $option->id,
+                        'name' => $option->name,
+                        'type' => $option->type,
+                        'values_count' => $option->values->count()
+                    ];
+                })
+            ]);
+            
+            return view('users.products.show', compact('product'));
+        })->name('user.products.show');
+
+        // Cart routes
+        Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
+
+        // User routes (authentication required)
+        Route::middleware(['auth'])->group(function () {
             // Appointment routes
             Route::get('/appointments', [App\Http\Controllers\AppointmentController::class, 'index'])->name('appointments.index');
             Route::get('/appointments/create', [App\Http\Controllers\AppointmentController::class, 'create'])->name('appointments.create');
             Route::post('/appointments', [App\Http\Controllers\AppointmentController::class, 'store'])->name('appointments.store');
+            Route::get('/appointments/success', [App\Http\Controllers\AppointmentController::class, 'success'])->name('appointments.success');
             Route::get('/appointments/{appointment}', [App\Http\Controllers\AppointmentController::class, 'show'])->name('appointments.show');
             Route::patch('/appointments/{appointment}/cancel', [App\Http\Controllers\AppointmentController::class, 'cancel'])->name('appointments.cancel');
             Route::get('/appointments/slots', [App\Http\Controllers\AppointmentController::class, 'getAvailableSlots'])->name('appointments.slots');
-
-            // Cart routes
-            Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
 
             // Orders routes
             Route::get('/orders', [App\Http\Controllers\UserOrderController::class, 'index'])->name('user.orders.index');
             Route::get('/orders/{order}', [App\Http\Controllers\UserOrderController::class, 'show'])->name('user.orders.show');
             Route::delete('/orders/{order}', [App\Http\Controllers\UserOrderController::class, 'destroy'])->name('user.orders.destroy');
+            Route::post('/orders/{order}/initiate-payment', [App\Http\Controllers\UserOrderController::class, 'initiatePayment'])->name('user.orders.initiate-payment');
+            Route::post('/orders/{order}/check-payment', [App\Http\Controllers\UserOrderController::class, 'checkPaymentStatus'])->name('user.orders.check-payment');
 
             // Client Area routes
             Route::prefix('client')->name('client.')->group(function () {
@@ -127,14 +166,14 @@ Route::group(
         Route::get('/payment/cancel', function () {
             return view('payment.cancel');
         })->name('payment.cancel');
+
+        // Old Design selection routes (keep for backward compatibility)
+        Route::middleware(['auth'])->group(function () {
+            Route::get('/designs', [App\Http\Controllers\DesignController::class, 'index'])->name('designs.index');
+            Route::get('/designs/select-for-product/{product}', [App\Http\Controllers\DesignController::class, 'selectForProduct'])->name('designs.select-for-product');
+            Route::post('/designs/save-for-product/{product}', [App\Http\Controllers\DesignController::class, 'saveDesignsForProduct'])->name('designs.save-for-product');
+            Route::delete('/designs/remove-from-product/{product}/{design}', [App\Http\Controllers\DesignController::class, 'removeDesignFromProduct'])->name('designs.remove-from-product');
+            Route::post('/designs/sync-from-api', [App\Http\Controllers\DesignController::class, 'syncFromApi'])->name('designs.sync-from-api');
+        });
     }
 );
-
-// Design selection routes
-Route::middleware(['auth'])->group(function () {
-    Route::get('/designs', [App\Http\Controllers\DesignController::class, 'index'])->name('designs.index');
-    Route::get('/designs/select-for-product/{product}', [App\Http\Controllers\DesignController::class, 'selectForProduct'])->name('designs.select-for-product');
-    Route::post('/designs/save-for-product/{product}', [App\Http\Controllers\DesignController::class, 'saveDesignsForProduct'])->name('designs.save-for-product');
-    Route::delete('/designs/remove-from-product/{product}/{design}', [App\Http\Controllers\DesignController::class, 'removeDesignFromProduct'])->name('designs.remove-from-product');
-    Route::post('/designs/sync-from-api', [App\Http\Controllers\DesignController::class, 'syncFromApi'])->name('designs.sync-from-api');
-});

@@ -14,25 +14,6 @@
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         <!-- Breadcrumb -->
-                        <nav class="breadcrumb-nav" aria-label="Breadcrumb">
-                            <ol class="breadcrumb-list">
-                                <li class="breadcrumb-item">
-                                    <a href="{{ route('home') }}" class="breadcrumb-link">
-                                        <i class="fas fa-home"></i>
-                                        {{ trans('الرئيسية') }}
-                                    </a>
-                                </li>
-                                <li class="breadcrumb-item">
-                                    <a href="{{ route('client.index') }}" class="breadcrumb-link">
-                                        <i class="fas fa-user-circle"></i>
-                                        {{ trans('حسابي') }}
-                                    </a>
-                                </li>
-                                <li class="breadcrumb-item active" aria-current="page">
-                                    {{ trans('طلباتي') }}
-                                </li>
-                            </ol>
-                        </nav>
 
                         <h1 class="orders-title">{{ trans('طلباتي') }}</h1>
                         <p class="orders-subtitle">{{ trans('عرض وإدارة جميع طلباتك') }}</p>
@@ -117,88 +98,47 @@
                                 <div class="order-header">
                                     <div class="order-info">
                                         <div class="order-icon">
-                                            <i class="fas fa-shopping-bag"></i>
+                                            <i class="fas fa-receipt"></i>
                                         </div>
                                         <div class="order-details">
                                             <h5 class="order-title">{{ trans('طلب رقم') }} #{{ $order->order_number }}</h5>
                                             <p class="order-date">{{ $order->created_at->format('d/m/Y - H:i') }}</p>
+                                            <p class="order-total">{{ number_format($order->total, 2) }} {{ trans('ريال') }}</p>
                                         </div>
                                     </div>
-                                    <div class="order-status">
-                                        <span class="status-badge status-{{ $order->status }}">
-                                            @switch($order->status)
-                                                @case('pending')
-                                                    {{ trans('في الانتظار') }}
-                                                    @break
-                                                @case('confirmed')
-                                                    {{ trans('مؤكد') }}
-                                                    @break
-                                                @case('processing')
-                                                    {{ trans('قيد المعالجة') }}
-                                                    @break
-                                                @case('shipped')
-                                                    {{ trans('تم الشحن') }}
-                                                    @break
-                                                @case('delivered')
-                                                    {{ trans('تم التسليم') }}
-                                                    @break
-                                                @case('cancelled')
-                                                    {{ trans('ملغي') }}
-                                                    @break
-                                            @endswitch
-                                        </span>
-                                    </div>
+
                                 </div>
 
                                 <div class="order-content">
-                                    <!-- Order Items -->
-                                    <div class="order-items-section">
-                                        <h6 class="section-title">
-                                            <i class="fas fa-box me-2"></i>{{ trans('عناصر الطلب') }}
-                                        </h6>
-                                        <div class="items-list">
-                                            @foreach($order->items as $item)
-                                                <div class="item-card">
-                                                    <div class="item-image">
-                                                        @if($item->product->images && count($item->product->images) > 0)
-                                                            <img src="{{ Storage::url($item->product->images[0]) }}" alt="{{ $item->product->name }}">
-                                                        @else
-                                                            <div class="no-image">
-                                                                <i class="fas fa-image"></i>
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                    <div class="item-details">
-                                                        <h6 class="item-name">{{ $item->product->name }}</h6>
-                                                        <p class="item-quantity">{{ trans('الكمية') }}: {{ $item->quantity }}</p>
-                                                        <p class="item-price">{{ number_format($item->total_price, 2) }} {{ trans('ريال') }}</p>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-
-                                    <!-- Order Summary -->
-                                    <div class="order-summary">
-                                        <div class="summary-row">
-                                            <span>{{ trans('المجموع الفرعي') }}:</span>
-                                            <span>{{ number_format($order->subtotal, 2) }} {{ trans('ريال') }}</span>
-                                        </div>
-                                        <div class="summary-row">
-                                            <span>{{ trans('الضريبة') }}:</span>
-                                            <span>{{ number_format($order->tax, 2) }} {{ trans('ريال') }}</span>
-                                        </div>
-                                        <div class="summary-row total">
-                                            <span>{{ trans('المجموع الكلي') }}:</span>
-                                            <span>{{ number_format($order->total, 2) }} {{ trans('ريال') }}</span>
-                                        </div>
-                                    </div>
-
                                     <!-- Order Actions -->
                                     <div class="order-actions">
-                                        <a href="{{ route('client.order.details', $order->id) }}" class="btn-primary">
+                                        <a href="{{ route('user.orders.show', $order->id) }}" class="btn-primary">
                                             <i class="fas fa-eye me-2"></i>{{ trans('عرض التفاصيل') }}
                                         </a>
+                                        <div class="order-status">
+                                            <span class="status-badge status-{{ $order->status }}">
+                                                @switch($order->status)
+                                                    @case('pending')
+                                                        {{ trans('في الانتظار') }}
+                                                        @break
+                                                    @case('confirmed')
+                                                        {{ trans('مؤكد') }}
+                                                        @break
+                                                    @case('processing')
+                                                        {{ trans('قيد المعالجة') }}
+                                                        @break
+                                                    @case('shipped')
+                                                        {{ trans('تم الشحن') }}
+                                                        @break
+                                                    @case('delivered')
+                                                        {{ trans('تم التسليم') }}
+                                                        @break
+                                                    @case('cancelled')
+                                                        {{ trans('ملغي') }}
+                                                        @break
+                                                @endswitch
+                                            </span>
+                                        </div>
                                         @if($order->status === 'pending')
                                             <form action="{{ route('user.orders.destroy', $order) }}" method="POST" class="d-inline">
                                                 @csrf
@@ -398,35 +338,55 @@
         }
 
         .stat-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 222, 159, 0.2);
             overflow: hidden;
-            backdrop-filter: blur(10px);
-            padding: 2rem;
+            backdrop-filter: blur(20px);
+            padding: 2.5rem;
             display: flex;
             align-items: center;
-            gap: 1.5rem;
-            transition: all 0.3s ease;
+            gap: 1.75rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--brand-yellow) 0%, var(--brand-brown) 50%, var(--brand-yellow) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            transform: translateY(-6px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+            border-color: rgba(255, 222, 159, 0.4);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
         }
 
         .stat-icon {
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
             background: linear-gradient(135deg, var(--brand-yellow) 0%, var(--brand-yellow-dark) 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--brand-brown);
-            font-size: 1.5rem;
-            box-shadow: 0 4px 15px rgba(255, 222, 159, 0.3);
+            font-size: 1.6rem;
+            box-shadow: 0 6px 20px rgba(255, 222, 159, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
         }
 
         .stat-info {
@@ -435,16 +395,18 @@
         }
 
         .stat-number {
-            font-size: 2rem;
+            font-size: 2.25rem;
             font-weight: 900;
             color: var(--brand-brown);
             line-height: 1;
+            letter-spacing: -0.02em;
         }
 
         .stat-label {
-            color: #6c757d;
-            font-size: 0.9rem;
+            color: #64748b;
+            font-size: 0.95rem;
             font-weight: 600;
+            margin-top: 0.25rem;
         }
 
         /* Orders List */
@@ -455,27 +417,45 @@
         }
 
         .order-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 222, 159, 0.2);
             overflow: hidden;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
+            backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .order-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--brand-yellow) 0%, var(--brand-brown) 50%, var(--brand-yellow) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .order-card:hover {
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+            transform: translateY(-4px);
+            border-color: rgba(255, 222, 159, 0.4);
+        }
+
+        .order-card:hover::before {
+            opacity: 1;
         }
 
         .order-header {
-            background: linear-gradient(135deg, var(--brand-yellow-light) 0%, rgba(255, 222, 159, 0.1) 100%);
-            padding: 2rem;
+            padding: 2.5rem 2rem 2rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 222, 159, 0.3);
+            background: linear-gradient(135deg, rgba(255, 222, 159, 0.05) 0%, rgba(255, 222, 159, 0.02) 100%);
+            border-bottom: 1px solid rgba(255, 222, 159, 0.1);
         }
 
         .order-info {
@@ -485,16 +465,37 @@
         }
 
         .order-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--brand-yellow) 0%, var(--brand-yellow-dark) 100%);
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--brand-brown) 0%, var(--brand-brown-light) 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--brand-brown);
-            font-size: 1.25rem;
-            box-shadow: 0 4px 15px rgba(255, 222, 159, 0.3);
+            color: var(--brand-yellow);
+            font-size: 1.6rem;
+            box-shadow: 0 8px 25px rgba(42, 30, 30, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .order-icon::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--brand-yellow) 0%, var(--brand-brown) 100%);
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .order-card:hover .order-icon::before {
+            opacity: 0.3;
         }
 
         .order-details {
@@ -503,213 +504,188 @@
         }
 
         .order-title {
-            font-size: 1.25rem;
-            font-weight: 700;
+            font-size: 1.5rem;
+            font-weight: 800;
             color: var(--brand-brown);
-            margin: 0 0 0.25rem 0;
+            margin: 0 0 0.75rem 0;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
         }
 
         .order-date {
-            color: #6c757d;
-            font-size: 0.9rem;
+            color: #64748b;
+            font-size: 0.95rem;
+            margin: 0 0 1rem 0;
+            font-weight: 500;
+        }
+
+        .order-total {
+            color: var(--brand-brown);
+            font-size: 1.4rem;
+            font-weight: 800;
             margin: 0;
+            letter-spacing: -0.01em;
         }
 
         /* Status Badge */
         .status-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 600;
+            padding: 0.875rem 1.75rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .status-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .status-badge:hover::before {
+            left: 100%;
         }
 
         .status-pending {
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-            color: #856404;
-            border: 1px solid #ffeaa7;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+            border-color: #f59e0b;
         }
 
         .status-confirmed {
-            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
-            color: #0c5460;
-            border: 1px solid #bee5eb;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            border-color: #3b82f6;
         }
 
         .status-processing {
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border-color: #22c55e;
         }
 
         .status-shipped {
-            background: linear-gradient(135deg, #cce5ff 0%, #b3d9ff 100%);
-            color: #004085;
-            border: 1px solid #b3d9ff;
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            color: #3730a3;
+            border-color: #6366f1;
         }
 
         .status-delivered {
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border-color: #10b981;
         }
 
         .status-cancelled {
-            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            border-color: #ef4444;
         }
 
         /* Order Content */
         .order-content {
-            padding: 2rem;
+            padding: 2rem 2rem 2.5rem 2rem;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 222, 159, 0.1);
         }
 
-        .section-title {
-            color: var(--brand-brown);
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-        }
 
-        /* Items List */
-        .items-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
 
-        .item-card {
-            background: linear-gradient(135deg, rgba(255, 222, 159, 0.1) 0%, rgba(255, 222, 159, 0.05) 100%);
-            border-radius: 12px;
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            border: 1px solid rgba(255, 222, 159, 0.3);
-        }
-
-        .item-image {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .item-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .no-image {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--brand-yellow-light) 0%, rgba(255, 222, 159, 0.3) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--brand-brown);
-            font-size: 1.5rem;
-        }
-
-        .item-details {
-            flex: 1;
-        }
-
-        .item-name {
-            font-weight: 600;
-            color: var(--brand-brown);
-            margin: 0 0 0.25rem 0;
-            font-size: 1rem;
-        }
-
-        .item-quantity, .item-price {
-            color: #6c757d;
-            font-size: 0.875rem;
-            margin: 0;
-        }
-
-        /* Order Summary */
-        .order-summary {
-            background: linear-gradient(135deg, rgba(255, 222, 159, 0.1) 0%, rgba(255, 222, 159, 0.05) 100%);
-            border-radius: 12px;
-            padding: 1.5rem;
-            border: 1px solid rgba(255, 222, 159, 0.3);
-            margin-bottom: 2rem;
-        }
-
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-            font-size: 1rem;
-        }
-
-        .summary-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .summary-row.total {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--brand-brown);
-            padding-top: 0.75rem;
-            border-top: 1px solid rgba(255, 222, 159, 0.3);
-        }
 
         /* Order Actions */
         .order-actions {
             display: flex;
-            gap: 1rem;
+            gap: 6px;
             align-items: center;
         }
 
         .btn-primary, .btn-danger {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
+            padding: 1rem 2.25rem;
+            border-radius: 16px;
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 0.9rem;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
+            gap: 0.75rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             border: none;
             cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            position: relative;
+            overflow: hidden;
         }
 
         .btn-primary {
             background: linear-gradient(135deg, var(--brand-brown) 0%, var(--brand-brown-light) 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(42, 30, 30, 0.3);
+            box-shadow: 0 8px 25px rgba(42, 30, 30, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
         }
 
         .btn-primary:hover {
             background: linear-gradient(135deg, var(--brand-brown-light) 0%, var(--brand-brown) 100%);
             color: white;
             text-decoration: none;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(42, 30, 30, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(42, 30, 30, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .btn-danger {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-danger::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn-danger:hover::before {
+            left: 100%;
         }
 
         .btn-danger:hover {
-            background: linear-gradient(135deg, #c82333 0%, #dc3545 100%);
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
             color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(239, 68, 68, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         /* Pagination */
@@ -815,18 +791,35 @@
 
             .order-header {
                 flex-direction: column;
-                gap: 1rem;
+                gap: 1.5rem;
                 align-items: flex-start;
+                padding: 1.5rem;
             }
 
             .order-actions {
                 flex-direction: column;
-                gap: 0.75rem;
+                gap: 1rem;
             }
 
             .btn-primary, .btn-danger {
                 width: 100%;
                 justify-content: center;
+                padding: 1rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .order-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.25rem;
+            }
+
+            .order-title {
+                font-size: 1.2rem;
+            }
+
+            .order-total {
+                font-size: 1.1rem;
             }
         }
 
@@ -853,12 +846,24 @@
             }
 
             .order-content {
-                padding: 1.5rem;
+                padding: 1rem 1.5rem 1.5rem 1.5rem;
             }
 
-            .item-card {
-                flex-direction: column;
-                text-align: center;
+            .order-header {
+                padding: 1.25rem;
+            }
+
+            .order-title {
+                font-size: 1.1rem;
+            }
+
+            .order-total {
+                font-size: 1rem;
+            }
+
+            .status-badge {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
             }
         }
     </style>

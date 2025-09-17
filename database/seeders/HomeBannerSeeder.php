@@ -15,7 +15,7 @@ class HomeBannerSeeder extends Seeder
     {
         $banners = [
             [
-                'title' => 'Welcome to Velorena',
+                'title' => 'Welcome to Qaads',
                 'title_ar' => 'مرحباً بك في فيلورينا',
                 'description' => 'Discover our amazing collection of products and services',
                 'description_ar' => 'اكتشف مجموعتنا المذهلة من المنتجات والخدمات',

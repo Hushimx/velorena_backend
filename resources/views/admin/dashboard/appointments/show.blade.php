@@ -174,25 +174,6 @@
                             </div>
                         </div>
 
-                        <!-- Order Items -->
-                        @if($appointment->order->items->count() > 0)
-                            <div class="mt-6">
-                                <h4 class="font-semibold text-gray-900 mb-3">{{ __('admin.order_items') }}</h4>
-                                <div class="space-y-2">
-                                    @foreach($appointment->order->items as $item)
-                                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
-                                            <div>
-                                                <p class="font-medium text-gray-900">{{ $item->product->name }}</p>
-                                                <p class="text-sm text-gray-500">{{ __('admin.quantity') }}: {{ $item->quantity }}</p>
-                                            </div>
-                                            <div class="text-right">
-                                                <p class="font-medium text-gray-900">{{ number_format($item->price, 2) }} ر.س</p>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
 
                         <div class="mt-6">
                             <a href="{{ route('admin.orders.show', $appointment->order) }}" class="btn btn-primary w-full">
@@ -202,6 +183,99 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Order Items with Designs -->
+                @if($appointment->order->items && $appointment->order->items->count() > 0)
+                    <div class="card mt-6">
+                        <div class="card-header">
+                            <h3 class="text-lg font-semibold" style="color: var(--brand-brown);">{{ __('admin.order_items') }} ({{ $appointment->order->items->count() }})</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="space-y-4">
+                                @foreach($appointment->order->items as $item)
+                                    <div class="border border-gray-200 rounded-lg p-4">
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex-1">
+                                                <div class="flex items-center gap-3 mb-2">
+                                                    @if($item->product->image)
+                                                        <img src="{{ asset('storage/' . $item->product->image) }}" 
+                                                             alt="{{ $item->product->name }}" 
+                                                             class="w-12 h-12 object-cover rounded-lg">
+                                                    @else
+                                                        <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                                                            <i class="fas fa-image text-gray-400"></i>
+                                                        </div>
+                                                    @endif
+                                                    <div>
+                                                        <h4 class="font-semibold text-gray-900">{{ $item->product->name }}</h4>
+                                                        <p class="text-sm text-gray-600">{{ $item->quantity }}x {{ number_format($item->unit_price, 2) }} ر.س</p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Order Item Designs -->
+                                                @if($item->designs && $item->designs->count() > 0)
+                                                    <div class="mt-3">
+                                                        <div class="text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                                            <i class="fas fa-palette mr-1"></i>
+                                                            {{ __('admin.attached_designs') }}:
+                                                        </div>
+                                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                                            @foreach($item->designs as $orderItemDesign)
+                                                                @if($orderItemDesign->design)
+                                                                    <div class="flex items-center gap-2 bg-purple-50 px-3 py-2 rounded border-l-2 border-purple-300">
+                                                                        <div class="flex-shrink-0">
+                                                                            @if($orderItemDesign->design->thumbnail_url)
+                                                                                <img src="{{ $orderItemDesign->design->thumbnail_url }}" 
+                                                                                     alt="{{ $orderItemDesign->design->title }}" 
+                                                                                     class="w-10 h-10 rounded object-cover">
+                                                                            @else
+                                                                                <div class="w-10 h-10 bg-purple-200 rounded flex items-center justify-center">
+                                                                                    <i class="fas fa-image text-purple-600 text-sm"></i>
+                                                                                </div>
+                                                                            @endif
+                                                                        </div>
+                                                                        <div class="flex-1 min-w-0">
+                                                                            <p class="text-sm font-medium text-purple-800 truncate">
+                                                                                {{ $orderItemDesign->design->title }}
+                                                                            </p>
+                                                                            @if($orderItemDesign->notes)
+                                                                                <p class="text-xs text-purple-600 truncate">
+                                                                                    <i class="fas fa-sticky-note mr-1"></i>
+                                                                                    {{ $orderItemDesign->notes }}
+                                                                                </p>
+                                                                            @endif
+                                                                        </div>
+                                                                        @if($orderItemDesign->priority)
+                                                                            <div class="flex-shrink-0">
+                                                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                                                    #{{ $orderItemDesign->priority }}
+                                                                                </span>
+                                                                            </div>
+                                                                        @endif
+                                                                    </div>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <div class="mt-2">
+                                                        <span class="text-sm text-gray-500 italic">
+                                                            <i class="fas fa-palette mr-1"></i>
+                                                            {{ __('admin.no_designs_attached') }}
+                                                        </span>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-lg font-semibold text-gray-900">{{ number_format($item->total_price, 2) }} ر.س</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endif
             @else
                 <div class="card">
                     <div class="card-body text-center">

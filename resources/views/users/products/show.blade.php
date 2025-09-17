@@ -129,11 +129,8 @@
             direction: rtl;
         }
 
-        .product-options-section {
-            background: linear-gradient(135deg, var(--brand-yellow-light) 0%, var(--brand-yellow) 100%);
-            padding: 2rem;
-            display: flex;
-        }
+        /* Sticky behavior for product options on PC */
+   
 
         .options-container {
             width: 100%;
@@ -566,7 +563,18 @@
             align-items: center;
             justify-content: center;
             padding: 2rem;
-            height: 20%;
+            height: auto;
+            min-height: 500px;
+        }
+
+        /* Sticky behavior for PC */
+        @media (min-width: 992px) {
+            .product-image-section {
+                position: sticky;
+                top: 2rem;
+                height: calc(100vh - 4rem);
+                max-height: 800px;
+            }
         }
 
         .image-container {
@@ -574,13 +582,14 @@
             width: 100%;
             height: 100%;
             display: flex;
-            align-items: center;
             justify-content: center;
         }
 
         .product-image {
             max-width: 100%;
-            max-height: 80vh;
+            max-height: 100%;
+            width: 100%;
+            height: 100%;
             object-fit: contain;
             border-radius: 15px;
             transition: opacity 0.3s ease;
@@ -597,12 +606,20 @@
 
         .main-image-container {
             width: 100%;
-            height: 400px;
+            height: 500px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             border-radius: 15px;
+        }
+
+        /* Adjust height for sticky behavior on PC */
+        @media (min-width: 992px) {
+            .main-image-container {
+                height: calc(100vh - 8rem);
+                max-height: 600px;
+            }
         }
 
         .thumbnail-images {
@@ -613,8 +630,8 @@
         }
 
         .thumbnail-image {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             object-fit: cover;
             border-radius: 8px;
             cursor: pointer;
@@ -654,25 +671,11 @@
         }
 
         .image-navigation {
-            position: absolute;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 0.5rem;
+            display: none;
         }
 
         .nav-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        .nav-dot.active {
-            background: #fff;
+            display: none;
         }
 
 

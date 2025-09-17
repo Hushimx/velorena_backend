@@ -1,6 +1,6 @@
 # Design System API Documentation
 
-This document provides comprehensive documentation for the Design System API endpoints in the Velorena application.
+This document provides comprehensive documentation for the Design System API endpoints in the Qaads application.
 
 ## Table of Contents
 

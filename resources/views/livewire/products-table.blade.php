@@ -61,11 +61,27 @@
                         <tr class="hover:bg-gray-50" wire:key="product-row-{{ $product->id }}">
                             <td class="p-3 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    @if ($product->image && file_exists(public_path($product->image)))
-                                        <a href="{{ asset($product->image) }}" class="glightbox"
+                                    @php
+                                        $productImage = null;
+                                        // Try to get primary image first
+                                        $primaryImage = $product->images()->where('is_primary', true)->first();
+                                        if ($primaryImage && file_exists(public_path($primaryImage->image_path))) {
+                                            $productImage = $primaryImage->image_path;
+                                        } else {
+                                            // Fallback to first image
+                                            $firstImage = $product->images()->first();
+                                            if ($firstImage && file_exists(public_path($firstImage->image_path))) {
+                                                $productImage = $firstImage->image_path;
+                                            } elseif ($product->image && file_exists(public_path($product->image))) {
+                                                $productImage = $product->image;
+                                            }
+                                        }
+                                    @endphp
+                                    @if ($productImage)
+                                        <a href="{{ asset($productImage) }}" class="glightbox"
                                             data-gallery="product">
                                             <img class="h-20 w-20 rounded-lg object-cover mx-3"
-                                                src="{{ asset($product->image) }}" alt="{{ $product->name }}">
+                                                src="{{ asset($productImage) }}" alt="{{ $product->name }}">
                                         </a>
                                     @else
                                         <div

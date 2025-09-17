@@ -5,7 +5,7 @@ return [
     'documentations' => [
         'default' => [
             'api' => [
-                'title' => 'Velorena API Documentation',
+                'title' => 'Qaads API Documentation',
             ],
 
             'routes' => [
@@ -305,7 +305,7 @@ return [
          * Constants which can be used in annotations
          */
         'constants' => [
-            'L5_SWAGGER_CONST_HOST' => env('L5_SWAGGER_CONST_HOST', 'http://velorena_backend.test'),
+            'L5_SWAGGER_CONST_HOST' => env('L5_SWAGGER_CONST_HOST', 'http://Qaads_backend.test'),
         ],
     ],
 ];

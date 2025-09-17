@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Api;
 
 /**
  * @OA\Info(
- *     title="Velorena API",
+ *     title="Qaads API",
  *     version="1.0.0",
- *     description="API for Velorena Backend - Orders and Appointments Management",
+ *     description="API for Qaads Backend - Orders and Appointments Management",
  *     @OA\Contact(
- *         email="admin@velorena.com"
+ *         email="admin@Qaads.com"
  *     )
  * )
  */

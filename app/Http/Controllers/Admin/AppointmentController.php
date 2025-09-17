@@ -19,7 +19,7 @@ class AppointmentController extends Controller
 
     public function show(Appointment $appointment)
     {
-        $appointment->load(['user', 'designer', 'order', 'order.items.product']);
+        $appointment->load(['user', 'designer', 'order', 'order.items.product', 'order.items.designs.design']);
         return view('admin.dashboard.appointments.show', compact('appointment'));
     }
 
@@ -39,28 +39,32 @@ class AppointmentController extends Controller
             'designer_notes' => 'nullable|string',
         ]);
 
-        $data = $request->only(['status', 'appointment_date', 'appointment_time', 'notes', 'designer_notes']);
+        $data = $request->only(['appointment_date', 'appointment_time', 'notes', 'designer_notes']);
 
-        // Handle status transitions
-        switch ($request->status) {
-            case 'accepted':
-                if (!$appointment->accepted_at) {
-                    $data['accepted_at'] = now();
-                }
-                break;
-            case 'completed':
-                if (!$appointment->completed_at) {
-                    $data['completed_at'] = now();
-                }
-                break;
-            case 'cancelled':
-                if (!$appointment->cancelled_at) {
-                    $data['cancelled_at'] = now();
-                }
-                break;
+        // Handle status transitions with proper business logic
+        $currentStatus = $appointment->status;
+        $newStatus = $request->status;
+
+        if ($newStatus === 'accepted' && $currentStatus === 'pending') {
+            $appointment->accept($request->designer_notes);
+        } elseif ($newStatus === 'rejected' && $currentStatus === 'pending') {
+            $appointment->reject($request->designer_notes);
+        } elseif ($newStatus === 'completed' && $currentStatus === 'accepted') {
+            $appointment->complete();
+        } elseif ($newStatus === 'cancelled') {
+            $appointment->cancel();
+        } else {
+            // For other status changes, update directly
+            $data['status'] = $newStatus;
+            $appointment->update($data);
+            return redirect()->route('admin.appointments.show', $appointment)
+                ->with('success', __('admin.appointment_updated_success'));
         }
 
-        $appointment->update($data);
+        // Update other fields
+        if (!empty($data)) {
+            $appointment->update($data);
+        }
 
         return redirect()->route('admin.appointments.show', $appointment)
             ->with('success', __('admin.appointment_updated_success'));

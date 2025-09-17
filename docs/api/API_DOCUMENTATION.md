@@ -1,8 +1,8 @@
-# Velorena Backend API Documentation
+# Qaads Backend API Documentation
 
 ## Overview
 
-This document describes the API endpoints for the Velorena printing company backend, including:
+This document describes the API endpoints for the Qaads printing company backend, including:
 
 -   **Products and Categories API** - Managing products, categories, and product options
 -   **Design System API** - Browsing, managing, and integrating designs

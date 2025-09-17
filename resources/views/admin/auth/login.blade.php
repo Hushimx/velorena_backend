@@ -162,7 +162,7 @@
                     <div class="text-center">
                         <h1
                             class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-green-500 mb-2">
-                            {{ __('velorena') }}</h1>
+                            {{ __('Qaads') }}</h1>
                     </div>
                 </div>
                 <h2 class="mt-4 text-center text-2xl font-bold text-gray-900 tracking-tight">

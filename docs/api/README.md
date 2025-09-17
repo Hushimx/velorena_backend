@@ -1,6 +1,6 @@
 # API Documentation
 
-Welcome to the Velorena API documentation. This section contains all API-related documentation, guides, and best practices.
+Welcome to the Qaads API documentation. This section contains all API-related documentation, guides, and best practices.
 
 ## 📋 API Documentation Index
 

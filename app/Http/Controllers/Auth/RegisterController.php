@@ -39,7 +39,7 @@ class RegisterController extends Controller
      */
     protected function registered($request, $user)
     {
-        return redirect($this->redirectTo)->with('status', __('Account created successfully! Welcome to velorena.'));
+        return redirect($this->redirectTo)->with('status', __('Account created successfully! Welcome to Qaads.'));
     }
 
     /**
@@ -60,11 +60,30 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
+        $rules = [
+            'client_type' => 'required|in:individual,company',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+            'city' => 'nullable|string|max:100',
+            'vat_number' => 'nullable|string|max:50',
+            'cr_number' => 'nullable|string|max:50',
+            'notes' => 'nullable|string|max:1000',
+            'password' => 'required|string|min:8|confirmed',
+        ];
+
+        // Conditional validation based on client type
+        if (isset($data['client_type']) && $data['client_type'] === 'individual') {
+            $rules['full_name'] = 'required|string|max:255';
+            $rules['company_name'] = 'nullable|string|max:255';
+            $rules['contact_person'] = 'nullable|string|max:255';
+        } else {
+            $rules['company_name'] = 'required|string|max:255';
+            $rules['contact_person'] = 'required|string|max:255';
+            $rules['full_name'] = 'nullable|string|max:255';
+        }
+
+        return Validator::make($data, $rules);
     }
 
     /**
@@ -76,8 +95,17 @@ class RegisterController extends Controller
     protected function create(array $data)
     {
         return User::create([
-            'name' => $data['name'],
+            'client_type' => $data['client_type'],
+            'full_name' => $data['full_name'] ?? null,
+            'company_name' => $data['company_name'] ?? null,
+            'contact_person' => $data['contact_person'] ?? null,
             'email' => $data['email'],
+            'phone' => $data['phone'] ?? null,
+            'address' => $data['address'] ?? null,
+            'city' => $data['city'] ?? null,
+            'vat_number' => $data['vat_number'] ?? null,
+            'cr_number' => $data['cr_number'] ?? null,
+            'notes' => $data['notes'] ?? null,
             'password' => Hash::make($data['password']),
         ]);
     }

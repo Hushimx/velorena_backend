@@ -14,24 +14,6 @@
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         <!-- Breadcrumb -->
-                        <nav class="breadcrumb-nav" aria-label="Breadcrumb">
-                            <ol class="breadcrumb-list">
-                                <li class="breadcrumb-item">
-                                    <a href="{{ route('home') }}" class="breadcrumb-link">
-                                        <i class="fas fa-home"></i>
-                                        {{ trans('dashboard.dashboard') }}
-                                    </a>
-                                </li>
-                                <li class="breadcrumb-item">
-                                    <a href="{{ route('user.orders.index') }}" class="breadcrumb-link">
-                                        {{ trans('orders.my_orders') }}
-                                    </a>
-                                </li>
-                                <li class="breadcrumb-item active" aria-current="page">
-                                    {{ $order->order_number }}
-                                </li>
-                            </ol>
-                        </nav>
 
                         <h1 class="order-show-title">{{ trans('orders.order_details') }}</h1>
                         <p class="order-show-subtitle">{{ $order->order_number }} - {{ trans('orders.order_date') }}:
@@ -153,6 +135,13 @@
                                 </div>
 
                                 <div class="summary-item">
+                                    <span class="summary-label">{{ trans('orders.payment_status') }}:</span>
+                                    <span class="summary-payment-status {{ $order->getPaymentStatus() }}">
+                                        {{ trans('orders.' . $order->getPaymentStatus()) }}
+                                    </span>
+                                </div>
+
+                                <div class="summary-item">
                                     <span class="summary-label">{{ trans('orders.items_count') }}:</span>
                                     <span class="summary-value">{{ $order->items->count() }}</span>
                                 </div>
@@ -176,6 +165,39 @@
                                             {{ trans('orders.currency') }}</span>
                                     </div>
                                 </div>
+
+                                <!-- Payment Action Button -->
+                                @if($order->canMakePayment())
+                                    <div class="payment-action-section">
+                                        <form action="{{ route('user.orders.initiate-payment', $order) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="pay-btn">
+                                                <i class="fas fa-credit-card"></i>
+                                                <span>{{ trans('orders.pay_now') }}</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                @elseif($order->isPaid())
+                                    <div class="payment-status-section">
+                                        <div class="payment-completed-badge">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span>{{ trans('orders.payment_processed') }}</span>
+                                        </div>
+                                    </div>
+                                @elseif($order->payments()->exists())
+                                    <div class="payment-action-section">
+                                        <form action="{{ route('user.orders.check-payment', $order) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="check-payment-btn">
+                                                <i class="fas fa-sync-alt"></i>
+                                                <span>{{ trans('orders.check_payment_status') }}</span>
+                                            </button>
+                                        </form>
+                                        <small class="text-muted d-block mt-2">
+                                            {{ trans('orders.payment_status_help') }}
+                                        </small>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -203,10 +225,10 @@
     <x-footer />
 
     <style>
-        /* Order Show Page Styles - Based on Product Show Page Design */
+        /* Order Show Page Styles - Professional Theme */
         .order-show-page {
             font-family: 'Cairo', sans-serif;
-            background: linear-gradient(180deg, #FFEBC6 0%, #FFFFFF 100%);
+            background: linear-gradient(180deg, var(--brand-yellow-light) 0%, #FFFFFF 100%);
             min-height: calc(100vh - 96px);
             direction: rtl;
             padding-top: 0;
@@ -214,8 +236,8 @@
 
         /* Header Styles */
         .order-show-header {
-            background: linear-gradient(135deg, #2C2C2C 0%, #404040 100%);
-            color: #FFEBC6;
+            background: linear-gradient(135deg, var(--brand-brown) 0%, var(--brand-brown-light) 100%);
+            color: var(--brand-yellow);
             padding: 3rem 0;
             margin-bottom: 2rem;
             position: relative;
@@ -226,21 +248,17 @@
             content: '';
             position: absolute;
             top: -50%;
-            right: -50%;
+            left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255, 235, 198, 0.1) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="%23ffde9f" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+            animation: float 20s ease-in-out infinite;
         }
 
-        @keyframes rotate {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
+        @keyframes float {
+            0%, 100% { transform: translateX(0px) translateY(0px) rotate(0deg); }
+            33% { transform: translateX(30px) translateY(-30px) rotate(120deg); }
+            66% { transform: translateX(-20px) translateY(20px) rotate(240deg); }
         }
 
         /* Breadcrumb */
@@ -270,7 +288,7 @@
         }
 
         .breadcrumb-link {
-            color: #FFEBC6;
+            color: var(--brand-yellow);
             text-decoration: none;
             font-size: 0.9rem;
             transition: color 0.3s ease;
@@ -280,11 +298,11 @@
         }
 
         .breadcrumb-link:hover {
-            color: #FFD700;
+            color: #fff;
         }
 
         .breadcrumb-item.active {
-            color: #FFEBC6;
+            color: var(--brand-yellow);
             opacity: 0.8;
             font-size: 0.9rem;
         }
@@ -293,7 +311,7 @@
             font-family: 'Cairo', cursive;
             font-size: 3.5rem;
             font-weight: 700;
-            color: #FFEBC6;
+            color: var(--brand-yellow);
             margin-bottom: 1rem;
             animation: fadeInUp 0.8s ease forwards;
             position: relative;
@@ -302,7 +320,7 @@
 
         .order-show-subtitle {
             font-size: 1.2rem;
-            color: #FFEBC6;
+            color: rgba(255, 255, 255, 0.9);
             opacity: 0.9;
             animation: fadeInUp 0.8s ease 0.2s forwards;
             opacity: 0;
@@ -312,11 +330,11 @@
 
         /* Back Button */
         .back-btn {
-            background: #FFEBC6;
-            color: #2C2C2C;
+            background: linear-gradient(135deg, var(--brand-yellow) 0%, var(--brand-yellow-dark) 100%);
+            color: var(--brand-brown);
             border: none;
             padding: 0.75rem 1.5rem;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 600;
             cursor: pointer;
             display: inline-flex;
@@ -326,16 +344,16 @@
             text-decoration: none;
             font-family: 'Cairo', cursive;
             font-size: 1.1rem;
-            box-shadow: 0 4px 15px rgba(255, 235, 198, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 222, 159, 0.3);
             position: relative;
             z-index: 1;
         }
 
         .back-btn:hover {
-            background: #FFD700;
+            background: linear-gradient(135deg, var(--brand-yellow-dark) 0%, var(--brand-yellow) 100%);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 235, 198, 0.4);
-            color: #2C2C2C;
+            box-shadow: 0 6px 20px rgba(255, 222, 159, 0.4);
+            color: var(--brand-brown);
         }
 
         /* Order Details Section */
@@ -345,19 +363,38 @@
 
         /* Order Info Card */
         .order-info-card {
-            background: #fff;
-            border: 2px solid transparent;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            padding: 2rem;
+            background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+            border: 1px solid rgba(255, 222, 159, 0.2);
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 2.5rem;
             height: 100%;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        .order-info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--brand-yellow) 0%, var(--brand-brown) 50%, var(--brand-yellow) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .order-info-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            border-color: #c4a700;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+            border-color: rgba(255, 222, 159, 0.4);
+        }
+
+        .order-info-card:hover::before {
+            opacity: 1;
         }
 
         .order-info-content {
@@ -376,59 +413,63 @@
         }
 
         .order-number-badge {
-            background: linear-gradient(135deg, #FFEBC6 0%, #FFD700 100%);
-            color: #2C2C2C;
-            border: 1px solid #c4a700;
+            background: linear-gradient(135deg, var(--brand-yellow) 0%, var(--brand-yellow-dark) 100%);
+            color: var(--brand-brown);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             font-weight: 700;
             font-size: 1.5rem;
             padding: 0.75rem 1.5rem;
             border-radius: 20px;
             display: inline-block;
             font-family: 'Cairo', cursive;
+            box-shadow: 0 4px 15px rgba(255, 222, 159, 0.3);
         }
 
         .order-status-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            border: 2px solid;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
         .order-status-badge.pending {
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-            color: #856404;
-            border-color: #ffc107;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+            border-color: #f59e0b;
         }
 
         .order-status-badge.confirmed {
-            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
-            color: #0c5460;
-            border-color: #17a2b8;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            border-color: #3b82f6;
         }
 
         .order-status-badge.processing {
-            background: linear-gradient(135deg, #e2e3f0 0%, #c7c9e8 100%);
-            color: #383d61;
-            border-color: #6f42c1;
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border-color: #22c55e;
         }
 
         .order-status-badge.shipped {
-            background: linear-gradient(135deg, #cce5ff 0%, #99d6ff 100%);
-            color: #004085;
-            border-color: #007bff;
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            color: #3730a3;
+            border-color: #6366f1;
         }
 
         .order-status-badge.delivered {
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            color: #155724;
-            border-color: #28a745;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border-color: #10b981;
         }
 
         .order-status-badge.cancelled {
-            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-            color: #721c24;
-            border-color: #dc3545;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            border-color: #ef4444;
         }
 
         /* Order Details Grid */
@@ -553,21 +594,39 @@
 
         /* Order Summary Card */
         .order-summary-card {
-            background: #fff;
-            border: 2px solid transparent;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            padding: 2rem;
+            background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+            border: 1px solid rgba(255, 222, 159, 0.2);
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 2.5rem;
             height: fit-content;
             position: sticky;
             top: 2rem;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        .order-summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--brand-yellow) 0%, var(--brand-brown) 50%, var(--brand-yellow) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .order-summary-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            border-color: #c4a700;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+            border-color: rgba(255, 222, 159, 0.4);
+        }
+
+        .order-summary-card:hover::before {
+            opacity: 1;
         }
 
         .order-summary-content {
@@ -647,6 +706,27 @@
             border-color: #dc3545;
         }
 
+        /* Payment Status Styles */
+        .summary-payment-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid;
+        }
+
+        .summary-payment-status.paid {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border-color: #28a745;
+        }
+
+        .summary-payment-status.unpaid {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #856404;
+            border-color: #ffc107;
+        }
+
         .summary-total {
             border-top: 2px solid #e5e7eb;
             margin-top: 1rem;
@@ -660,21 +740,126 @@
             font-weight: 700;
         }
 
+        /* Payment Action Styles */
+        .payment-action-section {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .pay-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-family: 'Cairo', cursive;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            width: 100%;
+            justify-content: center;
+        }
+
+        .pay-btn:hover {
+            background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+            color: white;
+        }
+
+        .pay-btn:active {
+            transform: translateY(0);
+        }
+
+        .check-payment-btn {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-family: 'Cairo', cursive;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .check-payment-btn:hover {
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+        }
+
+        .payment-status-section {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .payment-completed-badge {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border: 2px solid #28a745;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            justify-content: center;
+            font-family: 'Cairo', cursive;
+        }
+
+        .payment-completed-badge i {
+            font-size: 1.2rem;
+        }
+
         /* Order Items Card */
         .order-items-card {
-            background: #fff;
-            border: 2px solid transparent;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            padding: 2rem;
+            background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+            border: 1px solid rgba(255, 222, 159, 0.2);
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 2.5rem;
             margin-top: 2rem;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        .order-items-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--brand-yellow) 0%, var(--brand-brown) 50%, var(--brand-yellow) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .order-items-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            border-color: #c4a700;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+            border-color: rgba(255, 222, 159, 0.4);
+        }
+
+        .order-items-card:hover::before {
+            opacity: 1;
         }
 
         .order-items-content {

@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\ProductDesign;
+use App\Models\CartDesign;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderItemDesign;
@@ -30,23 +31,25 @@ class ShoppingCart extends Component
         'notes' => ''
     ];
 
-    // Design modal properties
-    public $showDesignModal = false;
-    public $currentProductId = null;
-    public $currentProduct = null;
-    public $selectedDesignsForModal = [];
-    public $designNotesForModal = [];
+    // Cart Design properties
+    public $showCartDesignModal = false;
+    public $cartDesigns = [];
+    public $showDesignSelector = false;
+
+    // Login modal properties
+    public $showLoginModal = false;
 
     protected $listeners = [
         'cartUpdated' => 'loadCart',
-        'design-added' => 'handleDesignAdded',
-        'design-removed' => 'handleDesignRemoved',
-        'design-note-updated' => 'handleDesignNoteUpdated'
+        'save-cart-design' => 'saveCartDesign',
+        'close-cart-design-modal' => 'closeCartDesignModal',
+        'close-modal' => 'closeLoginModal'
     ];
 
     public function mount()
     {
         $this->loadCart();
+        $this->loadCartDesigns();
     }
 
     public function loadCart()
@@ -218,7 +221,7 @@ class ShoppingCart extends Component
     public function showCheckout()
     {
         if (!Auth::check()) {
-            session()->flash('error', 'Please login to create an order');
+            $this->showLoginModal = true;
             return;
         }
 
@@ -245,7 +248,7 @@ class ShoppingCart extends Component
     public function createOrder()
     {
         if (!Auth::check()) {
-            session()->flash('error', 'Please login to create an order');
+            $this->showLoginModal = true;
             return;
         }
 
@@ -311,6 +314,9 @@ class ShoppingCart extends Component
 
             // Clear cart after successful order creation
             CartItem::where('user_id', $user->id)->delete();
+            
+            // Clear cart designs after successful order creation
+            CartDesign::where('user_id', $user->id)->delete();
 
             DB::commit();
 
@@ -328,7 +334,7 @@ class ShoppingCart extends Component
     public function createOrderDirectly()
     {
         if (!Auth::check()) {
-            session()->flash('error', 'Please login to create an order');
+            $this->showLoginModal = true;
             return;
         }
 
@@ -388,6 +394,9 @@ class ShoppingCart extends Component
 
             // Clear cart after successful order creation
             CartItem::where('user_id', $user->id)->delete();
+            
+            // Clear cart designs after successful order creation
+            CartDesign::where('user_id', $user->id)->delete();
 
             DB::commit();
 
@@ -407,19 +416,49 @@ class ShoppingCart extends Component
     public function removeDesignFromProduct($productId, $designId)
     {
         if (!Auth::check()) {
+            session()->flash('error', 'يجب تسجيل الدخول لحذف التصاميم');
             return;
         }
 
-        $user = Auth::user();
-        $productDesign = ProductDesign::where('user_id', $user->id)
-            ->where('product_id', $productId)
-            ->where('design_id', $designId)
-            ->first();
+        try {
+            $user = Auth::user();
+            $productDesign = ProductDesign::where('user_id', $user->id)
+                ->where('product_id', $productId)
+                ->where('design_id', $designId)
+                ->first();
 
-        if ($productDesign) {
-            $productDesign->delete();
-            $this->loadCart();
-            $this->dispatch('cartUpdated');
+            if ($productDesign) {
+                $design = $productDesign->design;
+                $designTitle = $design ? $design->title : 'تصميم غير معروف';
+                $productDesign->delete();
+                
+                $this->loadCart();
+                $this->dispatch('cartUpdated');
+                
+                session()->flash('success', "تم حذف التصميم '{$designTitle}' من المنتج بنجاح!");
+                
+                Log::info('Design removed from product successfully', [
+                    'product_id' => $productId,
+                    'design_id' => $designId,
+                    'design_title' => $designTitle,
+                    'user_id' => $user->id
+                ]);
+            } else {
+                session()->flash('error', 'التصميم غير موجود في هذا المنتج');
+                Log::warning('Attempted to remove non-existent design from product', [
+                    'product_id' => $productId,
+                    'design_id' => $designId,
+                    'user_id' => $user->id
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to remove design from product', [
+                'error' => $e->getMessage(),
+                'product_id' => $productId,
+                'design_id' => $designId,
+                'user_id' => Auth::id()
+            ]);
+            session()->flash('error', 'فشل في حذف التصميم من المنتج: ' . $e->getMessage());
         }
     }
 
@@ -431,7 +470,7 @@ class ShoppingCart extends Component
     public function bookAppointment()
     {
         if (!Auth::check()) {
-            session()->flash('error', 'Please login to book an appointment');
+            $this->showLoginModal = true;
             return;
         }
 
@@ -440,22 +479,14 @@ class ShoppingCart extends Component
             return;
         }
 
-        // First create an order from the cart
-        $order = $this->createOrderFromCart();
-
-        if ($order) {
-            // Redirect to appointment booking page with the created order ID
-            return redirect()->route('appointments.create', ['order_id' => $order->id]);
-        } else {
-            session()->flash('error', 'Failed to create order. Please try again.');
-            return;
-        }
+        // Redirect directly to appointment booking page without creating an order
+        return redirect()->route('appointments.create');
     }
 
     public function createOrderFromCart()
     {
         if (!Auth::check()) {
-            session()->flash('error', 'Please login to create an order');
+            $this->showLoginModal = true;
             return;
         }
 
@@ -514,6 +545,9 @@ class ShoppingCart extends Component
 
             // Clear cart after successful order creation
             CartItem::where('user_id', $user->id)->delete();
+            
+            // Clear cart designs after successful order creation
+            CartDesign::where('user_id', $user->id)->delete();
 
             DB::commit();
 
@@ -530,122 +564,275 @@ class ShoppingCart extends Component
         }
     }
 
-    public function openDesignModal($productId)
+    // Old product design methods removed - now using cart-wide designs
+
+    // Cart Design Methods
+    public function loadCartDesigns()
     {
-        if (!Auth::check()) {
-            return;
+        if (Auth::check()) {
+            // Use a more efficient query structure to avoid memory issues
+            $this->cartDesigns = CartDesign::where('user_id', Auth::id())
+                ->where('is_active', true)
+                ->orderBy('created_at', 'desc')
+                ->limit(50) // Limit to prevent memory issues
+                ->get()
+                ->toArray();
+        } else {
+            // For testing, get all guest designs for now
+            // In production, this should use session ID
+            $sessionId = session()->getId();
+            $this->cartDesigns = CartDesign::whereNull('user_id')
+                ->where('is_active', true)
+                ->orderBy('created_at', 'desc')
+                ->limit(50) // Limit to prevent memory issues
+                ->get()
+                ->toArray();
         }
-
-        $this->currentProductId = $productId;
-        $this->currentProduct = \App\Models\Product::find($productId);
-
-        if (!$this->currentProduct) {
-            session()->flash('error', 'Product not found');
-            return;
-        }
-
-        // Load existing designs for this product
-        $user = Auth::user();
-        $existingDesigns = ProductDesign::where('user_id', $user->id)
-            ->where('product_id', $productId)
-            ->get();
-
-        $this->selectedDesignsForModal = $existingDesigns->pluck('design_id')->toArray();
-        $this->designNotesForModal = $existingDesigns->pluck('notes', 'design_id')->toArray();
-
-        $this->showDesignModal = true;
-    }
-
-    public function closeDesignModal()
-    {
-        $this->showDesignModal = false;
-        $this->currentProductId = null;
-        $this->currentProduct = null;
-        $this->selectedDesignsForModal = [];
-        $this->designNotesForModal = [];
-    }
-
-    public function handleDesignAdded($designId, $notes = '')
-    {
-        if (!in_array($designId, $this->selectedDesignsForModal)) {
-            $this->selectedDesignsForModal[] = $designId;
-        }
-        $this->designNotesForModal[$designId] = $notes;
-
-        \Log::info('Design added to modal', [
-            'designId' => $designId,
-            'notes' => $notes,
-            'currentSelection' => $this->selectedDesignsForModal
+        
+        Log::info('Loaded cart designs', [
+            'count' => count($this->cartDesigns),
+            'user_id' => Auth::check() ? Auth::id() : null,
+            'session_id' => session()->getId()
         ]);
     }
 
-    public function handleDesignRemoved($designId)
+    public function openCartDesignModal()
     {
-        $this->selectedDesignsForModal = array_diff($this->selectedDesignsForModal, [$designId]);
-        unset($this->designNotesForModal[$designId]);
-
-        \Log::info('Design removed from modal', [
-            'designId' => $designId,
-            'currentSelection' => $this->selectedDesignsForModal
-        ]);
+        $this->showCartDesignModal = true;
+        $this->showDesignSelector = true;
+        
+        // Emit event for JavaScript to initialize the design studio
+        $this->dispatch('design-modal-opened');
     }
 
-    public function handleDesignNoteUpdated($designId, $notes)
+    public function closeCartDesignModal()
     {
-        $this->designNotesForModal[$designId] = $notes;
-
-        \Log::info('Design note updated', [
-            'designId' => $designId,
-            'notes' => $notes
-        ]);
+        $this->showCartDesignModal = false;
+        $this->showDesignSelector = false;
     }
 
-    public function saveSelectedDesigns()
+    public function saveCartDesign($data)
     {
-        if (!Auth::check() || !$this->currentProductId) {
-            session()->flash('error', 'Not authenticated or no product selected');
-            return;
-        }
-
-        // Debug: Check what we're trying to save
-        \Log::info('saveSelectedDesigns called', [
-            'currentProductId' => $this->currentProductId,
-            'selectedDesignsForModal' => $this->selectedDesignsForModal,
-            'designNotesForModal' => $this->designNotesForModal
-        ]);
-
-        $user = Auth::user();
-
         try {
-            DB::beginTransaction();
+            Log::info('saveCartDesign called', ['data' => $data]);
+            
+            $title = $data['title'] ?? 'My Design';
+            $designData = $data['designData'] ?? [];
+            $imageUrl = $data['imageUrl'] ?? null;
+            
+            Log::info('Processing cart design save', [
+                'title' => $title,
+                'has_design_data' => !empty($designData),
+                'has_image_url' => !empty($imageUrl),
+                'user_id' => Auth::check() ? Auth::id() : null,
+                'session_id' => Auth::check() ? null : session()->getId()
+            ]);
+            
+            // Check for duplicate designs (same title and image URL within last 5 minutes)
+            $userId = Auth::check() ? Auth::id() : null;
+            $sessionId = Auth::check() ? null : session()->getId();
+            
+            $recentDuplicate = CartDesign::where('title', $title)
+                ->where('image_url', $imageUrl)
+                ->where('is_active', true)
+                ->where(function($query) use ($userId, $sessionId) {
+                    if ($userId) {
+                        $query->where('user_id', $userId);
+                    } else {
+                        $query->where('session_id', $sessionId);
+                    }
+                })
+                ->where('created_at', '>=', now()->subMinutes(5))
+                ->first();
+            
+            if ($recentDuplicate) {
+                Log::info('Duplicate design detected, skipping save', [
+                    'existing_id' => $recentDuplicate->id,
+                    'title' => $title
+                ]);
+                session()->flash('info', 'تم حفظ التصميم مسبقاً!');
+                $this->closeCartDesignModal();
+                return;
+            }
+            
+            // Create thumbnail (smaller version)
+            $thumbnailUrl = $imageUrl; // For now, use same image
+            
+            $cartDesign = CartDesign::create([
+                'user_id' => $userId,
+                'session_id' => $sessionId,
+                'title' => $title,
+                'design_data' => $designData,
+                'image_url' => $imageUrl,
+                'thumbnail_url' => $thumbnailUrl,
+                'is_active' => true
+            ]);
 
-            // Remove existing designs for this product
-            ProductDesign::where('user_id', $user->id)
-                ->where('product_id', $this->currentProductId)
-                ->delete();
+            Log::info('Cart design saved successfully', ['design_id' => $cartDesign->id]);
 
-            // Add new designs
-            foreach ($this->selectedDesignsForModal as $index => $designId) {
-                ProductDesign::create([
-                    'user_id' => $user->id,
-                    'product_id' => $this->currentProductId,
+            $this->loadCartDesigns();
+            $this->closeCartDesignModal();
+            
+            session()->flash('success', 'تم حفظ التصميم بنجاح!');
+            
+        } catch (\Exception $e) {
+            Log::error('Failed to save cart design', [
+                'error' => $e->getMessage(),
+                'data' => $data
+            ]);
+            session()->flash('error', 'فشل في حفظ التصميم: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteCartDesign($designId)
+    {
+        try {
+            $query = CartDesign::where('id', $designId);
+            
+            if (Auth::check()) {
+                $query->where('user_id', Auth::id());
+            } else {
+                $query->where('session_id', session()->getId());
+            }
+            
+            $design = $query->first();
+            
+            if ($design) {
+                $designTitle = $design->title;
+                $design->delete();
+                $this->loadCartDesigns();
+                $this->dispatch('cartUpdated');
+                session()->flash('success', "تم حذف التصميم '{$designTitle}' بنجاح!");
+                
+                Log::info('Cart design deleted successfully', [
                     'design_id' => $designId,
-                    'notes' => $this->designNotesForModal[$designId] ?? '',
-                    'priority' => $index + 1
+                    'design_title' => $designTitle,
+                    'user_id' => Auth::check() ? Auth::id() : null
+                ]);
+            } else {
+                session()->flash('error', 'التصميم غير موجود أو لا يمكن حذفه');
+                Log::warning('Attempted to delete non-existent cart design', [
+                    'design_id' => $designId,
+                    'user_id' => Auth::check() ? Auth::id() : null
                 ]);
             }
-
-            DB::commit();
-
-            $this->closeDesignModal();
-            $this->loadCart();
-            $this->dispatch('cartUpdated');
-
-            session()->flash('success', 'Designs saved successfully! ' . count($this->selectedDesignsForModal) . ' designs saved.');
+            
         } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Failed to save designs', ['error' => $e->getMessage()]);
-            session()->flash('error', 'Failed to save designs: ' . $e->getMessage());
+            Log::error('Failed to delete cart design', [
+                'error' => $e->getMessage(),
+                'design_id' => $designId,
+                'user_id' => Auth::check() ? Auth::id() : null
+            ]);
+            session()->flash('error', 'فشل في حذف التصميم: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete multiple cart designs at once
+     */
+    public function deleteMultipleCartDesigns($designIds)
+    {
+        if (!is_array($designIds)) {
+            $designIds = [$designIds];
+        }
+
+        try {
+            $deletedCount = 0;
+            $deletedTitles = [];
+
+            foreach ($designIds as $designId) {
+                $query = CartDesign::where('id', $designId);
+                
+                if (Auth::check()) {
+                    $query->where('user_id', Auth::id());
+                } else {
+                    $query->where('session_id', session()->getId());
+                }
+                
+                $design = $query->first();
+                
+                if ($design) {
+                    $deletedTitles[] = $design->title;
+                    $design->delete();
+                    $deletedCount++;
+                }
+            }
+
+            if ($deletedCount > 0) {
+                $this->loadCartDesigns();
+                $this->dispatch('cartUpdated');
+                session()->flash('success', "تم حذف {$deletedCount} تصميم بنجاح!");
+                
+                Log::info('Multiple cart designs deleted successfully', [
+                    'deleted_count' => $deletedCount,
+                    'design_ids' => $designIds,
+                    'deleted_titles' => $deletedTitles,
+                    'user_id' => Auth::check() ? Auth::id() : null
+                ]);
+            } else {
+                session()->flash('error', 'لم يتم العثور على تصاميم للحذف');
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('Failed to delete multiple cart designs', [
+                'error' => $e->getMessage(),
+                'design_ids' => $designIds,
+                'user_id' => Auth::check() ? Auth::id() : null
+            ]);
+            session()->flash('error', 'فشل في حذف التصاميم: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Clear all cart designs for the current user
+     */
+    public function clearAllCartDesigns()
+    {
+        try {
+            $query = CartDesign::where('is_active', true);
+            
+            if (Auth::check()) {
+                $query->where('user_id', Auth::id());
+            } else {
+                $query->where('session_id', session()->getId());
+            }
+            
+            $designs = $query->get();
+            $count = $designs->count();
+            
+            if ($count > 0) {
+                $query->delete();
+                $this->loadCartDesigns();
+                $this->dispatch('cartUpdated');
+                session()->flash('success', "تم حذف جميع التصاميم ({$count} تصميم) بنجاح!");
+                
+                Log::info('All cart designs cleared successfully', [
+                    'deleted_count' => $count,
+                    'user_id' => Auth::check() ? Auth::id() : null
+                ]);
+            } else {
+                session()->flash('info', 'لا توجد تصاميم للحذف');
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('Failed to clear all cart designs', [
+                'error' => $e->getMessage(),
+                'user_id' => Auth::check() ? Auth::id() : null
+            ]);
+            session()->flash('error', 'فشل في حذف جميع التصاميم: ' . $e->getMessage());
+        }
+    }
+
+    public function closeLoginModal()
+    {
+        $this->showLoginModal = false;
+    }
+
+    public function updatedShowLoginModal()
+    {
+        // When the modal is closed, reload the cart in case user logged in
+        if (!$this->showLoginModal && Auth::check()) {
+            $this->loadCart();
         }
     }
 

@@ -137,7 +137,7 @@
                 z-index: 40;
                 opacity: 0;
                 visibility: hidden;
-                transition: all 0.3s ease-in-out;
+            transition: all 0.3s ease-in-out;
             }
             .sidebar-overlay.active {
                 opacity: 1;
@@ -337,7 +337,7 @@
                     </button>
                     <h1 class="text-xl font-bold text-white">@yield('title', __('marketer.marketer_panel'))</h1>
                     <div class="flex items-center relative gap-4">
-                        <!-- Language Switcher -->
+                            <!-- Language Switcher -->
                         @include('admin.layouts.includes.lang-switcher')
                         <div class="relative ml-3">
                             <button id="profileDropdown" class="flex items-center focus:outline-none" onclick="toggleProfileDropdown()">
@@ -368,25 +368,25 @@
             <!-- Page Content -->
             <main class="flex-1 overflow-x-hidden overflow-y-auto p-4 lg:p-8 pb-24 lg:pb-32">
                 <div class="animate-fade-in">
-                    @if(session('success'))
-                        <div class="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 text-green-700 rounded-xl shadow-lg">
-                            <div class="flex items-center">
-                                <i class="fas fa-check-circle text-green-500 ml-3"></i>
-                                {{ session('success') }}
-                            </div>
+                @if(session('success'))
+                    <div class="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 text-green-700 rounded-xl shadow-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 ml-3"></i>
+                            {{ session('success') }}
                         </div>
-                    @endif
+                    </div>
+                @endif
 
-                    @if(session('error'))
-                        <div class="mb-6 p-4 bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 text-red-700 rounded-xl shadow-lg">
-                            <div class="flex items-center">
-                                <i class="fas fa-exclamation-circle text-red-500 ml-3"></i>
-                                {{ session('error') }}
-                            </div>
+                @if(session('error'))
+                    <div class="mb-6 p-4 bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 text-red-700 rounded-xl shadow-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-circle text-red-500 ml-3"></i>
+                            {{ session('error') }}
                         </div>
-                    @endif
+                    </div>
+                @endif
 
-                    @yield('content')
+                @yield('content')
                 </div>
             </main>
         </div>

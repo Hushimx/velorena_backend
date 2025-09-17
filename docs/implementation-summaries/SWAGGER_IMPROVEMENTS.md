@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the comprehensive improvements made to the Velorena Backend API Swagger documentation to make it clearer, more detailed, and more user-friendly.
+This document outlines the comprehensive improvements made to the Qaads Backend API Swagger documentation to make it clearer, more detailed, and more user-friendly.
 
 ## Key Improvements Made
 

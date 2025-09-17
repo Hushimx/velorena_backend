@@ -158,7 +158,7 @@ class TapPaymentController extends Controller
 
                     // Update order status if payment is successful
                     if ($status === 'completed') {
-                        $payment->order->update(['status' => 'confirmed']);
+                        $payment->order->update(['status' => 'processing']);
                     }
                 }
 
@@ -233,7 +233,7 @@ class TapPaymentController extends Controller
 
             // Update order status
             if ($status === 'completed') {
-                $payment->order->update(['status' => 'confirmed']);
+                $payment->order->update(['status' => 'processing']);
             } elseif ($status === 'failed') {
                 $payment->order->update(['status' => 'cancelled']);
             }
@@ -462,7 +462,7 @@ class TapPaymentController extends Controller
 
                     // Update order status if payment is successful
                     if ($status === 'completed') {
-                        $payment->order->update(['status' => 'confirmed']);
+                        $payment->order->update(['status' => 'processing']);
                     }
                 }
 

@@ -30,6 +30,10 @@ class DesignerEditOrder extends Component
     public $orderNotes = '';
     public $editingItemIndex = null;
     public $editingOptions = [];
+    public $quickAddProductId = null;
+    public $quickAddQuantity = 1;
+    public $quickAddOptions = [];
+    public $showQuickAddModal = false;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -252,6 +256,100 @@ class DesignerEditOrder extends Component
     {
         $this->showAddProducts = !$this->showAddProducts;
         $this->resetPage();
+    }
+
+    public function quickAddProduct($productId)
+    {
+        $this->quickAddProductId = $productId;
+        $this->quickAddQuantity = 1;
+        $this->quickAddOptions = [];
+        $this->showQuickAddModal = true;
+
+        // Load product options
+        $product = Product::with(['options.values'])->find($productId);
+        if ($product && $product->options->count() > 0) {
+            foreach ($product->options as $option) {
+                $this->quickAddOptions[$option->id] = null;
+            }
+        }
+
+        $this->dispatch('showModal', 'quickAddModal');
+    }
+
+    public function confirmQuickAdd()
+    {
+        $product = Product::with(['options.values'])->find($this->quickAddProductId);
+
+        if (!$product) {
+            session()->flash('error', 'Product not found.');
+            return;
+        }
+
+        // Validate required options
+        foreach ($product->options as $option) {
+            if ($option->is_required && empty($this->quickAddOptions[$option->id])) {
+                session()->flash('error', "Please select a value for {$option->name}.");
+                return;
+            }
+        }
+
+        // Calculate unit price with options
+        $basePrice = $product->base_price;
+        $optionsPrice = 0;
+        $selectedOptions = [];
+        $optionDetails = [];
+
+        foreach ($this->quickAddOptions as $optionId => $valueId) {
+            if ($valueId) {
+                $optionValue = OptionValue::with('productOption')->find($valueId);
+                if ($optionValue) {
+                    $optionsPrice += $optionValue->price_adjustment;
+                    $selectedOptions[] = $valueId;
+                    $optionDetails[] = [
+                        'option_name' => $optionValue->productOption->name,
+                        'value' => $optionValue->value,
+                        'price_adjustment' => $optionValue->price_adjustment
+                    ];
+                }
+            }
+        }
+
+        $unitPrice = $basePrice + $optionsPrice;
+        $totalPrice = $unitPrice * $this->quickAddQuantity;
+
+        // Check if product with same options already exists
+        $existingIndex = $this->findCartItemIndex($this->quickAddProductId, $selectedOptions);
+
+        if ($existingIndex !== false) {
+            $this->cartItems[$existingIndex]['quantity'] += $this->quickAddQuantity;
+            $this->cartItems[$existingIndex]['total_price'] =
+                $this->cartItems[$existingIndex]['quantity'] * $this->cartItems[$existingIndex]['unit_price'];
+        } else {
+            $this->cartItems[] = [
+                'id' => null, // New item
+                'product_id' => $product->id,
+                'product_name' => $product->name,
+                'quantity' => $this->quickAddQuantity,
+                'unit_price' => $unitPrice,
+                'total_price' => $totalPrice,
+                'options' => $selectedOptions,
+                'option_details' => $optionDetails,
+                'notes' => '',
+                'is_existing' => false
+            ];
+        }
+
+        $this->closeQuickAdd();
+        session()->flash('success', "Added {$this->quickAddQuantity}x {$product->name} to order.");
+    }
+
+    public function closeQuickAdd()
+    {
+        $this->showQuickAddModal = false;
+        $this->quickAddProductId = null;
+        $this->quickAddQuantity = 1;
+        $this->quickAddOptions = [];
+        $this->dispatch('hideModal', 'quickAddModal');
     }
 
     public function saveOrder()

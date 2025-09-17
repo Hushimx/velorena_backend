@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Velorena application features a comprehensive highlight and product search system that allows users to discover products through categorized highlights and advanced search functionality. This system enables marketing campaigns, seasonal promotions, and easy product discovery.
+The Qaads application features a comprehensive highlight and product search system that allows users to discover products through categorized highlights and advanced search functionality. This system enables marketing campaigns, seasonal promotions, and easy product discovery.
 
 ## Table of Contents
 

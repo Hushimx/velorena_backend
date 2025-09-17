@@ -4,7 +4,7 @@ return [
     // Admin Dashboard
     "admin_dashboard" => "Admin Dashboard",
     "welcome_admin" => "Welcome, :name",
-    "platform_overview" => "Here's an overview of Velorena platform today",
+    "platform_overview" => "Here's an overview of Qaads platform today",
     "add_new_product" => "Add New Product",
     
     // Statistics

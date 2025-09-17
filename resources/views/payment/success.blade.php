@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Success - Velorena</title>
+    <title>Payment Success - Qaads</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -65,7 +65,7 @@
                         <p class="mb-3">If you have any questions about your payment or order, please contact us:</p>
                         <div class="row">
                             <div class="col-md-6">
-                                <p><i class="fas fa-envelope"></i> <strong>Email:</strong> support@velorena.com</p>
+                                <p><i class="fas fa-envelope"></i> <strong>Email:</strong> support@Qaads.com</p>
                             </div>
                             <div class="col-md-6">
                                 <p><i class="fas fa-phone"></i> <strong>Phone:</strong> +965 1234 5678</p>

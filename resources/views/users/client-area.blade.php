@@ -174,7 +174,7 @@
                                 <i class="fas fa-clipboard-list"></i>
                             </div>
                             <div class="stat-info">
-                                <div class="stat-number">{{ $orders->total() }}</div>
+                                <div class="stat-label">{{ $orders->total() }}</div>
                                 <div class="stat-label">{{ trans('إجمالي الطلبات') }}</div>
                             </div>
                         </div>
@@ -184,7 +184,7 @@
                                 <i class="fas fa-calendar-alt"></i>
                             </div>
                             <div class="stat-info">
-                                <div class="stat-number">{{ $appointments->total() }}</div>
+                                <div class="stat-label">{{ $appointments->total() }}</div>
                                 <div class="stat-label">{{ trans('إجمالي المواعيد') }}</div>
                             </div>
                         </div>
@@ -194,7 +194,7 @@
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="stat-info">
-                                <div class="stat-number">{{ $orders->where('status', 'delivered')->count() }}</div>
+                                <div class="stat-label">{{ $orders->where('status', 'delivered')->count() }}</div>
                                 <div class="stat-label">{{ trans('طلبات مكتملة') }}</div>
                             </div>
                         </div>
@@ -206,7 +206,9 @@
                         <div class="recent-orders">
                             @foreach($orders->take(3) as $order)
                                 <div class="recent-order">
-                                    <span class="order-num">#{{ $order->order_number }}</span>
+                                    <a href="{{ route('user.orders.show', $order->id) }}">
+                                        <span class="order-num">#{{ $order->order_number }}</span>
+                                    </a>
                                     <span class="order-status status-{{ $order->status }}">
                                         @switch($order->status)
                                             @case('delivered')

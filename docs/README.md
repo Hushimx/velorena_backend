@@ -1,6 +1,6 @@
-# Velorena Documentation
+# Qaads Documentation
 
-Welcome to the Velorena project documentation. This documentation is organized into different sections to help you find the information you need quickly.
+Welcome to the Qaads project documentation. This documentation is organized into different sections to help you find the information you need quickly.
 
 ## 📚 Documentation Structure
 

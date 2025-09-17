@@ -277,3 +277,4 @@ class SupportTicketSeeder extends Seeder
 }
 
 
+

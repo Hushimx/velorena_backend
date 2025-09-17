@@ -31,7 +31,7 @@ class DesignerSeeder extends Seeder
 
         Designer::create([
             'name' => 'Sarah Creative',
-            'email' => 'sarah@velorena.com',
+            'email' => 'sarah@Qaads.com',
             'password' => Hash::make('password'),
             'phone' => '+966507654321',
             'address' => 'Jeddah, Saudi Arabia',
@@ -42,7 +42,7 @@ class DesignerSeeder extends Seeder
 
         Designer::create([
             'name' => 'Ahmed Al-Rashid',
-            'email' => 'ahmed@velorena.com',
+            'email' => 'ahmed@Qaads.com',
             'password' => Hash::make('password'),
             'phone' => '+966508888888',
             'address' => 'Dammam, Saudi Arabia',

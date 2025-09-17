@@ -160,6 +160,38 @@ class Order extends Model
         return $this->status === 'cancelled';
     }
 
+    public function isWaitingForAppointment(): bool
+    {
+        return $this->status === 'waiting_for_appointment';
+    }
+
+    // Payment status methods
+    public function getPaymentStatus(): string
+    {
+        $latestPayment = $this->payments()->latest()->first();
+        
+        if (!$latestPayment) {
+            return 'unpaid';
+        }
+        
+        return $latestPayment->status === 'completed' ? 'paid' : 'unpaid';
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->getPaymentStatus() === 'paid';
+    }
+
+    public function isUnpaid(): bool
+    {
+        return $this->getPaymentStatus() === 'unpaid';
+    }
+
+    public function canMakePayment(): bool
+    {
+        return $this->status === 'confirmed' && $this->isUnpaid();
+    }
+
     // Status transitions
     public function confirm(): void
     {
