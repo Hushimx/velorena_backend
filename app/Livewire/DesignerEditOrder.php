@@ -30,6 +30,8 @@ class DesignerEditOrder extends Component
     public $orderNotes = '';
     public $editingItemIndex = null;
     public $editingOptions = [];
+    public $showEditOptionsModal = false;
+    public $isSavingOptions = false;
     public $quickAddProductId = null;
     public $quickAddQuantity = 1;
     public $quickAddOptions = [];
@@ -196,60 +198,84 @@ class DesignerEditOrder extends Component
             }
 
             // Show modal
-            $this->dispatch('showModal', 'editOptionsModal');
+            $this->showEditOptionsModal = true;
+
+            // Debug: Add a flash message to confirm the method is called
+            session()->flash('success', 'Edit options method called for item ' . $index);
         }
     }
 
     public function saveItemOptions()
     {
-        if ($this->editingItemIndex !== null && isset($this->cartItems[$this->editingItemIndex])) {
-            $product = Product::with(['options.values'])->find($this->cartItems[$this->editingItemIndex]['product_id']);
+        // Set loading state
+        $this->isSavingOptions = true;
 
-            if ($product) {
-                // Calculate new unit price
-                $basePrice = $product->base_price;
-                $optionsPrice = 0;
-                $selectedOptions = [];
+        // Debug: Add a flash message to confirm the method is called
+        session()->flash('success', 'Save options method called - loading state set to true');
 
-                foreach ($this->editingOptions as $optionId => $valueId) {
-                    if ($valueId) {
-                        $optionValue = OptionValue::find($valueId);
-                        if ($optionValue) {
-                            $optionsPrice += $optionValue->price_adjustment;
-                            $selectedOptions[] = $valueId;
+        // Add a small delay to test loading state
+        sleep(2);
+
+        try {
+            if ($this->editingItemIndex !== null && isset($this->cartItems[$this->editingItemIndex])) {
+                $product = Product::with(['options.values'])->find($this->cartItems[$this->editingItemIndex]['product_id']);
+
+                if ($product) {
+                    // Calculate new unit price
+                    $basePrice = $product->base_price;
+                    $optionsPrice = 0;
+                    $selectedOptions = [];
+
+                    foreach ($this->editingOptions as $optionId => $valueId) {
+                        if ($valueId) {
+                            $optionValue = OptionValue::find($valueId);
+                            if ($optionValue) {
+                                $optionsPrice += $optionValue->price_adjustment;
+                                $selectedOptions[] = $valueId;
+                            }
                         }
                     }
-                }
 
-                $newUnitPrice = $basePrice + $optionsPrice;
-                $newTotalPrice = $newUnitPrice * $this->cartItems[$this->editingItemIndex]['quantity'];
+                    $newUnitPrice = $basePrice + $optionsPrice;
+                    $newTotalPrice = $newUnitPrice * $this->cartItems[$this->editingItemIndex]['quantity'];
 
-                // Update cart item
-                $this->cartItems[$this->editingItemIndex]['unit_price'] = $newUnitPrice;
-                $this->cartItems[$this->editingItemIndex]['total_price'] = $newTotalPrice;
-                $this->cartItems[$this->editingItemIndex]['options'] = $selectedOptions;
+                    // Update cart item
+                    $this->cartItems[$this->editingItemIndex]['unit_price'] = $newUnitPrice;
+                    $this->cartItems[$this->editingItemIndex]['total_price'] = $newTotalPrice;
+                    $this->cartItems[$this->editingItemIndex]['options'] = $selectedOptions;
 
-                // Update option details for display
-                $optionDetails = [];
-                foreach ($selectedOptions as $optionValueId) {
-                    $optionValue = OptionValue::with('productOption')->find($optionValueId);
-                    if ($optionValue) {
-                        $optionDetails[] = [
-                            'option_name' => $optionValue->productOption->name,
-                            'value' => $optionValue->value,
-                            'price_adjustment' => $optionValue->price_adjustment
-                        ];
+                    // Update option details for display
+                    $optionDetails = [];
+                    foreach ($selectedOptions as $optionValueId) {
+                        $optionValue = OptionValue::with('productOption')->find($optionValueId);
+                        if ($optionValue) {
+                            $optionDetails[] = [
+                                'option_name' => $optionValue->productOption->name,
+                                'value' => $optionValue->value,
+                                'price_adjustment' => $optionValue->price_adjustment
+                            ];
+                        }
                     }
+                    $this->cartItems[$this->editingItemIndex]['option_details'] = $optionDetails;
+
+                    session()->flash('success', 'Product options updated successfully!');
                 }
-                $this->cartItems[$this->editingItemIndex]['option_details'] = $optionDetails;
-
-                session()->flash('success', 'Product options updated successfully!');
             }
+        } catch (\Exception $e) {
+            session()->flash('error', 'Failed to update product options. Please try again.');
+        } finally {
+            // Reset loading state
+            $this->isSavingOptions = false;
+            $this->closeEditOptionsModal();
         }
+    }
 
+    public function closeEditOptionsModal()
+    {
         $this->editingItemIndex = null;
         $this->editingOptions = [];
-        $this->dispatch('hideModal', 'editOptionsModal');
+        $this->showEditOptionsModal = false;
+        $this->isSavingOptions = false;
     }
 
     public function toggleAddProducts()
@@ -272,8 +298,6 @@ class DesignerEditOrder extends Component
                 $this->quickAddOptions[$option->id] = null;
             }
         }
-
-        $this->dispatch('showModal', 'quickAddModal');
     }
 
     public function confirmQuickAdd()
@@ -340,7 +364,10 @@ class DesignerEditOrder extends Component
         }
 
         $this->closeQuickAdd();
-        session()->flash('success', "Added {$this->quickAddQuantity}x {$product->name} to order.");
+        session()->flash('success', "✅ Added {$this->quickAddQuantity}x {$product->name} to order successfully!");
+
+        // Dispatch event for toast notification
+        $this->dispatch('product-added', "✅ Added {$this->quickAddQuantity}x {$product->name} to order successfully!");
     }
 
     public function closeQuickAdd()
@@ -349,7 +376,6 @@ class DesignerEditOrder extends Component
         $this->quickAddProductId = null;
         $this->quickAddQuantity = 1;
         $this->quickAddOptions = [];
-        $this->dispatch('hideModal', 'quickAddModal');
     }
 
     public function saveOrder()

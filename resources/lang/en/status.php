@@ -18,6 +18,7 @@ return [
     // Appointment Statuses
     'appointment' => [
         'pending' => 'Pending',
+        'accepted' => 'Accepted',
         'scheduled' => 'Scheduled',
         'confirmed' => 'Confirmed',
         'in_progress' => 'In Progress',
@@ -129,4 +130,3 @@ return [
         'archived' => 'Archived',
     ],
 ];
-
