@@ -17,8 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'marketer.guest' => \App\Http\Middleware\RedirectIfMarketer::class,
             'marketer.auth' => \App\Http\Middleware\RedirectIfNotMarketer::class,
             'set.locale' => \App\Http\Middleware\SetLocale::class,
+            'auth.redirect' => \App\Http\Middleware\RedirectIfNotAuthenticated::class,
         ]);
-        
+
         // Apply locale middleware globally
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,

@@ -5,12 +5,14 @@
             <!-- Product Title -->
             <div class="product-header">
                 <h1 class="product-title">{{ $product->name }}</h1>
-                <p class="product-description">{{ $product->description ?? 'استمتع بتجربة فريدة مع مجموعة متنوعة من الفواكه المجففة المختارة بعناية من أجود الأنواع حول العالم. تم تحضيرها بأحدث التقنيات لضمان الحفاظ على قيمتها الغذائية العالية وطعمها اللذيذ من الطبيعة.' }}</p>
-                    </div>
+                <p class="product-description">
+                    {{ $product->description ?? 'استمتع بتجربة فريدة مع مجموعة متنوعة من الفواكه المجففة المختارة بعناية من أجود الأنواع حول العالم. تم تحضيرها بأحدث التقنيات لضمان الحفاظ على قيمتها الغذائية العالية وطعمها اللذيذ من الطبيعة.' }}
+                </p>
+            </div>
 
             <!-- Dynamic Product Options from Database -->
-                        @if ($product->options->count() > 0)
-                                    @foreach ($product->options as $option)
+            @if ($product->options->count() > 0)
+                @foreach ($product->options as $option)
                     <div class="option-group">
                         <h3 class="option-title">{{ $option->name_ar ?? $option->name }} :</h3>
                         @if ($option->values->count() > 0)
@@ -21,42 +23,43 @@
                                         @foreach ($option->values as $value)
                                             <option value="{{ $value->id }}">
                                                 {{ $value->value_ar ?? $value->value }}
-                                                @if($value->price_adjustment != 0)
-                                                    ({{ $value->price_adjustment > 0 ? '+' : '' }}{{ number_format($value->price_adjustment, 0) }} ريال)
+                                                @if ($value->price_adjustment != 0)
+                                                    ({{ $value->price_adjustment > 0 ? '+' : '' }}{{ number_format($value->price_adjustment, 0) }}
+                                                    ريال)
                                                 @endif
                                             </option>
                                         @endforeach
                                     </select>
-                                            </div>
+                                </div>
                             @elseif ($option->type === 'checkbox')
                                 <!-- Checkboxes for multiple selection -->
                                 <div class="option-buttons">
-                                                    @foreach ($option->values as $value)
+                                    @foreach ($option->values as $value)
                                         <label class="option-btn">
-                                            <input type="checkbox" 
-                                                   wire:model.live="selectedOptions.{{ $option->id }}"
-                                                   value="{{ $value->id }}">
+                                            <input type="checkbox" wire:model.live="selectedOptions.{{ $option->id }}"
+                                                value="{{ $value->id }}">
                                             <span>
                                                 {{ $value->value_ar ?? $value->value }}
-                                                @if($value->price_adjustment != 0)
-                                                    ({{ $value->price_adjustment > 0 ? '+' : '' }}{{ number_format($value->price_adjustment, 0) }} ريال)
+                                                @if ($value->price_adjustment != 0)
+                                                    ({{ $value->price_adjustment > 0 ? '+' : '' }}{{ number_format($value->price_adjustment, 0) }}
+                                                    ريال)
                                                 @endif
                                             </span>
                                         </label>
-                                                    @endforeach
-                                                </div>
+                                    @endforeach
+                                </div>
                             @else
                                 <!-- Radio buttons for single selection (default) -->
                                 <div class="option-buttons">
                                     @foreach ($option->values as $value)
                                         <label class="option-btn">
-                                            <input type="radio" 
-                                                   wire:model.live="selectedOptions.{{ $option->id }}" 
-                                                   value="{{ $value->id }}">
+                                            <input type="radio" wire:model.live="selectedOptions.{{ $option->id }}"
+                                                value="{{ $value->id }}">
                                             <span>
                                                 {{ $value->value_ar ?? $value->value }}
-                                                @if($value->price_adjustment != 0)
-                                                    ({{ $value->price_adjustment > 0 ? '+' : '' }}{{ number_format($value->price_adjustment, 0) }} ريال)
+                                                @if ($value->price_adjustment != 0)
+                                                    ({{ $value->price_adjustment > 0 ? '+' : '' }}{{ number_format($value->price_adjustment, 0) }}
+                                                    ريال)
                                                 @endif
                                             </span>
                                         </label>
@@ -68,7 +71,7 @@
                         @error('selectedOptions.' . $option->id)
                             <div class="error-message">{{ $message }}</div>
                         @enderror
-                                </div>
+                    </div>
                 @endforeach
             @else
                 <!-- Fallback static options if no database options -->
@@ -91,8 +94,8 @@
                             <input type="radio" name="type" value="كرافت">
                             <span>كرافت</span>
                         </label>
-                                    </div>
-                                </div>
+                    </div>
+                </div>
 
                 <div class="option-group">
                     <h3 class="option-title">الطباعة الألوان :</h3>
@@ -109,8 +112,8 @@
                             <input type="checkbox" name="colors[]" value="لون واحد">
                             <span>لون واحد</span>
                         </label>
-                                    </div>
-                                </div>
+                    </div>
+                </div>
 
                 <div class="option-group">
                     <h3 class="option-title">حجم الكيس :</h3>
@@ -127,8 +130,8 @@
                             <input type="radio" name="size" value="كبير (250جم)">
                             <span>كبير (250جم)</span>
                         </label>
-                            </div>
-                        </div>
+                    </div>
+                </div>
 
                 <div class="option-group">
                     <h3 class="option-title">مكان الطباعة :</h3>
@@ -140,7 +143,7 @@
                         <label class="option-btn">
                             <input type="radio" name="location" value="وجه واحد">
                             <span>وجه واحد</span>
-                            </label>
+                        </label>
                     </div>
                 </div>
 
@@ -161,19 +164,16 @@
             <div class="option-group">
                 <h3 class="option-title">ملاحظات إضافية :</h3>
                 <div class="notes-input">
-                    <textarea wire:model="notes" 
-                              class="form-control" 
-                              rows="3" 
-                              placeholder="أضف أي ملاحظات خاصة بالطلب..."></textarea>
+                    <textarea wire:model="notes" class="form-control" rows="3" placeholder="أضف أي ملاحظات خاصة بالطلب..."></textarea>
                 </div>
-                            @error('notes')
+                @error('notes')
                     <div class="error-message">{{ $message }}</div>
-                            @enderror
+                @enderror
             </div>
 
 
 
-     
+
             <!-- Action Buttons -->
         </div>
     </div>
@@ -188,19 +188,22 @@
                 </div>
                 <div class="sticky-cart-quantity">
                     <button type="button" class="sticky-qty-btn minus" wire:click="decrementQuantity">-</button>
-                    <input type="number" class="sticky-qty-input" wire:model.live="quantity" min="1" max="100">
+                    <input type="number" class="sticky-qty-input" wire:model.live="quantity" min="1"
+                        max="100">
                     <button type="button" class="sticky-qty-btn plus" wire:click="incrementQuantity">+</button>
                 </div>
             </div>
             <div class="sticky-cart-actions">
-                <button class="sticky-btn-add-cart" wire:click="addToCart" wire:loading.attr="disabled" wire:target="addToCart">
+                <button class="sticky-btn-add-cart" wire:click="addToCart" wire:loading.attr="disabled"
+                    wire:target="addToCart">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="sticky-btn-text" wire:loading.remove wire:target="addToCart">إضافة إلى السلة</span>
                     <span class="sticky-btn-loading" wire:loading wire:target="addToCart">
                         <i class="fas fa-spinner fa-spin"></i>
                     </span>
                 </button>
-                <button class="sticky-btn-buy-now" wire:click="buyNow" wire:loading.attr="disabled" wire:target="buyNow">
+                <button class="sticky-btn-buy-now" wire:click="buyNow" wire:loading.attr="disabled"
+                    wire:target="buyNow">
                     <i class="fas fa-credit-card"></i>
                     <span class="sticky-btn-text" wire:loading.remove wire:target="buyNow">شراء</span>
                     <span class="sticky-btn-loading" wire:loading wire:target="buyNow">
@@ -239,7 +242,7 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
-        
+
         /* Brand Colors */
         :root {
             /* Brand Colors */
@@ -247,13 +250,13 @@
             --brand-yellow-dark: #f5d182;
             --brand-brown: #2a1e1e;
             --brand-brown-light: #3a2e2e;
-            
+
             /* Extended Brand Palette */
             --brand-yellow-light: #fff4e6;
             --brand-yellow-hover: #f0d4a0;
             --brand-brown-dark: #1a1414;
             --brand-brown-hover: #4a3e3e;
-            
+
             /* Status Colors */
             --status-pending: #fbbf24;
             --status-processing: #3b82f6;
@@ -339,7 +342,7 @@
             font-size: 0.9rem;
         }
 
-        .option-btn input:checked + span {
+        .option-btn input:checked+span {
             background: #2C2C2C;
             color: #fff;
             border-color: #2C2C2C;
@@ -401,7 +404,7 @@
             padding: 1.5rem;
             background: #fff;
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .price-display {
@@ -794,11 +797,11 @@
             .product-options-section {
                 order: 2;
             }
-            
+
             .product-title {
                 font-size: 2rem;
             }
-            
+
             .price {
                 font-size: 2rem;
             }
@@ -812,44 +815,44 @@
             .product-options-section {
                 padding: 1rem;
             }
-            
+
             .product-title {
                 font-size: 1.8rem;
             }
-            
+
             .option-buttons {
                 flex-direction: column;
             }
-            
+
             .option-btn span {
                 display: block;
                 text-align: center;
             }
-            
+
             .price-section {
                 flex-direction: column;
                 gap: 1rem;
                 text-align: center;
             }
-            
+
             /* Sticky cart responsive */
             .sticky-cart-content {
                 flex-direction: column;
                 gap: 1rem;
                 padding: 1rem;
             }
-            
+
             .sticky-cart-info {
                 flex-direction: column;
                 gap: 1rem;
                 width: 100%;
             }
-            
+
             .sticky-cart-actions {
                 width: 100%;
                 justify-content: center;
             }
-            
+
             .sticky-btn-add-cart,
             .sticky-btn-buy-now {
                 flex: 1;
@@ -864,6 +867,20 @@
                 // Optional: Add any client-side cart update logic here
                 console.log('Cart updated');
             });
+
+            // Test toaster functionality
+            Livewire.on('showToast', (...args) => {
+                console.log('Toast event received:', args);
+            });
         });
+
+        // Test function for debugging
+        function testToaster() {
+            if (window.toaster) {
+                window.toaster.show('This is a test message', 'success', 'Test Title', 3000);
+            } else {
+                console.error('Toaster not available');
+            }
+        }
     </script>
 </div>

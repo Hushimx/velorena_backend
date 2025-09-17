@@ -39,6 +39,11 @@ Route::group(
 
         Auth::routes();
 
+        // Handle GET requests to logout (redirect to home)
+        Route::get('/logout', function () {
+            return redirect()->route('welcome');
+        });
+
         Route::get('/', [HomeController::class, 'welcome'])->name('welcome');
         Route::get('/home', [HomeController::class, 'index'])->name('home');
         Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
@@ -57,7 +62,7 @@ Route::group(
             Route::get('/search', [App\Http\Controllers\DesignSearchController::class, 'index'])->name('design.search');
             Route::post('/save-to-cart', [App\Http\Controllers\DesignSearchController::class, 'saveToCart'])->name('design.save-to-cart');
             Route::post('/add-to-favorites', [App\Http\Controllers\DesignSearchController::class, 'addToFavorites'])->name('design.add-to-favorites');
-            
+
             // Design Studio Page
             Route::get('/studio', [App\Http\Controllers\DesignStudioController::class, 'index'])->name('design.studio');
             Route::post('/studio/save', [App\Http\Controllers\DesignStudioController::class, 'saveDesign'])->name('design.studio.save');
@@ -69,14 +74,14 @@ Route::group(
             try {
                 $decodedUrl = base64_decode($url);
                 $imageData = file_get_contents($decodedUrl);
-                
+
                 if ($imageData === false) {
                     abort(404);
                 }
-                
+
                 $imageInfo = getimagesizefromstring($imageData);
                 $mimeType = $imageInfo['mime'] ?? 'image/jpeg';
-                
+
                 return response($imageData)
                     ->header('Content-Type', $mimeType)
                     ->header('Cache-Control', 'public, max-age=3600');
@@ -88,6 +93,11 @@ Route::group(
         // Public routes (no authentication required)
         // Products routes
         Route::get('/products', function () {
+            // Store the current URL as intended URL for redirect after login if user is not authenticated
+            if (!Auth::check()) {
+                session(['url.intended' => request()->fullUrl()]);
+            }
+
             return view('users.products.index');
         })->name('user.products.index');
 
@@ -95,15 +105,21 @@ Route::group(
             if (!$product->is_active) {
                 abort(404);
             }
+
+            // Store the current URL as intended URL for redirect after login if user is not authenticated
+            if (!Auth::check()) {
+                session(['url.intended' => request()->fullUrl()]);
+            }
+
             // Load product with options and their values
             $product->load(['category', 'options.values']);
-            
+
             // Debug: Log the product data
             Log::info('Product loaded:', [
                 'id' => $product->id,
                 'name' => $product->name,
                 'options_count' => $product->options->count(),
-                'options' => $product->options->map(function($option) {
+                'options' => $product->options->map(function ($option) {
                     return [
                         'id' => $option->id,
                         'name' => $option->name,
@@ -112,12 +128,19 @@ Route::group(
                     ];
                 })
             ]);
-            
+
             return view('users.products.show', compact('product'));
         })->name('user.products.show');
 
         // Cart routes
-        Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
+        Route::get('/cart', function () {
+            // Store the current URL as intended URL for redirect after login if user is not authenticated
+            if (!Auth::check()) {
+                session(['url.intended' => request()->fullUrl()]);
+            }
+
+            return app(App\Http\Controllers\CartController::class)->index();
+        })->name('cart.index');
 
         // User routes (authentication required)
         Route::middleware(['auth'])->group(function () {

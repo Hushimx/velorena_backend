@@ -21,6 +21,11 @@ Route::prefix('marketer')->group(function () {
     Route::get('/password/reset/{token}', [App\Http\Controllers\Marketer\Auth\ResetPasswordController::class, 'showResetForm'])->name('marketer.password.reset');
     Route::post('/password/reset', [App\Http\Controllers\Marketer\Auth\ResetPasswordController::class, 'reset'])->name('marketer.password.update');
 
+    // Handle GET requests to marketer logout (redirect to marketer login)
+    Route::get('logout', function () {
+        return redirect()->route('marketer.login');
+    });
+
     // Protected routes (require marketer auth)
     Route::middleware(RedirectIfNotMarketer::class)->group(function () {
         Route::post('logout', [App\Http\Controllers\Marketer\Auth\LoginController::class, 'logout'])->name('marketer.logout');

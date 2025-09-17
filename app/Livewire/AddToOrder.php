@@ -32,6 +32,14 @@ class AddToOrder extends Component
 
     public function addToOrder()
     {
+        if (!Auth::check()) {
+            // Store the current URL as intended URL for redirect after login
+            session(['url.intended' => request()->fullUrl()]);
+
+            // Redirect to login page
+            return redirect()->route('login');
+        }
+
         // Simple test to see if method is called
         session()->flash('debug', 'addToOrder method called! User ID: ' . Auth::id());
 
