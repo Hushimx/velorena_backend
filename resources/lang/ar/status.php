@@ -18,6 +18,7 @@ return [
     // Appointment Statuses
     'appointment' => [
         'pending' => 'معلق',
+        'accepted' => 'مقبول',
         'scheduled' => 'مجدول',
         'confirmed' => 'مؤكد',
         'in_progress' => 'قيد التنفيذ',
@@ -129,4 +130,3 @@ return [
         'archived' => 'مؤرشف',
     ],
 ];
-

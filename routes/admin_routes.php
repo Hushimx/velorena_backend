@@ -26,12 +26,17 @@ Route::prefix('admin')->group(function () {
     Route::get('/password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('admin.password.reset');
     Route::post('/password/reset', [ResetPasswordController::class, 'reset'])->name('admin.password.update');
 
+    // Handle GET requests to admin logout (redirect to admin login)
+    Route::get('logout', function () {
+        return redirect()->route('admin.login');
+    });
+
     // Protected routes (require admin auth)
     Route::middleware(RedirectIfNotAdmin::class)->group(function () {
         Route::post('logout', [LoginController::class, 'logout'])->name('admin.logout');
         Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
         Route::get('/dashboard/sales-data', [AdminController::class, 'getSalesDataForPeriod'])->name('admin.dashboard.sales-data');
-        Route::get('/language/{locale}', function($locale) {
+        Route::get('/language/{locale}', function ($locale) {
             if (in_array($locale, ['ar', 'en'])) {
                 session(['locale' => $locale]);
                 app()->setLocale($locale);
@@ -48,22 +53,22 @@ Route::prefix('admin')->group(function () {
             Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
             Route::resource('appointments', \App\Http\Controllers\Admin\AppointmentController::class);
             Route::resource('marketers', \App\Http\Controllers\Admin\MarketerController::class);
-            
+
             // Bulk upload routes for leads (must be before resource route)
             Route::get('leads/bulk-upload', [\App\Http\Controllers\Admin\LeadController::class, 'bulkUpload'])->name('leads.bulk-upload');
             Route::post('leads/bulk-upload', [\App\Http\Controllers\Admin\LeadController::class, 'processBulkUpload'])->name('leads.bulk-upload.process');
             Route::get('leads/download-template', [\App\Http\Controllers\Admin\LeadController::class, 'downloadTemplate'])->name('leads.download-template');
-            
+
             Route::resource('leads', \App\Http\Controllers\Admin\LeadController::class);
             Route::resource('admins', \App\Http\Controllers\Admin\AdminResourceController::class);
             Route::resource('availability-slots', \App\Http\Controllers\Admin\AvailabilitySlotController::class);
             Route::patch('availability-slots/{availabilitySlot}/toggle-status', [\App\Http\Controllers\Admin\AvailabilitySlotController::class, 'toggleStatus'])->name('availability-slots.toggle-status');
-            
+
             // Highlights management routes
             Route::resource('highlights', \App\Http\Controllers\Admin\HighlightController::class);
             Route::get('products/{product}/assign-highlights', [\App\Http\Controllers\Admin\HighlightController::class, 'assignToProduct'])->name('products.assign-highlights');
             Route::post('products/{product}/assign-highlights', [\App\Http\Controllers\Admin\HighlightController::class, 'storeProductHighlights'])->name('products.store-highlights');
-            
+
             // Home banners management routes
             Route::get('home-banners', [\App\Http\Controllers\Admin\HomeBannerController::class, 'index'])->name('home-banners.index');
             Route::get('home-banners/create', [\App\Http\Controllers\Admin\HomeBannerController::class, 'create'])->name('home-banners.create');
@@ -72,8 +77,8 @@ Route::prefix('admin')->group(function () {
             Route::get('home-banners/{home_banner}/edit', [\App\Http\Controllers\Admin\HomeBannerController::class, 'edit'])->name('home-banners.edit');
             Route::put('home-banners/{home_banner}', [\App\Http\Controllers\Admin\HomeBannerController::class, 'update'])->name('home-banners.update');
             Route::delete('home-banners/{home_banner}', [\App\Http\Controllers\Admin\HomeBannerController::class, 'destroy'])->name('home-banners.destroy');
-            
-            
+
+
             // Support Tickets management routes
             Route::resource('support-tickets', \App\Http\Controllers\Admin\SupportTicketController::class);
             Route::post('support-tickets/{supportTicket}/assign', [\App\Http\Controllers\Admin\SupportTicketController::class, 'assign'])->name('support-tickets.assign');

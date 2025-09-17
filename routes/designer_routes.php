@@ -27,6 +27,11 @@ Route::prefix('designer')->group(function () {
     Route::get('/password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('designer.password.reset');
     Route::post('/password/reset', [ResetPasswordController::class, 'reset'])->name('designer.password.update');
 
+    // Handle GET requests to designer logout (redirect to designer login)
+    Route::get('logout', function () {
+        return redirect()->route('designer.login');
+    });
+
     // Protected routes (require designer auth)
     Route::middleware('designer.auth')->group(function () {
         Route::post('logout', [LoginController::class, 'logout'])->name('designer.logout');
@@ -47,17 +52,17 @@ Route::prefix('designer')->group(function () {
 
         // Order editing routes
         Route::get('/appointments/{appointment}/edit-order', [App\Http\Controllers\AppointmentController::class, 'designerEditOrder'])->name('designer.orders.edit');
-        
+
         // Orders routes
         Route::get('/orders', [App\Http\Controllers\AppointmentController::class, 'designerAppointments'])->name('designer.orders.index');
-        
+
         // Profile routes
-        Route::get('/profile/edit', function() {
+        Route::get('/profile/edit', function () {
             return view('designer.profile.edit');
         })->name('designer.profile.edit');
-        
+
         // Portfolio routes
-        Route::get('/portfolio', function() {
+        Route::get('/portfolio', function () {
             return view('designer.portfolio.index');
         })->name('designer.portfolio.index');
     });

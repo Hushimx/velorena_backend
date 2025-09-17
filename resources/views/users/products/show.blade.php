@@ -7,6 +7,9 @@
     <!-- Navbar -->
     <x-navbar />
 
+    <!-- Toaster Notifications -->
+    <x-toaster />
+
     <div class="product-page" dir="rtl">
         <div class="container-fluid">
             <div class="row min-vh-100">
@@ -16,12 +19,12 @@
                         @php
                             // Get all product images
                             $productImages = [];
-                            
+
                             // Add main product image if exists
                             if ($product->image && file_exists(public_path($product->image))) {
                                 $productImages[] = $product->image;
                             }
-                            
+
                             // Add additional images from product_designs if they exist
                             if (method_exists($product, 'designs') && $product->designs) {
                                 foreach ($product->designs as $design) {
@@ -30,7 +33,7 @@
                                     }
                                 }
                             }
-                            
+
                             // Add images from product_images if they exist
                             if (method_exists($product, 'images') && $product->images) {
                                 foreach ($product->images as $image) {
@@ -45,51 +48,52 @@
                             <!-- Product Images Carousel -->
                             <div class="product-images-carousel">
                                 <div class="main-image-container">
-                                    <img src="{{ asset($productImages[0]) }}" alt="{{ $product->name }}" class="product-image active" id="main-product-image">
-        </div>
+                                    <img src="{{ asset($productImages[0]) }}" alt="{{ $product->name }}"
+                                        class="product-image active" id="main-product-image">
+                                </div>
 
                                 @if (count($productImages) > 1)
                                     <!-- Thumbnail Images -->
                                     <div class="thumbnail-images">
                                         @foreach ($productImages as $index => $image)
-                                            <img src="{{ asset($image) }}" alt="{{ $product->name }}" 
-                                                 class="thumbnail-image {{ $index === 0 ? 'active' : '' }}" 
-                                                 data-index="{{ $index }}"
-                                                 onclick="changeMainImage('{{ asset($image) }}', {{ $index }})">
+                                            <img src="{{ asset($image) }}" alt="{{ $product->name }}"
+                                                class="thumbnail-image {{ $index === 0 ? 'active' : '' }}"
+                                                data-index="{{ $index }}"
+                                                onclick="changeMainImage('{{ asset($image) }}', {{ $index }})">
                                         @endforeach
                                     </div>
                                 @endif
                             </div>
-                            @else
+                        @else
                             <!-- Simple product placeholder -->
                             <div class="product-placeholder">
                                 <div class="placeholder-icon">
                                     <i class="fas fa-box"></i>
                                 </div>
                                 <p class="placeholder-text">صورة المنتج</p>
-                                </div>
-                            @endif
-                        
+                            </div>
+                        @endif
+
                         <!-- Image Navigation Dots -->
                         @if (count($productImages) > 1)
                             <div class="image-navigation">
                                 @foreach ($productImages as $index => $image)
-                                    <span class="nav-dot {{ $index === 0 ? 'active' : '' }}" 
-                                          data-index="{{ $index }}"
-                                          onclick="changeMainImage('{{ asset($image) }}', {{ $index }})"></span>
+                                    <span class="nav-dot {{ $index === 0 ? 'active' : '' }}"
+                                        data-index="{{ $index }}"
+                                        onclick="changeMainImage('{{ asset($image) }}', {{ $index }})"></span>
                                 @endforeach
-                        </div>
+                            </div>
                         @endif
                     </div>
-                                </div>
+                </div>
 
                 <!-- Product Options Section (Right Side) -->
                 <div class="col-lg-6 col-md-12 product-options-section">
                     @livewire('add-to-cart', ['product' => $product])
-                                </div>
-                            </div>
-                        </div>
-                                            </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <!-- Footer -->
@@ -97,7 +101,7 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
-        
+
         /* Brand Colors */
         :root {
             /* Brand Colors */
@@ -105,13 +109,13 @@
             --brand-yellow-dark: #f5d182;
             --brand-brown: #2a1e1e;
             --brand-brown-light: #3a2e2e;
-            
+
             /* Extended Brand Palette */
             --brand-yellow-light: #fff4e6;
             --brand-yellow-hover: #f0d4a0;
             --brand-brown-dark: #1a1414;
             --brand-brown-hover: #4a3e3e;
-            
+
             /* Status Colors */
             --status-pending: #fbbf24;
             --status-processing: #3b82f6;
@@ -130,7 +134,7 @@
         }
 
         /* Sticky behavior for product options on PC */
-   
+
 
         .options-container {
             width: 100%;
@@ -197,7 +201,7 @@
             font-size: 0.9rem;
         }
 
-        .option-btn input:checked + span {
+        .option-btn input:checked+span {
             background: #2C2C2C;
             color: #fff;
             border-color: #2C2C2C;
@@ -233,7 +237,7 @@
             padding: 1.5rem;
             background: #fff;
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .price-display {
@@ -680,7 +684,7 @@
 
 
         /* RTL Layout - Image on right, options on left */
-        
+
         .product-options-section {
             order: 1;
         }
@@ -690,16 +694,16 @@
             .product-options-section {
                 order: 2;
             }
-            
+
             .product-image-section {
                 order: 1;
                 min-height: 400px;
             }
-            
+
             .product-title {
                 font-size: 2rem;
             }
-            
+
             .price {
                 font-size: 2rem;
             }
@@ -710,52 +714,53 @@
         }
 
         @media (max-width: 768px) {
+
             .product-options-section,
             .product-image-section {
                 padding: 1rem;
             }
-            
+
             .product-title {
                 font-size: 1.8rem;
             }
-            
+
             .option-buttons {
                 flex-direction: column;
             }
-            
+
             .option-btn span {
                 display: block;
                 text-align: center;
             }
-            
+
             .price-section {
                 flex-direction: column;
                 gap: 1rem;
                 text-align: center;
             }
-            
+
             .product-placeholder {
                 height: 300px;
             }
-            
+
             /* Sticky cart responsive */
             .sticky-cart-content {
                 flex-direction: column;
                 gap: 1rem;
                 padding: 1rem;
             }
-            
+
             .sticky-cart-info {
                 flex-direction: column;
                 gap: 1rem;
                 width: 100%;
             }
-            
+
             .sticky-cart-actions {
                 width: 100%;
                 justify-content: center;
             }
-            
+
             .sticky-btn-add-cart,
             .sticky-btn-buy-now {
                 flex: 1;

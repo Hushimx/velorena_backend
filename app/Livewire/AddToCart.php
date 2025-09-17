@@ -79,8 +79,11 @@ class AddToCart extends Component
     public function addToCart()
     {
         if (!Auth::check()) {
-            session()->flash('error', 'Please login to add items to cart');
-            return;
+            // Store the current URL as intended URL for redirect after login
+            session(['url.intended' => request()->fullUrl()]);
+
+            // Redirect to login page
+            return redirect()->route('login');
         }
 
         $this->isLoading = true;
@@ -108,8 +111,8 @@ class AddToCart extends Component
                 $existingCartItem->quantity += $this->quantity;
                 $existingCartItem->updatePrices();
                 $existingCartItem->save();
-                
-                $message = 'Product quantity updated in cart!';
+
+                $message = trans('messages.cart_updated');
             } else {
                 // Create new cart item
                 $cartItem = new CartItem([
@@ -122,14 +125,14 @@ class AddToCart extends Component
 
                 $cartItem->updatePrices();
                 $cartItem->save();
-                
-                $message = 'Product added to cart successfully!';
+
+                $message = trans('messages.cart_added');
             }
 
             // Reset form
             $this->quantity = 1;
             $this->notes = '';
-            
+
             // Reset options to first values
             foreach ($this->product->options as $option) {
                 if ($option->values->count() > 0) {
@@ -138,23 +141,41 @@ class AddToCart extends Component
             }
 
             $this->isLoading = false;
-            session()->flash('success', $message);
-            
+
+            // Show success toaster notification
+            $this->dispatch(
+                'showToast',
+                message: $message,
+                type: 'success',
+                title: trans('messages.success'),
+                duration: 4000
+            );
+
             // Dispatch event to update cart count in other components
             $this->dispatch('cartUpdated');
-
         } catch (\Exception $e) {
             $this->isLoading = false;
             Log::error('Add to cart error: ' . $e->getMessage());
-            session()->flash('error', 'Failed to add product to cart. Please try again.');
+
+            // Show error toaster notification
+            $this->dispatch(
+                'showToast',
+                message: trans('messages.cart_add_error'),
+                type: 'error',
+                title: trans('messages.error'),
+                duration: 5000
+            );
         }
     }
 
     public function buyNow()
     {
         if (!Auth::check()) {
-            session()->flash('error', 'Please login to purchase items');
-            return;
+            // Store the current URL as intended URL for redirect after login
+            session(['url.intended' => request()->fullUrl()]);
+
+            // Redirect to login page
+            return redirect()->route('login');
         }
 
         $this->isLoading = true;
@@ -162,21 +183,28 @@ class AddToCart extends Component
         try {
             // First add to cart
             $this->addToCart();
-            
+
             if ($this->getErrorBag()->count() > 0) {
                 $this->isLoading = false;
                 return;
             }
 
             $this->isLoading = false;
-            
+
             // Redirect to cart page
             return redirect()->route('cart.index');
-
         } catch (\Exception $e) {
             $this->isLoading = false;
             Log::error('Buy now error: ' . $e->getMessage());
-            session()->flash('error', 'Failed to process purchase. Please try again.');
+
+            // Show error toaster notification
+            $this->dispatch(
+                'showToast',
+                message: trans('messages.purchase_error'),
+                type: 'error',
+                title: trans('messages.error'),
+                duration: 5000
+            );
         }
     }
 
@@ -236,7 +264,7 @@ class AddToCart extends Component
         }
 
         $this->showDesignModal = true;
-        
+
         // Load existing designs for this product
         $user = Auth::user();
         $existingDesigns = ProductDesign::where('user_id', $user->id)

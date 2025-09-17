@@ -1,101 +1,76 @@
-# Qaads Documentation
+# Velorena Project Documentation
 
-Welcome to the Qaads project documentation. This documentation is organized into different sections to help you find the information you need quickly.
+Welcome to the comprehensive documentation for the Velorena project. This documentation is organized by category to help you find the information you need quickly.
 
-## 📚 Documentation Structure
+## 📁 Documentation Structure
 
-```
-docs/
-├── README.md                    # This file - Main documentation index
-├── api/                         # API Documentation
-│   ├── API_DOCUMENTATION.md
-│   ├── API_ORDERS_DOCUMENTATION.md
-│   ├── API_APPOINTMENTS_DOCUMENTATION.md
-│   └── API_ORDERS_BEST_PRACTICES.md
-└── web/                         # Web Application Documentation
-    ├── API_DOCUMENTATION.md
-    ├── APPOINTMENT_ORDERS_INTEGRATION.md
-    ├── FILE_UPLOAD_EXAMPLES.md
-    ├── FILTERS_DOCUMENTATION.md
-    ├── TRANSLATION_IMPROVEMENTS.md
-    └── USER_INTERFACE_CHANGES.md
-```
+### 🚀 API Documentation
 
-## 🚀 Quick Start
+-   **[Frontend API Documentation](api/FRONTEND_API_DOCUMENTATION.md)** - Complete API reference for frontend developers including Design System and Product Search endpoints
 
-### For API Developers
+### 🏗️ Implementation Guides
 
--   **[API Documentation](api/)** - Complete API reference and guides
--   **[Orders API](api/API_ORDERS_DOCUMENTATION.md)** - Orders API endpoints and usage
--   **[Appointments API](api/API_APPOINTMENTS_DOCUMENTATION.md)** - Appointments API endpoints and usage
--   **[API Best Practices](api/API_ORDERS_BEST_PRACTICES.md)** - Laravel best practices implementation
+-   **[Support Tickets Implementation](implementation/SUPPORT_TICKETS_IMPLEMENTATION_SUMMARY.md)** - Comprehensive guide for the support ticket system implementation
 
-### For Web Developers
+### ⚙️ System Documentation
 
--   **[Web Documentation](web/)** - Web application guides and features
--   **[Appointment Integration](web/APPOINTMENT_ORDERS_INTEGRATION.md)** - Appointment and orders integration
--   **[File Upload Examples](web/FILE_UPLOAD_EXAMPLES.md)** - File upload implementation
--   **[Translation Guide](web/TRANSLATION_IMPROVEMENTS.md)** - Multi-language support
--   **[UI Changes](web/USER_INTERFACE_CHANGES.md)** - User interface improvements
+-   **[Tap Payment Setup](systems/TAP_PAYMENT_SETUP.md)** - Complete setup guide for Tap Payment Gateway integration
+-   **[Availability System](systems/AVAILABILITY_SYSTEM.md)** - Simplified availability system for appointments
+-   **[Marketer Leads System](systems/MARKETER_LEADS_SYSTEM.md)** - Arabic documentation for the marketer and leads management system
 
-## 📋 Documentation Categories
+### 🧪 Testing Documentation
 
-### 🔌 API Documentation
+-   **[Test Files Directory](testing/README.md)** - Guide to all test files and debugging scripts
 
--   **Orders API** - Complete CRUD operations for orders
--   **Appointments API** - Complete appointment management and scheduling
--   **Authentication** - User authentication and authorization
--   **Validation** - Request validation and error handling
--   **Best Practices** - Laravel API development guidelines
+### 🎨 Views Documentation
 
-### 🌐 Web Application
+-   **[User Views Structure](views/README.md)** - Documentation for user interface views and components
 
--   **Features** - Core application features
--   **Integration** - Component integration guides
--   **File Management** - File upload and storage
--   **Localization** - Multi-language support
--   **UI/UX** - User interface improvements
+## 🔍 Quick Navigation
 
-## 🛠️ Development Resources
+### For Frontend Developers
 
-### API Testing
+-   Start with [Frontend API Documentation](api/FRONTEND_API_DOCUMENTATION.md) for API endpoints
+-   Check [User Views Structure](views/README.md) for UI components
 
--   Use the provided test scripts in the root directory
--   Test API endpoints with Postman or cURL
--   Check the API documentation for examples
+### For Backend Developers
 
-### Web Development
+-   Review [Support Tickets Implementation](implementation/SUPPORT_TICKETS_IMPLEMENTATION_SUMMARY.md) for system architecture
+-   Check [Tap Payment Setup](systems/TAP_PAYMENT_SETUP.md) for payment integration
 
--   Follow the integration guides for new features
--   Use the translation system for multi-language support
--   Implement file uploads using the provided examples
+### For System Administrators
 
-## 📖 Getting Started
+-   See [Tap Payment Setup](systems/TAP_PAYMENT_SETUP.md) for production deployment
+-   Review [Marketer Leads System](systems/MARKETER_LEADS_SYSTEM.md) for user management
 
-1. **Read the main README.md** in the project root for setup instructions
-2. **Choose your focus area** (API or Web) from the documentation above
-3. **Follow the specific guides** for your development needs
-4. **Use the examples** provided in each documentation file
+### For Testers
 
-## 🔄 Documentation Updates
+-   Use [Test Files Directory](testing/README.md) to find testing scripts
+-   Check system documentation for testing procedures
 
-This documentation is maintained alongside the codebase. When making changes:
+## 📋 System Overview
 
-1. Update the relevant documentation files
-2. Add new documentation for new features
-3. Keep examples and code snippets current
-4. Update this index when adding new documentation
+The Velorena project includes:
+
+1. **Design System Integration** - Freepik API integration for design assets
+2. **Product Management** - Comprehensive product catalog with options
+3. **Appointment System** - Booking system with availability management
+4. **Payment Integration** - Tap Payment Gateway for transactions
+5. **Support System** - Complete ticket management system
+6. **Marketer Management** - Lead generation and management system
+7. **User Management** - Multi-role authentication system
+
+## 🚀 Getting Started
+
+1. **For Development**: Start with the [Frontend API Documentation](api/FRONTEND_API_DOCUMENTATION.md)
+2. **For Setup**: Follow the [Tap Payment Setup](systems/TAP_PAYMENT_SETUP.md) guide
+3. **For Testing**: Use the [Test Files Directory](testing/README.md) for testing scripts
 
 ## 📞 Support
 
-For questions about the documentation or the project:
-
-1. Check the relevant documentation section first
-2. Look for examples in the documentation files
-3. Review the codebase for implementation details
-4. Create an issue if documentation is unclear or missing
+For questions about specific systems, refer to the individual documentation files. Each system has its own comprehensive guide with examples and troubleshooting information.
 
 ---
 
-**Last Updated:** August 30, 2025  
-**Version:** 1.0.0
+_Last updated: $(date)_
+_Documentation organized and maintained by the development team_

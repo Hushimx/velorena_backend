@@ -47,7 +47,12 @@ class LoginController extends Controller
             $request->boolean('remember')
         )) {
             $request->session()->regenerate();
-            return redirect()->intended(route('home'))->with('status', __('Logged in successfully'));
+
+            // Clear any intended URL from session since we want to go to home page
+            session()->forget('url.intended');
+
+            // Always redirect to home page after successful login
+            return redirect('/')->with('status', __('Logged in successfully'));
         }
 
         throw ValidationException::withMessages([
