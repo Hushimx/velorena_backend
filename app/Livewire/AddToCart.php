@@ -6,7 +6,7 @@ use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\OptionValue;
 use App\Models\Design;
-use App\Models\ProductDesign;
+// ProductDesign removed - designs are now order-level only
 use App\Services\DesignApiService;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
@@ -265,14 +265,9 @@ class AddToCart extends Component
 
         $this->showDesignModal = true;
 
-        // Load existing designs for this product
-        $user = Auth::user();
-        $existingDesigns = ProductDesign::where('user_id', $user->id)
-            ->where('product_id', $this->product->id)
-            ->get();
-
-        $this->selectedDesigns = $existingDesigns->pluck('design_id')->toArray();
-        $this->designNotes = $existingDesigns->pluck('notes', 'design_id')->toArray();
+        // Designs are now managed at order level, not product level
+        $this->selectedDesigns = [];
+        $this->designNotes = [];
     }
 
     public function closeDesignModal()
@@ -311,24 +306,11 @@ class AddToCart extends Component
         $user = Auth::user();
 
         try {
-            // Remove existing designs for this product
-            ProductDesign::where('user_id', $user->id)
-                ->where('product_id', $this->product->id)
-                ->delete();
-
-            // Add new designs
-            foreach ($this->selectedDesigns as $index => $designId) {
-                ProductDesign::create([
-                    'user_id' => $user->id,
-                    'product_id' => $this->product->id,
-                    'design_id' => $designId,
-                    'notes' => $this->designNotes[$designId] ?? '',
-                    'priority' => $index + 1
-                ]);
-            }
-
+            // Designs are now managed at order level, not product level
+            // This functionality has been moved to cart designs
+            
             $this->closeDesignModal();
-            session()->flash('success', 'Designs saved successfully! ' . count($this->selectedDesigns) . ' designs saved.');
+            session()->flash('info', 'Design management has been moved to the cart level. Designs will be automatically included when you create an order.');
         } catch (\Exception $e) {
             Log::error('Failed to save designs', ['error' => $e->getMessage()]);
             session()->flash('error', 'Failed to save designs: ' . $e->getMessage());

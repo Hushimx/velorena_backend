@@ -61,6 +61,7 @@ Route::group(
             // Design Search Page
             Route::get('/search', [App\Http\Controllers\DesignSearchController::class, 'index'])->name('design.search');
             Route::post('/save-to-cart', [App\Http\Controllers\DesignSearchController::class, 'saveToCart'])->name('design.save-to-cart');
+            Route::post('/delete-from-cart', [App\Http\Controllers\DesignSearchController::class, 'deleteFromCart'])->name('design.delete-from-cart');
             Route::post('/add-to-favorites', [App\Http\Controllers\DesignSearchController::class, 'addToFavorites'])->name('design.add-to-favorites');
 
             // Design Studio Page
@@ -170,10 +171,7 @@ Route::group(
             });
 
             // Product Design Selection routes
-            Route::get('/products/{product}/designs', [App\Http\Controllers\ProductDesignController::class, 'index'])->name('user.product.designs');
-            Route::post('/products/{product}/designs', [App\Http\Controllers\ProductDesignController::class, 'store'])->name('user.product.designs.store');
-            Route::post('/products/{product}/designs/sync', [App\Http\Controllers\ProductDesignController::class, 'syncDesigns'])->name('user.product.designs.sync');
-            Route::delete('/products/{product}/designs/{design}', [App\Http\Controllers\ProductDesignController::class, 'destroy'])->name('user.product.designs.destroy');
+            // ProductDesign routes removed - designs are now order-level only
         });
 
         // Payment test routes (no authentication required for testing)

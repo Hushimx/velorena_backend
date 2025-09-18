@@ -139,7 +139,7 @@ class AppointmentController extends Controller
             'designer:id,name,email,phone',
             'order.items.product',
             'order.items.product.options.values',
-            'order.items.designs.design'
+            'order.designs'
         ]);
 
         // Ensure options are properly cast as arrays
@@ -370,7 +370,7 @@ class AppointmentController extends Controller
                 'user:id,full_name,email,phone',
                 'order.items.product',
                 'order.items.product.options.values',
-                'order.items.designs.design'
+                'order.designs'
             ])
             ->when($request->date, function ($query, $date) {
                 return $query->where('appointment_date', $date);
@@ -414,7 +414,7 @@ class AppointmentController extends Controller
             'user:id,full_name,email,phone',
             'order.items.product',
             'order.items.product.options.values',
-            'order.items.designs.design'
+            'order.designs'
         ])
             ->where('designer_id', $designer->id)
             ->where(function ($query) use ($today, $now) {
@@ -499,7 +499,7 @@ class AppointmentController extends Controller
             'user:id,full_name,email,phone',
             'order.items.product',
             'order.items.product.options.values',
-            'order.items.designs.design'
+            'order.designs'
         ]);
 
         // Ensure options are properly cast as arrays for each item

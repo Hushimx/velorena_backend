@@ -4,11 +4,10 @@ namespace App\Livewire;
 
 use App\Models\CartItem;
 use App\Models\Product;
-use App\Models\ProductDesign;
 use App\Models\CartDesign;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\OrderItemDesign;
+use App\Models\OrderDesign;
 use App\Models\Appointment;
 use App\Services\OrderService;
 use Livewire\Component;
@@ -65,7 +64,7 @@ class ShoppingCart extends Component
 
         $user = Auth::user();
         $cartItems = CartItem::where('user_id', $user->id)
-            ->with(['product.options.values', 'designs.design'])
+            ->with(['product.options.values'])
             ->get();
 
         $this->cartItems = [];
@@ -80,25 +79,8 @@ class ShoppingCart extends Component
                 $item->updatePrices();
             }
 
-            // Get designs attached to this product for this user
-            $designs = ProductDesign::where('user_id', $user->id)
-                ->where('product_id', $item->product_id)
-                ->with('design')
-                ->get()
-                ->filter(function ($productDesign) {
-                    return $productDesign->design !== null;
-                })
-                ->map(function ($productDesign) {
-                    return [
-                        'id' => $productDesign->design->id,
-                        'title' => $productDesign->design->title,
-                        'image_url' => $productDesign->design->image_url,
-                        'thumbnail_url' => $productDesign->design->thumbnail_url,
-                        'notes' => $productDesign->notes,
-                        'priority' => $productDesign->priority,
-                        'attached_at' => $productDesign->created_at
-                    ];
-                });
+            // No more product-specific designs
+            $designs = [];
 
             // Ensure selected_options is an array
             $selectedOptions = $item->selected_options;
@@ -295,21 +277,21 @@ class ShoppingCart extends Component
 
             $order = $orderService->createOrder($orderData);
 
-            // Copy design attachments to order items
-            foreach ($order->items as $orderItem) {
-                $designs = ProductDesign::where('user_id', $user->id)
-                    ->where('product_id', $orderItem->product_id)
-                    ->get();
+            // Copy cart designs to order
+            $cartDesigns = CartDesign::where('user_id', $user->id)
+                ->where('is_active', true)
+                ->get();
 
-                foreach ($designs as $design) {
-                    // Create order item design attachment
-                    OrderItemDesign::create([
-                        'order_item_id' => $orderItem->id,
-                        'design_id' => $design->design_id,
-                        'notes' => $design->notes,
-                        'priority' => $design->priority
-                    ]);
-                }
+            foreach ($cartDesigns as $design) {
+                OrderDesign::create([
+                    'order_id' => $order->id,
+                    'title' => $design->title,
+                    'image_url' => $design->image_url,
+                    'thumbnail_url' => $design->thumbnail_url,
+                    'design_data' => $design->design_data,
+                    'notes' => $design->notes ?? 'Design from cart',
+                    'priority' => 1
+                ]);
             }
 
             // Clear cart after successful order creation
@@ -375,21 +357,21 @@ class ShoppingCart extends Component
 
             $order = $orderService->createOrder($orderData);
 
-            // Copy design attachments to order items
-            foreach ($order->items as $orderItem) {
-                $designs = ProductDesign::where('user_id', $user->id)
-                    ->where('product_id', $orderItem->product_id)
-                    ->get();
+            // Copy cart designs to order
+            $cartDesigns = CartDesign::where('user_id', $user->id)
+                ->where('is_active', true)
+                ->get();
 
-                foreach ($designs as $design) {
-                    // Create order item design attachment
-                    OrderItemDesign::create([
-                        'order_item_id' => $orderItem->id,
-                        'design_id' => $design->design_id,
-                        'notes' => $design->notes,
-                        'priority' => $design->priority
-                    ]);
-                }
+            foreach ($cartDesigns as $design) {
+                OrderDesign::create([
+                    'order_id' => $order->id,
+                    'title' => $design->title,
+                    'image_url' => $design->image_url,
+                    'thumbnail_url' => $design->thumbnail_url,
+                    'design_data' => $design->design_data,
+                    'notes' => $design->notes ?? 'Design from cart',
+                    'priority' => 1
+                ]);
             }
 
             // Clear cart after successful order creation
@@ -413,54 +395,7 @@ class ShoppingCart extends Component
         }
     }
 
-    public function removeDesignFromProduct($productId, $designId)
-    {
-        if (!Auth::check()) {
-            session()->flash('error', 'يجب تسجيل الدخول لحذف التصاميم');
-            return;
-        }
-
-        try {
-            $user = Auth::user();
-            $productDesign = ProductDesign::where('user_id', $user->id)
-                ->where('product_id', $productId)
-                ->where('design_id', $designId)
-                ->first();
-
-            if ($productDesign) {
-                $design = $productDesign->design;
-                $designTitle = $design ? $design->title : 'تصميم غير معروف';
-                $productDesign->delete();
-                
-                $this->loadCart();
-                $this->dispatch('cartUpdated');
-                
-                session()->flash('success', "تم حذف التصميم '{$designTitle}' من المنتج بنجاح!");
-                
-                Log::info('Design removed from product successfully', [
-                    'product_id' => $productId,
-                    'design_id' => $designId,
-                    'design_title' => $designTitle,
-                    'user_id' => $user->id
-                ]);
-            } else {
-                session()->flash('error', 'التصميم غير موجود في هذا المنتج');
-                Log::warning('Attempted to remove non-existent design from product', [
-                    'product_id' => $productId,
-                    'design_id' => $designId,
-                    'user_id' => $user->id
-                ]);
-            }
-        } catch (\Exception $e) {
-            Log::error('Failed to remove design from product', [
-                'error' => $e->getMessage(),
-                'product_id' => $productId,
-                'design_id' => $designId,
-                'user_id' => Auth::id()
-            ]);
-            session()->flash('error', 'فشل في حذف التصميم من المنتج: ' . $e->getMessage());
-        }
-    }
+    // Product design functionality removed - designs are now order-level only
 
     public function checkout()
     {
@@ -526,21 +461,21 @@ class ShoppingCart extends Component
 
             $order = $orderService->createOrder($orderData);
 
-            // Copy design attachments to order items
-            foreach ($order->items as $orderItem) {
-                $designs = ProductDesign::where('user_id', $user->id)
-                    ->where('product_id', $orderItem->product_id)
-                    ->get();
+            // Copy cart designs to order
+            $cartDesigns = CartDesign::where('user_id', $user->id)
+                ->where('is_active', true)
+                ->get();
 
-                foreach ($designs as $design) {
-                    // Create order item design attachment
-                    OrderItemDesign::create([
-                        'order_item_id' => $orderItem->id,
-                        'design_id' => $design->design_id,
-                        'notes' => $design->notes,
-                        'priority' => $design->priority
-                    ]);
-                }
+            foreach ($cartDesigns as $design) {
+                OrderDesign::create([
+                    'order_id' => $order->id,
+                    'title' => $design->title,
+                    'image_url' => $design->image_url,
+                    'thumbnail_url' => $design->thumbnail_url,
+                    'design_data' => $design->design_data,
+                    'notes' => $design->notes ?? 'Design from cart',
+                    'priority' => 1
+                ]);
             }
 
             // Clear cart after successful order creation

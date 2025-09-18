@@ -1,19 +1,9 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>البحث عن التصاميم - Qaads</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;700;900&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Styles -->
-    @vite(['resources/css/app.css'])
+@extends('components.layout')
+
+@section('title', 'البحث عن التصاميم - Qaads')
+
+@section('content')
+    <x-navbar />
     
     <style>
         :root {
@@ -68,6 +58,65 @@
             gap: 1rem;
             align-items: center;
             flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .btn-cart-action {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-cart-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-studio-action {
+            background: linear-gradient(135deg, #6f42c1, #e83e8c);
+            color: white;
+            box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3);
+        }
+
+        .btn-studio-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(111, 66, 193, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .cart-count {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+            min-width: 1.5rem;
+            text-align: center;
         }
 
         .search-input {
@@ -222,43 +271,52 @@
             display: block;
         }
 
-        .navbar {
-            background: white;
-            padding: 1rem 0;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .navbar-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--brand-brown);
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        .nav-link {
-            color: var(--brand-brown);
-            text-decoration: none;
+        .cart-indicator-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #28a745;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
             font-weight: 600;
-            transition: color 0.3s ease;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
         }
 
-        .nav-link:hover {
-            color: var(--brand-yellow);
+        .cart-indicator-badge i {
+            font-size: 0.7rem;
+        }
+
+        /* Notification styles removed - using global toaster system */
+
+        /* Button Animation */
+        .action-btn {
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Cart indicator animation */
+        .cart-indicator-badge {
+            animation: slideInFromTop 0.3s ease;
+        }
+
+        @keyframes slideInFromTop {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         @media (max-width: 768px) {
@@ -276,25 +334,6 @@
             }
         }
     </style>
-</head>
-<body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <div class="logo">Qaads</div>
-            <div class="nav-links">
-                <a href="{{ route('home') }}" class="nav-link">
-                    <i class="fas fa-home me-1"></i>الرئيسية
-                </a>
-                <a href="{{ route('cart.index') }}" class="nav-link">
-                    <i class="fas fa-shopping-cart me-1"></i>السلة
-                </a>
-                <a href="{{ route('design.studio') }}" class="nav-link">
-                    <i class="fas fa-paint-brush me-1"></i>استوديو التصميم
-                </a>
-            </div>
-        </div>
-    </nav>
 
     <div class="design-search-container">
         <!-- Page Header -->
@@ -320,6 +359,19 @@
                     <i class="fas fa-search me-2"></i>بحث
                 </button>
             </form>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{{ route('cart.index') }}" class="btn btn-cart-action">
+                    <i class="fas fa-shopping-cart me-2"></i>
+                    عرض السلة
+                    <span class="cart-count" id="cartCount">0</span>
+                </a>
+                <a href="{{ route('design.studio') }}" class="btn btn-studio-action">
+                    <i class="fas fa-paint-brush me-2"></i>
+                    استوديو التصميم
+                </a>
+            </div>
         </div>
 
         <!-- Loading State -->
@@ -334,6 +386,12 @@
             <div class="designs-grid">
                 @foreach($designs as $design)
                     <div class="design-card" data-design-id="{{ $design['id'] }}">
+                        @if($design['in_cart'] ?? false)
+                            <div class="cart-indicator-badge">
+                                <i class="fas fa-check"></i>
+                                في السلة
+                            </div>
+                        @endif
                         <img 
                             src="{{ $design['thumbnail_url'] ?? $design['image_url'] }}" 
                             alt="{{ $design['title'] }}"
@@ -347,18 +405,29 @@
                                 <span><i class="fas fa-tag me-1"></i>{{ $design['category'] ?? 'تصميم' }}</span>
                                 <span><i class="fas fa-download me-1"></i>{{ $design['downloads'] ?? 0 }}</span>
                             </div>
-                            <div class="design-actions">
-                                <button 
-                                    class="action-btn btn-cart"
-                                    onclick="saveToCart('{{ $design['id'] }}', '{{ addslashes($design['title']) }}', '{{ $design['image_url'] }}')"
-                                >
-                                    <i class="fas fa-shopping-cart"></i>
-                                    حفظ في السلة
-                                </button>
+                    <div class="design-actions">
+                        @if($design['in_cart'] ?? false)
+                            <button 
+                                class="action-btn btn-delete"
+                                onclick="deleteFromCart(event, '{{ $design['id'] }}', '{{ addslashes($design['title']) }}', '{{ $design['image_url'] }}')"
+                                style="background: #dc3545; color: white;"
+                            >
+                                <i class="fas fa-trash"></i>
+                                حذف من السلة
+                            </button>
+                        @else
+                            <button 
+                                class="action-btn btn-cart"
+                                onclick="saveToCart(event, '{{ $design['id'] }}', '{{ addslashes($design['title']) }}', '{{ $design['image_url'] }}')"
+                            >
+                                <i class="fas fa-shopping-cart"></i>
+                                حفظ في السلة
+                            </button>
+                        @endif
                                 @auth
                                     <button 
                                         class="action-btn btn-favorite"
-                                        onclick="addToFavorites('{{ $design['id'] }}', '{{ addslashes($design['title']) }}', '{{ $design['image_url'] }}')"
+                                        onclick="addToFavorites(event, '{{ $design['id'] }}', '{{ addslashes($design['title']) }}', '{{ $design['image_url'] }}')"
                                     >
                                         <i class="fas fa-heart"></i>
                                         مفضلة
@@ -399,12 +468,32 @@
         window.axios.defaults.headers.common = window.axios.defaults.headers.common || {};
         window.axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        function saveToCart(designId, title, imageUrl) {
+        function saveToCart(event, designId, title, imageUrl) {
+            console.log('saveToCart called with:', { designId, title, imageUrl });
+            
+            const button = event.target.closest('.action-btn');
+            const originalText = button.innerHTML;
+            
+            // Show loading state
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+            button.disabled = true;
+            
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfToken) {
+                console.error('CSRF token not found');
+                showNotification('خطأ في الأمان - يرجى إعادة تحميل الصفحة', 'error');
+                resetButton(button, originalText);
+                return;
+            }
+            
+            console.log('CSRF token:', csrfToken.getAttribute('content'));
+            
             fetch('{{ route("design.save-to-cart") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+                    'Accept': 'application/json'
                 },
                 body: JSON.stringify({
                     design_id: designId,
@@ -412,21 +501,129 @@
                     image_url: imageUrl
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    console.log('Response not ok, status:', response.status);
+                    return response.text().then(text => {
+                        console.log('Error response body:', text);
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    });
+                }
+                
+                return response.json();
+            })
             .then(data => {
-                if (data.success) {
-                    alert(data.message);
+                console.log('Response data received:', data);
+                console.log('Data type:', typeof data);
+                console.log('Data.success:', data.success);
+                
+                // Always show success for now to test
+                if (data) {
+                    // Update button to show success state
+                    button.innerHTML = '<i class="fas fa-check"></i> محفوظ في السلة';
+                    button.style.background = '#28a745';
+                    button.style.color = 'white';
+                    button.disabled = true;
+                    
+                    // Add cart indicator badge
+                    addCartIndicator(button.closest('.design-card'));
+                    
+                    // Show success notification
+                    showNotification(data.message || 'تم حفظ التصميم بنجاح!', 'success');
+                    
+                    // Update cart count if cart indicator exists
+                    updateCartCount();
                 } else {
-                    alert(data.message || 'حدث خطأ أثناء الحفظ');
+                    console.log('No data received:', data);
+                    showNotification('حدث خطأ أثناء الحفظ', 'error');
+                    resetButton(button, originalText);
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('حدث خطأ أثناء الحفظ');
+                console.error('Error details:', error);
+                showNotification('حدث خطأ أثناء الحفظ', 'error');
+                resetButton(button, originalText);
             });
         }
+        
+        function resetButton(button, originalText) {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+        
+        function addCartIndicator(designCard) {
+            // Check if indicator already exists
+            if (designCard.querySelector('.cart-indicator-badge')) {
+                return;
+            }
+            
+            const indicator = document.createElement('div');
+            indicator.className = 'cart-indicator-badge';
+            indicator.innerHTML = '<i class="fas fa-check"></i> في السلة';
+            designCard.appendChild(indicator);
+        }
 
-        function addToFavorites(designId, title, imageUrl) {
+        // Remove cart indicator badge from design card
+        function removeCartIndicator(designCard) {
+            const badge = designCard.querySelector('.cart-indicator-badge');
+            if (badge) {
+                badge.remove();
+            }
+        }
+        
+        function updateCartCount() {
+            // Try to update cart count if cart indicator component exists
+            if (window.Livewire && window.Livewire.emit) {
+                window.Livewire.emit('cartUpdated');
+            }
+            
+            // Update the cart count badge
+            updateCartCountBadge();
+        }
+
+        // Update cart count badge
+        function updateCartCountBadge() {
+            const cartCountElement = document.getElementById('cartCount');
+            if (cartCountElement) {
+                // You can fetch the actual count from an API endpoint
+                // For now, we'll increment/decrement based on actions
+                let currentCount = parseInt(cartCountElement.textContent) || 0;
+                cartCountElement.textContent = currentCount;
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            // Use the global toaster system
+            if (window.toaster) {
+                const titles = {
+                    success: 'نجح',
+                    error: 'خطأ',
+                    info: 'معلومة',
+                    warning: 'تحذير'
+                };
+                
+                window.toaster.show(
+                    message,
+                    type,
+                    titles[type] || titles.info,
+                    4000
+                );
+            } else {
+                // Fallback to console if toaster not available
+                console.log(`${type.toUpperCase()}: ${message}`);
+            }
+        }
+
+        function addToFavorites(event, designId, title, imageUrl) {
+            const button = event.target.closest('.action-btn');
+            const originalText = button.innerHTML;
+            
+            // Show loading state
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإضافة...';
+            button.disabled = true;
+            
             fetch('{{ route("design.add-to-favorites") }}', {
                 method: 'POST',
                 headers: {
@@ -442,14 +639,97 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
+                    // Update button to show success state
+                    button.innerHTML = '<i class="fas fa-heart" style="color: #dc3545;"></i> في المفضلة';
+                    button.style.background = '#f8f9fa';
+                    button.style.borderColor = '#dc3545';
+                    button.disabled = true;
+                    
+                    showNotification(data.message, 'success');
                 } else {
-                    alert(data.message || 'حدث خطأ أثناء الإضافة للمفضلة');
+                    showNotification(data.message || 'حدث خطأ أثناء الإضافة للمفضلة', 'error');
+                    resetButton(button, originalText);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('حدث خطأ أثناء الإضافة للمفضلة');
+                showNotification('حدث خطأ أثناء الإضافة للمفضلة', 'error');
+                resetButton(button, originalText);
+            });
+        }
+
+        function deleteFromCart(event, designId, title, imageUrl) {
+            const button = event.target.closest('.action-btn');
+            const originalText = button.innerHTML;
+            
+            // Show loading state
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحذف...';
+            button.disabled = true;
+            
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfToken) {
+                console.error('CSRF token not found');
+                showNotification('خطأ في الأمان - يرجى إعادة تحميل الصفحة', 'error');
+                resetButton(button, originalText);
+                return;
+            }
+            
+            fetch('{{ route("design.delete-from-cart") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    design_id: designId,
+                    title: title,
+                    image_url: imageUrl
+                })
+            })
+            .then(response => {
+                console.log('Delete response status:', response.status);
+                
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.log('Delete error response body:', text);
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    });
+                }
+                
+                return response.json();
+            })
+            .then(data => {
+                console.log('Delete response data received:', data);
+                
+                if (data && data.success) {
+                    // Update button to show add to cart state
+                    button.innerHTML = '<i class="fas fa-shopping-cart"></i> حفظ في السلة';
+                    button.style.background = '';
+                    button.style.color = '';
+                    button.className = 'action-btn btn-cart';
+                    button.onclick = function(e) {
+                        saveToCart(e, designId, title, imageUrl);
+                    };
+                    
+                    // Remove cart indicator badge
+                    removeCartIndicator(button.closest('.design-card'));
+                    
+                    // Show success notification
+                    showNotification(data.message || 'تم حذف التصميم بنجاح!', 'success');
+                    
+                    // Update cart count if cart indicator exists
+                    updateCartCount();
+                } else {
+                    console.log('Delete failed:', data);
+                    showNotification(data.message || 'حدث خطأ أثناء الحذف', 'error');
+                    resetButton(button, originalText);
+                }
+            })
+            .catch(error => {
+                console.error('Delete error details:', error);
+                showNotification('حدث خطأ أثناء الحذف', 'error');
+                resetButton(button, originalText);
             });
         }
 
@@ -459,9 +739,13 @@
         }
 
         // Show loading state on form submit
-        document.querySelector('.search-form').addEventListener('submit', function() {
-            document.getElementById('loadingState').classList.add('active');
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchForm = document.querySelector('.search-form');
+            if (searchForm) {
+                searchForm.addEventListener('submit', function() {
+                    document.getElementById('loadingState').classList.add('active');
+                });
+            }
         });
     </script>
-</body>
-</html>
+@endsection

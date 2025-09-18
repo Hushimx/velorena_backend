@@ -18,22 +18,6 @@
                     </div>
                     <div class="col-md-4 text-md-end d-flex justify-content-end">
                         <div class="header-actions">
-                            <a href="{{ route('client.index') }}" class="header-btn client-btn">
-                                <i class="fas fa-user-circle"></i>
-                                <span>{{ trans('حسابي') }}</span>
-                            </a>
-                            <a href="{{ route('cart.index') }}" class="header-btn cart-btn">
-                                <i class="fas fa-shopping-cart"></i>
-                                <span>{{ trans('cart.cart') }}</span>
-                            </a>
-                            <a href="{{ route('user.orders.index') }}" class="header-btn orders-btn">
-                                <i class="fas fa-box"></i>
-                                <span>{{ trans('orders.my_orders') }}</span>
-                            </a>
-                            <a href="{{ route('appointments.index') }}" class="header-btn appointments-btn">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span>{{ trans('sidebar.my_appointments') }}</span>
-                            </a>
                             <a href="{{ route('home') }}" class="back-btn">
                                 <i class="fas fa-arrow-left"></i>
                                 <span>{{ trans('dashboard.back_to_dashboard') }}</span>
@@ -66,64 +50,38 @@
     <x-footer />
 
     <style>
-        /* Products Page Styles - Based on Welcome Page Design */
+        /* Products Page Styles - Professional Design */
         .products-page {
             font-family: 'Cairo', sans-serif;
-            background: linear-gradient(180deg, #FFEBC6 0%, #FFFFFF 100%);
+            background: linear-gradient(180deg, #fff4e6 0%, #FFFFFF 100%);
             min-height: calc(100vh - 96px);
-            /* Account for navbar height */
             direction: rtl;
             padding-top: 0;
         }
 
         /* Header Styles */
         .products-header {
-            background: linear-gradient(135deg, #2C2C2C 0%, #404040 100%);
-            color: #FFEBC6;
+            background: linear-gradient(135deg, #2a1e1e 0%, #3a2e2e 100%);
+            color: #ffde9f;
             padding: 3rem 0;
             margin-bottom: 2rem;
             position: relative;
-            overflow: hidden;
-        }
-
-        .products-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 235, 198, 0.1) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
-        }
-
-        @keyframes rotate {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
         }
 
         .products-title {
             font-family: 'Cairo', cursive;
             font-size: 3.5rem;
             font-weight: 700;
-            color: #FFEBC6;
+            color: #ffde9f;
             margin-bottom: 1rem;
-            animation: fadeInUp 0.8s ease forwards;
             position: relative;
             z-index: 1;
         }
 
         .products-subtitle {
             font-size: 1.2rem;
-            color: #FFEBC6;
+            color: #ffde9f;
             opacity: 0.9;
-            animation: fadeInUp 0.8s ease 0.2s forwards;
-            opacity: 0;
             position: relative;
             z-index: 1;
         }
@@ -136,8 +94,8 @@
         }
 
         .header-btn {
-            background: #FFEBC6;
-            color: #2C2C2C;
+            background: #ffde9f;
+            color: #2a1e1e;
             border: none;
             padding: 0.75rem 1.5rem;
             border-radius: 8px;
@@ -150,62 +108,23 @@
             text-decoration: none;
             font-family: 'Cairo', cursive;
             font-size: 1.1rem;
-            box-shadow: 0 4px 15px rgba(255, 235, 198, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 222, 159, 0.3);
             position: relative;
             z-index: 1;
         }
 
         .header-btn:hover {
-            background: #FFD700;
+            background: #f5d182;
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 235, 198, 0.4);
-            color: #2C2C2C;
+            box-shadow: 0 8px 25px rgba(255, 222, 159, 0.4);
+            color: #2a1e1e;
         }
 
-        .client-btn {
-            background: #8B4513;
-            color: #FFEBC6;
-        }
-
-        .client-btn:hover {
-            background: #A0522D;
-            color: #FFEBC6;
-        }
-
-        .cart-btn {
-            background: #28a745;
-            color: white;
-        }
-
-        .cart-btn:hover {
-            background: #218838;
-            color: white;
-        }
-
-        .orders-btn {
-            background: #007bff;
-            color: white;
-        }
-
-        .orders-btn:hover {
-            background: #0056b3;
-            color: white;
-        }
-
-        .appointments-btn {
-            background: #6f42c1;
-            color: white;
-        }
-
-        .appointments-btn:hover {
-            background: #5a32a3;
-            color: white;
-        }
 
         /* Back Button */
         .back-btn {
-            background: #FFEBC6;
-            color: #2C2C2C;
+            background: #ffde9f;
+            color: #2a1e1e;
             border: none;
             padding: 0.75rem 1.5rem;
             border-radius: 8px;
@@ -218,16 +137,16 @@
             text-decoration: none;
             font-family: 'Cairo', cursive;
             font-size: 1.1rem;
-            box-shadow: 0 4px 15px rgba(255, 235, 198, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 222, 159, 0.3);
             position: relative;
             z-index: 1;
         }
 
         .back-btn:hover {
-            background: #FFD700;
+            background: #f5d182;
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 235, 198, 0.4);
-            color: #2C2C2C;
+            box-shadow: 0 8px 25px rgba(255, 222, 159, 0.4);
+            color: #2a1e1e;
         }
 
         /* Success Message */
@@ -240,7 +159,6 @@
             align-items: center;
             gap: 1rem;
             box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
-            animation: fadeInUp 0.6s ease forwards;
         }
 
         .success-message i {
@@ -279,7 +197,7 @@
         .products-content .mb-6:hover {
             transform: translateY(-2px) !important;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
-            border-color: #c4a700 !important;
+            border-color: #f5d182 !important;
         }
 
         .products-content input,
@@ -292,8 +210,8 @@
 
         .products-content input:focus,
         .products-content select:focus {
-            border-color: #c4a700 !important;
-            box-shadow: 0 0 0 3px rgba(196, 167, 0, 0.1) !important;
+            border-color: #f5d182 !important;
+            box-shadow: 0 0 0 3px rgba(245, 209, 130, 0.1) !important;
             outline: none !important;
         }
 
@@ -319,7 +237,7 @@
         .products-content .grid>div:hover {
             transform: translateY(-5px) !important;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
-            border-color: #c4a700 !important;
+            border-color: #f5d182 !important;
         }
 
         /* Product Images */
@@ -333,51 +251,51 @@
 
         /* Product Info */
         .products-content h3 {
-            font-family: 'Caveat', cursive !important;
+            font-family: 'Cairo', cursive !important;
             font-weight: 700 !important;
-            color: #2C2C2C !important;
+            color: #2a1e1e !important;
         }
 
         .products-content h3 a {
-            color: #2C2C2C !important;
+            color: #2a1e1e !important;
             transition: color 0.3s ease !important;
         }
 
         .products-content h3 a:hover {
-            color: #c4a700 !important;
+            color: #f5d182 !important;
         }
 
         /* Category Badge */
         .products-content .bg-blue-100 {
-            background: linear-gradient(135deg, #FFEBC6 0%, #FFD700 100%) !important;
-            color: #2C2C2C !important;
-            border: 1px solid #c4a700 !important;
+            background: linear-gradient(135deg, #ffde9f 0%, #f5d182 100%) !important;
+            color: #2a1e1e !important;
+            border: 1px solid #f5d182 !important;
             font-weight: 600 !important;
         }
 
         /* Price */
         .products-content .text-green-600 {
-            color: #c4a700 !important;
-            font-family: 'Caveat', cursive !important;
+            color: #f5d182 !important;
+            font-family: 'Cairo', cursive !important;
             font-size: 1.2rem !important;
             font-weight: 700 !important;
         }
 
         /* View Details Button */
         .products-content .bg-blue-600 {
-            background: #2C2C2C !important;
+            background: #2a1e1e !important;
             border: none !important;
             border-radius: 8px !important;
-            font-family: 'Caveat', cursive !important;
+            font-family: 'Cairo', cursive !important;
             font-weight: 600 !important;
             transition: all 0.3s ease !important;
-            box-shadow: 0 4px 15px rgba(44, 44, 44, 0.3) !important;
+            box-shadow: 0 4px 15px rgba(42, 30, 30, 0.3) !important;
         }
 
         .products-content .bg-blue-600:hover {
-            background: #404040 !important;
+            background: #3a2e2e !important;
             transform: translateY(-2px) !important;
-            box-shadow: 0 8px 25px rgba(44, 44, 44, 0.4) !important;
+            box-shadow: 0 8px 25px rgba(42, 30, 30, 0.4) !important;
         }
 
         /* Pagination */
@@ -396,17 +314,17 @@
         }
 
         .products-content .bg-gray-100 {
-            background: linear-gradient(135deg, #FFEBC6 0%, #FFD700 100%) !important;
-            color: #2C2C2C !important;
+            background: linear-gradient(135deg, #ffde9f 0%, #f5d182 100%) !important;
+            color: #2a1e1e !important;
         }
 
         .products-content .text-gray-400 {
-            color: #c4a700 !important;
+            color: #f5d182 !important;
         }
 
         .products-content .text-gray-900 {
-            color: #2C2C2C !important;
-            font-family: 'Caveat', cursive !important;
+            color: #2a1e1e !important;
+            font-family: 'Cairo', cursive !important;
             font-weight: 700 !important;
         }
 
@@ -414,18 +332,6 @@
             color: #666 !important;
         }
 
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
 
         /* Responsive Design */
         @media (max-width: 768px) {

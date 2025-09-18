@@ -63,6 +63,11 @@ class Order extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function designs(): HasMany
+    {
+        return $this->hasMany(OrderDesign::class);
+    }
+
     // Generate unique order number
     public static function generateOrderNumber(): string
     {
