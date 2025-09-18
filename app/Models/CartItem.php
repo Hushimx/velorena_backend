@@ -46,11 +46,7 @@ class CartItem extends Model
     /**
      * Get designs attached to this cart item
      */
-    public function designs(): HasMany
-    {
-        return $this->hasMany(ProductDesign::class, 'product_id', 'product_id')
-            ->where('user_id', $this->user_id);
-    }
+    // ProductDesign relationship removed - designs are now order-level only
 
     /**
      * Calculate and update the unit price based on product and selected options

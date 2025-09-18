@@ -1013,28 +1013,14 @@ class DesignController extends Controller
         try {
             DB::beginTransaction();
 
-            // Remove existing designs for this product
-            \App\Models\ProductDesign::where('user_id', $user->id)
-                ->where('product_id', $productId)
-                ->delete();
-
-            // Add new designs
-            foreach ($designIds as $index => $designId) {
-                \App\Models\ProductDesign::create([
-                    'user_id' => $user->id,
-                    'product_id' => $productId,
-                    'design_id' => $designId,
-                    'notes' => $notes[$designId] ?? '',
-                    'priority' => $index + 1
-                ]);
-            }
+            // Designs are now managed at order level, not product level
+            // This functionality has been moved to cart designs
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Designs selected successfully',
-                'selected_count' => count($designIds)
+                'message' => 'Design management has been moved to the cart level. Designs will be automatically included when you create an order.'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -1060,22 +1046,8 @@ class DesignController extends Controller
         $user = Auth::user();
 
         try {
-            $selectedDesigns = \App\Models\ProductDesign::where('user_id', $user->id)
-                ->where('product_id', $productId)
-                ->with('design')
-                ->orderBy('priority')
-                ->get()
-                ->map(function ($productDesign) {
-                    return [
-                        'id' => $productDesign->design->id,
-                        'title' => $productDesign->design->title,
-                        'image_url' => $productDesign->design->image_url,
-                        'thumbnail_url' => $productDesign->design->thumbnail_url,
-                        'notes' => $productDesign->notes,
-                        'priority' => $productDesign->priority,
-                        'selected_at' => $productDesign->created_at
-                    ];
-                });
+            // Designs are now managed at order level, not product level
+            $selectedDesigns = [];
 
             return response()->json([
                 'success' => true,
@@ -1103,22 +1075,13 @@ class DesignController extends Controller
         $user = Auth::user();
 
         try {
-            $deleted = \App\Models\ProductDesign::where('user_id', $user->id)
-                ->where('product_id', $productId)
-                ->where('design_id', $designId)
-                ->delete();
+            // Designs are now managed at order level, not product level
+            $deleted = false;
 
-            if ($deleted) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Design removed successfully'
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Design not found in selection'
-                ], 404);
-            }
+            return response()->json([
+                'success' => true,
+                'message' => 'Design management has been moved to the cart level.'
+            ]);
         } catch (\Exception $e) {
             Log::error('Failed to remove design from product', [
                 'user_id' => $user->id,

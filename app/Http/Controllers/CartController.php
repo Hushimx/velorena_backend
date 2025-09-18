@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\CartItem;
 use App\Models\CartDesign;
 use App\Models\Product;
-use App\Models\ProductDesign;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderDesign;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -28,7 +28,7 @@ class CartController extends Controller
         $user = Auth::user();
 
         $cartItems = CartItem::where('user_id', $user->id)
-            ->with(['product.options.values', 'designs.design'])
+            ->with(['product.options.values'])
             ->get();
 
         $enhancedItems = [];
@@ -40,25 +40,8 @@ class CartController extends Controller
                 $item->updatePrices();
             }
 
-            // Get designs attached to this product for this user
-            $designs = ProductDesign::where('user_id', $user->id)
-                ->where('product_id', $item->product_id)
-                ->with('design')
-                ->get()
-                ->filter(function ($productDesign) {
-                    return $productDesign->design !== null;
-                })
-                ->map(function ($productDesign) {
-                    return [
-                        'id' => $productDesign->design->id,
-                        'title' => $productDesign->design->title,
-                        'image_url' => $productDesign->design->image_url,
-                        'thumbnail_url' => $productDesign->design->thumbnail_url,
-                        'notes' => $productDesign->notes,
-                        'priority' => $productDesign->priority,
-                        'attached_at' => $productDesign->created_at
-                    ];
-                });
+            // No more product-specific designs - designs are order-level now
+            $designs = [];
 
             $enhancedItems[] = [
                 'id' => $item->id,
@@ -211,177 +194,7 @@ class CartController extends Controller
         ]);
     }
 
-    /**
-     * Add design to cart item
-     */
-    public function addDesignToCartItem(Request $request): JsonResponse
-    {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'design_id' => 'required|exists:designs,id',
-            'notes' => 'nullable|string|max:1000',
-            'priority' => 'nullable|integer|min:1|max:10'
-        ]);
-
-        $user = Auth::user();
-        $design = \App\Models\Design::findOrFail($request->design_id);
-
-        if (!$design->is_active) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Design not found or inactive'
-            ], 404);
-        }
-
-        // Verify product is in user's cart
-        $cartItem = CartItem::where('user_id', $user->id)
-            ->where('product_id', $request->product_id)
-            ->first();
-
-        if (!$cartItem) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Product not found in cart'
-            ], 404);
-        }
-
-        // Add design to product
-        $productDesign = ProductDesign::updateOrCreate(
-            [
-                'user_id' => $user->id,
-                'product_id' => $request->product_id,
-                'design_id' => $request->design_id
-            ],
-            [
-                'notes' => $request->notes,
-                'priority' => $request->priority ?? 1
-            ]
-        );
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Design added to cart item successfully',
-            'data' => [
-                'product_design_id' => $productDesign->id,
-                'design' => [
-                    'id' => $design->id,
-                    'title' => $design->title,
-                    'image_url' => $design->image_url,
-                    'thumbnail_url' => $design->thumbnail_url
-                ],
-                'notes' => $productDesign->notes,
-                'priority' => $productDesign->priority
-            ]
-        ]);
-    }
-
-    /**
-     * Remove design from cart item
-     */
-    public function removeDesignFromCartItem(Request $request): JsonResponse
-    {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'design_id' => 'required|exists:designs,id'
-        ]);
-
-        $user = Auth::user();
-
-        $productDesign = ProductDesign::where('user_id', $user->id)
-            ->where('product_id', $request->product_id)
-            ->where('design_id', $request->design_id)
-            ->first();
-
-        if (!$productDesign) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Design not found in cart item'
-            ], 404);
-        }
-
-        $productDesign->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Design removed from cart item successfully'
-        ]);
-    }
-
-    /**
-     * Update design notes in cart item
-     */
-    public function updateDesignNotes(Request $request): JsonResponse
-    {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'design_id' => 'required|exists:designs,id',
-            'notes' => 'nullable|string|max:1000',
-            'priority' => 'nullable|integer|min:1|max:10'
-        ]);
-
-        $user = Auth::user();
-
-        $productDesign = ProductDesign::where('user_id', $user->id)
-            ->where('product_id', $request->product_id)
-            ->where('design_id', $request->design_id)
-            ->first();
-
-        if (!$productDesign) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Design not found in cart item'
-            ], 404);
-        }
-
-        $productDesign->update([
-            'notes' => $request->notes,
-            'priority' => $request->priority ?? $productDesign->priority
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Design notes updated successfully',
-            'data' => [
-                'notes' => $productDesign->notes,
-                'priority' => $productDesign->priority
-            ]
-        ]);
-    }
-
-    /**
-     * Get designs for specific cart item
-     */
-    public function getCartItemDesigns(Request $request, $productId): JsonResponse
-    {
-        $user = Auth::user();
-
-        $designs = ProductDesign::where('user_id', $user->id)
-            ->where('product_id', $productId)
-            ->with('design')
-            ->orderBy('priority')
-            ->get()
-            ->filter(function ($productDesign) {
-                return $productDesign->design !== null;
-            })
-            ->map(function ($productDesign) {
-                return [
-                    'id' => $productDesign->design->id,
-                    'title' => $productDesign->design->title,
-                    'description' => $productDesign->design->description,
-                    'image_url' => $productDesign->design->image_url,
-                    'thumbnail_url' => $productDesign->design->thumbnail_url,
-                    'category' => $productDesign->design->category,
-                    'notes' => $productDesign->notes,
-                    'priority' => $productDesign->priority,
-                    'attached_at' => $productDesign->created_at
-                ];
-            });
-
-        return response()->json([
-            'success' => true,
-            'data' => $designs
-        ]);
-    }
+    // Product design functionality removed - designs are now order-level only
 
     /**
      * Create order from cart with designs
@@ -434,22 +247,24 @@ class CartController extends Controller
 
                 $orderItem = OrderItem::create($orderItemData);
 
-                // Copy design attachments to order item
-                $designs = ProductDesign::where('user_id', $user->id)
-                    ->where('product_id', $cartItem->product_id)
-                    ->get();
+                // No more product-specific designs
+            }
 
-                foreach ($designs as $design) {
-                    // Create order item design attachment
-                    DB::table('order_item_designs')->insert([
-                        'order_item_id' => $orderItem->id,
-                        'design_id' => $design->design_id,
-                        'notes' => $design->notes,
-                        'priority' => $design->priority,
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ]);
-                }
+            // Copy cart designs to order
+            $cartDesigns = CartDesign::where('user_id', $user->id)
+                ->where('is_active', true)
+                ->get();
+
+            foreach ($cartDesigns as $design) {
+                OrderDesign::create([
+                    'order_id' => $order->id,
+                    'title' => $design->title,
+                    'image_url' => $design->image_url,
+                    'thumbnail_url' => $design->thumbnail_url,
+                    'design_data' => $design->design_data,
+                    'notes' => $design->notes ?? 'Design from cart',
+                    'priority' => 1
+                ]);
             }
 
             // Calculate order totals after adding all items

@@ -38,10 +38,9 @@
                 <div class="row">
                     @foreach ($products as $product)
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-4" wire:key="product-card-{{ $product->id }}">
-                            <div class="product-card">
-                                <!-- Product Image -->
-                                <div class="product-image-container">
-                                    <a href="{{ route('user.products.show', $product) }}" wire:ignore>
+                            <a href="{{ route('user.products.show', $product) }}" class="product-link" wire:ignore>
+                                <div class="product-card">
+                                    <div class="product-image">
                                         @php
                                             $productImage = null;
                                             // Try to get primary image first
@@ -59,46 +58,22 @@
                                             }
                                         @endphp
                                         @if ($productImage)
-                                            <img class="product-image" src="{{ $productImage }}"
-                                                alt="{{ $product->name }}">
+                                            <img src="{{ $productImage }}" alt="{{ $product->name }}" class="img-fluid" 
+                                                 onload="this.classList.add('loaded')"
+                                                 onerror="this.src='https://placehold.co/300x200/f8f9fa/6c757d?text=No+Image'; this.classList.add('loaded')"
+                                                 loading="lazy">
                                         @else
-                                            <div class="product-placeholder">
-                                                <i class="fas fa-box"></i>
-                                            </div>
+                                            <img src="https://placehold.co/300x200/f8f9fa/6c757d?text=No+Image" alt="{{ $product->name }}" class="img-fluid" 
+                                                 onload="this.classList.add('loaded')"
+                                                 loading="lazy">
                                         @endif
-                                    </a>
-                                    <div class="product-overlay">
-                                        <a href="{{ route('user.products.show', $product) }}" class="view-btn" wire:ignore>
-                                            <i class="fas fa-eye"></i>
-                                            {{ trans('products.view_details') }}
-                                        </a>
+                                    </div>
+                                    <div class="product-info p-3">
+                                        <h5 class="product-name mb-2">{{ $product->name }}</h5>
+                                        <p class="product-price fw-bold mb-3">{{ number_format($product->base_price, 2) }} ر.س</p>
                                     </div>
                                 </div>
-
-                                <!-- Product Info -->
-                                <div class="product-info">
-                                    <div class="product-category">
-                                        {{ $product->category->name ?? trans('products.no_category') }}
-                                    </div>
-
-                                    <h3 class="product-title">
-                                        <a href="{{ route('user.products.show', $product) }}" wire:ignore>
-                                            {{ $product->name }}
-                                        </a>
-                                    </h3>
-
-                                    <p class="product-description">
-                                        {{ Str::limit($product->description, 100) }}
-                                    </p>
-
-                                    <div class="product-footer">
-                                        <span class="product-price">
-                                            {{ number_format($product->base_price, 2) }}
-                                            {{ trans('products.currency') }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
+                            </a>
                         </div>
                     @endforeach
                 </div>
@@ -134,6 +109,14 @@
     </div>
 
     <style>
+        /* CSS Variables for Brand Colors */
+        :root {
+            --brand-yellow: #ffde9f;
+            --brand-yellow-light: #fff4e6;
+            --brand-yellow-dark: #f5d182;
+            --brand-brown: #2a1e1e;
+        }
+
         /* Livewire Component Styles - Welcome Page Design */
         .search-filters-section {
             background: #fff;
@@ -148,7 +131,7 @@
         .search-filters-section:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            border-color: #c4a700;
+            border-color: #f5d182;
         }
 
         .search-group,
@@ -164,13 +147,13 @@
             font-family: 'Cairo', cursive;
             font-weight: 600;
             font-size: 1.1rem;
-            color: #2C2C2C;
+            color: #2a1e1e;
             margin-bottom: 0.5rem;
         }
 
         .search-label i,
         .filter-label i {
-            color: #c4a700;
+            color: #f5d182;
         }
 
         .search-input,
@@ -186,8 +169,8 @@
 
         .search-input:focus,
         .filter-select:focus {
-            border-color: #c4a700;
-            box-shadow: 0 0 0 3px rgba(196, 167, 0, 0.1);
+            border-color: #f5d182;
+            box-shadow: 0 0 0 3px rgba(245, 209, 130, 0.1);
             outline: none;
         }
 
@@ -200,155 +183,100 @@
             padding: 1rem 0;
         }
 
-        /* Product Cards */
+        /* Product Cards - Using Slider Design */
+        .product-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            height: 100%;
+        }
+
+        .product-link:hover {
+            text-decoration: none;
+            color: inherit;
+        }
+
         .product-card {
-            background: #fff;
-            border: 2px solid transparent;
+            background: white;
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
             overflow: hidden;
-            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             height: 100%;
-            display: flex;
-            flex-direction: column;
+            border: 2px solid transparent;
+            will-change: transform;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+            width: 100%;
         }
 
         .product-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            border-color: #c4a700;
-        }
-
-        /* Product Image */
-        .product-image-container {
-            position: relative;
-            overflow: hidden;
-            height: 200px;
+            border-color: var(--brand-yellow-dark, #f5d182);
         }
 
         .product-image {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
             width: 100%;
+        }
+
+        .product-image img {
+            width: 100% !important;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-
-        .product-placeholder {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #FFEBC6 0%, #FFD700 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #2C2C2C;
-            font-size: 3rem;
-        }
-
-        .product-card:hover .product-image {
-            transform: scale(1.05);
-        }
-
-        .product-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(44, 44, 44, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            display: block;
+            border-radius: 0;
+            background-color: #f8f9fa;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            animation: fadeInImage 0.5s ease forwards;
+            max-width: none;
+            min-width: 100%;
         }
 
-        .product-card:hover .product-overlay {
+        .product-image img.loaded {
             opacity: 1;
         }
 
-        .view-btn {
-            background: #FFEBC6;
-            color: #2C2C2C;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
+        @keyframes fadeInImage {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+
+        .product-info {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .product-name {
+            font-size: 1.1rem;
             font-weight: 600;
-            cursor: pointer;
+            color: var(--brand-brown, #2a1e1e);
+            min-height: 2.5rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            font-family: 'Cairo', cursive;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 15px rgba(255, 235, 198, 0.3);
-        }
-
-        .view-btn:hover {
-            background: #FFD700;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 235, 198, 0.4);
-            color: #2C2C2C;
-        }
-
-        /* Product Info */
-        .product-info {
-            padding: 1.5rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .product-category {
-            background: linear-gradient(135deg, #FFEBC6 0%, #FFD700 100%);
-            color: #2C2C2C;
-            border: 1px solid #c4a700;
-            font-weight: 600;
-            font-size: 0.8rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            display: inline-block;
-            margin-bottom: 1rem;
-            width: fit-content;
-        }
-
-        .product-title {
-            font-family: 'Cairo', cursive;
-            font-weight: 700;
-            color: #2C2C2C;
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
-            line-height: 1.2;
-        }
-
-        .product-title a {
-            color: #2C2C2C;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .product-title a:hover {
-            color: #c4a700;
-        }
-
-        .product-description {
-            color: #666;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            margin-bottom: 1rem;
-            flex: 1;
-        }
-
-        .product-footer {
-            margin-top: auto;
+            justify-content: center;
+            font-family: 'Cairo', sans-serif;
         }
 
         .product-price {
-            color: #c4a700;
-            font-family: 'Cairo', cursive;
             font-size: 1.3rem;
             font-weight: 700;
+            color: var(--brand-brown, #2a1e1e);
+            margin: 1rem 0;
         }
 
         /* Pagination */
@@ -365,7 +293,7 @@
         .pagination-section:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            border-color: #c4a700;
+            border-color: #f5d182;
         }
 
         /* Bootstrap Pagination Customization */
@@ -377,7 +305,7 @@
         .pagination .page-item .page-link {
             background: #fff;
             border: 2px solid #e5e7eb;
-            color: #2C2C2C;
+            color: #2a1e1e;
             padding: 0.75rem 1rem;
             margin: 0 0.25rem;
             border-radius: 8px;
@@ -387,19 +315,19 @@
         }
 
         .pagination .page-item .page-link:hover {
-            background: #FFEBC6;
-            border-color: #c4a700;
-            color: #2C2C2C;
+            background: #ffde9f;
+            border-color: #f5d182;
+            color: #2a1e1e;
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(196, 167, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(245, 209, 130, 0.2);
         }
 
         .pagination .page-item.active .page-link {
-            background: linear-gradient(135deg, #FFEBC6 0%, #FFD700 100%);
-            border-color: #c4a700;
-            color: #2C2C2C;
+            background: linear-gradient(135deg, #ffde9f 0%, #f5d182 100%);
+            border-color: #f5d182;
+            color: #2a1e1e;
             font-weight: 700;
-            box-shadow: 0 4px 15px rgba(196, 167, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(245, 209, 130, 0.3);
         }
 
         .pagination .page-item.disabled .page-link {
@@ -434,20 +362,20 @@
         .no-products-icon {
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, #FFEBC6 0%, #FFD700 100%);
+            background: linear-gradient(135deg, #ffde9f 0%, #f5d182 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 1.5rem;
-            color: #2C2C2C;
+            color: #2a1e1e;
             font-size: 2rem;
         }
 
         .no-products-title {
             font-family: 'Cairo', cursive;
             font-weight: 700;
-            color: #2C2C2C;
+            color: #2a1e1e;
             font-size: 1.8rem;
             margin-bottom: 1rem;
         }
@@ -468,8 +396,16 @@
                 margin-bottom: 1.5rem;
             }
 
-            .product-image-container {
-                height: 180px;
+            .product-image {
+                height: 150px;
+            }
+            
+            .product-name {
+                font-size: 1rem;
+            }
+            
+            .product-price {
+                font-size: 1.1rem;
             }
 
             .product-info {
@@ -487,12 +423,12 @@
                 padding: 1rem;
             }
 
-            .product-title {
-                font-size: 1.1rem;
+            .product-name {
+                font-size: 0.9rem;
             }
 
             .product-price {
-                font-size: 1.1rem;
+                font-size: 1rem;
             }
 
             .pagination .page-item .page-link {

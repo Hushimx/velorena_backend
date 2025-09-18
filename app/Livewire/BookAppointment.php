@@ -5,8 +5,8 @@ namespace App\Livewire;
 use App\Models\Appointment;
 use App\Models\Order;
 use App\Models\CartItem;
-use App\Models\ProductDesign;
-use App\Models\OrderItemDesign;
+// ProductDesign removed - designs are now order-level only
+use App\Models\OrderDesign;
 use App\Services\OrderService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -52,25 +52,8 @@ class BookAppointment extends Component
                 $item->updatePrices();
             }
 
-            // Get designs attached to this product for this user
-            $designs = \App\Models\ProductDesign::where('user_id', $user->id)
-                ->where('product_id', $item->product_id)
-                ->with('design')
-                ->get()
-                ->filter(function ($productDesign) {
-                    return $productDesign->design !== null;
-                })
-                ->map(function ($productDesign) {
-                    return [
-                        'id' => $productDesign->design->id,
-                        'title' => $productDesign->design->title,
-                        'image_url' => $productDesign->design->image_url,
-                        'thumbnail_url' => $productDesign->design->thumbnail_url,
-                        'notes' => $productDesign->notes,
-                        'priority' => $productDesign->priority,
-                        'attached_at' => $productDesign->created_at
-                    ];
-                });
+            // No more product-specific designs - designs are order-level now
+            $designs = [];
 
             $this->cartItems[] = [
                 'id' => $item->id,
@@ -229,25 +212,28 @@ class BookAppointment extends Component
             // Set order status to waiting_for_appointment
             $order->update(['status' => 'waiting_for_appointment']);
 
-            // Copy design attachments to order items
-            foreach ($order->items as $orderItem) {
-                $designs = ProductDesign::where('user_id', $user->id)
-                    ->where('product_id', $orderItem->product_id)
-                    ->get();
+            // Copy cart designs to order
+            $cartDesigns = \App\Models\CartDesign::where('user_id', $user->id)
+                ->where('is_active', true)
+                ->get();
 
-                foreach ($designs as $design) {
-                    // Create order item design attachment
-                    OrderItemDesign::create([
-                        'order_item_id' => $orderItem->id,
-                        'design_id' => $design->design_id,
-                        'notes' => $design->notes,
-                        'priority' => $design->priority
-                    ]);
-                }
+            foreach ($cartDesigns as $design) {
+                OrderDesign::create([
+                    'order_id' => $order->id,
+                    'title' => $design->title,
+                    'image_url' => $design->image_url,
+                    'thumbnail_url' => $design->thumbnail_url,
+                    'design_data' => $design->design_data,
+                    'notes' => $design->notes ?? 'Design from cart',
+                    'priority' => 1
+                ]);
             }
 
             // Clear cart after successful order creation
             CartItem::where('user_id', $user->id)->delete();
+            
+            // Clear cart designs after successful order creation
+            \App\Models\CartDesign::where('user_id', $user->id)->delete();
 
             return $order;
         } catch (\Exception $e) {

@@ -35,6 +35,9 @@ class DesignSearchController extends Controller
                 
                 if ($result && isset($result['data'])) {
                     $designs = $result['data'];
+                    
+                    // Check cart status for each design
+                    $designs = $this->addCartStatusToDesigns($designs);
                 }
             } catch (\Exception $e) {
                 Log::error('Design search failed', ['error' => $e->getMessage()]);
@@ -47,10 +50,16 @@ class DesignSearchController extends Controller
 
     public function saveToCart(Request $request)
     {
+        Log::info('saveToCart called', [
+            'request_data' => $request->all(),
+            'user_id' => Auth::id(),
+            'session_id' => session()->getId()
+        ]);
+
         $request->validate([
             'design_id' => 'required',
             'title' => 'required|string|max:255',
-            'image_url' => 'required|url'
+            'image_url' => 'required|string'
         ]);
 
         try {
@@ -93,10 +102,14 @@ class DesignSearchController extends Controller
                 'message' => 'تم حفظ التصميم في السلة بنجاح!'
             ]);
         } catch (\Exception $e) {
-            Log::error('Failed to save design to cart', ['error' => $e->getMessage()]);
+            Log::error('Failed to save design to cart', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في حفظ التصميم'
+                'message' => 'فشل في حفظ التصميم: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -137,6 +150,95 @@ class DesignSearchController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'فشل في إضافة التصميم للمفضلة'
+            ], 500);
+        }
+    }
+
+    /**
+     * Add cart status to designs array
+     */
+    private function addCartStatusToDesigns($designs)
+    {
+        $userId = Auth::check() ? Auth::id() : null;
+        $sessionId = Auth::check() ? null : session()->getId();
+        
+        foreach ($designs as &$design) {
+            $design['in_cart'] = $this->isDesignInCart($design['id'], $design['image_url'], $userId, $sessionId);
+        }
+        
+        return $designs;
+    }
+
+    /**
+     * Check if design is already in cart
+     */
+    private function isDesignInCart($designId, $imageUrl, $userId, $sessionId)
+    {
+        $query = CartDesign::where('is_active', true)
+            ->where('image_url', $imageUrl);
+            
+        if ($userId) {
+            $query->where('user_id', $userId);
+        } else {
+            $query->where('session_id', $sessionId);
+        }
+        
+        return $query->exists();
+    }
+
+    public function deleteFromCart(Request $request)
+    {
+        Log::info('deleteFromCart called', [
+            'request_data' => $request->all(),
+            'user_id' => Auth::id(),
+            'session_id' => session()->getId()
+        ]);
+
+        $request->validate([
+            'design_id' => 'required',
+            'title' => 'required|string|max:255',
+            'image_url' => 'required|string'
+        ]);
+
+        try {
+            $userId = Auth::check() ? Auth::id() : null;
+            $sessionId = Auth::check() ? null : session()->getId();
+
+            // Find the cart design to delete
+            $cartDesign = CartDesign::where('title', $request->title)
+                ->where('image_url', $request->image_url)
+                ->where('is_active', true)
+                ->where(function($query) use ($userId, $sessionId) {
+                    if ($userId) {
+                        $query->where('user_id', $userId);
+                    } else {
+                        $query->where('session_id', $sessionId);
+                    }
+                })
+                ->first();
+
+            if (!$cartDesign) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'التصميم غير موجود في السلة!'
+                ]);
+            }
+
+            $cartDesign->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم حذف التصميم من السلة بنجاح!'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to delete design from cart', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل في حذف التصميم من السلة: ' . $e->getMessage()
             ], 500);
         }
     }

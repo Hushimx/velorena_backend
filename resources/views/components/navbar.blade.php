@@ -21,6 +21,10 @@
                     <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}"
                         href="{{ route('about') }}">{{ trans('About Us') }}</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('design.*') ? 'active' : '' }}"
+                        href="{{ route('design.search') }}">{{ trans('Design Search') }}</a>
+                </li>
             </ul>
             <ul class="navbar-nav mb-2 mb-lg-0">
                 <li class="nav-item mx-3">

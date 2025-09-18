@@ -301,59 +301,7 @@
                                                         </div>
                                                     @endif
                                                     
-                                                    <!-- Order Item Designs -->
-                                                    @if($item->designs && $item->designs->count() > 0)
-                                                        <div class="mt-3">
-                                                            <div class="text-xs font-medium text-gray-700 mb-2 flex items-center">
-                                                                <i class="fas fa-palette mr-1"></i>
-                                                                {{ trans('orders.attached_designs') }}:
-                                                            </div>
-                                                            <div class="space-y-2">
-                                                                @foreach($item->designs as $orderItemDesign)
-                                                                    @if($orderItemDesign->design)
-                                                                        <div class="flex items-center gap-2 bg-purple-50 px-2 py-1 rounded border-l-2 border-purple-300">
-                                                                            <div class="flex-shrink-0">
-                                                                                @if($orderItemDesign->design->thumbnail_url)
-                                                                                    <img src="{{ $orderItemDesign->design->thumbnail_url }}" 
-                                                                                         alt="{{ $orderItemDesign->design->title }}" 
-                                                                                         class="w-8 h-8 rounded object-cover">
-                                                                                @else
-                                                                                    <div class="w-8 h-8 bg-purple-200 rounded flex items-center justify-center">
-                                                                                        <i class="fas fa-image text-purple-600 text-xs"></i>
-                                                                                    </div>
-                                                                                @endif
-                                                                            </div>
-                                                                            <div class="flex-1 min-w-0">
-                                                                                <p class="text-xs font-medium text-purple-800 truncate">
-                                                                                    {{ $orderItemDesign->design->title }}
-                                                                                </p>
-                                                                                @if($orderItemDesign->notes)
-                                                                                    <p class="text-xs text-purple-600 truncate">
-                                                                                        <i class="fas fa-sticky-note mr-1"></i>
-                                                                                        {{ $orderItemDesign->notes }}
-                                                                                    </p>
-                                                                                @endif
-                                                                            </div>
-                                                                            @if($orderItemDesign->priority)
-                                                                                <div class="flex-shrink-0">
-                                                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                                                                        #{{ $orderItemDesign->priority }}
-                                                                                    </span>
-                                                                                </div>
-                                                                            @endif
-                                                                        </div>
-                                                                    @endif
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    @else
-                                                        <div class="mt-2">
-                                                            <span class="text-xs text-gray-500 italic">
-                                                                <i class="fas fa-palette mr-1"></i>
-                                                                {{ trans('orders.no_designs_attached') }}
-                                                            </span>
-                                                        </div>
-                                                    @endif
+                                                    <!-- Designs are now shown in separate panel below -->
                                                 </div>
                                             </div>
                                         </td>
@@ -373,7 +321,117 @@
                         </table>
                     </div>
                 </div>
+
+                <!-- Order Designs Panel -->
+                @if($order->designs && $order->designs->count() > 0)
+                    <div class="mt-8 pt-8 border-t border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-palette mr-2 text-purple-600"></i>
+                            {{ trans('Order Designs') }} ({{ $order->designs->count() }})
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            @foreach($order->designs as $design)
+                                <div class="bg-purple-50 rounded-lg p-4 border border-purple-200 hover:shadow-md transition-shadow">
+                                    <!-- Design Image -->
+                                    <div class="aspect-square mb-3 bg-white rounded-lg overflow-hidden">
+                                        @if($design->thumbnail_url)
+                                            <img src="{{ $design->thumbnail_url }}" 
+                                                 alt="{{ $design->title }}" 
+                                                 class="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                                                 onclick="openImageModal('{{ $design->image_url }}', '{{ addslashes($design->title) }}')">
+                                        @else
+                                            <div class="w-full h-full bg-purple-100 flex items-center justify-center">
+                                                <i class="fas fa-image text-purple-400 text-3xl"></i>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <!-- Design Info -->
+                                    <div class="space-y-2">
+                                        <h4 class="font-medium text-purple-900 text-sm truncate" title="{{ $design->title }}">
+                                            {{ $design->title }}
+                                        </h4>
+                                        
+                                        @if($design->notes)
+                                            <div class="text-xs text-purple-700 bg-purple-100 rounded px-2 py-1">
+                                                <i class="fas fa-sticky-note mr-1"></i>
+                                                {{ $design->notes }}
+                                            </div>
+                                        @endif
+
+                                        <div class="flex justify-between items-center text-xs text-purple-600">
+                                            <span class="flex items-center">
+                                                <i class="fas fa-clock mr-1"></i>
+                                                {{ $design->created_at->diffForHumans() }}
+                                            </span>
+                                            @if($design->priority > 1)
+                                                <span class="bg-purple-200 text-purple-800 px-2 py-1 rounded-full">
+                                                    #{{ $design->priority }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <div class="mt-8 pt-8 border-t border-gray-200">
+                        <div class="text-center py-8">
+                            <i class="fas fa-palette text-gray-400 text-4xl mb-3"></i>
+                            <h3 class="text-lg font-medium text-gray-600 mb-2">{{ trans('No Designs Found') }}</h3>
+                            <p class="text-gray-500">{{ trans('This order does not have any designs attached.') }}</p>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden items-center justify-center p-4">
+        <div class="relative max-w-4xl max-h-full">
+            <button onclick="closeImageModal()" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+            <img id="modalImage" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg">
+            <div id="modalTitle" class="absolute bottom-4 left-4 right-4 text-white text-center bg-black bg-opacity-50 rounded p-2"></div>
+        </div>
+    </div>
+
+    <script>
+        function openImageModal(imageUrl, title) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalTitle = document.getElementById('modalTitle');
+            
+            modalImage.src = imageUrl;
+            modalImage.alt = title;
+            modalTitle.textContent = title;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Close modal when clicking outside the image
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImageModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeImageModal();
+            }
+        });
+    </script>
 @endsection

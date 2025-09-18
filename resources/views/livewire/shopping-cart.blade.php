@@ -268,7 +268,6 @@
                                     @endif
                                 </div>
                                 <div class="design-info">
-                                    <h5 class="design-title">{{ $design['title'] }}</h5>
                                     <p class="design-date">{{ \Carbon\Carbon::parse($design['created_at'])->diffForHumans() }}</p>
                                     <button wire:click="deleteCartDesign({{ $design['id'] }})" class="delete-design-btn" 
                                         wire:confirm="هل أنت متأكد من حذف هذا التصميم؟" 

@@ -7,9 +7,6 @@
     <!-- Navbar -->
     <x-navbar />
 
-    <!-- Toaster Notifications -->
-    <x-toaster />
-
     <div class="product-page" dir="rtl">
         <div class="container-fluid">
             <div class="row min-vh-100">

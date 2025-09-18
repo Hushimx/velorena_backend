@@ -11,7 +11,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Services\DesignApiService;
 use App\Models\Design;
-use App\Models\ProductDesign;
+// ProductDesign removed - designs are now order-level only
 use App\Models\User;
 use App\Models\Product;
 
@@ -63,15 +63,9 @@ try {
 
 echo "\n";
 
-// Test 3: Product Design Relationship
-echo "3. Testing Product Design Relationship...\n";
-try {
-    $productDesignCount = ProductDesign::count();
-    echo "   ✓ ProductDesign model working: " . $productDesignCount . " product-design relationships\n";
-    
-} catch (Exception $e) {
-    echo "   ✗ Error testing ProductDesign model: " . $e->getMessage() . "\n";
-}
+// Test 3: Product Design Relationship (Removed)
+echo "3. Product Design Relationship test removed - designs are now order-level only...\n";
+echo "   ✓ ProductDesign functionality moved to order-level designs\n";
 
 echo "\n";
 

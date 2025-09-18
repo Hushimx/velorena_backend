@@ -19,7 +19,7 @@ class AppointmentController extends Controller
 
     public function show(Appointment $appointment)
     {
-        $appointment->load(['user', 'designer', 'order', 'order.items.product', 'order.items.designs.design']);
+        $appointment->load(['user', 'designer', 'order', 'order.items.product', 'order.designs']);
         return view('admin.dashboard.appointments.show', compact('appointment'));
     }
 

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Design;
-use App\Models\ProductDesign;
+// ProductDesign removed - designs are now order-level only
 use App\Services\DesignApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,18 +45,9 @@ class DesignController extends Controller
         $search = $request->get('search', '');
         $category = $request->get('category', '');
         
-        // Load existing designs for this product
+        // Designs are now managed at order level, not product level
         $selectedDesigns = [];
         $designNotes = [];
-        
-        if (Auth::check()) {
-            $existingDesigns = ProductDesign::where('user_id', Auth::id())
-                ->where('product_id', $productId)
-                ->get();
-            
-            $selectedDesigns = $existingDesigns->pluck('design_id')->toArray();
-            $designNotes = $existingDesigns->pluck('notes', 'design_id')->toArray();
-        }
         
         $query = Design::active();
         
@@ -98,39 +89,20 @@ class DesignController extends Controller
         $notes = $request->get('notes', []);
         
         try {
-            DB::beginTransaction();
+            // Designs are now managed at order level, not product level
+            // This functionality has been moved to cart designs
             
-            // Remove existing designs for this product
-            ProductDesign::where('user_id', $user->id)
-                ->where('product_id', $productId)
-                ->delete();
-            
-            // Add new designs
-            foreach ($designIds as $index => $designId) {
-                ProductDesign::create([
-                    'user_id' => $user->id,
-                    'product_id' => $productId,
-                    'design_id' => $designId,
-                    'notes' => $notes[$designId] ?? '',
-                    'priority' => $index + 1
-                ]);
-            }
-            
-            DB::commit();
-            
-            return redirect()->back()->with('success', 
-                'Designs saved successfully! ' . count($designIds) . ' designs saved.');
+            return redirect()->back()->with('info', 
+                'Design management has been moved to the cart level. Designs will be automatically included when you create an order.');
                 
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Failed to save designs for product', [
+            Log::error('Design management moved to cart level', [
                 'user_id' => $user->id,
                 'product_id' => $productId,
-                'design_ids' => $designIds,
                 'error' => $e->getMessage()
             ]);
             
-            return redirect()->back()->with('error', 'Failed to save designs: ' . $e->getMessage());
+            return redirect()->back()->with('info', 'Design management has been moved to the cart level.');
         }
     }
     
@@ -143,29 +115,8 @@ class DesignController extends Controller
             return redirect()->back()->with('error', 'Please login to manage designs');
         }
         
-        $user = Auth::user();
-        
-        try {
-            $deleted = ProductDesign::where('user_id', $user->id)
-                ->where('product_id', $productId)
-                ->where('design_id', $designId)
-                ->delete();
-            
-            if ($deleted) {
-                return redirect()->back()->with('success', 'Design removed successfully');
-            } else {
-                return redirect()->back()->with('error', 'Design not found in selection');
-            }
-        } catch (\Exception $e) {
-            Log::error('Failed to remove design from product', [
-                'user_id' => $user->id,
-                'product_id' => $productId,
-                'design_id' => $designId,
-                'error' => $e->getMessage()
-            ]);
-            
-            return redirect()->back()->with('error', 'Failed to remove design: ' . $e->getMessage());
-        }
+        // Designs are now managed at order level, not product level
+        return redirect()->back()->with('info', 'Design management has been moved to the cart level.');
     }
     
     /**

@@ -15,7 +15,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load(['user', 'items.product', 'items.product.options.values', 'items.designs.design']);
+        $order->load(['user', 'items.product', 'items.product.options.values', 'designs']);
         return view('admin.dashboard.orders.show', compact('order'));
     }
 
