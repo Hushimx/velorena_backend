@@ -646,24 +646,9 @@ class DesignController extends Controller
             ], 404);
         }
 
-        // Link design to all products in the order
-        $productIds = $order->orderItems()->pluck('product_id')->unique();
-
-        foreach ($productIds as $productId) {
-            DB::table('product_designs')->updateOrInsert(
-                [
-                    'user_id' => $user->id,
-                    'product_id' => $productId,
-                    'design_id' => $design->id
-                ],
-                [
-                    'notes' => $request->get('notes', ''),
-                    'priority' => $request->get('priority', 1),
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]
-            );
-        }
+        // Note: product_designs table no longer exists
+        // Designs are now managed through appointments directly
+        // This functionality has been moved to appointment-level design management
 
         return response()->json([
             'success' => true,
@@ -686,15 +671,9 @@ class DesignController extends Controller
             ], 403);
         }
 
-        // Get all product IDs from the order
-        $productIds = $order->orderItems()->pluck('product_id')->unique();
-
-        // Remove design from all products in the order
-        DB::table('product_designs')
-            ->where('user_id', $user->id)
-            ->where('design_id', $design->id)
-            ->whereIn('product_id', $productIds)
-            ->delete();
+        // Note: product_designs table no longer exists
+        // Designs are now managed through appointments directly
+        // This functionality has been moved to appointment-level design management
 
         return response()->json([
             'success' => true,
@@ -719,10 +698,9 @@ class DesignController extends Controller
         $collectionDesigns = $user->designCollections()->with('designs')->get()->pluck('designs')->flatten()->pluck('id');
         $appointmentDesigns = $user->appointments()->with('designs')->get()->pluck('designs')->flatten()->pluck('id');
 
-        // Get designs from user's orders
-        $orderDesigns = DB::table('product_designs')
-            ->where('user_id', $user->id)
-            ->pluck('design_id');
+        // Note: product_designs table no longer exists
+        // Get designs from user's orders through appointments instead
+        $orderDesigns = collect([]);
 
         $allDesignIds = $favoriteDesigns
             ->merge($collectionDesigns)

@@ -108,21 +108,8 @@ class Product extends Model
         return null;
     }
 
-    // Relationship with designs through product_designs pivot table
-    public function designs(): BelongsToMany
-    {
-        return $this->belongsToMany(Design::class, 'product_designs')
-            ->withPivot('user_id', 'notes', 'priority')
-            ->withTimestamps();
-    }
-
-    // Get designs for a specific user
-    public function designsForUser($userId)
-    {
-        return $this->designs()
-            ->wherePivot('user_id', $userId)
-            ->orderByPivot('priority');
-    }
+    // Note: product_designs relationship has been removed as the table no longer exists
+    // Designs are now managed through appointments and orders directly
 
     // Relationship with highlights through product_highlights pivot table
     public function highlights(): BelongsToMany

@@ -22,14 +22,8 @@
                                 $productImages[] = $product->image;
                             }
 
-                            // Add additional images from product_designs if they exist
-                            if (method_exists($product, 'designs') && $product->designs) {
-                                foreach ($product->designs as $design) {
-                                    if ($design->image && file_exists(public_path($design->image))) {
-                                        $productImages[] = $design->image;
-                                    }
-                                }
-                            }
+                            // Note: product_designs relationship has been removed
+                            // Additional images are now managed through product_images table only
 
                             // Add images from product_images if they exist
                             if (method_exists($product, 'images') && $product->images) {
