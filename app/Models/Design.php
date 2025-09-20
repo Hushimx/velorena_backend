@@ -35,12 +35,8 @@ class Design extends Model
             ->withTimestamps();
     }
 
-    public function products(): BelongsToMany
-    {
-        return $this->belongsToMany(Product::class, 'product_designs')
-            ->withPivot('user_id', 'notes', 'priority')
-            ->withTimestamps();
-    }
+    // Note: products relationship has been removed as product_designs table no longer exists
+    // Designs are now managed through appointments and orders directly
 
     public function favorites(): BelongsToMany
     {

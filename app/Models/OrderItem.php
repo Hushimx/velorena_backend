@@ -38,10 +38,8 @@ class OrderItem extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function designs(): HasMany
-    {
-        return $this->hasMany(OrderItemDesign::class);
-    }
+    // Note: OrderItemDesign model doesn't exist, designs are managed at order level
+    // This relationship has been removed to avoid errors
 
     // Calculate total price for this item
     public function calculateTotalPrice(): void

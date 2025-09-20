@@ -99,16 +99,9 @@
 
                     <!-- Product Designs -->
                     @php
+                        // Note: OrderItem designs relationship has been removed
+                        // Designs are now managed at appointment level only
                         $productDesigns = collect();
-                        foreach ($appointment->order->items as $item) {
-                            $designs = $item->designs()->with('design')->get();
-                            if ($designs->count() > 0) {
-                                $productDesigns->push([
-                                    'product' => $item->product,
-                                    'designs' => $designs,
-                                ]);
-                            }
-                        }
                     @endphp
 
                     @if ($productDesigns->count() > 0)
