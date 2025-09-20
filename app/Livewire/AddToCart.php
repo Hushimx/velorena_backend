@@ -79,11 +79,18 @@ class AddToCart extends Component
     public function addToCart()
     {
         if (!Auth::check()) {
-            // Store the current URL as intended URL for redirect after login
-            session(['url.intended' => request()->fullUrl()]);
-
-            // Redirect to login page
-            return redirect()->route('login');
+            // For Livewire components, we need to handle this differently
+            $this->dispatch(
+                'showToast',
+                message: 'يرجى تسجيل الدخول أولاً لإضافة المنتجات للسلة',
+                type: 'warning',
+                title: 'تسجيل الدخول مطلوب',
+                duration: 4000
+            );
+            
+            // Use JavaScript redirect instead of PHP redirect
+            $this->dispatch('redirectToLogin');
+            return;
         }
 
         $this->isLoading = true;
@@ -171,11 +178,18 @@ class AddToCart extends Component
     public function buyNow()
     {
         if (!Auth::check()) {
-            // Store the current URL as intended URL for redirect after login
-            session(['url.intended' => request()->fullUrl()]);
-
-            // Redirect to login page
-            return redirect()->route('login');
+            // For Livewire components, we need to handle this differently
+            $this->dispatch(
+                'showToast',
+                message: 'يرجى تسجيل الدخول أولاً للشراء',
+                type: 'warning',
+                title: 'تسجيل الدخول مطلوب',
+                duration: 4000
+            );
+            
+            // Use JavaScript redirect instead of PHP redirect
+            $this->dispatch('redirectToLogin');
+            return;
         }
 
         $this->isLoading = true;
@@ -191,8 +205,8 @@ class AddToCart extends Component
 
             $this->isLoading = false;
 
-            // Redirect to cart page
-            return redirect()->route('cart.index');
+            // Use JavaScript redirect instead of PHP redirect
+            $this->dispatch('redirectToCart');
         } catch (\Exception $e) {
             $this->isLoading = false;
             Log::error('Buy now error: ' . $e->getMessage());

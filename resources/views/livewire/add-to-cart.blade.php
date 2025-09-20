@@ -868,6 +868,20 @@
                 console.log('Cart updated');
             });
 
+            // Handle redirect to login
+            Livewire.on('redirectToLogin', () => {
+                // Store the current URL for redirect after login
+                sessionStorage.setItem('url.intended', window.location.href);
+                
+                // Redirect to login page
+                window.location.href = '{{ route('login') }}';
+            });
+
+            // Handle redirect to cart
+            Livewire.on('redirectToCart', () => {
+                window.location.href = '{{ route('cart.index') }}';
+            });
+
             // Test toaster functionality
             Livewire.on('showToast', (...args) => {
                 console.log('Toast event received:', args);
