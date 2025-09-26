@@ -431,12 +431,13 @@
                         </div>
 
                         <!-- User Profile -->
+                        @auth
                         <div x-data="{ open: false }" class="flex items-center relative">
-                            <span class="hidden sm:block profile-name">{{ Auth::user()->name }}</span>
+                            <span class="hidden sm:block profile-name">{{ Auth::user()->name ?? 'User' }}</span>
                             <div class="relative ml-3">
                                 <button @click="open = !open" class="focus:outline-none">
                                     <img class="profile-img"
-                                        src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=3b82f6&color=fff"
+                                        src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'User') }}&background=3b82f6&color=fff"
                                         alt="Profile Picture">
                                     <span class="profile-status"></span>
                                 </button>
@@ -482,6 +483,7 @@
                                 </div>
                             </div>
                         </div>
+                        @endauth
                     </div>
                 </div>
             </header>

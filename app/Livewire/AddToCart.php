@@ -8,6 +8,7 @@ use App\Models\OptionValue;
 use App\Models\Design;
 // ProductDesign removed - designs are now order-level only
 use App\Services\DesignApiService;
+use App\Services\GuestCartService;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -37,6 +38,7 @@ class AddToCart extends Component
     public function mount(Product $product)
     {
         $this->product = $product;
+        
         // Initialize selectedOptions with first value for each option
         foreach ($this->product->options as $option) {
             if ($option->values->count() > 0) {
@@ -78,21 +80,6 @@ class AddToCart extends Component
 
     public function addToCart()
     {
-        if (!Auth::check()) {
-            // For Livewire components, we need to handle this differently
-            $this->dispatch(
-                'showToast',
-                message: 'يرجى تسجيل الدخول أولاً لإضافة المنتجات للسلة',
-                type: 'warning',
-                title: 'تسجيل الدخول مطلوب',
-                duration: 4000
-            );
-            
-            // Use JavaScript redirect instead of PHP redirect
-            $this->dispatch('redirectToLogin');
-            return;
-        }
-
         $this->isLoading = true;
 
         try {
@@ -105,35 +92,12 @@ class AddToCart extends Component
                 return;
             }
 
-            $user = Auth::user();
-
-            // Check if this exact product with these options already exists in cart
-            $existingCartItem = CartItem::where('user_id', $user->id)
-                ->where('product_id', $this->product->id)
-                ->where('selected_options', json_encode($this->selectedOptions))
-                ->first();
-
-            if ($existingCartItem) {
-                // Update quantity of existing item
-                $existingCartItem->quantity += $this->quantity;
-                $existingCartItem->updatePrices();
-                $existingCartItem->save();
-
-                $message = trans('messages.cart_updated');
+            if (Auth::check()) {
+                // Authenticated user - use database cart
+                $this->addToAuthenticatedCart();
             } else {
-                // Create new cart item
-                $cartItem = new CartItem([
-                    'user_id' => $user->id,
-                    'product_id' => $this->product->id,
-                    'quantity' => $this->quantity,
-                    'selected_options' => $this->selectedOptions,
-                    'notes' => $this->notes,
-                ]);
-
-                $cartItem->updatePrices();
-                $cartItem->save();
-
-                $message = trans('messages.cart_added');
+                // Guest user - use session cart
+                $this->addToGuestCart();
             }
 
             // Reset form
@@ -143,20 +107,15 @@ class AddToCart extends Component
             // Reset options to first values
             foreach ($this->product->options as $option) {
                 if ($option->values->count() > 0) {
-                    $this->selectedOptions[$option->id] = $option->values->first()->id;
+                    if ($option->type === 'checkbox') {
+                        $this->selectedOptions[$option->id] = [];
+                    } else {
+                        $this->selectedOptions[$option->id] = $option->values->first()->id;
+                    }
                 }
             }
 
             $this->isLoading = false;
-
-            // Show success toaster notification
-            $this->dispatch(
-                'showToast',
-                message: $message,
-                type: 'success',
-                title: trans('messages.success'),
-                duration: 4000
-            );
 
             // Dispatch event to update cart count in other components
             $this->dispatch('cartUpdated');
@@ -175,23 +134,73 @@ class AddToCart extends Component
         }
     }
 
-    public function buyNow()
+    private function addToAuthenticatedCart()
     {
-        if (!Auth::check()) {
-            // For Livewire components, we need to handle this differently
-            $this->dispatch(
-                'showToast',
-                message: 'يرجى تسجيل الدخول أولاً للشراء',
-                type: 'warning',
-                title: 'تسجيل الدخول مطلوب',
-                duration: 4000
-            );
-            
-            // Use JavaScript redirect instead of PHP redirect
-            $this->dispatch('redirectToLogin');
-            return;
+        $user = Auth::user();
+
+        // Check if this exact product with these options already exists in cart
+        $existingCartItem = CartItem::where('user_id', $user->id)
+            ->where('product_id', $this->product->id)
+            ->where('selected_options', json_encode($this->selectedOptions))
+            ->first();
+
+        if ($existingCartItem) {
+            // Update quantity of existing item
+            $existingCartItem->quantity += $this->quantity;
+            $existingCartItem->updatePrices();
+            $existingCartItem->save();
+
+            $message = trans('messages.cart_updated');
+        } else {
+            // Create new cart item
+            $cartItem = new CartItem([
+                'user_id' => $user->id,
+                'product_id' => $this->product->id,
+                'quantity' => $this->quantity,
+                'selected_options' => $this->selectedOptions,
+                'notes' => $this->notes,
+            ]);
+
+            $cartItem->updatePrices();
+            $cartItem->save();
+
+            $message = trans('messages.cart_added');
         }
 
+        // Show success toaster notification
+        $this->dispatch(
+            'showToast',
+            message: $message,
+            type: 'success',
+            title: trans('messages.success'),
+            duration: 4000
+        );
+    }
+
+    private function addToGuestCart()
+    {
+        $guestCartService = app(GuestCartService::class);
+        $guestCartService->addToCart(
+            $this->product->id,
+            $this->quantity,
+            $this->selectedOptions,
+            $this->notes
+        );
+
+        $message = trans('messages.cart_added');
+
+        // Show success toaster notification
+        $this->dispatch(
+            'showToast',
+            message: $message,
+            type: 'success',
+            title: trans('messages.success'),
+            duration: 4000
+        );
+    }
+
+    public function buyNow()
+    {
         $this->isLoading = true;
 
         try {

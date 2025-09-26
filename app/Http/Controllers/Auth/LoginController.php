@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\GuestCartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -48,11 +49,23 @@ class LoginController extends Controller
         )) {
             $request->session()->regenerate();
 
-            // Clear any intended URL from session since we want to go to home page
-            session()->forget('url.intended');
+            // Merge guest cart with user cart if guest cart exists
+            $guestCartService = app(GuestCartService::class);
+            $guestCartSummary = $guestCartService->getCartSummary();
+            
+            if ($guestCartSummary['item_count'] > 0) {
+                $mergedCount = $guestCartService->mergeWithUserCart(Auth::id());
+                
+                if ($mergedCount > 0) {
+                    session()->flash('cart_merged', "تم دمج {$mergedCount} منتج من سلة الضيف مع حسابك");
+                }
+            }
 
-            // Always redirect to home page after successful login
-            return redirect('/')->with('status', __('Logged in successfully'));
+            // Redirect to intended URL or home page after successful login
+            $intendedUrl = session('url.intended', '/');
+            session()->forget('url.intended');
+            
+            return redirect($intendedUrl)->with('status', __('Logged in successfully'));
         }
 
         throw ValidationException::withMessages([

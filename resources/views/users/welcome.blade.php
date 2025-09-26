@@ -4,14 +4,12 @@
 
     <x-main-content />
 
-    <x-services />
+    <x-categories-slider :categories="$categories" />
     <x-product-slider :latest-products="$latestProducts" :best-selling-products="$bestSellingProducts" />
 
     <x-why-choose-us />
 
-
-    <x-latest-products />
-
+    <x-reviews-section />
 
     <x-footer />
 @endsection

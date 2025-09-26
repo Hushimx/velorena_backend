@@ -39,17 +39,17 @@ class StoreOrderRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'phone.required' => 'Phone number is required.',
-            'phone.regex' => 'Please enter a valid phone number.',
-            'items.required' => 'At least one item is required.',
-            'items.min' => 'At least one item is required.',
-            'items.max' => 'Maximum 50 items allowed per order.',
-            'items.*.product_id.required' => 'Product ID is required.',
-            'items.*.product_id.exists' => 'Selected product does not exist.',
-            'items.*.quantity.required' => 'Quantity is required.',
-            'items.*.quantity.min' => 'Quantity must be at least 1.',
-            'items.*.quantity.max' => 'Quantity cannot exceed 100.',
-            'items.*.options.*.exists' => 'Selected option does not exist.',
+            'phone.required' => __('validation.phone.required'),
+            'phone.regex' => __('validation.phone.regex'),
+            'items.required' => __('validation.items.required'),
+            'items.min' => __('validation.items.min'),
+            'items.max' => __('validation.items.max'),
+            'items.*.product_id.required' => __('validation.product_id.required'),
+            'items.*.product_id.exists' => __('validation.product_id.exists'),
+            'items.*.quantity.required' => __('validation.quantity.required'),
+            'items.*.quantity.min' => __('validation.quantity.min'),
+            'items.*.quantity.max' => __('validation.quantity.max'),
+            'items.*.options.*.exists' => __('validation.option.exists'),
         ];
     }
 

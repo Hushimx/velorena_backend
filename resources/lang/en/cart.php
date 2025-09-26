@@ -80,4 +80,21 @@ return [
     // Login Modal
     'login_required' => 'Login Required',
     'login_required_message' => 'Please login to continue with your order.',
+    
+    // Additional cart translations
+    'buy_now' => 'Buy Now',
+    
+    // Design tools translations
+    'design_tools' => 'Design Tools',
+    'design_tools_subtitle' => 'Search for designs or create your own',
+    'search_designs' => 'Search Designs',
+    'search_designs_description' => 'Browse thousands of designs from Freepik',
+    'design_studio' => 'Design Studio',
+    'design_studio_description' => 'Create your own design with advanced tools',
+    'saved_designs' => 'Saved Designs',
+    'clear_all_designs' => 'Clear All',
+    'deleting' => 'Deleting...',
+    'delete' => 'Delete',
+    'confirm_clear_all_designs' => 'Are you sure you want to delete all saved designs? This action cannot be undone.',
+    'confirm_delete_design' => 'Are you sure you want to delete this design?',
 ];

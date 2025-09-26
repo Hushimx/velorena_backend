@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\GuestCartService;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -39,7 +40,23 @@ class RegisterController extends Controller
      */
     protected function registered($request, $user)
     {
-        return redirect($this->redirectTo)->with('status', __('Account created successfully! Welcome to Qaads.'));
+        // Merge guest cart with user cart if guest cart exists
+        $guestCartService = app(GuestCartService::class);
+        $guestCartSummary = $guestCartService->getCartSummary();
+        
+        if ($guestCartSummary['item_count'] > 0) {
+            $mergedCount = $guestCartService->mergeWithUserCart($user->id);
+            
+            if ($mergedCount > 0) {
+                session()->flash('cart_merged', "تم دمج {$mergedCount} منتج من سلة الضيف مع حسابك");
+            }
+        }
+
+        // Redirect to intended URL or default redirect
+        $intendedUrl = session('url.intended', $this->redirectTo);
+        session()->forget('url.intended');
+        
+        return redirect($intendedUrl)->with('status', __('Account created successfully! Welcome to Qaads.'));
     }
 
     /**
