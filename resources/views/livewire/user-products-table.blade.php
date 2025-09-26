@@ -22,21 +22,24 @@
                         <select wire:model.live="categoryFilter" class="filter-select">
                             <option value="">{{ trans('products.all_categories') }}</option>
                             @foreach ($categories as $category)
-                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                <option value="{{ $category->id }}"
+                                    {{ $categoryFilter == $category->id ? 'selected' : '' }}>{{ $category->name }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
     <!-- Products Grid -->
     <div class="products-grid-section">
-        @if ($products->count() > 0)
+        @if ($products->total() > 0)
             <div class="products-container">
                 <div class="row">
-                    @foreach ($products as $product)
+                    @forelse ($products as $product)
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-4" wire:key="product-card-{{ $product->id }}">
                             <a href="{{ route('user.products.show', $product) }}" class="product-link" wire:ignore>
                                 <div class="product-card">
@@ -52,41 +55,65 @@
                                                 $firstImage = $product->images()->first();
                                                 if ($firstImage && file_exists(public_path($firstImage->image_path))) {
                                                     $productImage = asset($firstImage->image_path);
-                                                } elseif ($product->image && file_exists(public_path($product->image))) {
+                                                } elseif (
+                                                    $product->image &&
+                                                    file_exists(public_path($product->image))
+                                                ) {
                                                     $productImage = asset($product->image);
                                                 }
                                             }
                                         @endphp
                                         @if ($productImage)
-                                            <img src="{{ $productImage }}" alt="{{ $product->name }}" class="img-fluid" 
-                                                 onload="this.classList.add('loaded')"
-                                                 onerror="this.src='https://placehold.co/300x200/f8f9fa/6c757d?text=No+Image'; this.classList.add('loaded')"
-                                                 loading="lazy">
+                                            <img src="{{ $productImage }}" alt="{{ $product->name }}" class="img-fluid"
+                                                onload="this.classList.add('loaded')"
+                                                onerror="this.src='https://placehold.co/300x200/f8f9fa/6c757d?text=No+Image'; this.classList.add('loaded')"
+                                                loading="lazy">
                                         @else
-                                            <img src="https://placehold.co/300x200/f8f9fa/6c757d?text=No+Image" alt="{{ $product->name }}" class="img-fluid" 
-                                                 onload="this.classList.add('loaded')"
-                                                 loading="lazy">
+                                            <img src="https://placehold.co/300x200/f8f9fa/6c757d?text=No+Image"
+                                                alt="{{ $product->name }}" class="img-fluid"
+                                                onload="this.classList.add('loaded')" loading="lazy">
                                         @endif
                                     </div>
                                     <div class="product-info p-3">
                                         <h5 class="product-name mb-2">{{ $product->name }}</h5>
-                                        <p class="product-price fw-bold mb-3">{{ number_format($product->base_price, 2) }} ر.س</p>
+                                        <p class="product-price fw-bold mb-3">
+                                            {{ number_format($product->base_price, 2) }} ر.س</p>
                                     </div>
                                 </div>
                             </a>
                         </div>
-                    @endforeach
+                    @empty
+                        <div class="col-12">
+                            <div class="no-products-section">
+                                <div class="container">
+                                    <div class="row justify-content-center">
+                                        <div class="col-md-6 text-center">
+                                            <div class="no-products-icon">
+                                                <i class="fas fa-box-open"></i>
+                                            </div>
+                                            <h3 class="no-products-title">
+                                                {{ trans('products.no_products_on_page') }}
+                                            </h3>
+                                            <p class="no-products-description">
+                                                {{ trans('products.no_products_on_page_description') }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforelse
                 </div>
             </div>
 
             <!-- Pagination -->
-            <div class="pagination-section">
-                <div class="d-flex justify-content-center">
-                    <nav aria-label="Products pagination">
-                        {{ $products->links('pagination::bootstrap-5') }}
-                    </nav>
+            @if ($products->hasPages())
+                <div class="pagination-section">
+                    <div class="d-flex justify-content-center">
+                        {{ $products->links() }}
+                    </div>
                 </div>
-            </div>
+            @endif
         @else
             <div class="no-products-section">
                 <div class="container">
@@ -247,6 +274,7 @@
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
@@ -399,11 +427,11 @@
             .product-image {
                 height: 150px;
             }
-            
+
             .product-name {
                 font-size: 1rem;
             }
-            
+
             .product-price {
                 font-size: 1.1rem;
             }
