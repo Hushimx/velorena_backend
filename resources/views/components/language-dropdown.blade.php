@@ -10,7 +10,7 @@
         <i class="fas fa-globe me-1"></i>
         {{ $supportedLocales[$currentLocale]['native'] ?? 'العربية' }}
     </button>
-    <ul class="dropdown-menu py-0" aria-labelledby="languageDropdown" style="display: none;">
+    <ul class="dropdown-menu py-0" aria-labelledby="languageDropdown">
         @foreach ($supportedLocales as $localeCode => $properties)
             @php
                 $url = LaravelLocalization::getLocalizedURL($localeCode, null, [], true);
@@ -26,32 +26,3 @@
     </ul>
 </div>
 
-<script>
-    // Simple manual dropdown toggle
-    document.addEventListener('DOMContentLoaded', function() {
-        const dropdownButton = document.getElementById('languageDropdown');
-        const dropdownMenu = dropdownButton.nextElementSibling;
-
-        dropdownButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            // Toggle dropdown
-            if (dropdownMenu.style.display === 'none' || dropdownMenu.style.display === '') {
-                dropdownMenu.style.display = 'block';
-                dropdownButton.setAttribute('aria-expanded', 'true');
-            } else {
-                dropdownMenu.style.display = 'none';
-                dropdownButton.setAttribute('aria-expanded', 'false');
-            }
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                dropdownMenu.style.display = 'none';
-                dropdownButton.setAttribute('aria-expanded', 'false');
-            }
-        });
-    });
-</script>

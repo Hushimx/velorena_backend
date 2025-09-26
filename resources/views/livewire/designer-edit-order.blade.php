@@ -6,17 +6,17 @@
                 <div>
                     <h1 class="text-2xl font-bold">
                         <i class="fas fa-edit me-2" style="color: #ffde9f;"></i>
-                        Edit Order
+                        {{ trans('orders.edit_order') }}
                     </h1>
                     <p class="mt-1" style="color: #ffde9f;">
-                        Editing order for appointment #{{ $appointment->id }} - {{ $appointment->user->full_name }}
+                        {{ trans('orders.editing_order_for_appointment') }} #{{ $appointment->id }} - {{ $appointment->user->full_name }}
                     </p>
                 </div>
                 <div class="flex items-center gap-4">
                     <a href="{{ route('designer.appointments.show', $appointment) }}"
                         class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2">
                         <i class="fas fa-arrow-right"></i>
-                        <span class="hidden sm:block">Back to Appointment</span>
+                        <span class="hidden sm:block">{{ trans('orders.back_to_appointment') }}</span>
                     </a>
                     <div class="hidden md:block">
                         <i class="fas fa-shopping-cart text-4xl" style="color: #ffde9f;"></i>
@@ -90,13 +90,13 @@
                                 <i class="fas fa-shopping-cart text-xl"></i>
                             </div>
                             <div>
-                                <h3 class="text-lg font-semibold text-gray-900">Order Items</h3>
-                                <p class="text-sm text-gray-500">{{ $this->cartItemsCount }} items in order</p>
+                                <h3 class="text-lg font-semibold text-gray-900">{{ trans('orders.order_items') }}</h3>
+                                <p class="text-sm text-gray-500">{{ $this->cartItemsCount }} {{ trans('orders.items_in_order') }}</p>
                             </div>
                         </div>
                         <span class="px-3 py-1 rounded-full text-sm font-medium"
                             style="background-color: #ffde9f; color: #2a1e1e;">
-                            {{ $this->cartItemsCount }} items
+                            {{ $this->cartItemsCount }} {{ trans('orders.items') }}
                         </span>
                     </div>
                     @if (count($cartItems) > 0)

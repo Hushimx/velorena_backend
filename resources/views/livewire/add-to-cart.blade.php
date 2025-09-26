@@ -4,9 +4,9 @@
         <div class="options-container">
             <!-- Product Title -->
             <div class="product-header">
-                <h1 class="product-title">{{ $product->name }}</h1>
+                <h1 class="product-title">{{ app()->getLocale() === 'ar' ? ($product->name_ar ?? $product->name) : $product->name }}</h1>
                 <p class="product-description">
-                    {{ $product->description ?? 'استمتع بتجربة فريدة مع مجموعة متنوعة من الفواكه المجففة المختارة بعناية من أجود الأنواع حول العالم. تم تحضيرها بأحدث التقنيات لضمان الحفاظ على قيمتها الغذائية العالية وطعمها اللذيذ من الطبيعة.' }}
+                    {{ app()->getLocale() === 'ar' ? ($product->description_ar ?? $product->description ?? trans('products.default_description')) : ($product->description ?? trans('products.default_description')) }}
                 </p>
             </div>
 
@@ -14,7 +14,7 @@
             @if ($product->options->count() > 0)
                 @foreach ($product->options as $option)
                     <div class="option-group">
-                        <h3 class="option-title">{{ $option->name_ar ?? $option->name }} :</h3>
+                        <h3 class="option-title">{{ app()->getLocale() === 'ar' ? ($option->name_ar ?? $option->name) : $option->name }} :</h3>
                         @if ($option->values->count() > 0)
                             @if ($option->type === 'select')
                                 <!-- Dropdown for select type -->
@@ -22,10 +22,10 @@
                                     <select class="form-select" wire:model.live="selectedOptions.{{ $option->id }}">
                                         @foreach ($option->values as $value)
                                             <option value="{{ $value->id }}">
-                                                {{ $value->value_ar ?? $value->value }}
+                                                {{ app()->getLocale() === 'ar' ? ($value->value_ar ?? $value->value) : $value->value }}
                                                 @if ($value->price_adjustment != 0)
                                                     ({{ $value->price_adjustment > 0 ? '+' : '' }}{{ number_format($value->price_adjustment, 0) }}
-                                                    ريال)
+                                                    {{ trans('products.currency') }})
                                                 @endif
                                             </option>
                                         @endforeach
@@ -39,10 +39,10 @@
                                             <input type="checkbox" wire:model.live="selectedOptions.{{ $option->id }}"
                                                 value="{{ $value->id }}">
                                             <span>
-                                                {{ $value->value_ar ?? $value->value }}
+                                                {{ app()->getLocale() === 'ar' ? ($value->value_ar ?? $value->value) : $value->value }}
                                                 @if ($value->price_adjustment != 0)
                                                     ({{ $value->price_adjustment > 0 ? '+' : '' }}{{ number_format($value->price_adjustment, 0) }}
-                                                    ريال)
+                                                    {{ trans('products.currency') }})
                                                 @endif
                                             </span>
                                         </label>
@@ -56,10 +56,10 @@
                                             <input type="radio" wire:model.live="selectedOptions.{{ $option->id }}"
                                                 value="{{ $value->id }}">
                                             <span>
-                                                {{ $value->value_ar ?? $value->value }}
+                                                {{ app()->getLocale() === 'ar' ? ($value->value_ar ?? $value->value) : $value->value }}
                                                 @if ($value->price_adjustment != 0)
                                                     ({{ $value->price_adjustment > 0 ? '+' : '' }}{{ number_format($value->price_adjustment, 0) }}
-                                                    ريال)
+                                                    {{ trans('products.currency') }})
                                                 @endif
                                             </span>
                                         </label>
@@ -76,85 +76,85 @@
             @else
                 <!-- Fallback static options if no database options -->
                 <div class="option-group">
-                    <h3 class="option-title">نوع الخامة :</h3>
+                    <h3 class="option-title">{{ trans('products.material_type') }} :</h3>
                     <div class="option-buttons">
                         <label class="option-btn">
-                            <input type="radio" name="type" value="مات" checked>
-                            <span>مات</span>
+                            <input type="radio" name="type" value="{{ trans('products.matte') }}" checked>
+                            <span>{{ trans('products.matte') }}</span>
                         </label>
                         <label class="option-btn">
-                            <input type="radio" name="type" value="لامع">
-                            <span>لامع</span>
+                            <input type="radio" name="type" value="{{ trans('products.glossy') }}">
+                            <span>{{ trans('products.glossy') }}</span>
                         </label>
                         <label class="option-btn">
-                            <input type="radio" name="type" value="بلاستيك">
-                            <span>بلاستيك</span>
+                            <input type="radio" name="type" value="{{ trans('products.plastic') }}">
+                            <span>{{ trans('products.plastic') }}</span>
                         </label>
                         <label class="option-btn">
-                            <input type="radio" name="type" value="كرافت">
-                            <span>كرافت</span>
+                            <input type="radio" name="type" value="{{ trans('products.craft') }}">
+                            <span>{{ trans('products.craft') }}</span>
                         </label>
                     </div>
                 </div>
 
                 <div class="option-group">
-                    <h3 class="option-title">الطباعة الألوان :</h3>
+                    <h3 class="option-title">{{ trans('products.printing_colors') }} :</h3>
                     <div class="option-buttons">
                         <label class="option-btn">
-                            <input type="checkbox" name="colors[]" value="ألوان كاملة" checked>
-                            <span>ألوان كاملة</span>
+                            <input type="checkbox" name="colors[]" value="{{ trans('products.full_colors') }}" checked>
+                            <span>{{ trans('products.full_colors') }}</span>
                         </label>
                         <label class="option-btn">
-                            <input type="checkbox" name="colors[]" value="ألوان خاصة" checked>
-                            <span>ألوان خاصة</span>
+                            <input type="checkbox" name="colors[]" value="{{ trans('products.special_colors') }}" checked>
+                            <span>{{ trans('products.special_colors') }}</span>
                         </label>
                         <label class="option-btn">
-                            <input type="checkbox" name="colors[]" value="لون واحد">
-                            <span>لون واحد</span>
+                            <input type="checkbox" name="colors[]" value="{{ trans('products.single_color') }}">
+                            <span>{{ trans('products.single_color') }}</span>
                         </label>
                     </div>
                 </div>
 
                 <div class="option-group">
-                    <h3 class="option-title">حجم الكيس :</h3>
+                    <h3 class="option-title">{{ trans('products.bag_size') }} :</h3>
                     <div class="option-buttons">
                         <label class="option-btn">
-                            <input type="radio" name="size" value="صغير (50جم)">
-                            <span>صغير (50جم)</span>
+                            <input type="radio" name="size" value="{{ trans('products.small_size') }}">
+                            <span>{{ trans('products.small_size') }}</span>
                         </label>
                         <label class="option-btn">
-                            <input type="radio" name="size" value="وسط (100جم)">
-                            <span>وسط (100جم)</span>
+                            <input type="radio" name="size" value="{{ trans('products.medium_size') }}">
+                            <span>{{ trans('products.medium_size') }}</span>
                         </label>
                         <label class="option-btn">
-                            <input type="radio" name="size" value="كبير (250جم)">
-                            <span>كبير (250جم)</span>
+                            <input type="radio" name="size" value="{{ trans('products.large_size') }}">
+                            <span>{{ trans('products.large_size') }}</span>
                         </label>
                     </div>
                 </div>
 
                 <div class="option-group">
-                    <h3 class="option-title">مكان الطباعة :</h3>
+                    <h3 class="option-title">{{ trans('products.printing_location') }} :</h3>
                     <div class="option-buttons">
                         <label class="option-btn">
-                            <input type="radio" name="location" value="وجهين" checked>
-                            <span>وجهين</span>
+                            <input type="radio" name="location" value="{{ trans('products.both_sides') }}" checked>
+                            <span>{{ trans('products.both_sides') }}</span>
                         </label>
                         <label class="option-btn">
-                            <input type="radio" name="location" value="وجه واحد">
-                            <span>وجه واحد</span>
+                            <input type="radio" name="location" value="{{ trans('products.single_side') }}">
+                            <span>{{ trans('products.single_side') }}</span>
                         </label>
                     </div>
                 </div>
 
                 <div class="option-group">
-                    <h3 class="option-title">شكل الكيس :</h3>
+                    <h3 class="option-title">{{ trans('products.bag_shape') }} :</h3>
                     <div class="shape-selector">
                         <select class="form-select" name="shape">
-                            <option value="قابل للغلق">قابل للغلق</option>
-                            <option value="مستطيل">مستطيل</option>
-                            <option value="مربع">مربع</option>
-                            <option value="دائري">دائري</option>
+                            <option value="{{ trans('products.resealable') }}">{{ trans('products.resealable') }}</option>
+                            <option value="{{ trans('products.rectangular') }}">{{ trans('products.rectangular') }}</option>
+                            <option value="{{ trans('products.square') }}">{{ trans('products.square') }}</option>
+                            <option value="{{ trans('products.round') }}">{{ trans('products.round') }}</option>
                         </select>
                     </div>
                 </div>
@@ -162,9 +162,9 @@
 
             <!-- Notes Section -->
             <div class="option-group">
-                <h3 class="option-title">ملاحظات إضافية :</h3>
+                <h3 class="option-title">{{ trans('cart.notes') }} :</h3>
                 <div class="notes-input">
-                    <textarea wire:model="notes" class="form-control" rows="3" placeholder="أضف أي ملاحظات خاصة بالطلب..."></textarea>
+                    <textarea wire:model="notes" class="form-control" rows="3" placeholder="{{ trans('cart.notes_placeholder') }}"></textarea>
                 </div>
                 @error('notes')
                     <div class="error-message">{{ $message }}</div>
@@ -184,7 +184,7 @@
             <div class="sticky-cart-info">
                 <div class="sticky-cart-price">
                     <span class="sticky-price">{{ number_format($this->totalPrice, 2, '.', ',') }}</span>
-                    <span class="sticky-currency">ريال</span>
+                    <span class="sticky-currency">{{ trans('products.currency') }}</span>
                 </div>
                 <div class="sticky-cart-quantity">
                     <button type="button" class="sticky-qty-btn minus" wire:click="decrementQuantity">-</button>
@@ -197,7 +197,7 @@
                 <button class="sticky-btn-add-cart" wire:click="addToCart" wire:loading.attr="disabled"
                     wire:target="addToCart">
                     <i class="fas fa-shopping-cart"></i>
-                    <span class="sticky-btn-text" wire:loading.remove wire:target="addToCart">إضافة إلى السلة</span>
+                    <span class="sticky-btn-text" wire:loading.remove wire:target="addToCart">{{ trans('cart.add_to_cart') }}</span>
                     <span class="sticky-btn-loading" wire:loading wire:target="addToCart">
                         <i class="fas fa-spinner fa-spin"></i>
                     </span>
@@ -205,7 +205,7 @@
                 <button class="sticky-btn-buy-now" wire:click="buyNow" wire:loading.attr="disabled"
                     wire:target="buyNow">
                     <i class="fas fa-credit-card"></i>
-                    <span class="sticky-btn-text" wire:loading.remove wire:target="buyNow">شراء</span>
+                    <span class="sticky-btn-text" wire:loading.remove wire:target="buyNow">{{ trans('cart.buy_now') }}</span>
                     <span class="sticky-btn-loading" wire:loading wire:target="buyNow">
                         <i class="fas fa-spinner fa-spin"></i>
                     </span>
@@ -219,7 +219,7 @@
         <div class="design-modal-overlay" wire:click="closeDesignModal">
             <div class="design-modal" wire:click.stop>
                 <div class="design-modal-header">
-                    <h3 class="design-modal-title">اختر تصميم - {{ $product->name }}</h3>
+                    <h3 class="design-modal-title">{{ trans('cart.select_designs') }} - {{ app()->getLocale() === 'ar' ? ($product->name_ar ?? $product->name) : $product->name }}</h3>
                     <button wire:click="closeDesignModal" class="design-modal-close">
                         <i class="fas fa-times"></i>
                     </button>
@@ -230,10 +230,10 @@
                 <div class="design-modal-footer">
                     <button wire:click="saveSelectedDesigns" class="save-designs-btn">
                         <i class="fas fa-save"></i>
-                        <span>حفظ التصاميم</span>
+                        <span>{{ trans('cart.save_designs') }}</span>
                     </button>
                     <button wire:click="closeDesignModal" class="cancel-btn">
-                        <span>إلغاء</span>
+                        <span>{{ trans('cart.cancel') }}</span>
                     </button>
                 </div>
             </div>

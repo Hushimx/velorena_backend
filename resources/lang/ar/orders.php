@@ -22,6 +22,10 @@ return [
     'view_order_information' => 'عرض معلومات الطلب',
     'back_to_orders' => 'العودة إلى الطلبات',
     'back_to_order' => 'العودة إلى الطلب',
+    'back_to_appointment' => 'العودة إلى الموعد',
+    'editing_order_for_appointment' => 'تعديل الطلب للموعد',
+    'items_in_order' => 'عناصر في الطلب',
+    'items' => 'عناصر',
 
     // Form Fields
     'order_number' => 'رقم الطلب',

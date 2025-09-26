@@ -97,7 +97,7 @@ class ProductOptionsManager extends Component
         $this->showAddOption = false;
         
         $this->dispatch('option-saved');
-        session()->flash('message', 'Option added successfully!');
+        session()->flash('message', trans('products.option_created_successfully'));
     }
 
     public function editOption($optionId)
@@ -149,7 +149,7 @@ class ProductOptionsManager extends Component
         $this->loadOptions();
         
         $this->dispatch('option-updated');
-        session()->flash('message', 'Option updated successfully!');
+        session()->flash('message', trans('products.option_updated_successfully'));
     }
 
     public function deleteOption($optionId)
@@ -159,7 +159,7 @@ class ProductOptionsManager extends Component
             $option->delete();
             $this->loadOptions();
             $this->dispatch('option-deleted');
-            session()->flash('message', 'Option deleted successfully!');
+            session()->flash('message', trans('products.option_deleted_successfully'));
         }
     }
 

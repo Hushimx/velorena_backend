@@ -28,11 +28,11 @@ class LoginController extends Controller
         ]);
 
         if (Auth::guard('admin')->attempt($credentials)) {
-            return redirect()->route('admin.dashboard')->with('status', 'Logged in successfully');
+            return redirect()->route('admin.dashboard')->with('status', __('auth.logged_in_successfully'));
         }
 
         return back()->withErrors([
-            'email' => 'Invalid credentials',
+            'email' => __('auth.invalid_credentials'),
         ]);
     }
 
@@ -44,6 +44,6 @@ class LoginController extends Controller
         Auth::guard('admin')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/admin/login')->with('status', 'Logged out successfully');
+        return redirect('/admin/login')->with('status', __('auth.logged_out_successfully'));
     }
 }

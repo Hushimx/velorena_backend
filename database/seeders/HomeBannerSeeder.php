@@ -16,7 +16,7 @@ class HomeBannerSeeder extends Seeder
         $banners = [
             [
                 'title' => 'Welcome to Qaads',
-                'title_ar' => 'مرحباً بك في فيلورينا',
+                'title_ar' => 'مرحباً بك في قادس',
                 'description' => 'Discover our amazing collection of products and services',
                 'description_ar' => 'اكتشف مجموعتنا المذهلة من المنتجات والخدمات',
                 'image' => 'storage/home-banners/welcome-banner.jpg',

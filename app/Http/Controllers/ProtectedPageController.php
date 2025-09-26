@@ -2,63 +2,66 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ProtectedPage;
 use Illuminate\Http\Request;
 
 class ProtectedPageController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display the specified page.
      */
-    public function index()
+    public function show($slug)
     {
-        //
+        $page = ProtectedPage::where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        // Check if user can access this page
+        if (!$page->canAccess(auth()->user())) {
+            abort(403, 'Access denied');
+        }
+
+        return view('pages.show', compact('page'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Display a page by type (for specific page types like about, terms, etc.)
      */
-    public function create()
+    public function showByType($type)
     {
-        //
+        $page = ProtectedPage::where('type', $type)
+            ->where('access_level', 'public')
+            ->where('is_active', true)
+            ->first();
+
+        if (!$page) {
+            abort(404, 'Page not found');
+        }
+
+        return view('pages.show', compact('page'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Display about us page
      */
-    public function store(Request $request)
+    public function about()
     {
-        //
+        return $this->showByType('about');
     }
 
     /**
-     * Display the specified resource.
+     * Display terms of service page
      */
-    public function show(string $id)
+    public function terms()
     {
-        //
+        return $this->showByType('terms');
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Display privacy policy page
      */
-    public function edit(string $id)
+    public function privacy()
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return $this->showByType('privacy');
     }
 }

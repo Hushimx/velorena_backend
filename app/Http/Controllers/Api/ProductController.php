@@ -144,10 +144,17 @@ class ProductController extends Controller
         $limit = $request->get('limit', 15);
         $limit = min(max((int) $limit, 1), 100); // Ensure limit is between 1 and 100
 
-        $products = $query->with(['category', 'options.values', 'highlights'])
+        $products = $query->with(['category', 'options.values', 'highlights', 'images'])
             ->orderBy('sort_order')
             ->orderBy('name')
             ->paginate($limit);
+
+        // Transform products to include single image
+        $products->getCollection()->transform(function ($product) {
+            $product->image = $product->best_image_url ?? asset('assets/images/placeholder-product.jpg');
+            unset($product->images);
+            return $product;
+        });
 
         return response()->json([
             'success' => true,
@@ -335,8 +342,15 @@ class ProductController extends Controller
         $limit = $request->get('limit', 15);
         $limit = min(max((int) $limit, 1), 100);
 
-        $products = $query->with(['category', 'options.values', 'highlights'])
+        $products = $query->with(['category', 'options.values', 'highlights', 'images'])
             ->paginate($limit);
+
+        // Transform products to include single image
+        $products->getCollection()->transform(function ($product) {
+            $product->image = $product->best_image_url ?? asset('assets/images/placeholder-product.jpg');
+            unset($product->images);
+            return $product;
+        });
 
         return response()->json([
             'success' => true,
@@ -427,11 +441,37 @@ class ProductController extends Controller
      */
     public function show(Product $product): JsonResponse
     {
-        $product->load(['category', 'options.values', 'highlights']);
+        $product->load(['category', 'options.values', 'highlights', 'images']);
 
         return response()->json([
             'success' => true,
-            'data' => $product
+            'data' => [
+                'id' => $product->id,
+                'category_id' => $product->category_id,
+                'name' => $product->name,
+                'name_ar' => $product->name_ar,
+                'description' => $product->description,
+                'description_ar' => $product->description_ar,
+                'base_price' => number_format($product->base_price, 2),
+                'images' => $product->images->map(function ($image) {
+                    return [
+                        'id' => $image->id,
+                        'image_path' => $image->image_path,
+                        'image_url' => $image->image_url,
+                        'alt_text' => $image->alt_text,
+                        'is_primary' => $image->is_primary,
+                        'sort_order' => $image->sort_order
+                    ];
+                }),
+                'category' => $product->category,
+                'options' => $product->options,
+                'highlights' => $product->highlights,
+                'is_active' => $product->is_active,
+                'sort_order' => $product->sort_order,
+                'specifications' => $product->specifications,
+                'created_at' => $product->created_at,
+                'updated_at' => $product->updated_at
+            ]
         ]);
     }
 
@@ -495,7 +535,7 @@ class ProductController extends Controller
                     'name' => $product->name,
                     'name_ar' => $product->name_ar,
                     'base_price' => number_format($product->base_price, 2),
-                    'image_url' => $product->best_image_url ?? asset('assets/images/placeholder-product.jpg'),
+                    'image' => $product->best_image_url ?? asset('assets/images/placeholder-product.jpg'),
                     'url' => route('user.products.show', $product->id),
                     'category' => $product->category
                 ];
@@ -570,7 +610,7 @@ class ProductController extends Controller
                     'name' => $product->name,
                     'name_ar' => $product->name_ar,
                     'base_price' => number_format($product->base_price, 2),
-                    'image_url' => $product->best_image_url ?? asset('assets/images/placeholder-product.jpg'),
+                    'image' => $product->best_image_url ?? asset('assets/images/placeholder-product.jpg'),
                     'url' => route('user.products.show', $product->id),
                     'order_count' => $product->order_items_count,
                     'category' => $product->category

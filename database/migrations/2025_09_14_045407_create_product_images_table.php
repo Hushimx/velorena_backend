@@ -19,6 +19,9 @@ return new class extends Migration
             $table->boolean('is_primary')->default(false);
             $table->integer('sort_order')->default(0);
             $table->timestamps();
+            
+            // Performance indexes
+            $table->index(['product_id', 'is_primary', 'sort_order']);
         });
     }
 

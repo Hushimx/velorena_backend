@@ -16,7 +16,7 @@ class ProtectedPageSeeder extends Seeder
         $pages = [
             [
                 'title' => 'Welcome to Qaads Store',
-                'title_ar' => 'مرحباً بك في متجر فيلورينا',
+                'title_ar' => 'مرحباً بك في متجر قادس',
                 'slug' => 'welcome-store',
                 'content' => 'Welcome to our premium printing and design store. Here you can find the best quality products and services.',
                 'content_ar' => 'مرحباً بك في متجرنا المتميز للطباعة والتصميم. هنا يمكنك العثور على أفضل المنتجات والخدمات.',

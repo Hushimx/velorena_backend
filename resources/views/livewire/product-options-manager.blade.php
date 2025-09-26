@@ -1,132 +1,115 @@
-<div class="bg-white rounded-lg shadow-sm border border-gray-200">
-    <div class="px-6 py-4 border-b border-gray-200" style="background: var(--brand-yellow-light);">
-        <div class="flex justify-between items-center">
-            <h3 class="text-lg font-medium" style="color: var(--brand-brown);">Product Options</h3>
-            <button wire:click="$set('showAddOption', true)" 
-                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest transition ease-in-out duration-150"
-                    style="background: var(--brand-brown); hover:background: var(--brand-brown-hover);"
-                    onmouseover="this.style.background='var(--brand-brown-hover)'"
-                    onmouseout="this.style.background='var(--brand-brown)'">
-                <i class="fas fa-plus mr-2"></i>
-                Add Option
-            </button>
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h3 class="text-xl font-bold text-gray-900">{{ trans('products.product_options') }}</h3>
+            <p class="text-sm text-gray-600 mt-1">{{ trans('products.option_management_description') }}</p>
         </div>
+        <button type="button" wire:click="$set('showAddOption', true)" 
+                class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 border border-transparent rounded-xl font-medium text-sm text-white hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+            {{ trans('products.add_option') }}
+        </button>
     </div>
 
-    <div class="p-6">
+    <!-- Success Message -->
         @if (session()->has('message'))
-            <div class="mb-4 px-4 py-3 rounded border" style="background: var(--brand-yellow-light); border-color: var(--brand-yellow); color: var(--brand-brown);">
-                <i class="fas fa-check-circle mr-2"></i>{{ session('message') }}
+        <div class="bg-white border border-green-200 rounded-lg p-4">
+            <div class="flex items-center">
+                <p class="text-sm text-green-800 font-medium">{{ session('message') }}</p>
+            </div>
             </div>
         @endif
 
         <!-- Add New Option Form -->
         @if($showAddOption)
-            <div class="mb-6 p-6 rounded-lg border" style="background: var(--bg-tertiary); border-color: var(--brand-yellow);">
-                <h4 class="text-md font-medium mb-4" style="color: var(--brand-brown);">Add New Option</h4>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-semibold mb-2" style="color: var(--brand-brown);">Option Name *</label>
+        <div class="bg-white border border-indigo-200 rounded-xl p-6 shadow-lg">
+            <div class="flex items-center justify-between mb-6">
+                <h4 class="text-lg font-semibold text-gray-900">{{ trans('products.add_option') }}</h4>
+                <button type="button" wire:click="$set('showAddOption', false)" 
+                        class="text-gray-400 hover:text-gray-600 transition duration-200 p-1 rounded-lg hover:bg-gray-100">
+                    ×
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-gray-700">{{ trans('products.option_name') }} *</label>
                         <input type="text" wire:model="newOption.name" 
-                               class="w-full px-3 py-2 border rounded-md transition duration-200"
-                               style="border-color: var(--border-light); focus:border-color: var(--brand-brown); focus:ring-color: var(--brand-yellow);"
-                               onfocus="this.style.borderColor='var(--brand-brown)'; this.style.boxShadow='0 0 0 3px var(--brand-yellow-light)'"
-                               onblur="this.style.borderColor='var(--border-light)'; this.style.boxShadow='none'">
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 shadow-sm"
+                           placeholder="e.g., Size, Color, Material">
                         @error('newOption.name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
                     
-                    <div>
-                        <label class="block text-sm font-semibold mb-2" style="color: var(--brand-brown);">Option Name (Arabic)</label>
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-gray-700">{{ trans('products.option_name_ar') }}</label>
                         <input type="text" wire:model="newOption.name_ar" 
-                               class="w-full px-3 py-2 border rounded-md transition duration-200"
-                               style="border-color: var(--border-light);"
-                               onfocus="this.style.borderColor='var(--brand-brown)'; this.style.boxShadow='0 0 0 3px var(--brand-yellow-light)'"
-                               onblur="this.style.borderColor='var(--border-light)'; this.style.boxShadow='none'">
-                    </div>
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 shadow-sm"
+                           placeholder="اسم الخيار">
+                </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-semibold mb-2" style="color: var(--brand-brown);">Type</label>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-gray-700">{{ trans('products.option_type') }}</label>
                         <select wire:model="newOption.type" 
-                                class="w-full px-3 py-2 border rounded-md transition duration-200"
-                                style="border-color: var(--border-light);"
-                                onfocus="this.style.borderColor='var(--brand-brown)'; this.style.boxShadow='0 0 0 3px var(--brand-yellow-light)'"
-                                onblur="this.style.borderColor='var(--border-light)'; this.style.boxShadow='none'">
-                            <option value="select">Select</option>
-                            <option value="radio">Radio</option>
-                            <option value="checkbox">Checkbox</option>
-                            <option value="text">Text</option>
-                            <option value="number">Number</option>
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 shadow-sm">
+                        <option value="select">{{ trans('products.select') }}</option>
+                        <option value="radio">{{ trans('products.radio') }}</option>
+                        <option value="checkbox">{{ trans('products.checkbox') }}</option>
+                        <option value="text">{{ trans('products.text') }}</option>
+                        <option value="number">{{ trans('products.number') }}</option>
                         </select>
                     </div>
                     
-                    <div class="flex items-center space-x-4">
+                <div class="flex items-center">
                         <label class="flex items-center">
-                            <input type="checkbox" wire:model="newOption.is_required" class="mr-2" style="accent-color: var(--brand-brown);">
-                            <span class="text-sm" style="color: var(--brand-brown);">Required</span>
+                        <input type="checkbox" wire:model="newOption.is_required" class="mr-3 w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <span class="text-sm text-gray-700">{{ trans('products.required') }}</span>
                         </label>
                     </div>
                 </div>
 
                 <!-- Option Values -->
-                <div class="mb-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="block text-sm font-semibold" style="color: var(--brand-brown);">Option Values</label>
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <label class="block text-sm font-semibold text-gray-700">{{ trans('products.option_values') }}</label>
                         <button type="button" wire:click="addValueToNewOption" 
-                                class="text-sm transition duration-200"
-                                style="color: var(--brand-brown);"
-                                onmouseover="this.style.color='var(--brand-brown-hover)'"
-                                onmouseout="this.style.color='var(--brand-brown)'">
-                            <i class="fas fa-plus mr-1"></i>Add Value
+                            class="inline-flex items-center px-3 py-2 text-sm text-indigo-600 hover:text-indigo-800 transition duration-200 bg-indigo-50 hover:bg-indigo-100 rounded-lg">
+                        {{ trans('products.add_value') }}
                         </button>
                     </div>
                     
+                <div class="space-y-3">
                     @foreach($newOption['values'] as $index => $value)
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2 p-3 rounded border" style="background: var(--bg-primary); border-color: var(--brand-yellow);">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 p-4 bg-white rounded-lg border border-indigo-200 shadow-sm">
                             <input type="text" wire:model="newOption.values.{{ $index }}.value" 
-                                   placeholder="Value" 
-                                   class="px-3 py-2 border rounded-md transition duration-200"
-                                   style="border-color: var(--border-light);"
-                                   onfocus="this.style.borderColor='var(--brand-brown)'; this.style.boxShadow='0 0 0 3px var(--brand-yellow-light)'"
-                                   onblur="this.style.borderColor='var(--border-light)'; this.style.boxShadow='none'">
+                                   placeholder="{{ trans('products.value') }}" 
+                                   class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 shadow-sm">
                             <input type="text" wire:model="newOption.values.{{ $index }}.value_ar" 
-                                   placeholder="Value (Arabic)" 
-                                   class="px-3 py-2 border rounded-md transition duration-200"
-                                   style="border-color: var(--border-light);"
-                                   onfocus="this.style.borderColor='var(--brand-brown)'; this.style.boxShadow='0 0 0 3px var(--brand-yellow-light)'"
-                                   onblur="this.style.borderColor='var(--border-light)'; this.style.boxShadow='none'">
+                                   placeholder="{{ trans('products.value_ar') }}" 
+                                   class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 shadow-sm">
                             <input type="number" wire:model="newOption.values.{{ $index }}.price_adjustment" 
-                                   placeholder="Price Adjustment" step="0.01"
-                                   class="px-3 py-2 border rounded-md transition duration-200"
-                                   style="border-color: var(--border-light);"
-                                   onfocus="this.style.borderColor='var(--brand-brown)'; this.style.boxShadow='0 0 0 3px var(--brand-yellow-light)'"
-                                   onblur="this.style.borderColor='var(--border-light)'; this.style.boxShadow='none'">
+                                   placeholder="{{ trans('products.price_adjustment') }}" step="0.01"
+                                   class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 shadow-sm">
                             <div class="flex items-center justify-end">
                                 <button type="button" wire:click="removeValueFromNewOption({{ $index }})" 
-                                        class="text-red-600 hover:text-red-800 transition duration-200">
-                                    <i class="fas fa-trash"></i>
+                                        class="text-red-600 hover:text-red-800 transition duration-200 p-2">
+                                    ×
                                 </button>
                             </div>
                         </div>
                     @endforeach
                 </div>
+                </div>
 
-                <div class="flex justify-end space-x-3">
-                    <button wire:click="$set('showAddOption', false)" 
-                            class="px-4 py-2 border rounded-md transition duration-200"
-                            style="border-color: var(--border-light); color: var(--text-secondary);"
-                            onmouseover="this.style.backgroundColor='var(--bg-hover)'"
-                            onmouseout="this.style.backgroundColor='transparent'">
-                        Cancel
+            <div class="flex justify-end space-x-3 pt-4 border-t border-indigo-200">
+                <button type="button" wire:click="$set('showAddOption', false)" 
+                        class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-200 shadow-sm">
+                    {{ trans('products.cancel') }}
                     </button>
-                    <button wire:click="saveOption" 
-                            class="px-4 py-2 text-white rounded-md transition duration-200"
-                            style="background: var(--brand-brown);"
-                            onmouseover="this.style.background='var(--brand-brown-hover)'"
-                            onmouseout="this.style.background='var(--brand-brown)'">
-                        Save Option
+                <button type="button" wire:click="saveOption" 
+                        class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    {{ trans('products.save_option') }}
                     </button>
                 </div>
             </div>
@@ -135,98 +118,107 @@
         <!-- Existing Options -->
         <div class="space-y-4">
             @forelse($options as $option)
-                <div class="border rounded-lg p-4 transition duration-200 hover:shadow-md" style="border-color: var(--brand-yellow); background: var(--bg-primary);">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <h5 class="font-medium" style="color: var(--brand-brown);">{{ $option['name'] }}</h5>
-                            @if($option['name_ar'])
-                                <p class="text-sm" style="color: var(--text-secondary);">{{ $option['name_ar'] }}</p>
-                            @endif
-                            <div class="flex items-center space-x-4 mt-1">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background: var(--brand-yellow-light); color: var(--brand-brown);">
-                                    {{ ucfirst($option['type']) }}
+            <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-200 hover:border-indigo-300">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex-1">
+                        <h5 class="text-lg font-semibold text-gray-900">{{ $option['name'] }}</h5>
+                        @if($option['name_ar'])
+                            <p class="text-sm text-gray-600 mt-1">{{ $option['name_ar'] }}</p>
+                        @endif
+                        <div class="flex items-center space-x-3 mt-3">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                {{ ucfirst($option['type']) }}
+                            </span>
+                            @if($option['is_required'])
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    {{ trans('products.required') }}
                                 </span>
-                                @if($option['is_required'])
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background: var(--brand-yellow); color: var(--brand-brown);">
-                                        Required
-                                    </span>
-                                @endif
-                            </div>
+                            @endif
+                        </div>
                         </div>
                         <div class="flex space-x-2">
-                            <button wire:click="editOption({{ $option['id'] }})" 
-                                    class="transition duration-200"
-                                    style="color: var(--brand-brown);"
-                                    onmouseover="this.style.color='var(--brand-brown-hover)'"
-                                    onmouseout="this.style.color='var(--brand-brown)'">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button wire:click="deleteOption({{ $option['id'] }})" 
-                                    onclick="return confirm('Are you sure you want to delete this option?')"
-                                    class="text-red-600 hover:text-red-800 transition duration-200">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        <button type="button" wire:click="editOption({{ $option['id'] }})" 
+                                class="p-2.5 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition duration-200 shadow-sm">
+                            Edit
+                        </button>
+                        <button type="button" wire:click="deleteOption({{ $option['id'] }})" 
+                                onclick="return confirm('{{ trans('products.confirm_delete_option') }}')"
+                                class="p-2.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition duration-200 shadow-sm">
+                            Delete
+                        </button>
                         </div>
                     </div>
                     
                     @if(!empty($option['values']))
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                    <div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                             @foreach($option['values'] as $value)
-                                <div class="p-2 rounded text-sm" style="background: var(--brand-yellow-light);">
-                                    <div class="font-medium" style="color: var(--brand-brown);">{{ $value['value'] }}</div>
+                                <div class="p-3 bg-white rounded-lg border border-indigo-200 hover:border-indigo-300 transition duration-200 shadow-sm">
+                                    <div class="font-medium text-gray-900">
+                                        {{ $value['value'] }}
+                                    </div>
                                     @if($value['value_ar'])
-                                        <div style="color: var(--text-secondary);">{{ $value['value_ar'] }}</div>
+                                        <div class="text-sm text-gray-600 mt-1">{{ $value['value_ar'] }}</div>
                                     @endif
                                     @if($value['price_adjustment'] != 0)
-                                        <div class="font-medium" style="color: var(--brand-brown);">
+                                        <div class="text-sm font-medium mt-2 {{ $value['price_adjustment'] > 0 ? 'text-green-600' : 'text-red-600' }}">
                                             {{ $value['price_adjustment'] > 0 ? '+' : '' }}{{ $value['price_adjustment'] }}
                                         </div>
                                     @endif
                                 </div>
                             @endforeach
                         </div>
+                        </div>
                     @endif
                 </div>
-            @empty
-                <div class="text-center py-8" style="color: var(--text-secondary);">
-                    <i class="fas fa-cog text-4xl mb-4" style="color: var(--brand-yellow);"></i>
-                    <p>No options added yet. Click "Add Option" to get started.</p>
-                </div>
-            @endforelse
-        </div>
+        @empty
+            <div class="text-center py-16 bg-white rounded-xl border-2 border-dashed border-indigo-300">
+                <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ trans('products.no_options_added') }}</h3>
+                <p class="text-gray-600 mb-6 max-w-md mx-auto">{{ trans('products.option_management_description') }}</p>
+                <button type="button" wire:click="$set('showAddOption', true)" 
+                        class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 border border-transparent rounded-xl font-medium text-sm text-white hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    {{ trans('products.add_your_first_option') }}
+                </button>
+            </div>
+        @endforelse
     </div>
 </div>
 
 <!-- Edit Option Modal -->
 @if($editingOption)
-    <div class="fixed inset-0 overflow-y-auto h-full w-full z-50" style="background: rgba(42, 30, 30, 0.5);">
-        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md" style="background: var(--bg-primary); border-color: var(--brand-yellow); box-shadow: var(--shadow-brand);">
+    <div class="fixed inset-0 overflow-y-auto h-full w-full z-50 bg-black bg-opacity-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-xl rounded-xl bg-white">
             <div class="mt-3">
-                <h4 class="text-lg font-medium mb-4" style="color: var(--brand-brown);">Edit Option</h4>
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                    <h4 class="text-xl font-semibold text-gray-900">{{ trans('products.edit_option') }}</h4>
+                    <button type="button" wire:click="cancelEdit" 
+                            class="text-gray-400 hover:text-gray-600 transition duration-200 p-1 rounded-lg hover:bg-gray-100">
+                        ×
+                    </button>
+                </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-semibold mb-2" style="color: var(--brand-brown);">Option Name *</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-gray-700">Option Name *</label>
                         <input type="text" wire:model="editingOption.name" 
-                               class="w-full px-3 py-2 border rounded-md transition duration-200"
-                               style="border-color: var(--border-light);"
-                               onfocus="this.style.borderColor='var(--brand-brown)'; this.style.boxShadow='0 0 0 3px var(--brand-yellow-light)'"
-                               onblur="this.style.borderColor='var(--border-light)'; this.style.boxShadow='none'">
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
+                               placeholder="e.g., Size, Color, Material">
                         @error('editingOption.name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
                     
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Option Name (Arabic)</label>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-gray-700">Option Name (Arabic)</label>
                         <input type="text" wire:model="editingOption.name_ar" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
+                               placeholder="اسم الخيار">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Type</label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-gray-700">Type</label>
                         <select wire:model="editingOption.type" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                             <option value="select">Select</option>
                             <option value="radio">Radio</option>
                             <option value="checkbox">Checkbox</option>
@@ -235,53 +227,55 @@
                         </select>
                     </div>
                     
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
                         <label class="flex items-center">
-                            <input type="checkbox" wire:model="editingOption.is_required" class="mr-2">
+                            <input type="checkbox" wire:model="editingOption.is_required" class="mr-3 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
                             <span class="text-sm text-gray-700">Required</span>
                         </label>
                     </div>
                 </div>
 
                 <!-- Option Values -->
-                <div class="mb-4">
-                    <div class="flex justify-between items-center mb-2">
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-4">
                         <label class="block text-sm font-semibold text-gray-700">Option Values</label>
                         <button type="button" wire:click="addValueToEditingOption" 
-                                class="text-sm text-green-600 hover:text-green-800">
+                                class="inline-flex items-center px-3 py-2 text-sm text-green-600 hover:text-green-800 transition duration-200">
                             <i class="fas fa-plus mr-1"></i>Add Value
                         </button>
                     </div>
                     
+                    <div class="space-y-3">
                     @foreach($editingOption['values'] as $index => $value)
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2 p-3 bg-gray-50 rounded border">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
                             <input type="text" wire:model="editingOption.values.{{ $index }}.value" 
                                    placeholder="Value" 
-                                   class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                       class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                             <input type="text" wire:model="editingOption.values.{{ $index }}.value_ar" 
                                    placeholder="Value (Arabic)" 
-                                   class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                       class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                             <input type="number" wire:model="editingOption.values.{{ $index }}.price_adjustment" 
                                    placeholder="Price Adjustment" step="0.01"
-                                   class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                       class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                             <div class="flex items-center justify-end">
                                 <button type="button" wire:click="removeValueFromEditingOption({{ $index }})" 
-                                        class="text-red-600 hover:text-red-800">
+                                            class="text-red-600 hover:text-red-800 transition duration-200 p-2">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         </div>
                     @endforeach
+                    </div>
                 </div>
 
-                <div class="flex justify-end space-x-3">
-                    <button wire:click="cancelEdit" 
-                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
-                        Cancel
+                <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                    <button type="button" wire:click="cancelEdit" 
+                            class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-200 shadow-sm">
+                        {{ trans('products.cancel') }}
                     </button>
-                    <button wire:click="updateOption" 
-                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
-                        Update Option
+                    <button type="button" wire:click="updateOption" 
+                            class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        {{ trans('products.update_option') }}
                     </button>
                 </div>
             </div>

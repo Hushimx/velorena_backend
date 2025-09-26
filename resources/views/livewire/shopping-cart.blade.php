@@ -48,7 +48,7 @@
                     // Handle mixed structure - some items might be wrapped in arrays
                     $item = is_array($rawItem) && isset($rawItem[0]) && is_array($rawItem[0]) ? $rawItem[0] : $rawItem;
                 @endphp
-                <div class="cart-item-card" wire:key="cart-item-{{ $item['id'] ?? $index }}">
+                <div class="cart-item-card" wire:key="cart-item-{{ $item['id'] ?? $item['cart_key'] ?? $index }}">
                     <div class="cart-item-content">
                         <!-- Product Image -->
                         <div class="cart-item-image">
@@ -87,7 +87,7 @@
                             <h3 class="cart-item-title">{{ $item['product_name'] ?? 'Unknown Product' }}</h3>
                             <p class="cart-item-base-price">
                                 {{ trans('cart.base_price') }}:
-                                <span class="price-value">{{ number_format($item['base_price'] ?? 0, 2) }} ريال</span>
+                                <span class="price-value">{{ number_format($item['base_price'] ?? 0, 2) }} {{ trans('products.currency') }}</span>
                             </p>
 
                             <!-- Selected Options -->
@@ -102,7 +102,7 @@
                                                 @if ($optionValue['price_adjustment'] != 0)
                                                     <span
                                                         class="price-adjustment {{ $optionValue['price_adjustment'] > 0 ? 'positive' : 'negative' }}">
-                                                        ({{ $optionValue['price_adjustment'] > 0 ? '+' : '' }}{{ number_format($optionValue['price_adjustment'], 2) }} ريال)
+                                                        ({{ $optionValue['price_adjustment'] > 0 ? '+' : '' }}{{ number_format($optionValue['price_adjustment'], 2) }} {{ trans('products.currency') }})
                                                     </span>
                                                 @endif
                                             </div>
@@ -131,10 +131,10 @@
                                                 <button
                                                     wire:click="removeDesignFromProduct({{ $item['product_id'] }}, {{ $design['id'] }})"
                                                     class="remove-design-btn"
-                                                    wire:confirm="هل أنت متأكد من حذف هذا التصميم؟"
+                                                    wire:confirm="{{ trans('cart.confirm_remove_design') }}"
                                                     wire:loading.attr="disabled"
                                                     wire:target="removeDesignFromProduct({{ $item['product_id'] }}, {{ $design['id'] }})"
-                                                    title="حذف التصميم">
+                                                    title="{{ trans('cart.remove_this_design') }}">
                                                     <span wire:loading.remove wire:target="removeDesignFromProduct({{ $item['product_id'] }}, {{ $design['id'] }})">
                                                         <i class="fas fa-trash"></i>
                                                     </span>
@@ -163,14 +163,14 @@
                             <div class="quantity-controls"
                                 wire:key="quantity-controls-{{ $item['product_id'] ?? 0 }}-{{ $item['quantity'] ?? 1 }}">
                                 <button
-                                    wire:click="updateQuantity({{ $item['id'] ?? 0 }}, {{ max(1, ($item['quantity'] ?? 1) - 1) }})"
+                                    wire:click="updateQuantity({{ $item['id'] ?? $item['cart_key'] ?? 0 }}, {{ max(1, ($item['quantity'] ?? 1) - 1) }})"
                                     class="quantity-btn minus {{ ($item['quantity'] ?? 1) <= 1 ? 'disabled' : '' }}"
                                     {{ ($item['quantity'] ?? 1) <= 1 ? 'disabled' : '' }}>
                                     <i class="fas fa-minus"></i>
                                 </button>
                                 <span class="quantity-value">{{ $item['quantity'] ?? 1 }}</span>
                                 <button
-                                    wire:click="updateQuantity({{ $item['id'] ?? 0 }}, {{ ($item['quantity'] ?? 1) + 1 }})"
+                                    wire:click="updateQuantity({{ $item['id'] ?? $item['cart_key'] ?? 0 }}, {{ ($item['quantity'] ?? 1) + 1 }})"
                                     class="quantity-btn plus">
                                     <i class="fas fa-plus"></i>
                                 </button>
@@ -179,7 +179,7 @@
 
                         <!-- Actions -->
                         <div class="cart-item-actions">
-                            <button wire:click="removeItem({{ $item['id'] ?? 0 }})" class="remove-item-btn">
+                            <button wire:click="removeItem({{ $item['id'] ?? $item['cart_key'] ?? 0 }})" class="remove-item-btn">
                                 <i class="fas fa-trash"></i>
                                 <span>{{ trans('cart.remove') }}</span>
                             </button>
@@ -197,8 +197,8 @@
                         <i class="fas fa-palette"></i>
                     </div>
                     <div class="tools-header-text">
-                        <h3 class="tools-title">أدوات التصميم</h3>
-                        <p class="tools-subtitle">ابحث عن التصاميم أو أنشئ تصميمك الخاص</p>
+                        <h3 class="tools-title">{{ trans('cart.design_tools') }}</h3>
+                        <p class="tools-subtitle">{{ trans('cart.design_tools_subtitle') }}</p>
                     </div>
                 </div>
             </div>
@@ -209,8 +209,8 @@
                         <i class="fas fa-search"></i>
                     </div>
                     <div class="tool-info">
-                        <h4>البحث عن التصاميم</h4>
-                        <p>تصفح آلاف التصاميم من Freepik</p>
+                        <h4>{{ trans('cart.search_designs') }}</h4>
+                        <p>{{ trans('cart.search_designs_description') }}</p>
                     </div>
                     <div class="tool-arrow">
                         <i class="fas fa-arrow-left"></i>
@@ -222,8 +222,8 @@
                         <i class="fas fa-paint-brush"></i>
                     </div>
                     <div class="tool-info">
-                        <h4>استوديو التصميم</h4>
-                        <p>أنشئ تصميمك الخاص بالأدوات المتقدمة</p>
+                        <h4>{{ trans('cart.design_studio') }}</h4>
+                        <p>{{ trans('cart.design_studio_description') }}</p>
                     </div>
                     <div class="tool-arrow">
                         <i class="fas fa-arrow-left"></i>
@@ -237,21 +237,21 @@
                     <div class="saved-designs-header">
                         <h4 class="saved-designs-title">
                             <i class="fas fa-bookmark me-2"></i>
-                            التصاميم المحفوظة ({{ count($cartDesigns) }})
+                            {{ trans('cart.saved_designs') }} ({{ count($cartDesigns) }})
                         </h4>
                         <button wire:click="clearAllCartDesigns" 
-                            wire:confirm="هل أنت متأكد من حذف جميع التصاميم المحفوظة؟ هذا الإجراء لا يمكن التراجع عنه."
+                            wire:confirm="{{ trans('cart.confirm_clear_all_designs') }}"
                             wire:loading.attr="disabled"
                             wire:target="clearAllCartDesigns"
                             class="clear-all-designs-btn"
-                            title="حذف جميع التصاميم">
+                            title="{{ trans('cart.clear_all_designs') }}">
                             <span wire:loading.remove wire:target="clearAllCartDesigns">
                                 <i class="fas fa-trash-alt"></i>
-                                <span>حذف الكل</span>
+                                <span>{{ trans('cart.clear_all_designs') }}</span>
                             </span>
                             <span wire:loading wire:target="clearAllCartDesigns">
                                 <i class="fas fa-spinner fa-spin"></i>
-                                <span>جاري الحذف...</span>
+                                <span>{{ trans('cart.deleting') }}</span>
                             </span>
                         </button>
                     </div>
@@ -270,26 +270,26 @@
                                 <div class="design-info">
                                     <p class="design-date">{{ \Carbon\Carbon::parse($design['created_at'])->diffForHumans() }}</p>
                                     <button wire:click="deleteCartDesign({{ $design['id'] }})" class="delete-design-btn" 
-                                        wire:confirm="هل أنت متأكد من حذف هذا التصميم؟" 
+                                        wire:confirm="{{ trans('cart.confirm_delete_design') }}" 
                                         wire:loading.attr="disabled"
                                         wire:target="deleteCartDesign({{ $design['id'] }})"
-                                        title="حذف التصميم">
+                                        title="{{ trans('cart.delete') }}">
                                         <span wire:loading.remove wire:target="deleteCartDesign({{ $design['id'] }})">
                                             <i class="fas fa-trash"></i>
-                                            <span>حذف</span>
+                                            <span>{{ trans('cart.delete') }}</span>
                                         </span>
                                         <span wire:loading wire:target="deleteCartDesign({{ $design['id'] }})">
                                             <i class="fas fa-spinner fa-spin"></i>
-                                            <span>جاري الحذف...</span>
+                                            <span>{{ trans('cart.deleting') }}</span>
                                         </span>
                                     </button>
                                 </div>
                                 <div class="design-actions">
                                     <button wire:click="deleteCartDesign({{ $design['id'] }})" class="remove-design-btn" 
-                                        wire:confirm="هل أنت متأكد من حذف هذا التصميم؟" 
+                                        wire:confirm="{{ trans('cart.confirm_delete_design') }}" 
                                         wire:loading.attr="disabled"
                                         wire:target="deleteCartDesign({{ $design['id'] }})"
-                                        title="حذف">
+                                        title="{{ trans('cart.delete') }}">
                                         <span wire:loading.remove wire:target="deleteCartDesign({{ $design['id'] }})">
                                             <i class="fas fa-trash"></i>
                                         </span>
@@ -312,15 +312,15 @@
                 <div class="summary-details">
                     <div class="summary-item">
                         <span class="summary-label">{{ trans('cart.subtotal') }}:</span>
-                        <span class="summary-value">{{ number_format($subtotal, 2) }} ريال</span>
+                        <span class="summary-value">{{ number_format($subtotal, 2) }} {{ trans('products.currency') }}</span>
                     </div>
                     <div class="summary-item">
                         <span class="summary-label">{{ trans('cart.tax') }}:</span>
-                        <span class="summary-value">{{ number_format($tax, 2) }} ريال</span>
+                        <span class="summary-value">{{ number_format($tax, 2) }} {{ trans('products.currency') }}</span>
                     </div>
                     <div class="summary-total">
                         <span class="summary-label">{{ trans('cart.total') }}:</span>
-                        <span class="summary-total-value px-2">{{ number_format($total, 2) }} ريال</span>
+                        <span class="summary-total-value px-2">{{ number_format($total, 2) }} {{ trans('products.currency') }}</span>
                     </div>
                 </div>
                 <div class="summary-actions">

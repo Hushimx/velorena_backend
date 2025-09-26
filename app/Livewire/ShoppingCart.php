@@ -10,6 +10,7 @@ use App\Models\OrderItem;
 use App\Models\OrderDesign;
 use App\Models\Appointment;
 use App\Services\OrderService;
+use App\Services\GuestCartService;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -53,25 +54,35 @@ class ShoppingCart extends Component
 
     public function loadCart()
     {
-        if (!Auth::check()) {
-            $this->cartItems = [];
-            $this->subtotal = 0;
-            $this->tax = 0;
-            $this->total = 0;
-            $this->itemCount = 0;
-            return;
-        }
-
-        $user = Auth::user();
-        $cartItems = CartItem::where('user_id', $user->id)
-            ->with(['product.options.values'])
-            ->get();
-
         $this->cartItems = [];
         $this->subtotal = 0;
         $this->tax = 0;
         $this->total = 0;
         $this->itemCount = 0;
+
+        if (Auth::check()) {
+            // Authenticated user - load from database
+            $this->loadAuthenticatedCart();
+        } else {
+            // Guest user - load from session
+            $this->loadGuestCart();
+        }
+
+        // Calculate tax (assuming 15% VAT rate)
+        $this->tax = $this->subtotal * 0.15;
+
+        // Calculate total
+        $this->total = $this->subtotal + $this->tax;
+
+        $this->itemCount = count($this->cartItems);
+    }
+
+    private function loadAuthenticatedCart()
+    {
+        $user = Auth::user();
+        $cartItems = CartItem::where('user_id', $user->id)
+            ->with(['product.options.values'])
+            ->get();
 
         foreach ($cartItems as $item) {
             // Update prices if not set
@@ -99,8 +110,11 @@ class ShoppingCart extends Component
                         $option = $item->product->options->find($optionId);
                         $optionValue = \App\Models\OptionValue::find($valueId);
                         if ($option && $optionValue) {
-                            $selectedOptionsDisplay[$option->name] = [
-                                'value' => $optionValue->value,
+                            $optionName = app()->getLocale() === 'ar' ? ($option->name_ar ?? $option->name) : $option->name;
+                            $optionValueText = app()->getLocale() === 'ar' ? ($optionValue->value_ar ?? $optionValue->value) : $optionValue->value;
+                            
+                            $selectedOptionsDisplay[$optionName] = [
+                                'value' => $optionValueText,
                                 'price_adjustment' => $optionValue->price_adjustment ?? 0
                             ];
                         }
@@ -111,7 +125,7 @@ class ShoppingCart extends Component
             $this->cartItems[] = [
                 'id' => $item->id,
                 'product_id' => $item->product_id,
-                'product_name' => $item->product->name,
+                'product_name' => app()->getLocale() === 'ar' ? ($item->product->name_ar ?? $item->product->name) : $item->product->name,
                 'base_price' => $item->product->base_price,
                 'product' => [
                     'id' => $item->product->id,
@@ -131,14 +145,30 @@ class ShoppingCart extends Component
 
             $this->subtotal += $item->total_price;
         }
+    }
 
-        // Calculate tax (assuming 15% VAT rate)
-        $this->tax = $this->subtotal * 0.15;
+    private function loadGuestCart()
+    {
+        $guestCartService = app(GuestCartService::class);
+        $cartItems = $guestCartService->getCartItemsWithProducts();
 
-        // Calculate total
-        $this->total = $this->subtotal + $this->tax;
+        foreach ($cartItems as $item) {
+            $this->cartItems[] = [
+                'cart_key' => $item['cart_key'],
+                'product_id' => $item['product_id'],
+                'product_name' => $item['product_name'],
+                'base_price' => $item['product']['base_price'],
+                'product' => $item['product'],
+                'quantity' => $item['quantity'],
+                'selected_options' => $item['selected_options'],
+                'notes' => $item['notes'],
+                'designs' => [],
+                'unit_price' => $item['unit_price'],
+                'total_price' => $item['total_price']
+            ];
 
-        $this->itemCount = count($this->cartItems);
+            $this->subtotal += $item['total_price'];
+        }
     }
 
     /**
@@ -153,49 +183,69 @@ class ShoppingCart extends Component
 
     public function removeItem($cartItemId)
     {
-        if (!Auth::check()) {
-            return;
-        }
+        if (Auth::check()) {
+            // Authenticated user
+            $user = Auth::user();
+            $cartItem = CartItem::where('user_id', $user->id)
+                ->where('id', $cartItemId)
+                ->first();
 
-        $user = Auth::user();
-        $cartItem = CartItem::where('user_id', $user->id)
-            ->where('id', $cartItemId)
-            ->first();
-
-        if ($cartItem) {
-            $cartItem->delete();
-            $this->loadCart();
-            $this->dispatch('cartUpdated');
+            if ($cartItem) {
+                $cartItem->delete();
+                $this->loadCart();
+                $this->dispatch('cartUpdated');
+            }
+        } else {
+            // Guest user
+            $guestCartService = app(GuestCartService::class);
+            if ($guestCartService->removeFromCart($cartItemId)) {
+                $this->loadCart();
+                $this->dispatch('cartUpdated');
+            }
         }
     }
 
     public function updateQuantity($cartItemId, $quantity)
     {
-        if (!Auth::check() || $quantity < 1) {
+        if ($quantity < 1) {
             return;
         }
 
-        $user = Auth::user();
-        $cartItem = CartItem::where('user_id', $user->id)
-            ->where('id', $cartItemId)
-            ->first();
+        if (Auth::check()) {
+            // Authenticated user
+            $user = Auth::user();
+            $cartItem = CartItem::where('user_id', $user->id)
+                ->where('id', $cartItemId)
+                ->first();
 
-        if ($cartItem) {
-            $cartItem->quantity = $quantity;
-            $cartItem->updatePrices();
-            $this->loadCart();
-            $this->dispatch('cartUpdated');
+            if ($cartItem) {
+                $cartItem->quantity = $quantity;
+                $cartItem->updatePrices();
+                $this->loadCart();
+                $this->dispatch('cartUpdated');
+            }
+        } else {
+            // Guest user
+            $guestCartService = app(GuestCartService::class);
+            if ($guestCartService->updateQuantity($cartItemId, $quantity)) {
+                $this->loadCart();
+                $this->dispatch('cartUpdated');
+            }
         }
     }
 
     public function clearCart()
     {
-        if (!Auth::check()) {
-            return;
+        if (Auth::check()) {
+            // Authenticated user
+            $user = Auth::user();
+            CartItem::where('user_id', $user->id)->delete();
+        } else {
+            // Guest user
+            $guestCartService = app(GuestCartService::class);
+            $guestCartService->clearCart();
         }
-
-        $user = Auth::user();
-        CartItem::where('user_id', $user->id)->delete();
+        
         $this->loadCart();
         $this->dispatch('cartUpdated');
     }
@@ -203,12 +253,31 @@ class ShoppingCart extends Component
     public function showCheckout()
     {
         if (!Auth::check()) {
-            $this->showLoginModal = true;
+            // Store the current URL for redirect after login
+            session(['url.intended' => url()->current()]);
+            
+            // Show login error toast
+            $this->dispatch(
+                'showToast',
+                message: 'يرجى تسجيل الدخول أولاً لإتمام عملية الشراء',
+                type: 'warning',
+                title: 'تسجيل الدخول مطلوب',
+                duration: 3000
+            );
+            
+            // Redirect to login page after 3 seconds
+            $this->dispatch('redirectToLogin');
             return;
         }
 
         if (empty($this->cartItems)) {
-            session()->flash('error', 'Your cart is empty');
+            $this->dispatch(
+                'showToast',
+                message: 'سلة التسوق فارغة',
+                type: 'error',
+                title: 'خطأ',
+                duration: 3000
+            );
             return;
         }
 
@@ -230,7 +299,20 @@ class ShoppingCart extends Component
     public function createOrder()
     {
         if (!Auth::check()) {
-            $this->showLoginModal = true;
+            // Store the current URL for redirect after login
+            session(['url.intended' => url()->current()]);
+            
+            // Show login error toast
+            $this->dispatch(
+                'showToast',
+                message: 'يرجى تسجيل الدخول أولاً لإنشاء طلب',
+                type: 'warning',
+                title: 'تسجيل الدخول مطلوب',
+                duration: 3000
+            );
+            
+            // Redirect to login page after 3 seconds
+            $this->dispatch('redirectToLogin');
             return;
         }
 
@@ -316,7 +398,20 @@ class ShoppingCart extends Component
     public function createOrderDirectly()
     {
         if (!Auth::check()) {
-            $this->showLoginModal = true;
+            // Store the current URL for redirect after login
+            session(['url.intended' => url()->current()]);
+            
+            // Show login error toast
+            $this->dispatch(
+                'showToast',
+                message: 'يرجى تسجيل الدخول أولاً لإنشاء طلب',
+                type: 'warning',
+                title: 'تسجيل الدخول مطلوب',
+                duration: 3000
+            );
+            
+            // Redirect to login page after 3 seconds
+            $this->dispatch('redirectToLogin');
             return;
         }
 
@@ -405,12 +500,31 @@ class ShoppingCart extends Component
     public function bookAppointment()
     {
         if (!Auth::check()) {
-            $this->showLoginModal = true;
+            // Store the current URL for redirect after login
+            session(['url.intended' => url()->current()]);
+            
+            // Show login error toast
+            $this->dispatch(
+                'showToast',
+                message: 'يرجى تسجيل الدخول أولاً لحجز موعد',
+                type: 'warning',
+                title: 'تسجيل الدخول مطلوب',
+                duration: 3000
+            );
+            
+            // Redirect to login page after 3 seconds
+            $this->dispatch('redirectToLogin');
             return;
         }
 
         if (empty($this->cartItems)) {
-            session()->flash('error', 'Your cart is empty');
+            $this->dispatch(
+                'showToast',
+                message: 'سلة التسوق فارغة',
+                type: 'error',
+                title: 'خطأ',
+                duration: 3000
+            );
             return;
         }
 
@@ -421,7 +535,20 @@ class ShoppingCart extends Component
     public function createOrderFromCart()
     {
         if (!Auth::check()) {
-            $this->showLoginModal = true;
+            // Store the current URL for redirect after login
+            session(['url.intended' => url()->current()]);
+            
+            // Show login error toast
+            $this->dispatch(
+                'showToast',
+                message: 'يرجى تسجيل الدخول أولاً لإنشاء طلب',
+                type: 'warning',
+                title: 'تسجيل الدخول مطلوب',
+                duration: 3000
+            );
+            
+            // Redirect to login page after 3 seconds
+            $this->dispatch('redirectToLogin');
             return;
         }
 

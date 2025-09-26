@@ -17,6 +17,75 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
+/* Guest Login Styles */
+.guest-login-toggle {
+    color: #6c757d !important;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.guest-login-toggle:hover {
+    color: #495057 !important;
+    text-decoration: none;
+}
+
+.guest-avatar {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    border: 2px solid #e9ecef;
+    color: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.guest-avatar-large {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    border: 2px solid #e9ecef;
+    color: #6c757d;
+}
+
+.guest-text {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.guest-text-large {
+    color: #495057;
+    font-weight: 600;
+}
+
+.guest-email {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.guest-dropdown {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    min-width: 280px;
+}
+
+.guest-dropdown .dropdown-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem;
+}
+
+.guest-dropdown .login-action .dropdown-item-icon {
+    color: #28a745;
+}
+
+.guest-dropdown .register-action .dropdown-item-icon {
+    color: #007bff;
+}
+
+.guest-dropdown .dropdown-item:hover .login-action .dropdown-item-icon {
+    color: #218838;
+}
+
+.guest-dropdown .dropdown-item:hover .register-action .dropdown-item-icon {
+    color: #0056b3;
+}
+
 /* Language Dropdown Styles */
 .language-dropdown .btn {
     border: 1px solid #dee2e6;

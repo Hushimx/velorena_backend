@@ -1,11 +1,11 @@
 @props(['latestProducts' => [], 'bestSellingProducts' => []])
 
 {{-- Product Slider Section --}}
-<div class="product-slider-section py-5 bg-light">
+<div class="product-slider-section py-5 ">
     <div class="container">
         <!-- Latest Products Section -->
         <div class="mb-5">
-            <h2 class="text-center fb-bold mb-4">{{ trans('Latest Products') }}</h2>
+            <h2 class="text-center fb-bold mb-4">{{ trans('products.latest_products') }}</h2>
             <!-- Swiper -->
             <div class="swiper latestProductsSwiper">
                 <div class="swiper-wrapper">
@@ -15,14 +15,13 @@
                             <a href="{{ $product['url'] }}" class="product-link">
                                 <div class="product-card">
                                     <div class="product-image">
-                                        <img src="{{ $product['image_url'] }}" alt="{{ $product['name'] }}" class="img-fluid" 
+                                        <img src="{{ $product['image_url'] }}" alt="{{ app()->getLocale() === 'ar' ? ($product['name_ar'] ?? $product['name']) : $product['name'] }}" class="img-fluid" 
                                              onload="this.classList.add('loaded')"
-                                             onerror="this.src='https://placehold.co/300x200/f8f9fa/6c757d?text=No+Image'; this.classList.add('loaded')"
+                                             onerror="this.src='https://placehold.co/600x400/f8f9fa/6c757d?text=No+Image'; this.classList.add('loaded')"
                                              loading="lazy">
                                     </div>
                                     <div class="product-info p-3">
-                                        <h5 class="product-name mb-2">{{ $product['name'] }}</h5>
-                                        <p class="product-price fw-bold mb-3">{{ $product['base_price'] }} ر.س</p>
+                                        <h5 class="product-name mb-2">{{ app()->getLocale() === 'ar' ? ($product['name_ar'] ?? $product['name']) : $product['name'] }}</h5>
                                     </div>
                                 </div>
                             </a>
@@ -32,7 +31,7 @@
                         <div class="swiper-slide">
                             <div class="product-card">
                                 <div class="product-info p-3 text-center">
-                                    <h5 class="product-name mb-2">{{ trans('No products available') }}</h5>
+                                    <h5 class="product-name mb-2">{{ trans('products.no_products_available') }}</h5>
                                 </div>
                             </div>
                         </div>
@@ -48,7 +47,7 @@
 
         <!-- Best Selling Products Section -->
         <div>
-            <h2 class="text-center fb-bold mb-4">{{ trans('Best Selling Products') }}</h2>
+            <h2 class="text-center fb-bold mb-4">{{ trans('products.best_selling_products') }}</h2>
             <!-- Swiper -->
             <div class="swiper bestSellingProductsSwiper">
                 <div class="swiper-wrapper">
@@ -58,15 +57,14 @@
                             <a href="{{ $product['url'] }}" class="product-link">
                                 <div class="product-card">
                                     <div class="product-image">
-                                        <img src="{{ $product['image_url'] }}" alt="{{ $product['name'] }}" class="img-fluid" 
+                                        <img src="{{ $product['image_url'] }}" alt="{{ app()->getLocale() === 'ar' ? ($product['name_ar'] ?? $product['name']) : $product['name'] }}" class="img-fluid" 
                                              onload="this.classList.add('loaded')"
-                                             onerror="this.src='https://placehold.co/300x200/f8f9fa/6c757d?text=No+Image'; this.classList.add('loaded')"
+                                             onerror="this.src='https://placehold.co/600x400/f8f9fa/6c757d?text=No+Image'; this.classList.add('loaded')"
                                              loading="lazy">
 
                                     </div>
                                     <div class="product-info p-3">
-                                        <h5 class="product-name mb-2">{{ $product['name'] }}</h5>
-                                        <p class="product-price fw-bold mb-3">{{ $product['base_price'] }} ر.س</p>
+                                        <h5 class="product-name mb-2">{{ app()->getLocale() === 'ar' ? ($product['name_ar'] ?? $product['name']) : $product['name'] }}</h5>
 
                                     </div>
                                 </div>
@@ -77,7 +75,7 @@
                         <div class="swiper-slide">
                             <div class="product-card">
                                 <div class="product-info p-3 text-center">
-                                    <h5 class="product-name mb-2">{{ trans('No products available') }}</h5>
+                                    <h5 class="product-name mb-2">{{ trans('products.no_products_available') }}</h5>
                                 </div>
                             </div>
                         </div>
@@ -95,7 +93,7 @@
 
 <style>
 .product-slider-section {
-    background: linear-gradient(180deg, var(--brand-yellow-light) 0%, #FFFFFF 100%);
+    background: transparent;
     padding: 4rem 0;
 }
 
@@ -256,6 +254,13 @@
     padding: 20px 0 50px 0;
 }
 
+/* Pagination positioning */
+.latestProductsSwiper .swiper-pagination,
+.bestSellingProductsSwiper .swiper-pagination {
+    bottom: 10px;
+    position: relative;
+}
+
 .latestProductsSwiper .swiper-button-next,
 .latestProductsSwiper .swiper-button-prev,
 .bestSellingProductsSwiper .swiper-button-next,
@@ -298,7 +303,7 @@
 
 .latestProductsSwiper .swiper-pagination-bullet-active,
 .bestSellingProductsSwiper .swiper-pagination-bullet-active {
-    background: var(--brand-yellow-dark);
+    background: #c4a700;
     transform: scale(1.2);
 }
 
@@ -368,6 +373,10 @@ document.addEventListener('DOMContentLoaded', function() {
         watchSlidesProgress: true,
         watchSlidesVisibility: true,
         breakpoints: {
+            320: {
+                slidesPerView: 2.5,
+                spaceBetween: 15,
+            },
             640: {
                 slidesPerView: 2,
                 spaceBetween: 20,
@@ -411,6 +420,10 @@ document.addEventListener('DOMContentLoaded', function() {
         watchSlidesProgress: true,
         watchSlidesVisibility: true,
         breakpoints: {
+            320: {
+                slidesPerView: 2.5,
+                spaceBetween: 15,
+            },
             640: {
                 slidesPerView: 2,
                 spaceBetween: 20,

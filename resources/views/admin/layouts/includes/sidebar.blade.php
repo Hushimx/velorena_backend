@@ -145,7 +145,7 @@
 
         <!-- Settings Tree -->
         <div class="tree-item">
-            <a href="#" class="sidebar-link {{ request()->routeIs('admin.home-banners.*') ? 'active' : '' }}" onclick="toggleTree(event, 'settings-tree')">
+            <a href="#" class="sidebar-link {{ request()->routeIs('admin.home-banners.*') || request()->routeIs('admin.pages.*') || request()->routeIs('admin.site-settings.*') ? 'active' : '' }}" onclick="toggleTree(event, 'settings-tree')">
                 <i class="fas fa-cog"></i>
                 <span>{{ __('admin.settings') }}</span>
                 <i class="fas fa-chevron-left tree-toggle" id="settings-toggle"></i>
@@ -154,6 +154,14 @@
                 <a href="{{ route('admin.home-banners.index') }}" class="sidebar-link tree-child {{ request()->routeIs('admin.home-banners.*') ? 'active' : '' }}">
                     <i class="fas fa-images"></i>
                     <span>{{ __('admin.home_banners_management') }}</span>
+                </a>
+                <a href="{{ route('admin.pages.index') }}" class="sidebar-link tree-child {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Pages Management</span>
+                </a>
+                <a href="{{ route('admin.site-settings.index') }}" class="sidebar-link tree-child {{ request()->routeIs('admin.site-settings.*') ? 'active' : '' }}">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>Site Settings</span>
                 </a>
             </div>
         </div>

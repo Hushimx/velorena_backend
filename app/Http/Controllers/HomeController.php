@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Category;
+use App\Models\StoreContent;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -63,9 +65,35 @@ class HomeController extends Controller
                 ];
             });
 
+        // Get active categories
+        $categories = Category::where('is_active', true)
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($category) {
+                return [
+                    'id' => $category->id,
+                    'name' => $category->name_ar ?? $category->name,
+                    'name_en' => $category->name,
+                    'name_ar' => $category->name_ar,
+                    'image_url' => $category->image ? asset($category->image) : asset('assets/imgs/تنظيم المـواتمرات (2).png'),
+                    'url' => route('user.products.index', ['category' => $category->id]),
+                    'badge' => null // You can add badge logic here if needed
+                ];
+            });
+
+        // Get dynamic homepage content
+        $homepageContent = [
+            'title' => StoreContent::getSetting('homepage_title.value', trans('Print Your Design Now with the Highest Quality')),
+            'subtitle' => StoreContent::getSetting('homepage_subtitle.value', trans('Premium Design & Print Solutions')),
+            'description' => StoreContent::getSetting('homepage_description.value', trans('Transform your ideas into distinctive prints with high quality and professional design that meets your needs and reflects your identity')),
+        ];
+
         return view('users.welcome', [
             'latestProducts' => $latestProducts,
-            'bestSellingProducts' => $bestSellingProducts
+            'bestSellingProducts' => $bestSellingProducts,
+            'categories' => $categories,
+            'homepageContent' => $homepageContent
         ]);
     }
 }
