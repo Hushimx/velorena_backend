@@ -83,6 +83,8 @@ return [
     "view_details" => "View Details",
     "no_products_found" => "No Products Found",
     "no_products_found_description" => "Try adjusting your search or filter criteria to find what you're looking for.",
+    "no_products_on_page" => "No Products on This Page",
+    "no_products_on_page_description" => "There are no products on this page, but there are more pages available.",
     "add_to_favorites" => "Add to Favorites",
     "related_products" => "Related Products",
     "highlights" => "Highlights",
