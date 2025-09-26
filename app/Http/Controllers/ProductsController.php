@@ -8,6 +8,7 @@ use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ProductsController extends Controller
 {
@@ -48,7 +49,14 @@ class ProductsController extends Controller
             'specifications' => 'nullable|string',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-            'primary_image' => 'nullable|integer|min:0'
+            'primary_image' => 'nullable|integer|min:0',
+            'slug' => 'nullable|string|max:255|unique:products,slug',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'meta_keywords' => 'nullable|string|max:500',
+            'og_title' => 'nullable|string|max:255',
+            'og_description' => 'nullable|string|max:500',
+            'og_image' => 'nullable|string|max:500'
         ]);
 
         try {
@@ -80,7 +88,7 @@ class ProductsController extends Controller
             return redirect()->route('admin.products.index')
                 ->with('success', trans('products.product_created_successfully'));
         } catch (\Exception $e) {
-            \Log::error('Product creation error: ' . $e->getMessage());
+            Log::error('Product creation error: ' . $e->getMessage());
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Error creating product: ' . $e->getMessage());
@@ -90,18 +98,22 @@ class ProductsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Product $product)
     {
-        $product = Product::with(['category', 'options.values', 'images'])->findOrFail($id);
+        // Load relationships
+        $product->load(['category', 'options.values', 'images']);
+
         return view('admin.dashboard.products.show', compact('product'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Product $product)
     {
-        $product = Product::with(['category', 'options.values', 'images'])->findOrFail($id);
+        // Load relationships
+        $product->load(['category', 'options.values', 'images']);
+
         $categories = Category::where('is_active', true)->orderBy('name')->get();
         return view('admin.dashboard.products.edit', compact('product', 'categories'));
     }
@@ -109,7 +121,7 @@ class ProductsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Product $product)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -123,11 +135,17 @@ class ProductsController extends Controller
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'primary_image' => 'nullable|integer|min:0',
             'existing_images' => 'nullable|array',
-            'existing_images.*' => 'integer|exists:product_images,id'
+            'existing_images.*' => 'integer|exists:product_images,id',
+            'slug' => 'nullable|string|max:255|unique:products,slug,' . $product->id,
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'meta_keywords' => 'nullable|string|max:500',
+            'og_title' => 'nullable|string|max:255',
+            'og_description' => 'nullable|string|max:500',
+            'og_image' => 'nullable|string|max:500'
         ]);
 
         try {
-            $product = Product::findOrFail($id);
             $data = $request->all();
 
             // Set is_active to true by default
@@ -154,7 +172,7 @@ class ProductsController extends Controller
             return redirect()->route('admin.products.index')
                 ->with('success', trans('products.product_updated_successfully'));
         } catch (\Exception $e) {
-            \Log::error('Product update error: ' . $e->getMessage());
+            Log::error('Product update error: ' . $e->getMessage());
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Error updating product: ' . $e->getMessage());
@@ -164,10 +182,9 @@ class ProductsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Product $product)
     {
         try {
-            $product = Product::findOrFail($id);
             $product->delete();
 
             return redirect()->route('admin.products.index')
@@ -184,7 +201,7 @@ class ProductsController extends Controller
     private function handleImageUploads(Product $product, array $images, $primaryImageIndex = 0)
     {
         $uploadedImages = [];
-        
+
         foreach ($images as $index => $image) {
             $imageName = time() . '_' . $index . '_' . $image->getClientOriginalName();
             $imagePath = 'uploads/products/' . $imageName;
@@ -196,10 +213,10 @@ class ProductsController extends Controller
                 'is_primary' => false, // Will be set later if needed
                 'sort_order' => $product->images()->count()
             ]);
-            
+
             $uploadedImages[] = $uploadedImage;
         }
-        
+
         // Set primary image if specified
         if ($primaryImageIndex !== null && $primaryImageIndex !== '') {
             if (is_numeric($primaryImageIndex) && isset($uploadedImages[$primaryImageIndex])) {
@@ -230,10 +247,10 @@ class ProductsController extends Controller
         // Update primary image
         if ($request->has('primary_image') && $request->input('primary_image')) {
             $primaryImageValue = $request->input('primary_image');
-            
+
             // Reset all images to non-primary
             $product->images()->update(['is_primary' => false]);
-            
+
             // Set the selected image as primary
             if (is_numeric($primaryImageValue)) {
                 // Existing image ID

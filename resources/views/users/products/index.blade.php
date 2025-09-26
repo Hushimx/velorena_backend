@@ -1,7 +1,12 @@
 @extends('components.layout')
 
-@section('pageTitle', trans('products.products'))
-@section('title', trans('products.products'))
+@php
+    use App\Services\SeoService;
+    $seoData = SeoService::generateProductsListingMetaTags();
+@endphp
+
+@section('pageTitle', $seoData['title'])
+@section('title', $seoData['title'])
 
 @section('content')
     <!-- Navbar from Welcome Page -->
@@ -348,12 +353,14 @@
                 gap: 0.5rem;
             }
 
-            .header-btn, .back-btn {
+            .header-btn,
+            .back-btn {
                 padding: 0.6rem 1rem;
                 font-size: 0.9rem;
             }
 
-            .header-btn span, .back-btn span {
+            .header-btn span,
+            .back-btn span {
                 display: none;
             }
         }

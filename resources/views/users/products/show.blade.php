@@ -1,7 +1,12 @@
 @extends('components.layout')
 
-@section('pageTitle', $product->name)
-@section('title', $product->name)
+@php
+    use App\Services\SeoService;
+    $seoData = SeoService::generateProductMetaTags($product);
+@endphp
+
+@section('pageTitle', $seoData['title'])
+@section('title', $seoData['title'])
 
 @section('content')
     <!-- Navbar -->
@@ -780,4 +785,7 @@
             });
         }
     </script>
+
+    <!-- Structured Data -->
+    {!! App\Services\SeoService::generateJsonLdScript($seoData['structured_data']) !!}
 @endsection
