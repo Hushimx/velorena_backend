@@ -137,31 +137,6 @@
                                     </option>
                                 @endforeach
                             </select>
-                            =======
-                            <!-- Category -->
-                            <div class="space-y-2">
-                                <label for="category_id" class="block text-sm font-semibold text-gray-700">
-                                    {{ trans('products.category') }} <span class="text-red-500">*</span>
-                                </label>
-                                <div class="relative">
-                                    <select name="category_id" id="category_id" required
-                                        class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:bg-gray-50 focus:bg-white shadow-sm appearance-none">
-                                        <option value="">{{ trans('products.select_category') }}</option>
-                                        @foreach ($categories as $category)
-                                            <option value="{{ $category->id }}"
-                                                {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
-                                                {{ $category->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <i class="fas fa-folder text-gray-400"></i>
-                                    </div>
-                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-chevron-down text-gray-400"></i>
-                                    </div>
-                                </div>
-                                >>>>>>> cd613328a098bc6978e37fae62c144a0f03d661f
                                 @error('category_id')
                                     <p class="mt-2 text-sm text-red-600 flex items-center">
                                         <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
@@ -195,20 +170,25 @@
                             </div>
                         </div>
 
-                        <<<<<<< HEAD <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                            <label for="images"
-                                class="block text-sm font-semibold text-gray-700 mb-2">{{ trans('products.images') }}</label>
+                        <!-- Product Images Section -->
+                        <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
+                            <div class="flex items-center mb-6">
+                                <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-images text-white text-sm"></i>
+                                </div>
+                                <h2 class="text-xl font-semibold text-gray-900">{{ trans('products.images') }}</h2>
+                            </div>
 
                             <!-- Existing Images -->
                             @if ($product->images && $product->images->count() > 0)
-                                <div class="mb-4">
+                                <div class="mb-6">
                                     <p class="text-sm text-gray-600 mb-3">{{ trans('products.current_images') }}:</p>
                                     <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="existing-images">
                                         @foreach ($product->images as $image)
                                             <div class="relative group existing-image"
                                                 data-image-id="{{ $image->id }}">
                                                 <img src="{{ asset($image->image_path) }}" alt="{{ $image->alt_text }}"
-                                                    class="w-full h-32 object-cover rounded-lg border-2 {{ $image->is_primary ? 'border-green-500' : 'border-gray-200' }}">
+                                                    class="w-full h-32 object-cover rounded-lg border-2 {{ $image->is_primary ? 'border-purple-500' : 'border-gray-200' }} hover:border-purple-400 transition-all duration-200">
                                                 <div
                                                     class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg flex items-center justify-center">
                                                     <button type="button"
@@ -219,12 +199,12 @@
                                                 @if ($image->is_primary)
                                                     <div class="absolute top-2 left-2">
                                                         <span
-                                                            class="bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow-sm">Primary</span>
+                                                            class="bg-purple-600 text-white text-xs px-2 py-1 rounded-full shadow-sm">Primary</span>
                                                     </div>
                                                 @endif
                                                 <div class="absolute top-2 right-2">
                                                     <button type="button"
-                                                        class="set-primary-existing-btn bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow-sm {{ $image->is_primary ? 'hidden' : '' }}"
+                                                        class="set-primary-existing-btn bg-purple-600 text-white text-xs px-2 py-1 rounded-full shadow-sm {{ $image->is_primary ? 'hidden' : '' }}"
                                                         data-image-id="{{ $image->id }}">
                                                         Set Primary
                                                     </button>
@@ -234,24 +214,28 @@
                                             </div>
                                         @endforeach
                                     </div>
-                                    =======
-                                    <!-- Descriptions -->
-                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-                                        <div class="space-y-2">
-                                            <label for="description" class="block text-sm font-semibold text-gray-700">
-                                                {{ trans('products.description') }}
-                                            </label>
-                                            <div class="relative">
-                                                <textarea name="description" id="description" rows="4"
-                                                    placeholder="{{ trans('products.enter_product_description') }}"
-                                                    class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:bg-gray-50 focus:bg-white resize-none shadow-sm">{{ old('description', $product->description) }}</textarea>
-                                                <div class="absolute top-3 left-4 pointer-events-none">
-                                                    <i class="fas fa-align-left text-gray-400"></i>
-                                                    >>>>>>> cd613328a098bc6978e37fae62c144a0f03d661f
-                                                </div>
-                                            </div>
-                                            @error('description')
-                                                <p class="mt-2 text-sm text-red-600 flex items-center">
+                                </div>
+                            @endif
+
+                            <!-- Add New Images -->
+                            <div class="border-2 border-dashed border-purple-300 rounded-xl p-8 text-center hover:border-purple-400 transition-all duration-200 bg-white">
+                                <input type="file" name="images[]" id="images" accept="image/*"
+                                    multiple class="hidden">
+                                <label for="images" class="cursor-pointer">
+                                    <i class="fas fa-cloud-upload-alt text-4xl text-purple-400 mb-4"></i>
+                                    <p class="text-lg font-medium text-gray-700 mb-2">
+                                        {{ trans('products.click_to_upload_images') }}</p>
+                                    <p class="text-sm text-gray-500">
+                                        {{ trans('products.images_requirements') }}</p>
+                                </label>
+                            </div>
+                            <div id="image-preview"
+                                class="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                                style="display: none;">
+                                <!-- New image previews will be added here -->
+                            </div>
+                            @error('images')
+                                <p class="mt-2 text-sm text-red-600 flex items-center">
                                                     <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
                                                 </p>
                                             @enderror
@@ -341,20 +325,11 @@
                                                 <input type="file" name="images[]" id="images" accept="image/*"
                                                     multiple class="hidden">
                                                 <label for="images" class="cursor-pointer">
-                                                    <<<<<<< HEAD <i
-                                                        class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
-                                                        <p class="text-sm text-gray-600">
-                                                            {{ trans('products.click_to_upload_images') }}
-                                                        </p>
-                                                        <p class="text-xs text-gray-500 mt-1">
-                                                            {{ trans('products.images_requirements') }}
-                                                        </p>
-                                                        =======
-                                                        <p class="text-lg font-medium text-gray-700 mb-2">
-                                                            {{ trans('products.click_to_upload_images') }}</p>
-                                                        <p class="text-sm text-gray-500">
-                                                            {{ trans('products.images_requirements') }}</p>
-                                                        >>>>>>> cd613328a098bc6978e37fae62c144a0f03d661f
+                                    <i class="fas fa-cloud-upload-alt text-4xl text-purple-400 mb-4"></i>
+                                    <p class="text-lg font-medium text-gray-700 mb-2">
+                                        {{ trans('products.click_to_upload_images') }}</p>
+                                    <p class="text-sm text-gray-500">
+                                        {{ trans('products.images_requirements') }}</p>
                                                 </label>
                                             </div>
                                             <div id="image-preview"
@@ -373,30 +348,104 @@
                                     </div>
                                 </div>
 
-                                <<<<<<< HEAD <!-- SEO Information -->
-                                    <div class="mt-8">
-                                        <h3 class="text-lg font-medium text-gray-900 mb-4">
-                                            {{ trans('products.seo_information') }}</h3>
+                        <!-- SEO Information Section -->
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+                            <div class="flex items-center mb-6">
+                                <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-search text-white text-sm"></i>
+                                </div>
+                                <h2 class="text-xl font-semibold text-gray-900">{{ trans('products.seo_information') }}</h2>
+                            </div>
 
-                                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                            <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                                                <label for="slug"
-                                                    class="block text-sm font-semibold text-gray-700 mb-2">{{ trans('products.slug') }}</label>
-                                                <input type="text" name="slug" id="slug"
-                                                    value="{{ old('slug', $product->slug) }}"
-                                                    placeholder="{{ trans('products.enter_product_slug') }}"
-                                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 bg-gray-50 hover:bg-white focus:bg-white text-gray-900">
-                                                <p class="mt-1 text-sm text-gray-500">{{ trans('products.slug_help') }}
-                                                </p>
-                                                @error('slug')
-                                                    <p class="mt-2 text-sm text-red-600 flex items-center">
-                                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
-                                                    </p>
-                                                @enderror
-                                            </div>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <!-- Slug -->
+                                <div class="space-y-2">
+                                    <label for="slug" class="block text-sm font-semibold text-gray-700">
+                                        {{ trans('products.slug') }}
+                                    </label>
+                                    <div class="relative">
+                                        <input type="text" name="slug" id="slug"
+                                            value="{{ old('slug', $product->slug) }}"
+                                            placeholder="{{ trans('products.enter_product_slug') }}"
+                                            class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:bg-gray-50 focus:bg-white shadow-sm">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-link text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-gray-500">{{ trans('products.slug_help') }}</p>
+                                    @error('slug')
+                                        <p class="mt-2 text-sm text-red-600 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
 
-                                            <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                                                <label for="meta_title"
+                                <!-- Meta Title -->
+                                <div class="space-y-2">
+                                    <label for="meta_title" class="block text-sm font-semibold text-gray-700">
+                                        {{ trans('products.meta_title') }}
+                                    </label>
+                                    <div class="relative">
+                                        <input type="text" name="meta_title" id="meta_title"
+                                            value="{{ old('meta_title', $product->meta_title) }}"
+                                            placeholder="{{ trans('products.enter_meta_title') }}"
+                                            class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:bg-gray-50 focus:bg-white shadow-sm">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-tag text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-gray-500">{{ trans('products.meta_title_help') }}</p>
+                                    @error('meta_title')
+                                        <p class="mt-2 text-sm text-red-600 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
+
+                                <!-- Meta Description -->
+                                <div class="space-y-2">
+                                    <label for="meta_description" class="block text-sm font-semibold text-gray-700">
+                                        {{ trans('products.meta_description') }}
+                                    </label>
+                                    <div class="relative">
+                                        <textarea name="meta_description" id="meta_description" rows="3"
+                                            placeholder="{{ trans('products.enter_meta_description') }}"
+                                            class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:bg-gray-50 focus:bg-white resize-none shadow-sm">{{ old('meta_description', $product->meta_description) }}</textarea>
+                                        <div class="absolute top-3 left-4 pointer-events-none">
+                                            <i class="fas fa-align-left text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-gray-500">{{ trans('products.meta_description_help') }}</p>
+                                    @error('meta_description')
+                                        <p class="mt-2 text-sm text-red-600 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
+
+                                <!-- Meta Keywords -->
+                                <div class="space-y-2">
+                                    <label for="meta_keywords" class="block text-sm font-semibold text-gray-700">
+                                        {{ trans('products.meta_keywords') }}
+                                    </label>
+                                    <div class="relative">
+                                        <input type="text" name="meta_keywords" id="meta_keywords"
+                                            value="{{ old('meta_keywords', $product->meta_keywords) }}"
+                                            placeholder="{{ trans('products.enter_meta_keywords') }}"
+                                            class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:bg-gray-50 focus:bg-white shadow-sm">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="fas fa-key text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-gray-500">{{ trans('products.meta_keywords_help') }}</p>
+                                    @error('meta_keywords')
+                                        <p class="mt-2 text-sm text-red-600 flex items-center">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
                                                     class="block text-sm font-semibold text-gray-700 mb-2">{{ trans('products.meta_title') }}</label>
                                                 <input type="text" name="meta_title" id="meta_title"
                                                     value="{{ old('meta_title', $product->meta_title) }}"
@@ -477,22 +526,19 @@
 
                                     <!-- Product Options Management -->
                                     <div class="mt-8">
-                                        <h3 class="text-lg font-medium text-gray-900 mb-4">Product Options</h3>
-                                        <p class="text-sm text-gray-600 mb-6">Manage product options like size, color,
-                                            material, etc.</p>
-                                        @livewire('product-options-manager', ['product' => $product])
-                                        =======
-                                        <!-- Product Options Section -->
-                                        <div class="bg-white rounded-xl p-6 border border-indigo-100">
-                                            <div class="mb-6">
-                                                <h2 class="text-xl font-semibold text-gray-900">
-                                                    {{ trans('products.product_options') }}</h2>
-                                            </div>
+                        <!-- Product Options Section -->
+                        <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-6 border border-indigo-100">
+                            <div class="flex items-center mb-6">
+                                <div class="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-cogs text-white text-sm"></i>
+                                </div>
+                                <h2 class="text-xl font-semibold text-gray-900">{{ trans('products.product_options') }}</h2>
+                            </div>
 
-                                            <div class="bg-white rounded-lg p-6 border border-indigo-200 shadow-sm">
-                                                @livewire('product-options-manager', ['product' => $product])
-                                            </div>
-                                            >>>>>>> cd613328a098bc6978e37fae62c144a0f03d661f
+                            <div class="bg-white rounded-lg p-6 border border-indigo-200 shadow-sm">
+                                @livewire('product-options-manager', ['product' => $product])
+                            </div>
+                        </div>
                                         </div>
 
                                         <!-- Form Actions -->
@@ -572,7 +618,8 @@
                         const btn = container.querySelector('.set-primary-existing-btn'); <<
                         <<
                         <<
-                        < HEAD
+                        <
+                        HEAD
                         const badge = container.querySelector('.bg-green-600');
 
                         img.classList.remove('border-green-500'); ===
@@ -600,7 +647,8 @@
                     badge.className = 'absolute top-2 left-2'; <<
                     <<
                     <<
-                    < HEAD
+                    <
+                    HEAD
                     badge.innerHTML =
                         '<span class="bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow-sm">Primary</span>'; ===
                     ===
