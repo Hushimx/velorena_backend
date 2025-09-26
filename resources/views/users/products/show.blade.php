@@ -19,24 +19,21 @@
                 <div class="col-lg-6 col-md-12 product-image-section">
                     <div class="image-container">
                         @php
-                            // Get all product images
+                            // Get all product images (optimized)
                             $productImages = [];
 
-                            // Add main product image if exists
-                            if ($product->image && file_exists(public_path($product->image))) {
-                                $productImages[] = $product->image;
-                            }
-
-                            // Note: product_designs relationship has been removed
-                            // Additional images are now managed through product_images table only
-
-                            // Add images from product_images if they exist
-                            if (method_exists($product, 'images') && $product->images) {
+                            // Add images from product_images table (already loaded with eager loading)
+                            if ($product->relationLoaded('images') && $product->images->count() > 0) {
                                 foreach ($product->images as $image) {
-                                    if ($image->image_path && file_exists(public_path($image->image_path))) {
+                                    if ($image->image_path) {
                                         $productImages[] = $image->image_path;
                                     }
                                 }
+                            }
+
+                            // Add legacy main product image if exists and no images from product_images
+                            if (count($productImages) === 0 && $product->image) {
+                                $productImages[] = $product->image;
                             }
                         @endphp
 
@@ -44,7 +41,8 @@
                             <!-- Product Images Carousel -->
                             <div class="product-images-carousel">
                                 <div class="main-image-container">
-                                    <img src="{{ asset($productImages[0]) }}" alt="{{ $product->name }}"
+                                    <img src="{{ asset($productImages[0]) }}"
+                                        alt="{{ app()->getLocale() === 'ar' ? $product->name_ar ?? $product->name : $product->name }}"
                                         class="product-image active" id="main-product-image">
                                 </div>
 
@@ -52,7 +50,8 @@
                                     <!-- Thumbnail Images -->
                                     <div class="thumbnail-images">
                                         @foreach ($productImages as $index => $image)
-                                            <img src="{{ asset($image) }}" alt="{{ $product->name }}"
+                                            <img src="{{ asset($image) }}"
+                                                alt="{{ app()->getLocale() === 'ar' ? $product->name_ar ?? $product->name : $product->name }}"
                                                 class="thumbnail-image {{ $index === 0 ? 'active' : '' }}"
                                                 data-index="{{ $index }}"
                                                 onclick="changeMainImage('{{ asset($image) }}', {{ $index }})">
@@ -66,7 +65,7 @@
                                 <div class="placeholder-icon">
                                     <i class="fas fa-box"></i>
                                 </div>
-                                <p class="placeholder-text">صورة المنتج</p>
+                                <p class="placeholder-text">{{ trans('products.image') }}</p>
                             </div>
                         @endif
 

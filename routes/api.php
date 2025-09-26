@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\OtpController;
 use App\Http\Controllers\Api\DocumentController;
@@ -61,6 +62,112 @@ Route::prefix('products')->group(function () {
     Route::get('/{product}', [ProductController::class, 'show']);
 });
 
+// Test endpoint
+Route::get('/test-cart', function() {
+    return response()->json([
+        'success' => true,
+        'message' => 'Test endpoint working',
+        'user_authenticated' => Auth::check(),
+        'timestamp' => now()
+    ]);
+});
+
+// Cart preview endpoint
+Route::get('/cart/preview', function() {
+    try {
+        \Log::info('Cart preview API called', [
+            'authenticated' => Auth::check(),
+            'user_id' => Auth::id(),
+            'session_id' => session()->getId()
+        ]);
+        
+        if (Auth::check()) {
+            // Authenticated user - get from database
+            $user = Auth::user();
+            $cartItems = \App\Models\CartItem::where('user_id', $user->id)->with('product')->get();
+            
+            \Log::info('Authenticated cart items found', [
+                'count' => $cartItems->count(),
+                'items' => $cartItems->pluck('id')
+            ]);
+            
+            $items = $cartItems->map(function($item) {
+                return [
+                    'product_name' => $item->product->name_ar ?? $item->product->name,
+                    'product_image' => $item->product->image,
+                    'quantity' => $item->quantity,
+                    'unit_price' => $item->unit_price,
+                    'total_price' => $item->total_price
+                ];
+            });
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'items' => $items,
+                    'item_count' => $cartItems->count(),
+                    'total_price' => $cartItems->sum('total_price')
+                ],
+                'debug' => [
+                    'user_type' => 'authenticated',
+                    'user_id' => $user->id,
+                    'raw_count' => $cartItems->count()
+                ]
+            ]);
+        } else {
+            // Guest user - get from session
+            $guestCartService = app(\App\Services\GuestCartService::class);
+            $cartSummary = $guestCartService->getCartSummary();
+            $cartItems = $guestCartService->getCartItemsWithProducts();
+            
+            \Log::info('Guest cart data', [
+                'summary' => $cartSummary,
+                'items_count' => count($cartItems)
+            ]);
+            
+            $items = collect($cartItems)->map(function($item) {
+                return [
+                    'product_name' => $item['product']['name_ar'] ?? $item['product']['name'],
+                    'product_image' => $item['product']['image'] ?? null,
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $item['unit_price'],
+                    'total_price' => $item['total_price']
+                ];
+            });
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'items' => $items,
+                    'item_count' => $cartSummary['item_count'],
+                    'total_price' => $cartSummary['total_price']
+                ],
+                'debug' => [
+                    'user_type' => 'guest',
+                    'session_id' => session()->getId(),
+                    'raw_summary' => $cartSummary,
+                    'raw_items_count' => count($cartItems)
+                ]
+            ]);
+        }
+    } catch (\Exception $e) {
+        \Log::error('Cart preview API error', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to load cart preview: ' . $e->getMessage(),
+            'debug' => [
+                'exception_class' => get_class($e),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]
+        ], 500);
+    }
+});
+
 Route::prefix('highlights')->group(function () {
     Route::get('/', [App\Http\Controllers\Api\HighlightController::class, 'index']);
     Route::get('/{highlight}', [App\Http\Controllers\Api\HighlightController::class, 'show']);
@@ -73,23 +180,23 @@ Route::prefix('home-banners')->group(function () {
 });
 
 // ========================================
-// DESIGN SYSTEM ROUTES (PUBLIC - Basic Info Only)
+// DESIGN SYSTEM ROUTES (PROTECTED)
 // ========================================
-Route::prefix('designs')->group(function () {
-    // GET /api/designs/categories - Get available design categories
-    Route::get('/categories', [DesignController::class, 'categories']);
+Route::middleware('auth:sanctum')->prefix('designs')->group(function () {
+    // GET /api/designs/search - Search external designs from Freepik API (like web design.search)
+    Route::get('/search', [DesignController::class, 'freepikSearch']);
     
-    // GET /api/designs/search - Search designs (public)
-    Route::get('/search', [DesignController::class, 'search']);
+    // GET /api/designs/cart - Get all designs in cart
+    Route::get('/cart', [DesignController::class, 'getCartDesigns']);
     
-    // GET /api/designs/external/search - Search external designs from Freepik API
-    Route::get('/external/search', [DesignController::class, 'searchExternal']);
+    // POST /api/designs/save-to-cart - Save design to cart (like web design.save-to-cart)
+    Route::post('/save-to-cart', [DesignController::class, 'saveToCart']);
     
-    // GET /api/designs/external/categories - Get external categories from Freepik API
-    Route::get('/external/categories', [DesignController::class, 'getExternalCategories']);
+    // POST /api/designs/delete-from-cart - Delete design from cart (like web design.delete-from-cart)
+    Route::post('/delete-from-cart', [DesignController::class, 'deleteFromCart']);
     
-    // GET /api/designs/external/featured - Get featured designs from Freepik API
-    Route::get('/external/featured', [DesignController::class, 'getExternalFeatured']);
+    // POST /api/designs/add-to-favorites - Add design to favorites (like web design.add-to-favorites)
+    Route::post('/add-to-favorites', [DesignController::class, 'addToFavorites']);
 });
 
 // ========================================
@@ -115,6 +222,26 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/documents/delete', [DocumentController::class, 'deleteDocument']);
     Route::get('/documents/info', [DocumentController::class, 'getDocumentInfo']);
 
+
+    // ========================================
+    // CART MANAGEMENT ROUTES
+    // ========================================
+    Route::prefix('cart')->group(function () {
+        // GET /api/cart/items - Get user's cart items with product details
+        Route::get('/items', [CartController::class, 'getCartItems']);
+        
+        // POST /api/cart/add - Add item to cart
+        Route::post('/add', [CartController::class, 'addToCart']);
+        
+        // PUT /api/cart/items/{cartItemId} - Update cart item quantity
+        Route::put('/items/{cartItemId}', [CartController::class, 'updateCartItem']);
+        
+        // DELETE /api/cart/items/{cartItemId} - Remove item from cart
+        Route::delete('/items/{cartItemId}', [CartController::class, 'removeFromCart']);
+        
+        // DELETE /api/cart/clear - Clear entire cart
+        Route::delete('/clear', [CartController::class, 'clearCart']);
+    });
 
     // Order routes
     Route::prefix('orders')->group(function () {
@@ -181,9 +308,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // ========================================
     Route::prefix('designs')->group(function () {
         
-        // GET /api/designs/search
-        // Search designs using Freepik API
-        Route::get('/search', [DesignController::class, 'searchExternal']);
+        // Note: Search endpoint is defined as public above
         
         // GET /api/designs/saved
         // Get user's saved/favorite designs

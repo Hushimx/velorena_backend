@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -91,7 +92,7 @@ class ProductsController extends Controller
             Log::error('Product creation error: ' . $e->getMessage());
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Error creating product: ' . $e->getMessage());
+                ->with('error', trans('products.error_creating_product') . ': ' . $e->getMessage());
         }
     }
 
@@ -175,7 +176,7 @@ class ProductsController extends Controller
             Log::error('Product update error: ' . $e->getMessage());
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Error updating product: ' . $e->getMessage());
+                ->with('error', trans('products.error_updating_product') . ': ' . $e->getMessage());
         }
     }
 

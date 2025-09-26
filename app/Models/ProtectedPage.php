@@ -20,10 +20,19 @@ class ProtectedPage extends Model
         'is_active',
         'sort_order',
         'metadata',
+        'meta_title',
+        'meta_title_ar',
+        'meta_description',
+        'meta_description_ar',
+        'meta_keywords',
+        'meta_keywords_ar',
+        'og_image',
+        'images',
     ];
 
     protected $casts = [
         'metadata' => 'array',
+        'images' => 'array',
         'is_active' => 'boolean',
     ];
 
@@ -73,6 +82,30 @@ class ProtectedPage extends Model
     public function getLocalizedContentAttribute()
     {
         return app()->getLocale() === 'ar' && $this->content_ar ? $this->content_ar : $this->content;
+    }
+
+    /**
+     * Get the localized meta title
+     */
+    public function getLocalizedMetaTitleAttribute()
+    {
+        return app()->getLocale() === 'ar' && $this->meta_title_ar ? $this->meta_title_ar : $this->meta_title;
+    }
+
+    /**
+     * Get the localized meta description
+     */
+    public function getLocalizedMetaDescriptionAttribute()
+    {
+        return app()->getLocale() === 'ar' && $this->meta_description_ar ? $this->meta_description_ar : $this->meta_description;
+    }
+
+    /**
+     * Get the localized meta keywords
+     */
+    public function getLocalizedMetaKeywordsAttribute()
+    {
+        return app()->getLocale() === 'ar' && $this->meta_keywords_ar ? $this->meta_keywords_ar : $this->meta_keywords;
     }
 
     /**

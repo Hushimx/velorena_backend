@@ -540,12 +540,12 @@ class AppointmentController extends Controller
         // Check if the order belongs to the same user as the appointment
         $order = Order::findOrFail($request->order_id);
         if ($order->user_id !== $appointment->user_id) {
-            return back()->withErrors(['order_id' => 'Order does not belong to this appointment\'s customer.']);
+            return back()->withErrors(['order_id' => __('auth.order_belongs_to_customer')]);
         }
 
         // Check if the order is already linked to another appointment
         if ($order->appointment) {
-            return back()->withErrors(['order_id' => 'This order is already linked to another appointment.']);
+            return back()->withErrors(['order_id' => __('auth.order_already_linked')]);
         }
 
         // Link the order to the appointment
@@ -554,7 +554,7 @@ class AppointmentController extends Controller
             'order_notes' => $request->order_notes
         ]);
 
-        return back()->with('success', 'Order linked to appointment successfully.');
+        return back()->with('success', __('auth.order_linked_successfully'));
     }
 
     /**
@@ -687,7 +687,7 @@ class AppointmentController extends Controller
         }
 
         if ($appointment->status !== 'pending') {
-            return back()->withErrors(['appointment' => 'Only pending appointments can be accepted.']);
+            return back()->withErrors(['appointment' => __('auth.only_pending_can_accept')]);
         }
 
         $appointment->accept();
@@ -707,7 +707,7 @@ class AppointmentController extends Controller
         }
 
         if ($appointment->status !== 'pending') {
-            return back()->withErrors(['appointment' => 'Only pending appointments can be rejected.']);
+            return back()->withErrors(['appointment' => __('auth.only_pending_can_reject')]);
         }
 
         $appointment->update([
@@ -730,7 +730,7 @@ class AppointmentController extends Controller
         }
 
         if (!in_array($appointment->status, ['accepted', 'confirmed'])) {
-            return back()->withErrors(['appointment' => 'Only accepted or confirmed appointments can be completed.']);
+            return back()->withErrors(['appointment' => __('auth.only_accepted_can_complete')]);
         }
 
         $appointment->update([

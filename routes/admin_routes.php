@@ -87,6 +87,13 @@ Route::prefix('admin')->group(function () {
             Route::delete('support-tickets/replies/{reply}', [\App\Http\Controllers\Admin\SupportTicketController::class, 'deleteReply'])->name('support-tickets.delete-reply');
             Route::post('support-tickets/bulk-action', [\App\Http\Controllers\Admin\SupportTicketController::class, 'bulkAction'])->name('support-tickets.bulk-action');
             Route::get('support-tickets-statistics', [\App\Http\Controllers\Admin\SupportTicketController::class, 'statistics'])->name('support-tickets.statistics');
+
+            // Pages management routes
+            Route::resource('pages', \App\Http\Controllers\Admin\PageController::class);
+
+            // Site Settings management routes
+            Route::resource('site-settings', \App\Http\Controllers\Admin\SiteSettingsController::class);
+            Route::post('site-settings/bulk-update', [\App\Http\Controllers\Admin\SiteSettingsController::class, 'updateBulk'])->name('site-settings.bulk-update');
         });
     });
 });

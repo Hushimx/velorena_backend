@@ -51,9 +51,11 @@ Route::group(
         Route::get('/', [HomeController::class, 'welcome'])->name('welcome');
         Route::get('/home', [HomeController::class, 'index'])->name('home');
         Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
-        Route::get('/about', function () {
-            return view('about');
-        })->name('about');
+        // Dynamic pages routes
+        Route::get('/about', [App\Http\Controllers\ProtectedPageController::class, 'about'])->name('about');
+        Route::get('/terms', [App\Http\Controllers\ProtectedPageController::class, 'terms'])->name('terms');
+        Route::get('/privacy', [App\Http\Controllers\ProtectedPageController::class, 'privacy'])->name('privacy');
+        Route::get('/page/{slug}', [App\Http\Controllers\ProtectedPageController::class, 'show'])->name('page.show');
         // Route::view('/success', "admin.auth.success");
 
         require __DIR__ . '/admin_routes.php';
@@ -116,22 +118,20 @@ Route::group(
                 session(['url.intended' => request()->fullUrl()]);
             }
 
-            // Load product with options and their values
-            $product->load(['category', 'options.values']);
-
-            // Debug: Log the product data
-            Log::info('Product loaded:', [
-                'id' => $product->id,
-                'name' => $product->name,
-                'options_count' => $product->options->count(),
-                'options' => $product->options->map(function ($option) {
-                    return [
-                        'id' => $option->id,
-                        'name' => $option->name,
-                        'type' => $option->type,
-                        'values_count' => $option->values->count()
-                    ];
-                })
+            // Load product with optimized relationships
+            $product->load([
+                'category:id,name,name_ar',
+                'options' => function ($query) {
+                    $query->where('is_active', true)
+                          ->orderBy('sort_order')
+                          ->with(['values' => function ($valuesQuery) {
+                              $valuesQuery->where('is_active', true)
+                                         ->orderBy('sort_order');
+                          }]);
+                },
+                'images' => function ($query) {
+                    $query->orderBy('sort_order');
+                }
             ]);
 
             return view('users.products.show', compact('product'));

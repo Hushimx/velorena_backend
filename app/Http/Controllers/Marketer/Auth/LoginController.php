@@ -40,11 +40,11 @@ class LoginController extends Controller
         ]);
 
         if (Auth::guard('marketer')->attempt($credentials)) {
-            return redirect()->route('marketer.dashboard')->with('status', __('Logged in successfully'));
+            return redirect()->route('marketer.dashboard')->with('status', __('auth.logged_in_successfully'));
         }
 
         return back()->withErrors([
-            'email' => __('Invalid credentials'),
+            'email' => __('auth.invalid_credentials'),
         ]);
     }
 

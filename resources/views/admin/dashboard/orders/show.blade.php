@@ -233,7 +233,7 @@
                                                 @if ($productImage)
                                                     <img class="h-10 w-10 rounded object-cover ml-3"
                                                         src="{{ $productImage }}"
-                                                        alt="{{ $item->product->name }}">
+                                                        alt="{{ app()->getLocale() === 'ar' ? ($item->product->name_ar ?? $item->product->name) : $item->product->name }}">
                                                 @else
                                                     <div
                                                         class="h-10 w-10 rounded bg-gray-200 flex items-center justify-center ml-3">
@@ -242,7 +242,7 @@
                                                 @endif
                                                 <div class="flex-1">
                                                     <div class="text-sm font-medium text-gray-900">
-                                                        {{ $item->product->name }}
+                                                        {{ app()->getLocale() === 'ar' ? ($item->product->name_ar ?? $item->product->name) : $item->product->name }}
                                                     </div>
                                                     
                                                     <!-- Product Options Display -->
@@ -262,12 +262,12 @@
                                                                         <div class="flex items-center justify-between text-xs bg-blue-50 px-2 py-1 rounded">
                                                                             <div class="flex items-center">
                                                                                 <span class="font-medium text-blue-800 bg-blue-100 px-2 py-0.5 rounded mr-2 flex items-center">
-                                                                                    {{ $option->name }}
+                                                                                    {{ app()->getLocale() === 'ar' ? ($option->name_ar ?? $option->name) : $option->name }}
                                                                                     @if ($option->is_required)
                                                                                         <span class="ml-1 text-red-500" title="{{ trans('orders.required') }}">*</span>
                                                                                     @endif
                                                                                 </span>
-                                                                                <span class="text-blue-700">{{ $value->value }}</span>
+                                                                                <span class="text-blue-700">{{ app()->getLocale() === 'ar' ? ($value->value_ar ?? $value->value) : $value->value }}</span>
                                                                             </div>
                                                                             @if ($value->price_adjustment != 0)
                                                                                 <span class="text-xs font-medium {{ $value->price_adjustment > 0 ? 'text-green-600' : 'text-red-600' }}">

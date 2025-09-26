@@ -21,6 +21,9 @@ return new class extends Migration
             $table->integer('sort_order')->default(0);
             $table->json('additional_data')->nullable(); // For any additional configuration
             $table->timestamps();
+            
+            // Performance indexes
+            $table->index(['product_option_id', 'is_active', 'sort_order']);
         });
     }
 

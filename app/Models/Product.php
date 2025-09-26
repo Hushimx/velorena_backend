@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\URL;
 class Product extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'category_id',
         'name',
@@ -40,6 +41,35 @@ class Product extends Model
         'specifications' => 'array',
         'structured_data' => 'array'
     ];
+
+    /**
+     * Scope to get active products with optimized loading
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope to load product with all necessary relationships
+     */
+    public function scopeWithFullDetails($query)
+    {
+        return $query->with([
+            'category:id,name,name_ar',
+            'options' => function ($q) {
+                $q->where('is_active', true)
+                    ->orderBy('sort_order')
+                    ->with(['values' => function ($valuesQuery) {
+                        $valuesQuery->where('is_active', true)
+                            ->orderBy('sort_order');
+                    }]);
+            },
+            'images' => function ($q) {
+                $q->orderBy('sort_order');
+            }
+        ]);
+    }
 
     public function category(): BelongsTo
     {
@@ -74,16 +104,19 @@ class Product extends Model
      */
     public function getBestImageUrlAttribute()
     {
-        // Try to get primary image first
-        $primaryImage = $this->images()->where('is_primary', true)->first();
-        if ($primaryImage && file_exists(public_path($primaryImage->image_path))) {
-            return asset($primaryImage->image_path);
-        }
+        // Use already loaded images relationship to avoid N+1 queries
+        if ($this->relationLoaded('images') && $this->images->count() > 0) {
+            // Find primary image first
+            $primaryImage = $this->images->where('is_primary', true)->first();
+            if ($primaryImage && $primaryImage->image_path && file_exists(public_path($primaryImage->image_path))) {
+                return asset($primaryImage->image_path);
+            }
 
-        // Fallback to first image
-        $firstImage = $this->images()->first();
-        if ($firstImage && file_exists(public_path($firstImage->image_path))) {
-            return asset($firstImage->image_path);
+            // Fallback to first image
+            $firstImage = $this->images->first();
+            if ($firstImage && $firstImage->image_path && file_exists(public_path($firstImage->image_path))) {
+                return asset($firstImage->image_path);
+            }
         }
 
         // Fallback to legacy image field
@@ -91,7 +124,7 @@ class Product extends Model
             return asset($this->image);
         }
 
-        return null;
+        return 'https://placehold.co/600x400/f8f9fa/6c757d?text=No+Image';
     }
 
     /**

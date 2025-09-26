@@ -22,6 +22,10 @@ return [
     'view_order_information' => 'View order information',
     'back_to_orders' => 'Back to Orders',
     'back_to_order' => 'Back to Order',
+    'back_to_appointment' => 'Back to Appointment',
+    'editing_order_for_appointment' => 'Editing order for appointment',
+    'items_in_order' => 'items in order',
+    'items' => 'items',
 
     // Form Fields
     'order_number' => 'Order Number',

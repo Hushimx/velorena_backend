@@ -19,7 +19,7 @@
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                            <span class="text-sm font-medium text-gray-500">{{ $product->name }}</span>
+                            <span class="text-sm font-medium text-gray-500">{{ app()->getLocale() === 'ar' ? ($product->name_ar ?? $product->name) : $product->name }}</span>
                         </div>
                     </li>
                 </ol>
@@ -35,7 +35,7 @@
                         <div class="flex-shrink-0">
                             @php
                                 $productImage = null;
-                                $altText = $product->name;
+                                $altText = app()->getLocale() === 'ar' ? ($product->name_ar ?? $product->name) : $product->name;
                                 
                                 // Try to get primary image first
                                 $primaryImage = $product->images()->where('is_primary', true)->first();
@@ -219,10 +219,9 @@
                 @endif
 
                 <!-- Product Options Management -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-                    <div class="px-6 py-4 border-b border-gray-100">
-                        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
-                            <i class="fas fa-list-ul mr-2 text-indigo-500"></i>
+                <div class="bg-white rounded-xl shadow-sm border border-indigo-100">
+                    <div class="px-6 py-4 border-b border-indigo-100">
+                        <h2 class="text-lg font-semibold text-gray-900">
                             {{ trans('products.product_options') }}
                         </h2>
                     </div>

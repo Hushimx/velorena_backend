@@ -80,4 +80,21 @@ return [
     // Login Modal
     'login_required' => 'تسجيل الدخول مطلوب',
     'login_required_message' => 'يرجى تسجيل الدخول للمتابعة مع طلبك.',
+    
+    // Additional cart translations
+    'buy_now' => 'شراء',
+    
+    // Design tools translations
+    'design_tools' => 'أدوات التصميم',
+    'design_tools_subtitle' => 'ابحث عن التصاميم أو أنشئ تصميمك الخاص',
+    'search_designs' => 'البحث عن التصاميم',
+    'search_designs_description' => 'تصفح آلاف التصاميم من Freepik',
+    'design_studio' => 'استوديو التصميم',
+    'design_studio_description' => 'أنشئ تصميمك الخاص بالأدوات المتقدمة',
+    'saved_designs' => 'التصاميم المحفوظة',
+    'clear_all_designs' => 'حذف الكل',
+    'deleting' => 'جاري الحذف...',
+    'delete' => 'حذف',
+    'confirm_clear_all_designs' => 'هل أنت متأكد من حذف جميع التصاميم المحفوظة؟ هذا الإجراء لا يمكن التراجع عنه.',
+    'confirm_delete_design' => 'هل أنت متأكد من حذف هذا التصميم؟',
 ];

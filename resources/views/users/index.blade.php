@@ -12,7 +12,7 @@
                         <h4>{{ trans('dashboard.dashboard') }}</h4>
                     </div>
                     <div class="card-body">
-                        <p>{{ trans('dashboard.welcome_back') }}, {{ Auth::user()->name }}!</p>
+                        <p>{{ trans('dashboard.welcome_back') }}, {{ Auth::user()->display_name }}!</p>
                         <p>{{ trans('dashboard.whats_happening') }}</p>
 
                         <div class="row mt-4">
