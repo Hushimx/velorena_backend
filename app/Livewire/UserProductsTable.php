@@ -16,6 +16,11 @@ class UserProductsTable extends Component
     protected $queryString = ['search', 'categoryFilter'];
     protected string $paginationTheme = 'bootstrap';
 
+    public function paginationView()
+    {
+        return 'livewire.custom-pagination';
+    }
+
     // reset pagination when search changes
     public function updatedSearch()
     {
@@ -25,6 +30,18 @@ class UserProductsTable extends Component
     public function updatedCategoryFilter()
     {
         $this->resetPage();
+    }
+
+
+    public function mount()
+    {
+        // Initialize categoryFilter from URL if present
+        if (request()->has('categoryFilter')) {
+            $this->categoryFilter = request()->get('categoryFilter');
+        }
+        if (request()->has('search')) {
+            $this->search = request()->get('search');
+        }
     }
 
     public function render()
@@ -53,6 +70,18 @@ class UserProductsTable extends Component
         $categories = \App\Models\Category::where('is_active', true)
             ->orderBy('name')
             ->get();
+
+        // Debug information
+        Log::info('UserProductsTable Debug', [
+            'search' => $this->search,
+            'categoryFilter' => $this->categoryFilter,
+            'total_products' => $products->total(),
+            'current_page' => $products->currentPage(),
+            'per_page' => $products->perPage(),
+            'last_page' => $products->lastPage(),
+            'has_pages' => $products->hasPages(),
+            'count' => $products->count(),
+        ]);
 
         return view('livewire.user-products-table', [
             'products' => $products,
