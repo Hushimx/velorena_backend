@@ -22,6 +22,8 @@ class OrderResource extends JsonResource
             'billing_address' => $this->billing_address,
             'notes' => $this->notes,
             'status' => $this->status,
+            'payment_status' => $this->getPaymentStatus(),
+            'can_make_payment' => $this->canMakePayment(),
             'subtotal' => (float) $this->subtotal,
             'tax' => (float) $this->tax,
             'total' => (float) $this->total,

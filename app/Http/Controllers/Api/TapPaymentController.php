@@ -49,11 +49,11 @@ class TapPaymentController extends Controller
         try {
             $order = Order::findOrFail($request->order_id);
             
-            // Check if order is already paid
-            if ($order->status !== 'pending') {
+            // Check if order can make payment
+            if (!$order->canMakePayment()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Order is not in pending status'
+                    'message' => 'This order cannot be paid at this time. Order must be confirmed and unpaid.'
                 ], 400);
             }
 
@@ -65,10 +65,10 @@ class TapPaymentController extends Controller
                     'id' => 'src_all'
                 ],
                 'redirect' => [
-                    'url' => $request->redirect_url ?? route('payment.success')
+                    'url' => $request->redirect_url ?? config('app.url') . '/api/payments/success'
                 ],
                 'post' => [
-                    'url' => $request->post_url ?? route('api.payment.webhook')
+                    'url' => $request->post_url ?? config('app.url') . '/api/webhooks/tap'
                 ],
                 'description' => "Payment for Order #{$order->order_number}",
                 'metadata' => [
