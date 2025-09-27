@@ -248,6 +248,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [OrderController::class, 'index']);
         Route::post('/', [OrderController::class, 'store']);
         Route::get('/{order}', [OrderController::class, 'show']);
+        Route::post('/{order}/payment', [OrderController::class, 'initiatePayment']);
         Route::delete('/{order}', [OrderController::class, 'destroy']);
     });
 
@@ -346,6 +347,10 @@ Route::middleware('auth:sanctum')->group(function () {
         // Remove design from product selection
         Route::delete('/selected-for-product/{productId}/{designId}', [DesignController::class, 'removeDesignFromProduct']);
         
+        // POST /api/designs/upload-ready-design
+        // Upload a ready design file (image)
+        Route::post('/upload-ready-design', [DesignController::class, 'uploadReadyDesign']);
+        
     });
 
     // ========================================
@@ -396,6 +401,15 @@ Route::middleware('auth:sanctum')->group(function () {
         // GET /api/payments/test-cards
         // Get test card numbers for testing
         Route::get('/test-cards', [App\Http\Controllers\Api\TapPaymentController::class, 'getTestCards']);
+        
+        // GET /api/payments/success
+        // Payment success page for mobile redirects
+        Route::get('/success', function() {
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment completed successfully'
+            ]);
+        });
     });
 });
 

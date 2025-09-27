@@ -25,6 +25,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @OA\Tag(
@@ -182,6 +183,138 @@ class OrderController extends Controller
             'message' => 'Order retrieved successfully',
             'data' => new OrderResource($order)
         ]);
+    }
+
+    /**
+     * Initiate payment for an order
+     * 
+     * @OA\Post(
+     *     path="/api/orders/{order}/payment",
+     *     summary="Initiate payment for order",
+     *     description="Create a payment charge for the specified order",
+     *     tags={"Orders"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="order",
+     *         in="path",
+     *         description="Order ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Payment initiated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Payment initiated successfully"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Order cannot be paid"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Unauthorized access to order"
+     *     )
+     * )
+     */
+    public function initiatePayment(Order $order): JsonResponse
+    {
+        $user = Auth::user();
+
+        // Check if user owns this order
+        if ($order->user_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access to order'
+            ], 403);
+        }
+
+        // Check if order can make payment
+        if (!$order->canMakePayment()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This order cannot be paid at this time. Order must be confirmed and unpaid.'
+            ], 400);
+        }
+
+        try {
+            // Use the existing TapPaymentService
+            $tapPaymentService = app(\App\Services\TapPaymentService::class);
+            
+            $chargeData = [
+                'amount' => $order->total,
+                'currency' => 'SAR',
+                'customer' => [
+                    'first_name' => $user->full_name ?? $user->company_name,
+                    'last_name' => '',
+                    'email' => $user->email,
+                    'phone' => $order->phone,
+                ],
+                'source' => [
+                    'id' => 'src_all'
+                ],
+                'redirect' => [
+                    'url' => config('app.url') . '/api/payments/success'
+                ],
+                'post' => [
+                    'url' => config('app.url') . '/api/webhooks/tap'
+                ],
+                'description' => "Payment for Order #{$order->order_number}",
+                'metadata' => [
+                    'order_id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'user_id' => $order->user_id
+                ]
+            ];
+
+            $result = $tapPaymentService->createCharge($chargeData);
+
+            if ($result['success']) {
+                // Create payment record
+                $payment = \App\Models\Payment::create([
+                    'order_id' => $order->id,
+                    'charge_id' => $result['charge_id'],
+                    'amount' => $order->total,
+                    'currency' => 'SAR',
+                    'status' => 'pending',
+                    'payment_method' => 'tap',
+                    'gateway_response' => $result['data']
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Payment initiated successfully',
+                    'data' => [
+                        'payment_id' => $payment->id,
+                        'charge_id' => $result['charge_id'],
+                        'payment_url' => $result['payment_url'],
+                        'order' => new OrderResource($order)
+                    ]
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to create payment charge',
+                    'error' => $result['error']
+                ], 400);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Payment initiation failed', [
+                'error' => $e->getMessage(),
+                'order_id' => $order->id,
+                'user_id' => $user->id
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Internal server error',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

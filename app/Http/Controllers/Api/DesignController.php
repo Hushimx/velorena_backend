@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class DesignController extends Controller
 {
@@ -301,5 +303,78 @@ class DesignController extends Controller
         }
         
         return $query->exists();
+    }
+
+    /**
+     * Upload a ready design file (image)
+     */
+    public function uploadReadyDesign(Request $request): JsonResponse
+    {
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'يجب تسجيل الدخول أولاً'
+            ], 401);
+        }
+
+        $request->validate([
+            'design_file' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:10240', // 10MB max
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000'
+        ]);
+
+        try {
+            // Generate unique filename
+            $file = $request->file('design_file');
+            $filename = 'uploaded_designs/' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            
+            // Store the file
+            $path = Storage::disk('public')->putFileAs('', $file, $filename);
+            $imageUrl = Storage::disk('public')->url($path);
+
+            // Create cart design entry
+            $cartDesign = CartDesign::create([
+                'user_id' => Auth::id(),
+                'title' => $request->title,
+                'design_data' => [
+                    'original_design_id' => 'uploaded_' . Str::uuid(),
+                    'description' => $request->description,
+                    'source' => 'upload'
+                ],
+                'image_url' => $imageUrl,
+                'thumbnail_url' => $imageUrl,
+                'is_active' => true
+            ]);
+
+            Log::info('Design uploaded successfully', [
+                'user_id' => Auth::id(),
+                'design_id' => $cartDesign->id,
+                'filename' => $filename,
+                'image_url' => $imageUrl
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم رفع التصميم بنجاح!',
+                'data' => [
+                    'id' => $cartDesign->id,
+                    'title' => $cartDesign->title,
+                    'image_url' => $cartDesign->image_url,
+                    'created_at' => $cartDesign->created_at
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to upload design', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => Auth::id()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل في رفع التصميم: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
