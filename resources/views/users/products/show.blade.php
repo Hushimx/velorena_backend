@@ -1,7 +1,55 @@
 @extends('components.layout')
 
-@section('pageTitle', app()->getLocale() === 'ar' ? ($product->name_ar ?? $product->name) : $product->name)
-@section('title', app()->getLocale() === 'ar' ? ($product->name_ar ?? $product->name) : $product->name)
+@section('pageTitle', $product->seo_title)
+@section('title', $product->seo_title)
+
+@push('meta')
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="{{ $product->seo_description }}">
+    @if ($product->seo_keywords)
+        <meta name="keywords" content="{{ $product->seo_keywords }}">
+    @endif
+    <meta name="robots" content="{{ $product->robots }}">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ $product->canonical_url }}">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:type" content="product">
+    <meta property="og:title" content="{{ $product->open_graph_title }}">
+    <meta property="og:description" content="{{ $product->open_graph_description }}">
+    <meta property="og:url" content="{{ $product->canonical_url }}">
+    @if ($product->seo_image)
+        <meta property="og:image" content="{{ $product->seo_image }}">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta property="og:image:alt" content="{{ $product->seo_title }}">
+    @endif
+    <meta property="og:site_name" content="{{ config('app.name') }}">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $product->twitter_card_title }}">
+    <meta name="twitter:description" content="{{ $product->twitter_card_description }}">
+    @if ($product->seo_image)
+        <meta name="twitter:image" content="{{ $product->seo_image }}">
+        <meta name="twitter:image:alt" content="{{ $product->seo_title }}">
+    @endif
+
+    <!-- Product Specific Meta Tags -->
+    <meta property="product:price:amount" content="{{ $product->base_price }}">
+    <meta property="product:price:currency" content="SAR">
+    <meta property="product:availability" content="{{ $product->is_active ? 'in stock' : 'out of stock' }}">
+    @if ($product->category)
+        <meta property="product:category"
+            content="{{ app()->getLocale() === 'ar' ? $product->category->name_ar ?? $product->category->name : $product->category->name }}">
+    @endif
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {!! json_encode($product->structured_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+@endpush
 
 @section('content')
     <!-- Navbar -->
@@ -36,7 +84,8 @@
                             <!-- Product Images Carousel -->
                             <div class="product-images-carousel">
                                 <div class="main-image-container">
-                                    <img src="{{ asset($productImages[0]) }}" alt="{{ app()->getLocale() === 'ar' ? ($product->name_ar ?? $product->name) : $product->name }}"
+                                    <img src="{{ asset($productImages[0]) }}"
+                                        alt="{{ app()->getLocale() === 'ar' ? $product->name_ar ?? $product->name : $product->name }}"
                                         class="product-image active" id="main-product-image">
                                 </div>
 
@@ -44,7 +93,8 @@
                                     <!-- Thumbnail Images -->
                                     <div class="thumbnail-images">
                                         @foreach ($productImages as $index => $image)
-                                            <img src="{{ asset($image) }}" alt="{{ app()->getLocale() === 'ar' ? ($product->name_ar ?? $product->name) : $product->name }}"
+                                            <img src="{{ asset($image) }}"
+                                                alt="{{ app()->getLocale() === 'ar' ? $product->name_ar ?? $product->name : $product->name }}"
                                                 class="thumbnail-image {{ $index === 0 ? 'active' : '' }}"
                                                 data-index="{{ $index }}"
                                                 onclick="changeMainImage('{{ asset($image) }}', {{ $index }})">

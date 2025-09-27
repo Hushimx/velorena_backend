@@ -20,7 +20,7 @@
                     class="block text-sm font-medium text-gray-700 mb-1">{{ trans('products.search') }}</label>
                 <input type="text" wire:model.live.debounce.500ms="search" wire:key="search-input"
                     placeholder="{{ trans('products.products_search_placeholder') }}"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white focus:border-green-500 transition-colors duration-200">
             </div>
         </div>
     </div>
@@ -78,8 +78,7 @@
                                         }
                                     @endphp
                                     @if ($productImage)
-                                        <a href="{{ asset($productImage) }}" class="glightbox"
-                                            data-gallery="product">
+                                        <a href="{{ asset($productImage) }}" class="glightbox" data-gallery="product">
                                             <img class="h-20 w-20 rounded-lg object-cover mx-3"
                                                 src="{{ asset($productImage) }}" alt="{{ $product->name }}">
                                         </a>
@@ -105,11 +104,13 @@
                             <td class="p-3 whitespace-nowrap text-center">
                                 <div class="flex flex-wrap gap-1 justify-center">
                                     @forelse($product->highlights as $highlight)
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <span
+                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                             {{ $highlight->name }}
                                         </span>
                                     @empty
-                                        <span class="text-gray-400 text-xs">{{ trans('products.no_highlights') }}</span>
+                                        <span
+                                            class="text-gray-400 text-xs">{{ trans('products.no_highlights') }}</span>
                                     @endforelse
                                 </div>
                             </td>
@@ -132,21 +133,21 @@
                             <td class="p-3 whitespace-nowrap">
                                 <div class="flex items-center justify-center space-x-4">
                                     <!-- View Button -->
-                                    <a href="{{ route('admin.products.show', $product) }}"
+                                    <a href="{{ route('admin.products.show', $product->id) }}"
                                         class="inline-flex items-center gap-2 px-3 mx-2 py-1.5 border border-transparent text-xs font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 transition duration-150 ease-in-out">
                                         <i class="fas fa-eye"></i>
                                         <span>{{ trans('products.show') }}</span>
                                     </a>
 
                                     <!-- Edit Button -->
-                                    <a href="{{ route('admin.products.edit', $product) }}"
+                                    <a href="{{ route('admin.products.edit', $product->id) }}"
                                         class="inline-flex items-center gap-2 px-3 mx-2 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 transition duration-150 ease-in-out">
                                         <i class="fas fa-pen"></i>
                                         <span>{{ trans('products.edit') }}</span>
                                     </a>
 
                                     <!-- Assign Highlights Button -->
-                                    <a href="{{ route('admin.products.assign-highlights', $product) }}"
+                                    <a href="{{ route('admin.products.assign-highlights', $product->id) }}"
                                         class="inline-flex items-center gap-2 px-3 mx-2 py-1.5 border border-transparent text-xs font-medium rounded-md text-purple-700 bg-purple-100 hover:bg-purple-200 transition duration-150 ease-in-out">
                                         <i class="fas fa-star"></i>
                                         <span>{{ trans('products.assign_highlights') }}</span>

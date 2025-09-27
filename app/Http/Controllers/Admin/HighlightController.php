@@ -64,7 +64,7 @@ class HighlightController extends Controller
         ]);
 
         $data = $request->all();
-        
+
         // Update slug if name changed
         if ($highlight->name !== $request->name) {
             $data['slug'] = Highlight::generateSlug($request->name);
@@ -87,19 +87,22 @@ class HighlightController extends Controller
     /**
      * Show form to assign highlights to a product
      */
-    public function assignToProduct(Product $product)
+    public function assignToProduct($id)
     {
+        $product = Product::findOrFail($id);
         $highlights = Highlight::active()->ordered()->get();
         $productHighlights = $product->highlights->pluck('id')->toArray();
-        
+
         return view('admin.dashboard.products.assign-highlights', compact('product', 'highlights', 'productHighlights'));
     }
 
     /**
      * Store highlight assignments for a product
      */
-    public function storeProductHighlights(Request $request, Product $product)
+    public function storeProductHighlights(Request $request, $id)
     {
+        $product = Product::findOrFail($id);
+
         $request->validate([
             'highlights' => 'nullable|array',
             'highlights.*' => 'integer|exists:highlights,id',

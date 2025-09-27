@@ -20,7 +20,8 @@
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/css/home-page.css', 'resources/js/app.js'])
     @livewireStyles
-    
+
+    @stack('meta')
     @yield('additionalHead')
 </head>
 
