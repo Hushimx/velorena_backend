@@ -11,7 +11,7 @@
                 <h1 class="text-2xl font-bold" style="color: var(--brand-brown);">{{ __('admin.products_management') }}</h1>
                 <p class="text-gray-600">{{ __('admin.manage_products_platform') }}</p>
             </div>
-            <div class="flex space-x-3">
+            <div class="flex gap-3">
                 <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">
                     <i class="fas fa-tags"></i>
                     <span>{{ __('admin.categories') }}</span>

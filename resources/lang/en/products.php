@@ -126,7 +126,62 @@ return [
     "highlights" => "Highlights",
     "no_highlights" => "No Highlights",
     "assign_highlights" => "Assign Highlights",
-    
+
+    // SEO Fields
+    "seo_settings" => "SEO Settings",
+    "seo_meta_title" => "Meta Title",
+    "seo_meta_title_ar" => "Meta Title (Arabic)",
+    "seo_meta_description" => "Meta Description",
+    "seo_meta_description_ar" => "Meta Description (Arabic)",
+    "seo_meta_keywords" => "Meta Keywords",
+    "seo_meta_keywords_ar" => "Meta Keywords (Arabic)",
+    "seo_og_title" => "Open Graph Title",
+    "seo_og_title_ar" => "Open Graph Title (Arabic)",
+    "seo_og_description" => "Open Graph Description",
+    "seo_og_description_ar" => "Open Graph Description (Arabic)",
+    "seo_og_image" => "Open Graph Image",
+    "seo_twitter_title" => "Twitter Title",
+    "seo_twitter_title_ar" => "Twitter Title (Arabic)",
+    "seo_twitter_description" => "Twitter Description",
+    "seo_twitter_description_ar" => "Twitter Description (Arabic)",
+    "seo_twitter_image" => "Twitter Image",
+    "seo_canonical_url" => "Canonical URL",
+    "seo_robots" => "Robots",
+    "seo_structured_data" => "Structured Data",
+
+    // SEO Help Text
+    "seo_meta_title_help" => "Title for search engines (recommended: 50-60 characters)",
+    "seo_meta_description_help" => "Description for search engines (recommended: 150-160 characters)",
+    "seo_meta_keywords_help" => "Keywords separated by commas",
+    "seo_og_title_help" => "Title for social media sharing (recommended: 40-60 characters)",
+    "seo_og_description_help" => "Description for social media sharing (recommended: 150-300 characters)",
+    "seo_og_image_help" => "Image for social media sharing (recommended: 1200x630px)",
+    "seo_twitter_title_help" => "Title for Twitter sharing (recommended: 40-60 characters)",
+    "seo_twitter_description_help" => "Description for Twitter sharing (recommended: 150-200 characters)",
+    "seo_twitter_image_help" => "Image for Twitter sharing (recommended: 1200x675px)",
+    "seo_canonical_url_help" => "Canonical URL for this product (leave empty to use default)",
+    "seo_robots_help" => "Search engine indexing instructions",
+    "seo_structured_data_help" => "JSON-LD structured data for rich snippets",
+
+    // SEO Placeholders
+    "seo_meta_title_placeholder" => "Enter meta title for search engines",
+    "seo_meta_title_ar_placeholder" => "Enter meta title in Arabic",
+    "seo_meta_description_placeholder" => "Enter meta description for search engines",
+    "seo_meta_description_ar_placeholder" => "Enter meta description in Arabic",
+    "seo_meta_keywords_placeholder" => "keyword1, keyword2, keyword3",
+    "seo_meta_keywords_ar_placeholder" => "كلمة مفتاحية 1، كلمة مفتاحية 2، كلمة مفتاحية 3",
+    "seo_og_title_placeholder" => "Enter Open Graph title",
+    "seo_og_title_ar_placeholder" => "Enter Open Graph title in Arabic",
+    "seo_og_description_placeholder" => "Enter Open Graph description",
+    "seo_og_description_ar_placeholder" => "Enter Open Graph description in Arabic",
+    "seo_twitter_title_placeholder" => "Enter Twitter title",
+    "seo_twitter_title_ar_placeholder" => "Enter Twitter title in Arabic",
+    "seo_twitter_description_placeholder" => "Enter Twitter description",
+    "seo_twitter_description_ar_placeholder" => "Enter Twitter description in Arabic",
+    "seo_canonical_url_placeholder" => "https://example.com/product-url",
+    "seo_robots_placeholder" => "index,follow",
+    "seo_structured_data_placeholder" => '{"@context": "https://schema.org", "@type": "Product"}',
+
     // Product options fallback translations
     "default_description" => "Enjoy a unique experience with a diverse collection of carefully selected dried fruits from the finest varieties around the world. Prepared with the latest techniques to ensure preservation of their high nutritional value and delicious natural taste.",
     "material_type" => "Material Type",
@@ -150,7 +205,7 @@ return [
     "rectangular" => "Rectangular",
     "square" => "Square",
     "round" => "Round",
-    
+
     // Product slider translations
     "latest_products" => "Latest Products",
     "best_selling_products" => "Best Selling Products",

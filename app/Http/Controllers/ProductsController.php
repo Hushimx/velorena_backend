@@ -42,6 +42,7 @@ class ProductsController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'name_ar' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255|unique:products,slug',
             'description' => 'required|string',
             'description_ar' => 'required|string',
             'category_id' => 'required|exists:categories,id',
@@ -49,7 +50,27 @@ class ProductsController extends Controller
             'specifications' => 'nullable|string',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-            'primary_image' => 'nullable|integer|min:0'
+            'primary_image' => 'nullable|integer|min:0',
+            // SEO Fields
+            'meta_title' => 'nullable|string|max:60',
+            'meta_title_ar' => 'nullable|string|max:60',
+            'meta_description' => 'nullable|string|max:160',
+            'meta_description_ar' => 'nullable|string|max:160',
+            'meta_keywords' => 'nullable|string|max:255',
+            'meta_keywords_ar' => 'nullable|string|max:255',
+            'og_title' => 'nullable|string|max:60',
+            'og_title_ar' => 'nullable|string|max:60',
+            'og_description' => 'nullable|string|max:300',
+            'og_description_ar' => 'nullable|string|max:300',
+            'og_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'twitter_title' => 'nullable|string|max:60',
+            'twitter_title_ar' => 'nullable|string|max:60',
+            'twitter_description' => 'nullable|string|max:200',
+            'twitter_description_ar' => 'nullable|string|max:200',
+            'twitter_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'canonical_url' => 'nullable|url|max:255',
+            'robots' => 'nullable|string|max:50',
+            'structured_data' => 'nullable|string'
         ]);
 
         try {
@@ -66,6 +87,37 @@ class ProductsController extends Controller
                 } else {
                     $data['specifications'] = null;
                 }
+            }
+
+            // Handle structured data as JSON
+            if ($request->filled('structured_data')) {
+                $structuredData = json_decode($request->structured_data, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $data['structured_data'] = $structuredData;
+                } else {
+                    $data['structured_data'] = null;
+                }
+            }
+
+            // Handle SEO image uploads
+            if ($request->hasFile('og_image')) {
+                $ogImagePath = $request->file('og_image')->store('products/seo', 'public');
+                $data['og_image'] = 'storage/' . $ogImagePath;
+            }
+
+            if ($request->hasFile('twitter_image')) {
+                $twitterImagePath = $request->file('twitter_image')->store('products/seo', 'public');
+                $data['twitter_image'] = 'storage/' . $twitterImagePath;
+            }
+
+            // Set default robots if not provided
+            if (empty($data['robots'])) {
+                $data['robots'] = 'index,follow';
+            }
+
+            // Generate slug if not provided
+            if (empty($data['slug'])) {
+                $data['slug'] = Product::generateSlug($data['name']);
             }
 
             // Remove image-related fields from data
@@ -115,6 +167,7 @@ class ProductsController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'name_ar' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255|unique:products,slug,' . $id,
             'description' => 'required|string',
             'description_ar' => 'required|string',
             'category_id' => 'required|exists:categories,id',
@@ -124,7 +177,27 @@ class ProductsController extends Controller
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'primary_image' => 'nullable|integer|min:0',
             'existing_images' => 'nullable|array',
-            'existing_images.*' => 'integer|exists:product_images,id'
+            'existing_images.*' => 'integer|exists:product_images,id',
+            // SEO Fields
+            'meta_title' => 'nullable|string|max:60',
+            'meta_title_ar' => 'nullable|string|max:60',
+            'meta_description' => 'nullable|string|max:160',
+            'meta_description_ar' => 'nullable|string|max:160',
+            'meta_keywords' => 'nullable|string|max:255',
+            'meta_keywords_ar' => 'nullable|string|max:255',
+            'og_title' => 'nullable|string|max:60',
+            'og_title_ar' => 'nullable|string|max:60',
+            'og_description' => 'nullable|string|max:300',
+            'og_description_ar' => 'nullable|string|max:300',
+            'og_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'twitter_title' => 'nullable|string|max:60',
+            'twitter_title_ar' => 'nullable|string|max:60',
+            'twitter_description' => 'nullable|string|max:200',
+            'twitter_description_ar' => 'nullable|string|max:200',
+            'twitter_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'canonical_url' => 'nullable|url|max:255',
+            'robots' => 'nullable|string|max:50',
+            'structured_data' => 'nullable|string'
         ]);
 
         try {
@@ -142,6 +215,45 @@ class ProductsController extends Controller
                 } else {
                     $data['specifications'] = null;
                 }
+            }
+
+            // Handle structured data as JSON
+            if ($request->filled('structured_data')) {
+                $structuredData = json_decode($request->structured_data, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $data['structured_data'] = $structuredData;
+                } else {
+                    $data['structured_data'] = null;
+                }
+            }
+
+            // Handle SEO image uploads
+            if ($request->hasFile('og_image')) {
+                // Delete old OG image if exists
+                if ($product->og_image && Storage::disk('public')->exists(str_replace('storage/', '', $product->og_image))) {
+                    Storage::disk('public')->delete(str_replace('storage/', '', $product->og_image));
+                }
+                $ogImagePath = $request->file('og_image')->store('products/seo', 'public');
+                $data['og_image'] = 'storage/' . $ogImagePath;
+            }
+
+            if ($request->hasFile('twitter_image')) {
+                // Delete old Twitter image if exists
+                if ($product->twitter_image && Storage::disk('public')->exists(str_replace('storage/', '', $product->twitter_image))) {
+                    Storage::disk('public')->delete(str_replace('storage/', '', $product->twitter_image));
+                }
+                $twitterImagePath = $request->file('twitter_image')->store('products/seo', 'public');
+                $data['twitter_image'] = 'storage/' . $twitterImagePath;
+            }
+
+            // Set default robots if not provided
+            if (empty($data['robots'])) {
+                $data['robots'] = 'index,follow';
+            }
+
+            // Generate slug if name changed and slug is empty
+            if ($product->isDirty('name') && empty($data['slug'])) {
+                $data['slug'] = Product::generateSlug($data['name']);
             }
 
             // Remove image-related fields from data
@@ -185,7 +297,7 @@ class ProductsController extends Controller
     private function handleImageUploads(Product $product, array $images, $primaryImageIndex = 0)
     {
         $uploadedImages = [];
-        
+
         foreach ($images as $index => $image) {
             $imageName = time() . '_' . $index . '_' . $image->getClientOriginalName();
             $imagePath = 'uploads/products/' . $imageName;
@@ -197,10 +309,10 @@ class ProductsController extends Controller
                 'is_primary' => false, // Will be set later if needed
                 'sort_order' => $product->images()->count()
             ]);
-            
+
             $uploadedImages[] = $uploadedImage;
         }
-        
+
         // Set primary image if specified
         if ($primaryImageIndex !== null && $primaryImageIndex !== '') {
             if (is_numeric($primaryImageIndex) && isset($uploadedImages[$primaryImageIndex])) {
@@ -231,10 +343,10 @@ class ProductsController extends Controller
         // Update primary image
         if ($request->has('primary_image') && $request->input('primary_image')) {
             $primaryImageValue = $request->input('primary_image');
-            
+
             // Reset all images to non-primary
             $product->images()->update(['is_primary' => false]);
-            
+
             // Set the selected image as primary
             if (is_numeric($primaryImageValue)) {
                 // Existing image ID

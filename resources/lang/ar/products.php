@@ -84,6 +84,62 @@ return [
     "highlights" => "المميزات",
     "no_highlights" => "لا توجد مميزات",
     "assign_highlights" => "تعيين المميزات",
+
+    // SEO Fields
+    "seo_settings" => "إعدادات تحسين محركات البحث",
+    "seo_meta_title" => "عنوان الميتا",
+    "seo_meta_title_ar" => "عنوان الميتا (عربي)",
+    "seo_meta_description" => "وصف الميتا",
+    "seo_meta_description_ar" => "وصف الميتا (عربي)",
+    "seo_meta_keywords" => "كلمات الميتا المفتاحية",
+    "seo_meta_keywords_ar" => "كلمات الميتا المفتاحية (عربي)",
+    "seo_og_title" => "عنوان Open Graph",
+    "seo_og_title_ar" => "عنوان Open Graph (عربي)",
+    "seo_og_description" => "وصف Open Graph",
+    "seo_og_description_ar" => "وصف Open Graph (عربي)",
+    "seo_og_image" => "صورة Open Graph",
+    "seo_twitter_title" => "عنوان Twitter",
+    "seo_twitter_title_ar" => "عنوان Twitter (عربي)",
+    "seo_twitter_description" => "وصف Twitter",
+    "seo_twitter_description_ar" => "وصف Twitter (عربي)",
+    "seo_twitter_image" => "صورة Twitter",
+    "seo_canonical_url" => "الرابط الأساسي",
+    "seo_robots" => "Robots",
+    "seo_structured_data" => "البيانات المنظمة",
+
+    // SEO Help Text
+    "seo_meta_title_help" => "عنوان لمحركات البحث (مستحسن: 50-60 حرف)",
+    "seo_meta_description_help" => "وصف لمحركات البحث (مستحسن: 150-160 حرف)",
+    "seo_meta_keywords_help" => "كلمات مفتاحية مفصولة بفواصل",
+    "seo_og_title_help" => "عنوان لمشاركة وسائل التواصل الاجتماعي (مستحسن: 40-60 حرف)",
+    "seo_og_description_help" => "وصف لمشاركة وسائل التواصل الاجتماعي (مستحسن: 150-300 حرف)",
+    "seo_og_image_help" => "صورة لمشاركة وسائل التواصل الاجتماعي (مستحسن: 1200x630 بكسل)",
+    "seo_twitter_title_help" => "عنوان لمشاركة Twitter (مستحسن: 40-60 حرف)",
+    "seo_twitter_description_help" => "وصف لمشاركة Twitter (مستحسن: 150-200 حرف)",
+    "seo_twitter_image_help" => "صورة لمشاركة Twitter (مستحسن: 1200x675 بكسل)",
+    "seo_canonical_url_help" => "الرابط الأساسي لهذا المنتج (اتركه فارغاً لاستخدام الافتراضي)",
+    "seo_robots_help" => "تعليمات فهرسة محركات البحث",
+    "seo_structured_data_help" => "بيانات JSON-LD منظمة للنتائج الغنية",
+
+    // SEO Placeholders
+    "seo_meta_title_placeholder" => "أدخل عنوان الميتا لمحركات البحث",
+    "seo_meta_title_ar_placeholder" => "أدخل عنوان الميتا بالعربية",
+    "seo_meta_description_placeholder" => "أدخل وصف الميتا لمحركات البحث",
+    "seo_meta_description_ar_placeholder" => "أدخل وصف الميتا بالعربية",
+    "seo_meta_keywords_placeholder" => "كلمة مفتاحية 1، كلمة مفتاحية 2، كلمة مفتاحية 3",
+    "seo_meta_keywords_ar_placeholder" => "كلمة مفتاحية 1، كلمة مفتاحية 2، كلمة مفتاحية 3",
+    "seo_og_title_placeholder" => "أدخل عنوان Open Graph",
+    "seo_og_title_ar_placeholder" => "أدخل عنوان Open Graph بالعربية",
+    "seo_og_description_placeholder" => "أدخل وصف Open Graph",
+    "seo_og_description_ar_placeholder" => "أدخل وصف Open Graph بالعربية",
+    "seo_twitter_title_placeholder" => "أدخل عنوان Twitter",
+    "seo_twitter_title_ar_placeholder" => "أدخل عنوان Twitter بالعربية",
+    "seo_twitter_description_placeholder" => "أدخل وصف Twitter",
+    "seo_twitter_description_ar_placeholder" => "أدخل وصف Twitter بالعربية",
+    "seo_canonical_url_placeholder" => "https://example.com/product-url",
+    "seo_robots_placeholder" => "index,follow",
+    "seo_structured_data_placeholder" => '{"@context": "https://schema.org", "@type": "Product"}',
+
     "current_images" => "الصور الحالية",
     "add_new_images" => "إضافة صور جديدة",
     "product_options" => "خيارات المنتج",
@@ -120,7 +176,7 @@ return [
     "set_primary" => "تعيين كرئيسي",
     "remove" => "إزالة",
     "primary" => "رئيسي",
-    
+
     // Product options fallback translations
     "default_description" => "استمتع بتجربة فريدة مع مجموعة متنوعة من الفواكه المجففة المختارة بعناية من أجود الأنواع حول العالم. تم تحضيرها بأحدث التقنيات لضمان الحفاظ على قيمتها الغذائية العالية وطعمها اللذيذ من الطبيعة.",
     "material_type" => "نوع الخامة",
@@ -144,7 +200,7 @@ return [
     "rectangular" => "مستطيل",
     "square" => "مربع",
     "round" => "دائري",
-    
+
     // Product slider translations
     "latest_products" => "أحدث المنتجات",
     "best_selling_products" => "الأكثر مبيعاً",

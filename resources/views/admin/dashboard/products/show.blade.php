@@ -19,7 +19,8 @@
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                            <span class="text-sm font-medium text-gray-500">{{ app()->getLocale() === 'ar' ? ($product->name_ar ?? $product->name) : $product->name }}</span>
+                            <span
+                                class="text-sm font-medium text-gray-500">{{ app()->getLocale() === 'ar' ? $product->name_ar ?? $product->name : $product->name }}</span>
                         </div>
                     </li>
                 </ol>
@@ -35,8 +36,9 @@
                         <div class="flex-shrink-0">
                             @php
                                 $productImage = null;
-                                $altText = app()->getLocale() === 'ar' ? ($product->name_ar ?? $product->name) : $product->name;
-                                
+                                $altText =
+                                    app()->getLocale() === 'ar' ? $product->name_ar ?? $product->name : $product->name;
+
                                 // Try to get primary image first
                                 $primaryImage = $product->images()->where('is_primary', true)->first();
                                 if ($primaryImage && file_exists(public_path($primaryImage->image_path))) {
@@ -70,10 +72,10 @@
                         <div>
                             <h1 class="text-2xl font-bold text-gray-900">{{ $product->name }}</h1>
                             <p class="text-gray-600 mt-1">{{ $product->name_ar ?? trans('products.not_provided') }}</p>
-                            <div class="flex items-center mt-2 space-x-3 gap-3">
+                            <div class="flex items-center mt-2 gap-3">
                                 <span
-                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $product->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                    <i class="fas fa-circle mr-2 text-xs"></i>
+                                    class="inline-flex gap-2 items-center px-3 py-1 rounded-full text-sm font-medium {{ $product->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                    <i class="fas fa-circle text-xs"></i>
                                     {{ $product->is_active ? trans('products.active') : trans('products.inactive') }}
                                 </span>
                                 <span class="text-sm text-gray-500">#{{ $product->id }}</span>
@@ -83,7 +85,7 @@
 
                     <!-- Action Buttons -->
                     <div class="flex items-center space-x-3 mt-4 lg:mt-0 gap-3">
-                        <a href="{{ route('admin.products.edit', $product) }}"
+                        <a href="{{ route('admin.products.edit', $product->id) }}"
                             class="inline-flex items-center gap-3 px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-medium text-sm text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200">
                             <i class="fas fa-edit"></i>
                             {{ trans('products.edit_product') }}
@@ -107,7 +109,7 @@
                     <div class="px-6 py-4 border-b border-gray-100">
                         <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-3">
                             <i class="fas fa-info-circle text-blue-500"></i>
-                            {{ trans('products.basic_information') }}
+                            <span>{{ trans('products.basic_information') }}</span>
                         </h2>
                     </div>
                     <div class="p-6">
@@ -159,8 +161,8 @@
                                 <label
                                     class="block text-sm font-medium text-gray-700 mb-2">{{ trans('products.status') }}</label>
                                 <span
-                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $product->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                    <i class="fas fa-circle mr-2 text-xs"></i>
+                                    class="inline-flex gap-3 items-center px-3 py-1 rounded-full text-sm font-medium {{ $product->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                    <i class="fas fa-circle text-xs"></i>
                                     {{ $product->is_active ? trans('products.active') : trans('products.inactive') }}
                                 </span>
                             </div>
@@ -171,8 +173,8 @@
                 <!-- Descriptions Card -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100">
                     <div class="px-6 py-4 border-b border-gray-100">
-                        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
-                            <i class="fas fa-align-left mr-2 text-purple-500"></i>
+                        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-3">
+                            <i class="fas fa-align-left text-purple-500"></i>
                             {{ trans('products.description') }}
                         </h2>
                     </div>
@@ -205,8 +207,8 @@
                 @if ($product->specifications)
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100">
                         <div class="px-6 py-4 border-b border-gray-100">
-                            <h2 class="text-lg font-semibold text-gray-900 flex items-center">
-                                <i class="fas fa-cogs mr-2 text-orange-500"></i>
+                            <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-3">
+                                <i class="fas fa-cogs text-orange-500"></i>
                                 {{ trans('products.specifications') }}
                             </h2>
                         </div>
@@ -240,23 +242,27 @@
                             <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-3">
                                 <i class="fas fa-images text-pink-500"></i>
                                 {{ trans('products.images') }}
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
                                     {{ $product->images->count() }}
                                 </span>
                             </h2>
                         </div>
                         <div class="p-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                @foreach($product->images as $image)
+                                @foreach ($product->images as $image)
                                     <div class="relative group">
                                         <img src="{{ asset($image->image_path) }}" alt="{{ $image->alt_text }}"
                                             class="w-full h-48 object-cover rounded-lg shadow-md group-hover:shadow-lg transition duration-200">
-                                        @if($image->is_primary)
+                                        @if ($image->is_primary)
                                             <div class="absolute top-2 left-2">
-                                                <span class="bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow-sm">Primary</span>
+                                                <span
+                                                    class="bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow-sm">Primary</span>
                                             </div>
                                         @endif
-                                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition duration-200 rounded-lg"></div>
+                                        <div
+                                            class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition duration-200 rounded-lg">
+                                        </div>
                                     </div>
                                 @endforeach
                             </div>
@@ -282,8 +288,8 @@
                 <!-- Timestamps Card -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100">
                     <div class="px-6 py-4 border-b border-gray-100">
-                        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
-                            <i class="fas fa-clock mr-2 text-gray-500"></i>
+                        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-3">
+                            <i class="fas fa-clock text-gray-500"></i>
                             {{ trans('products.timestamps') }}
                         </h2>
                     </div>
@@ -307,8 +313,8 @@
                 <!-- Quick Stats Card -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100">
                     <div class="px-6 py-4 border-b border-gray-100">
-                        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
-                            <i class="fas fa-chart-bar mr-2 text-teal-500"></i>
+                        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-3">
+                            <i class="fas fa-chart-bar text-teal-500"></i>
                             {{ trans('products.quick_stats') }}
                         </h2>
                     </div>
