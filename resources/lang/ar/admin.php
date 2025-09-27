@@ -6,7 +6,7 @@ return [
     "welcome_admin" => "مرحباً، :name",
     "platform_overview" => "إليك نظرة عامة على منصة قادس اليوم",
     "add_new_product" => "إضافة منتج جديد",
-    
+
     // Statistics
     "total_users" => "إجمالي المستخدمين",
     "pending_orders" => "الطلبات المعلقة",
@@ -21,7 +21,7 @@ return [
     "today_orders" => "طلبات اليوم",
     "today_appointments" => "مواعيد اليوم",
     "monthly_revenue" => "إيرادات هذا الشهر",
-    
+
     // Sales Chart
     "sales_chart" => "مخطط المبيعات",
     "revenue" => "الإيرادات",
@@ -35,7 +35,7 @@ return [
     "last_3_months" => "آخر 3 أشهر",
     "last_6_months" => "آخر 6 أشهر",
     "last_12_months" => "آخر 12 شهر",
-    
+
     // Recent Activity
     "recent_orders" => "أحدث الطلبات",
     "recent_appointments" => "أحدث المواعيد",
@@ -44,20 +44,20 @@ return [
     "no_recent_orders" => "لا توجد طلبات حديثة",
     "no_recent_appointments" => "لا توجد مواعيد حديثة",
     "no_recent_users" => "لا يوجد مستخدمون جدد",
-    
+
     // Order Status
     "order_pending" => "معلق",
     "order_processing" => "قيد المعالجة",
     "order_completed" => "مكتمل",
     "order_cancelled" => "ملغي",
-    
+
     // Appointment Status
     "appointment_pending" => "معلق",
     "appointment_scheduled" => "مجدول",
     "appointment_completed" => "مكتمل",
     "appointment_cancelled" => "ملغي",
     "no_designer" => "بدون مصمم",
-    
+
     // Admin Management
     "admin_management" => "إدارة المدراء",
     "manage_admin_accounts" => "إدارة حسابات المدراء في النظام",
@@ -83,17 +83,17 @@ return [
     "cannot_delete_self" => "لا يمكن حذف حسابك الخاص",
     "new_password_optional" => "كلمة المرور الجديدة",
     "leave_empty_no_change" => "اتركها فارغة إذا كنت لا تريد تغيير كلمة المرور",
-    
+
     // Success Messages
     "admin_created_success" => "تم إنشاء المدير بنجاح",
     "admin_updated_success" => "تم تحديث المدير بنجاح",
     "admin_deleted_success" => "تم حذف المدير بنجاح",
-    
+
     // Error Messages
     "admin_delete_error" => "حدث خطأ أثناء حذف المدير",
     "admin_update_error" => "حدث خطأ أثناء تحديث المدير",
     "admin_create_error" => "حدث خطأ أثناء إنشاء المدير",
-    
+
     // Form Labels
     "create_admin" => "إنشاء المدير",
     "edit_admin_title" => "تعديل المدير",
@@ -101,7 +101,7 @@ return [
     "save_changes" => "حفظ التغييرات",
     "cancel" => "إلغاء",
     "back" => "العودة",
-    
+
     // Navigation
     "dashboard" => "لوحة التحكم",
     "users" => "المستخدمين",
@@ -123,7 +123,7 @@ return [
     "open_tickets" => "التذاكر المفتوحة",
     "in_progress_tickets" => "قيد التنفيذ",
     "ticket_statistics" => "الإحصائيات",
-    
+
     // Support Tickets
     "support_ticket_details" => "تفاصيل تذكرة الدعم",
     "edit_support_ticket" => "تعديل تذكرة الدعم",
@@ -220,7 +220,7 @@ return [
     "tickets_resolved" => "التذاكر المحلولة",
     "active_tickets" => "التذاكر النشطة",
     "your_workload" => "عبء عملك",
-    
+
     // Common
     "loading" => "جاري التحميل...",
     "error_loading" => "خطأ في التحميل",
@@ -247,7 +247,7 @@ return [
     "error" => "خطأ",
     "warning" => "تحذير",
     "info" => "معلومات",
-    
+
     // Additional translations for admin resource
     'revenue_details' => 'تفاصيل الإيرادات',
     'no_recent_orders' => 'لا توجد طلبات حديثة',
@@ -271,7 +271,7 @@ return [
     'back' => 'العودة',
     'cancel' => 'إلغاء',
     'edit' => 'تعديل',
-    
+
     // Leads Management
     'leads_management' => 'إدارة العملاء المحتملين',
     'manage_leads_platform' => 'إدارة العملاء المحتملين في المنصة',
@@ -318,7 +318,7 @@ return [
     'next_follow_up' => 'Next Follow Up',
     'next_follow_up_desc' => 'تاريخ المتابعة التالية',
     'date_format' => 'تاريخ (YYYY-MM-DD)',
-    
+
     // Appointments Management
     'appointments_management' => 'إدارة المواعيد',
     'manage_appointments_platform' => 'إدارة المواعيد في المنصة',
@@ -351,6 +351,7 @@ return [
     'quantity' => 'الكمية',
     'view_order' => 'عرض الطلب',
     'no_order_associated' => 'لا يوجد طلب مرتبط',
+    'no_order' => 'لا يوجد طلب',
     'no_designer' => 'لا يوجد مصمم',
     'not_scheduled' => 'غير مجدول',
     'not_provided' => 'غير متوفر',
@@ -368,14 +369,14 @@ return [
     'appointment_updated_success' => 'تم تحديث الموعد بنجاح',
     'appointment_deleted_success' => 'تم حذف الموعد بنجاح',
     'cannot_delete_non_pending_appointment' => 'لا يمكن حذف المواعيد غير المعلقة',
-    
+
     // Lead Messages
     'lead_created_success' => 'تم إنشاء العميل المحتمل بنجاح',
     'lead_updated_success' => 'تم تحديث العميل المحتمل بنجاح',
     'lead_deleted_success' => 'تم حذف العميل المحتمل بنجاح',
     'leads_uploaded_success' => 'تم رفع العملاء المحتملين بنجاح',
     'leads_upload_error' => 'حدث خطأ أثناء رفع الملف',
-    
+
     // Marketers Management
     'marketers_management' => 'إدارة المسوقين',
     'manage_marketers_platform' => 'إدارة المسوقين في المنصة',
@@ -385,11 +386,11 @@ return [
     'back_to_list' => 'العودة للقائمة',
     'select_category' => 'اختر فئة',
     'active' => 'نشط',
-    
+
     // Products Management
     'products_management' => 'إدارة المنتجات',
     'manage_products_platform' => 'إدارة المنتجات في المنصة',
-    
+
     // Highlights Management
     'highlights_management' => 'إدارة المميزات',
     'manage_highlights_platform' => 'إدارة مميزات المنتجات والعروض الخاصة',
@@ -411,7 +412,7 @@ return [
     'enter_highlight_description' => 'أدخل وصف المميزة',
     'enter_highlight_description_ar' => 'أدخل وصف المميزة بالعربية',
     'create_highlight' => 'إنشاء المميزة',
-    
+
     // Home Banners Management
     'home_banners_management' => 'إدارة لافتات الصفحة الرئيسية',
     'manage_home_banners_platform' => 'إدارة لافتات الصفحة الرئيسية والمحتوى الترويجي',
@@ -442,13 +443,13 @@ return [
     'enter_banner_title_ar' => 'أدخل عنوان اللافتة بالعربية',
     'enter_banner_description' => 'أدخل وصف اللافتة',
     'enter_banner_description_ar' => 'أدخل وصف اللافتة بالعربية',
-    
+
     // Additional banner translations
     'click_to_upload' => 'انقر للرفع أو اسحب وأفلت',
     'supported_formats' => 'الصيغ المدعومة',
     'max_size' => 'الحد الأقصى للحجم',
     'first_position' => 'المركز الأول',
-    'second_position' => 'المركز الثاني', 
+    'second_position' => 'المركز الثاني',
     'third_position' => 'المركز الثالث',
     'fourth_position' => 'المركز الرابع',
     'fifth_position' => 'المركز الخامس',
@@ -465,7 +466,7 @@ return [
     'optional' => 'اختياري',
     'cancel' => 'إلغاء',
     'settings' => 'الإعدادات',
-    
+
     // Availability Slots Management
     'availability_slots' => 'أوقات التوفر',
     'manage_availability_slots' => 'إدارة أوقات التوفر للمواعيد',
@@ -508,7 +509,7 @@ return [
     'availability_slot_updated_success' => 'تم تحديث وقت التوفر بنجاح',
     'availability_slot_deleted_success' => 'تم حذف وقت التوفر بنجاح',
     'availability_slot_status_updated' => 'تم :status وقت التوفر بنجاح',
-    
+
     // Days of the week
     'days' => [
         'monday' => 'الاثنين',

@@ -6,7 +6,7 @@ return [
     "welcome_admin" => "Welcome, :name",
     "platform_overview" => "Here's an overview of Qaads platform today",
     "add_new_product" => "Add New Product",
-    
+
     // Statistics
     "total_users" => "Total Users",
     "pending_orders" => "Pending Orders",
@@ -22,7 +22,7 @@ return [
     "today_orders" => "Today's Orders",
     "today_appointments" => "Today's Appointments",
     "monthly_revenue" => "This Month's Revenue",
-    
+
     // Sales Chart
     "sales_chart" => "Sales Chart",
     "revenue" => "Revenue",
@@ -36,7 +36,7 @@ return [
     "last_3_months" => "Last 3 Months",
     "last_6_months" => "Last 6 Months",
     "last_12_months" => "Last 12 Months",
-    
+
     // Recent Activity
     "recent_orders" => "Recent Orders",
     "recent_appointments" => "Recent Appointments",
@@ -45,20 +45,20 @@ return [
     "no_recent_orders" => "No recent orders",
     "no_recent_appointments" => "No recent appointments",
     "no_recent_users" => "No new users",
-    
+
     // Order Status
     "order_pending" => "Pending",
     "order_processing" => "Processing",
     "order_completed" => "Completed",
     "order_cancelled" => "Cancelled",
-    
+
     // Appointment Status
     "appointment_pending" => "Pending",
     "appointment_scheduled" => "Scheduled",
     "appointment_completed" => "Completed",
     "appointment_cancelled" => "Cancelled",
     "no_designer" => "No Designer",
-    
+
     // Admin Management
     "admin_management" => "Admin Management",
     "manage_admin_accounts" => "Manage admin accounts in the system",
@@ -84,17 +84,17 @@ return [
     "cannot_delete_self" => "You cannot delete your own account",
     "new_password_optional" => "New Password",
     "leave_empty_no_change" => "Leave empty if you don't want to change the password",
-    
+
     // Success Messages
     "admin_created_success" => "Admin created successfully",
     "admin_updated_success" => "Admin updated successfully",
     "admin_deleted_success" => "Admin deleted successfully",
-    
+
     // Error Messages
     "admin_delete_error" => "An error occurred while deleting the admin",
     "admin_update_error" => "An error occurred while updating the admin",
     "admin_create_error" => "An error occurred while creating the admin",
-    
+
     // Form Labels
     "create_admin" => "Create Admin",
     "edit_admin_title" => "Edit Admin",
@@ -102,7 +102,7 @@ return [
     "save_changes" => "Save Changes",
     "cancel" => "Cancel",
     "back" => "Back",
-    
+
     // Navigation
     "dashboard" => "Dashboard",
     "users" => "Users",
@@ -124,7 +124,7 @@ return [
     "open_tickets" => "Open Tickets",
     "in_progress_tickets" => "In Progress",
     "ticket_statistics" => "Statistics",
-    
+
     // Support Tickets
     "support_ticket_details" => "Support Ticket Details",
     "edit_support_ticket" => "Edit Support Ticket",
@@ -221,7 +221,7 @@ return [
     "tickets_resolved" => "Tickets resolved",
     "active_tickets" => "Active tickets",
     "your_workload" => "Your workload",
-    
+
     // Common
     "loading" => "Loading...",
     "error_loading" => "Error Loading",
@@ -248,7 +248,7 @@ return [
     "error" => "Error",
     "warning" => "Warning",
     "info" => "Information",
-    
+
     // Additional translations for admin resource
     'revenue_details' => 'Revenue Details',
     'no_recent_orders' => 'No recent orders',
@@ -272,7 +272,7 @@ return [
     'back' => 'Back',
     'cancel' => 'Cancel',
     'edit' => 'Edit',
-    
+
     // Leads Management
     'leads_management' => 'Leads Management',
     'manage_leads_platform' => 'Manage leads in the platform',
@@ -319,7 +319,7 @@ return [
     'next_follow_up' => 'Next Follow Up',
     'next_follow_up_desc' => 'Next follow-up date',
     'date_format' => 'Date (YYYY-MM-DD)',
-    
+
     // Appointments Management
     'appointments_management' => 'Appointments Management',
     'manage_appointments_platform' => 'Manage appointments in the platform',
@@ -352,6 +352,7 @@ return [
     'quantity' => 'Quantity',
     'view_order' => 'View Order',
     'no_order_associated' => 'No order associated',
+    'no_order' => 'No order',
     'no_designer' => 'No Designer',
     'not_scheduled' => 'Not Scheduled',
     'not_provided' => 'Not Provided',
@@ -369,14 +370,14 @@ return [
     'appointment_updated_success' => 'Appointment updated successfully',
     'appointment_deleted_success' => 'Appointment deleted successfully',
     'cannot_delete_non_pending_appointment' => 'Cannot delete non-pending appointments',
-    
+
     // Lead Messages
     'lead_created_success' => 'Lead created successfully',
     'lead_updated_success' => 'Lead updated successfully',
     'lead_deleted_success' => 'Lead deleted successfully',
     'leads_uploaded_success' => 'Leads uploaded successfully',
     'leads_upload_error' => 'Error occurred while uploading file',
-    
+
     // Marketers Management
     'marketers_management' => 'Marketers Management',
     'manage_marketers_platform' => 'Manage marketers in the platform',
@@ -386,11 +387,11 @@ return [
     'back_to_list' => 'Back to List',
     'select_category' => 'Select Category',
     'active' => 'Active',
-    
+
     // Products Management
     'products_management' => 'Products Management',
     'manage_products_platform' => 'Manage products in the platform',
-    
+
     // Highlights Management
     'highlights_management' => 'Highlights Management',
     'manage_highlights_platform' => 'Manage product highlights and special offers',
@@ -412,7 +413,7 @@ return [
     'enter_highlight_description' => 'Enter highlight description',
     'enter_highlight_description_ar' => 'Enter highlight description in Arabic',
     'create_highlight' => 'Create Highlight',
-    
+
     // Home Banners Management
     'home_banners_management' => 'Home Banners Management',
     'manage_home_banners_platform' => 'Manage home page banners and promotional content',
@@ -443,13 +444,13 @@ return [
     'enter_banner_title_ar' => 'Enter banner title in Arabic',
     'enter_banner_description' => 'Enter banner description',
     'enter_banner_description_ar' => 'Enter banner description in Arabic',
-    
+
     // Additional banner translations
     'click_to_upload' => 'Click to upload or drag and drop',
     'supported_formats' => 'Supported formats',
     'max_size' => 'Max size',
     'first_position' => 'First Position',
-    'second_position' => 'Second Position', 
+    'second_position' => 'Second Position',
     'third_position' => 'Third Position',
     'fourth_position' => 'Fourth Position',
     'fifth_position' => 'Fifth Position',
@@ -466,7 +467,7 @@ return [
     'optional' => 'Optional',
     'cancel' => 'Cancel',
     'settings' => 'Settings',
-    
+
     // Availability Slots Management
     'availability_slots' => 'Availability Slots',
     'manage_availability_slots' => 'Manage availability slots for appointments',
@@ -509,7 +510,7 @@ return [
     'availability_slot_updated_success' => 'Availability slot updated successfully',
     'availability_slot_deleted_success' => 'Availability slot deleted successfully',
     'availability_slot_status_updated' => 'Availability slot :status successfully',
-    
+
     // Days of the week
     'days' => [
         'monday' => 'Monday',
