@@ -13,6 +13,8 @@ use Database\Seeders\DesignerSeeder;
 use Database\Seeders\MarketerSeeder;
 use Database\Seeders\LeadSeeder;
 use Database\Seeders\SupportTicketSeeder;
+use Database\Seeders\ProductImageSeeder;
+use Database\Seeders\AdditionalProductImageSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -30,6 +32,7 @@ class DatabaseSeeder extends Seeder
             MarketerSeeder::class,
             CategorySeeder::class,
             ProductSeeder::class,
+            ProductImageSeeder::class,
             AppointmentSeeder::class,
             LeadSeeder::class,
             OrderSeeder::class,
