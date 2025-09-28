@@ -104,7 +104,7 @@ Route::group(
             return view('users.products.index');
         })->name('user.products.index');
 
-        Route::get('/products/{product}', function (App\Models\Product $product) {
+        Route::get('/products/{product:slug}', function (App\Models\Product $product) {
             if (!$product->is_active) {
                 abort(404);
             }
@@ -191,9 +191,9 @@ Route::group(
         // Old Design selection routes (keep for backward compatibility)
         Route::middleware(['auth'])->group(function () {
             Route::get('/designs', [App\Http\Controllers\DesignController::class, 'index'])->name('designs.index');
-            Route::get('/designs/select-for-product/{product}', [App\Http\Controllers\DesignController::class, 'selectForProduct'])->name('designs.select-for-product');
-            Route::post('/designs/save-for-product/{product}', [App\Http\Controllers\DesignController::class, 'saveDesignsForProduct'])->name('designs.save-for-product');
-            Route::delete('/designs/remove-from-product/{product}/{design}', [App\Http\Controllers\DesignController::class, 'removeDesignFromProduct'])->name('designs.remove-from-product');
+            Route::get('/designs/select-for-product/{product:slug}', [App\Http\Controllers\DesignController::class, 'selectForProduct'])->name('designs.select-for-product');
+            Route::post('/designs/save-for-product/{product:slug}', [App\Http\Controllers\DesignController::class, 'saveDesignsForProduct'])->name('designs.save-for-product');
+            Route::delete('/designs/remove-from-product/{product:slug}/{design}', [App\Http\Controllers\DesignController::class, 'removeDesignFromProduct'])->name('designs.remove-from-product');
             Route::post('/designs/sync-from-api', [App\Http\Controllers\DesignController::class, 'syncFromApi'])->name('designs.sync-from-api');
         });
     }

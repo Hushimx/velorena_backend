@@ -59,7 +59,7 @@ Route::prefix('products')->group(function () {
     Route::get('/search', [ProductController::class, 'search']);
     Route::get('/latest', [ProductController::class, 'latest']);
     Route::get('/best-selling', [ProductController::class, 'bestSelling']);
-    Route::get('/{product}', [ProductController::class, 'show']);
+    Route::get('/{product:slug}', [ProductController::class, 'show']);
 });
 
 // Test endpoint
@@ -339,13 +339,14 @@ Route::middleware('auth:sanctum')->group(function () {
         // Select designs for a product in cart
         Route::post('/select-for-product', [DesignController::class, 'selectDesignsForProduct']);
         
+        // Note: These routes are commented out as the corresponding controller methods don't exist
         // GET /api/designs/selected-for-product/{productId}
         // Get selected designs for a product
-        Route::get('/selected-for-product/{productId}', [DesignController::class, 'getSelectedDesignsForProduct']);
+        // Route::get('/selected-for-product/{productId}', [DesignController::class, 'getSelectedDesignsForProduct']);
         
         // DELETE /api/designs/selected-for-product/{productId}/{designId}
         // Remove design from product selection
-        Route::delete('/selected-for-product/{productId}/{designId}', [DesignController::class, 'removeDesignFromProduct']);
+        // Route::delete('/selected-for-product/{productId}/{designId}', [DesignController::class, 'removeDesignFromProduct']);
         
         // POST /api/designs/upload-ready-design
         // Upload a ready design file (image)

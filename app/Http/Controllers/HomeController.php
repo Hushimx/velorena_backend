@@ -39,7 +39,7 @@ class HomeController extends Controller
                     'name_ar' => $product->name_ar,
                     'base_price' => number_format($product->base_price, 2),
                     'image_url' => $product->best_image_url ?? asset('assets/images/placeholder-product.jpg'),
-                    'url' => route('user.products.show', $product->id),
+                    'url' => route('user.products.show', $product),
                     'category' => $product->category
                 ];
             });
@@ -59,7 +59,7 @@ class HomeController extends Controller
                     'name_ar' => $product->name_ar,
                     'base_price' => number_format($product->base_price, 2),
                     'image_url' => $product->best_image_url ?? asset('assets/images/placeholder-product.jpg'),
-                    'url' => route('user.products.show', $product->id),
+                    'url' => route('user.products.show', $product),
                     'order_count' => $product->order_items_count,
                     'category' => $product->category
                 ];
