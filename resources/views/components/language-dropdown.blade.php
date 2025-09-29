@@ -1,7 +1,9 @@
 @php
-    use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
-    $currentLocale = LaravelLocalization::getCurrentLocale();
-    $supportedLocales = LaravelLocalization::getSupportedLocales();
+    $currentLocale = app()->getLocale();
+    $supportedLocales = [
+        'ar' => ['name' => 'Arabic', 'native' => 'العربية'],
+        'en' => ['name' => 'English', 'native' => 'English']
+    ];
 @endphp
 
 <div class="dropdown language-dropdown">
@@ -13,7 +15,7 @@
     <ul class="dropdown-menu py-0" aria-labelledby="languageDropdown">
         @foreach ($supportedLocales as $localeCode => $properties)
             @php
-                $url = LaravelLocalization::getLocalizedURL($localeCode, null, [], true);
+                $url = route('lang.switch', ['locale' => $localeCode]);
                 $active = $localeCode === $currentLocale;
             @endphp
             <li>

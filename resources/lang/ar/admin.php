@@ -266,6 +266,16 @@ return [
     'dangerous_actions' => 'إجراءات خطيرة',
     'admin_password' => 'كلمة مرور المدير',
     'admin_password_confirmation' => 'تأكيد كلمة مرور المدير',
+
+    // Navigation Menu Items
+    'appointments' => 'المواعيد',
+    'support_tickets' => 'تذاكر الدعم',
+    'availability_slots' => 'فترات التوفر',
+    'all_tickets' => 'جميع التذاكر',
+    'open_tickets' => 'التذاكر المفتوحة',
+    'in_progress_tickets' => 'التذاكر قيد التنفيذ',
+    'ticket_statistics' => 'إحصائيات التذاكر',
+
     'new_password_optional' => 'كلمة المرور الجديدة (اختياري)',
     'leave_empty_no_change' => 'اتركها فارغة إذا كنت لا تريد تغيير كلمة المرور',
     'back' => 'العودة',

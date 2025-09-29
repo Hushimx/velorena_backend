@@ -39,13 +39,11 @@
                                 $altText =
                                     app()->getLocale() === 'ar' ? $product->name_ar ?? $product->name : $product->name;
 
-                                // Try to get primary image first
-                                $primaryImage = $product->images()->where('is_primary', true)->first();
-                                if ($primaryImage && file_exists(public_path($primaryImage->image_path))) {
-                                    $productImage = $primaryImage->image_path;
-                                    $altText = $primaryImage->alt_text ?: $product->name;
+                                // Try to get main image_url first
+                                if ($product->image_url && file_exists(public_path($product->image_url))) {
+                                    $productImage = $product->image_url;
                                 } else {
-                                    // Fallback to first image
+                                    // Fallback to first additional image
                                     $firstImage = $product->images()->first();
                                     if ($firstImage && file_exists(public_path($firstImage->image_path))) {
                                         $productImage = $firstImage->image_path;

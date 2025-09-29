@@ -23,10 +23,9 @@ Route::get('/test-swagger', function () {
 
 Route::group(
     [
-        'prefix' => LaravelLocalization::setLocale(),
         'middleware' => [
+            \App\Http\Middleware\SetLocale::class,
             LocaleSessionRedirect::class,
-            LaravelLocalizationRedirectFilter::class,
             LaravelLocalizationViewPath::class
         ]
     ],
@@ -36,6 +35,15 @@ Route::group(
         Livewire::setUpdateRoute(function ($handle) {
             return Route::post('/livewire/update', $handle);
         });
+
+        // Language switching route
+        Route::get('/lang/{locale}', function ($locale) {
+            if (in_array($locale, ['en', 'ar'])) {
+                session(['locale' => $locale]);
+                app()->setLocale($locale);
+            }
+            return redirect()->back();
+        })->name('lang.switch');
 
         Auth::routes();
 

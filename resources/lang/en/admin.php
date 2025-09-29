@@ -267,6 +267,15 @@ return [
     'dangerous_actions' => 'Dangerous Actions',
     'admin_password' => 'Admin Password',
     'admin_password_confirmation' => 'Admin Password Confirmation',
+
+    // Navigation Menu Items
+    'appointments' => 'Appointments',
+    'support_tickets' => 'Support Tickets',
+    'availability_slots' => 'Availability Slots',
+    'all_tickets' => 'All Tickets',
+    'open_tickets' => 'Open Tickets',
+    'in_progress_tickets' => 'In Progress Tickets',
+    'ticket_statistics' => 'Ticket Statistics',
     'new_password_optional' => 'New Password (Optional)',
     'leave_empty_no_change' => 'Leave empty if you don\'t want to change the password',
     'back' => 'Back',

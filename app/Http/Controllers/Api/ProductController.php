@@ -151,7 +151,7 @@ class ProductController extends Controller
 
         // Transform products to include single image
         $products->getCollection()->transform(function ($product) {
-            $product->image = $product->best_image_url ?? asset('assets/images/placeholder-product.jpg');
+            $product->image = $product->image_url ?? $product->best_image_url ?? asset('assets/images/placeholder-product.jpg');
             unset($product->images);
             return $product;
         });
@@ -347,7 +347,7 @@ class ProductController extends Controller
 
         // Transform products to include single image
         $products->getCollection()->transform(function ($product) {
-            $product->image = $product->best_image_url ?? asset('assets/images/placeholder-product.jpg');
+            $product->image = $product->image_url ?? $product->best_image_url ?? asset('assets/images/placeholder-product.jpg');
             unset($product->images);
             return $product;
         });
@@ -453,13 +453,103 @@ class ProductController extends Controller
                 'description' => $product->description,
                 'description_ar' => $product->description_ar,
                 'base_price' => number_format($product->base_price, 2),
+                'image_url' => $product->image_url,
+                'image' => $product->image_url ?? $product->best_image_url ?? asset('assets/images/placeholder-product.jpg'),
                 'images' => $product->images->map(function ($image) {
                     return [
                         'id' => $image->id,
                         'image_path' => $image->image_path,
                         'image_url' => $image->image_url,
                         'alt_text' => $image->alt_text,
-                        'is_primary' => $image->is_primary,
+                        'sort_order' => $image->sort_order
+                    ];
+                }),
+                'category' => $product->category,
+                'options' => $product->options,
+                'highlights' => $product->highlights,
+                'is_active' => $product->is_active,
+                'sort_order' => $product->sort_order,
+                'specifications' => $product->specifications,
+                'created_at' => $product->created_at,
+                'updated_at' => $product->updated_at
+            ]
+        ]);
+    }
+
+    /**
+     * Get product details by ID (backward compatibility)
+     * 
+     * @OA\Get(
+     *     path="/api/products/id/{id}",
+     *     operationId="getProductById",
+     *     tags={"Products"},
+     *     summary="Get product details by ID",
+     *     description="Retrieve detailed information about a specific product by its ID. This endpoint is provided for backward compatibility.",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Product ID",
+     *         required=true,
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Product details retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="category_id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Standard Business Cards"),
+     *                 @OA\Property(property="name_ar", type="string", example="بطاقات عمل قياسية"),
+     *                 @OA\Property(property="description", type="string", example="Professional business cards"),
+     *                 @OA\Property(property="description_ar", type="string", example="بطاقات عمل احترافية"),
+     *                 @OA\Property(property="base_price", type="string", example="50.00"),
+     *                 @OA\Property(property="is_active", type="boolean", example=true),
+     *                 @OA\Property(property="sort_order", type="integer", example=1),
+     *                 @OA\Property(property="specifications", type="string", example="Cardstock, Matte finish"),
+     *                 @OA\Property(property="created_at", type="string", format="date-time"),
+     *                 @OA\Property(property="updated_at", type="string", format="date-time")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Product not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Product not found")
+     *         )
+     *     )
+     * )
+     */
+    public function showById($id): JsonResponse
+    {
+        $product = Product::findOrFail($id);
+        
+        // Use the same logic as the show method
+        $product->load(['category', 'options.values', 'highlights', 'images']);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $product->id,
+                'category_id' => $product->category_id,
+                'name' => $product->name,
+                'name_ar' => $product->name_ar,
+                'description' => $product->description,
+                'description_ar' => $product->description_ar,
+                'base_price' => number_format($product->base_price, 2),
+                'image_url' => $product->image_url,
+                'image' => $product->image_url ?? $product->best_image_url ?? asset('assets/images/placeholder-product.jpg'),
+                'images' => $product->images->map(function ($image) {
+                    return [
+                        'id' => $image->id,
+                        'image_path' => $image->image_path,
+                        'image_url' => $image->image_url,
+                        'alt_text' => $image->alt_text,
                         'sort_order' => $image->sort_order
                     ];
                 }),

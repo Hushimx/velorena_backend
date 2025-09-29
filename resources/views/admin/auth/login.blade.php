@@ -114,9 +114,16 @@
                 class="absolute z-50 mt-2 w-40 rounded-xl border border-white/20 bg-white/95 backdrop-blur-sm shadow-xl"
                 :class="{ '{{ app()->getLocale() === 'ar' ? 'left-0' : 'right-0' }}': true }">
                 <ul class="py-2">
-                    @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
+                    @php
+                        $supportedLocales = [
+                            'ar' => ['name' => 'Arabic', 'native' => 'العربية'],
+                            'en' => ['name' => 'English', 'native' => 'English']
+                        ];
+                        $current = app()->getLocale();
+                    @endphp
+                    @foreach ($supportedLocales as $localeCode => $properties)
                         @php
-                            $url = LaravelLocalization::getLocalizedURL($localeCode, null, [], true);
+                            $url = route('lang.switch', ['locale' => $localeCode]);
                             $active = $localeCode === $current;
                         @endphp
                         <li>

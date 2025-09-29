@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\DesignController;
 use App\Http\Controllers\Api\SupportTicketController;
+use App\Http\Controllers\Api\WhatsAppController;
 use App\Http\Controllers\CartController;
 
 /*
@@ -59,7 +60,8 @@ Route::prefix('products')->group(function () {
     Route::get('/search', [ProductController::class, 'search']);
     Route::get('/latest', [ProductController::class, 'latest']);
     Route::get('/best-selling', [ProductController::class, 'bestSelling']);
-    Route::get('/{product:slug}', [ProductController::class, 'show']);
+    Route::get('/id/{product}', [ProductController::class, 'showById']); // Backward compatibility - fetch by ID
+    Route::get('/{product:slug}', [ProductController::class, 'show']); // New - fetch by slug
 });
 
 // Test endpoint
@@ -430,6 +432,20 @@ Route::prefix('test')->group(function () {
         // Get test card numbers for testing (no auth required)
         Route::get('/test-cards', [App\Http\Controllers\Api\TapPaymentController::class, 'getTestCards']);
     });
+});
+
+// ========================================
+// WHATSAPP ROUTES
+// ========================================
+Route::prefix('whatsapp')->group(function () {
+    // Public routes (no authentication required)
+    Route::post('/send', [WhatsAppController::class, 'sendMessage']);
+    Route::post('/send-bulk', [WhatsAppController::class, 'sendBulkMessage']);
+    Route::get('/qr-code', [WhatsAppController::class, 'getQRCode']);
+    Route::post('/webhook', [WhatsAppController::class, 'setWebhook']);
+    Route::post('/reboot', [WhatsAppController::class, 'rebootInstance']);
+    Route::get('/status', [WhatsAppController::class, 'getStatus']);
+    Route::post('/validate-phone', [WhatsAppController::class, 'validatePhoneNumber']);
 });
 
 // Webhook routes (no authentication required)

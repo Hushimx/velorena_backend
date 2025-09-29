@@ -65,16 +65,21 @@
                             // Get all product images (optimized)
                             $productImages = [];
 
-                            // Add images from product_images table (already loaded with eager loading)
+                            // Add main image_url first if exists
+                            if ($product->image_url) {
+                                $productImages[] = $product->image_url;
+                            }
+
+                            // Add additional images from product_images table
                             if ($product->relationLoaded('images') && $product->images->count() > 0) {
                                 foreach ($product->images as $image) {
-                                    if ($image->image_path) {
+                                    if ($image->image_path && $image->image_path !== $product->image_url) {
                                         $productImages[] = $image->image_path;
                                     }
                                 }
                             }
 
-                            // Add legacy main product image if exists and no images from product_images
+                            // Add legacy main product image if exists and no main image_url
                             if (count($productImages) === 0 && $product->image) {
                                 $productImages[] = $product->image;
                             }

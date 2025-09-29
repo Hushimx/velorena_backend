@@ -306,28 +306,27 @@ class ProductsController extends Controller
             $uploadedImage = $product->images()->create([
                 'image_path' => $imagePath,
                 'alt_text' => $product->name,
-                'is_primary' => false, // Will be set later if needed
                 'sort_order' => $product->images()->count()
             ]);
 
             $uploadedImages[] = $uploadedImage;
         }
 
-        // Set primary image if specified
+        // Set main image_url if specified
         if ($primaryImageIndex !== null && $primaryImageIndex !== '') {
             if (is_numeric($primaryImageIndex) && isset($uploadedImages[$primaryImageIndex])) {
-                $uploadedImages[$primaryImageIndex]->update(['is_primary' => true]);
+                $product->update(['image_url' => $uploadedImages[$primaryImageIndex]->image_path]);
             }
-        } elseif (count($uploadedImages) > 0 && $product->images()->where('is_primary', true)->count() === 0) {
-            // If no primary image is set and this is the first upload, set the first image as primary
-            $uploadedImages[0]->update(['is_primary' => true]);
+        } elseif (count($uploadedImages) > 0 && !$product->image_url) {
+            // If no main image is set and this is the first upload, set the first image as main
+            $product->update(['image_url' => $uploadedImages[0]->image_path]);
         }
     }
 
     /**
      * Handle image updates for a product
      */
-    private function handleImageUpdates(Product $product, Request $request)
+private function handleImageUpdates(Product $product, Request $request)
     {
         // Handle existing images - remove those not in the list
         if ($request->has('existing_images')) {
@@ -340,23 +339,23 @@ class ProductsController extends Controller
             $this->handleImageUploads($product, $request->file('images'), $request->input('primary_image', 0));
         }
 
-        // Update primary image
+        // Update main image_url
         if ($request->has('primary_image') && $request->input('primary_image')) {
             $primaryImageValue = $request->input('primary_image');
 
-            // Reset all images to non-primary
-            $product->images()->update(['is_primary' => false]);
-
-            // Set the selected image as primary
+            // Set the selected image as main image_url
             if (is_numeric($primaryImageValue)) {
                 // Existing image ID
-                $product->images()->where('id', $primaryImageValue)->update(['is_primary' => true]);
+                $selectedImage = $product->images()->where('id', $primaryImageValue)->first();
+                if ($selectedImage) {
+                    $product->update(['image_url' => $selectedImage->image_path]);
+                }
             } elseif (str_starts_with($primaryImageValue, 'new_')) {
                 // New image index
                 $newIndex = (int) str_replace('new_', '', $primaryImageValue);
                 $newImages = $product->images()->orderBy('created_at', 'desc')->get();
                 if (isset($newImages[$newIndex])) {
-                    $newImages[$newIndex]->update(['is_primary' => true]);
+                    $product->update(['image_url' => $newImages[$newIndex]->image_path]);
                 }
             }
         }

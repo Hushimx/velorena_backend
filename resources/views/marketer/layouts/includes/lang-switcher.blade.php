@@ -1,6 +1,5 @@
 @php
-    use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
-    $current = LaravelLocalization::getCurrentLocale();
+    $current = app()->getLocale();
 @endphp
 
 <div x-data="{ open: false }" class="relative">
@@ -23,15 +22,22 @@
     <div x-cloak x-show="open" @click.outside="open = false"
         class="absolute z-50 mt-2 w-44 rounded-xl border border-gray-200 bg-white shadow-lg"
         :class="{
-            'right-0': '{{ LaravelLocalization::getCurrentLocaleDirection() }}'
+            'right-0': '{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}'
             === 'rtl',
-            'left-0': '{{ LaravelLocalization::getCurrentLocaleDirection() }}'
+            'left-0': '{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}'
             === 'ltr'
         }">
         <ul class="py-1" role="listbox">
-            @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
+            @php
+                $supportedLocales = [
+                    'ar' => ['name' => 'Arabic', 'native' => 'العربية'],
+                    'en' => ['name' => 'English', 'native' => 'English']
+                ];
+                $current = app()->getLocale();
+            @endphp
+            @foreach ($supportedLocales as $localeCode => $properties)
                 @php
-                    $url = LaravelLocalization::getLocalizedURL($localeCode, null, [], true);
+                    $url = route('lang.switch', ['locale' => $localeCode]);
                     $active = $localeCode === $current;
                 @endphp
 

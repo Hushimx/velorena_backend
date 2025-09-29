@@ -19,6 +19,7 @@ class Product extends Model
         'slug',
         'description',
         'description_ar',
+        'image_url',
         'base_price',
         'is_active',
         'sort_order',
@@ -194,13 +195,12 @@ class Product extends Model
      */
     public function getSeoImageAttribute(): string
     {
-        // Try to get primary image from product_images table
-        $primaryImage = $this->images()->where('is_primary', true)->first();
-        if ($primaryImage && $primaryImage->image_path) {
-            return asset($primaryImage->image_path);
+        // First try the main image_url field
+        if ($this->image_url) {
+            return asset($this->image_url);
         }
 
-        // Fallback to first image
+        // Fallback to first additional image
         $firstImage = $this->images()->first();
         if ($firstImage && $firstImage->image_path) {
             return asset($firstImage->image_path);
@@ -279,11 +279,11 @@ class Product extends Model
     }
 
     /**
-     * Get the primary image for this product
+     * Get the primary image for this product (now uses main image_url)
      */
     public function getPrimaryImageAttribute()
     {
-        return $this->images()->where('is_primary', true)->first() ?? $this->images()->first();
+        return $this->images()->first();
     }
 
     /**
@@ -291,15 +291,13 @@ class Product extends Model
      */
     public function getBestImageUrlAttribute()
     {
-        // Use already loaded images relationship to avoid N+1 queries
-        if ($this->relationLoaded('images') && $this->images->count() > 0) {
-            // Find primary image first
-            $primaryImage = $this->images->where('is_primary', true)->first();
-            if ($primaryImage && $primaryImage->image_path && file_exists(public_path($primaryImage->image_path))) {
-                return asset($primaryImage->image_path);
-            }
+        // First try the main image_url field
+        if ($this->image_url && file_exists(public_path($this->image_url))) {
+            return asset($this->image_url);
+        }
 
-            // Fallback to first image
+        // Fallback to first additional image
+        if ($this->relationLoaded('images') && $this->images->count() > 0) {
             $firstImage = $this->images->first();
             if ($firstImage && $firstImage->image_path && file_exists(public_path($firstImage->image_path))) {
                 return asset($firstImage->image_path);
@@ -319,13 +317,12 @@ class Product extends Model
      */
     public function getBestImagePathAttribute()
     {
-        // Try to get primary image first
-        $primaryImage = $this->images()->where('is_primary', true)->first();
-        if ($primaryImage && file_exists(public_path($primaryImage->image_path))) {
-            return $primaryImage->image_path;
+        // First try the main image_url field
+        if ($this->image_url && file_exists(public_path($this->image_url))) {
+            return $this->image_url;
         }
 
-        // Fallback to first image
+        // Fallback to first additional image
         $firstImage = $this->images()->first();
         if ($firstImage && file_exists(public_path($firstImage->image_path))) {
             return $firstImage->image_path;

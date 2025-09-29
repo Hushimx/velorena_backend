@@ -306,7 +306,7 @@ class DesignController extends Controller
     }
 
     /**
-     * Upload a ready design file (image)
+     * Upload multiple ready design files (images)
      */
     public function uploadReadyDesign(Request $request): JsonResponse
     {
@@ -318,54 +318,88 @@ class DesignController extends Controller
         }
 
         $request->validate([
-            'design_file' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:10240', // 10MB max
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000'
+            'design_files' => 'required|array|min:1|max:10', // Allow 1-10 files
+            'design_files.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:10240', // 10MB max per file
         ]);
 
         try {
-            // Generate unique filename
-            $file = $request->file('design_file');
-            $filename = 'uploaded_designs/' . Str::uuid() . '.' . $file->getClientOriginalExtension();
-            
-            // Store the file
-            $path = Storage::disk('public')->putFileAs('', $file, $filename);
-            $imageUrl = Storage::disk('public')->url($path);
+            $uploadedDesigns = [];
+            $errors = [];
 
-            // Create cart design entry
-            $cartDesign = CartDesign::create([
-                'user_id' => Auth::id(),
-                'title' => $request->title,
-                'design_data' => [
-                    'original_design_id' => 'uploaded_' . Str::uuid(),
-                    'description' => $request->description,
-                    'source' => 'upload'
-                ],
-                'image_url' => $imageUrl,
-                'thumbnail_url' => $imageUrl,
-                'is_active' => true
-            ]);
+            foreach ($request->file('design_files') as $index => $file) {
+                try {
+                    // Generate unique filename
+                    $filename = 'uploaded_designs/' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+                    
+                    // Store the file
+                    $path = Storage::disk('public')->putFileAs('', $file, $filename);
+                    $imageUrl = Storage::url($path);
 
-            Log::info('Design uploaded successfully', [
-                'user_id' => Auth::id(),
-                'design_id' => $cartDesign->id,
-                'filename' => $filename,
-                'image_url' => $imageUrl
-            ]);
+                    // Generate auto title from filename
+                    $originalName = $file->getClientOriginalName();
+                    $title = pathinfo($originalName, PATHINFO_FILENAME);
+                    $title = $title ?: 'تصميم مرفوع - ' . ($index + 1);
+
+                    // Create cart design entry
+                    $cartDesign = CartDesign::create([
+                        'user_id' => Auth::id(),
+                        'title' => $title,
+                        'design_data' => [
+                            'original_design_id' => 'uploaded_' . Str::uuid(),
+                            'source' => 'upload',
+                            'original_filename' => $originalName
+                        ],
+                        'image_url' => $imageUrl,
+                        'thumbnail_url' => $imageUrl,
+                        'is_active' => true
+                    ]);
+
+                    $uploadedDesigns[] = [
+                        'id' => $cartDesign->id,
+                        'title' => $cartDesign->title,
+                        'image_url' => $cartDesign->image_url,
+                        'created_at' => $cartDesign->created_at
+                    ];
+
+                    Log::info('Design uploaded successfully', [
+                        'user_id' => Auth::id(),
+                        'design_id' => $cartDesign->id,
+                        'filename' => $filename,
+                        'image_url' => $imageUrl
+                    ]);
+
+                } catch (\Exception $fileError) {
+                    $errors[] = "فشل في رفع الملف " . ($index + 1) . ": " . $fileError->getMessage();
+                    Log::error('Failed to upload individual design', [
+                        'error' => $fileError->getMessage(),
+                        'file_index' => $index,
+                        'user_id' => Auth::id()
+                    ]);
+                }
+            }
+
+            if (empty($uploadedDesigns)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'فشل في رفع جميع الملفات',
+                    'errors' => $errors
+                ], 500);
+            }
+
+            $message = count($uploadedDesigns) > 1 
+                ? 'تم رفع ' . count($uploadedDesigns) . ' تصميمات بنجاح!'
+                : 'تم رفع التصميم بنجاح!';
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم رفع التصميم بنجاح!',
-                'data' => [
-                    'id' => $cartDesign->id,
-                    'title' => $cartDesign->title,
-                    'image_url' => $cartDesign->image_url,
-                    'created_at' => $cartDesign->created_at
-                ]
+                'message' => $message,
+                'data' => $uploadedDesigns,
+                'uploaded_count' => count($uploadedDesigns),
+                'errors' => $errors // Include any partial failures
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Failed to upload design', [
+            Log::error('Failed to upload designs', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'user_id' => Auth::id()
@@ -373,7 +407,7 @@ class DesignController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في رفع التصميم: ' . $e->getMessage()
+                'message' => 'فشل في رفع التصاميم: ' . $e->getMessage()
             ], 500);
         }
     }

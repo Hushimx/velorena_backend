@@ -16,8 +16,16 @@ class SetLocale
      */
     public function handle(Request $request, Closure $next)
     {
+        // Check for locale in URL parameter first
+        if ($request->has('lang')) {
+            $locale = $request->get('lang');
+            if (in_array($locale, ['en', 'ar'])) {
+                session(['locale' => $locale]);
+                app()->setLocale($locale);
+            }
+        }
         // Check if locale is set in session
-        if (session()->has('locale')) {
+        elseif (session()->has('locale')) {
             app()->setLocale(session('locale'));
         } else {
             // Default to Arabic

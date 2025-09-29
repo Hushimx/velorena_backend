@@ -11,12 +11,10 @@ class ProductImage extends Model
         'product_id',
         'image_path',
         'alt_text',
-        'is_primary',
         'sort_order'
     ];
 
     protected $casts = [
-        'is_primary' => 'boolean',
         'sort_order' => 'integer'
     ];
 
