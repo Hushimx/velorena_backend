@@ -113,17 +113,21 @@ class AvailabilitySlot extends Model
         
         // Get booked appointments for this date (any designer)
         $bookedAppointments = Appointment::where('appointment_date', $date)
-            ->whereIn('status', ['pending', 'accepted'])
+            ->whereIn('status', ['pending', 'accepted', 'confirmed'])
             ->get();
 
         $bookedTimes = [];
         foreach ($bookedAppointments as $appointment) {
             $appointmentTime = Carbon::parse($appointment->appointment_time)->format('H:i');
-            $duration = $appointment->duration_minutes;
+            $duration = $appointment->duration_minutes ?? 30; // Default to 30 minutes if not set
             
             // Add all time slots that this appointment occupies
             $currentTime = Carbon::parse($appointmentTime);
-            for ($i = 0; $i < $duration; $i += 15) { // Assuming 15-minute slots
+            
+            // Calculate how many 15-minute slots this appointment takes
+            $slotCount = ceil($duration / 15);
+            
+            for ($i = 0; $i < $slotCount; $i++) {
                 $bookedTimes[] = $currentTime->format('H:i');
                 $currentTime->addMinutes(15);
             }

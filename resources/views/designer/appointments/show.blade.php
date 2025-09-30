@@ -259,8 +259,23 @@
                                             class="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
                                             <div class="flex items-center justify-between">
                                                 <div class="flex items-center gap-3">
-                                                    @if ($item->product->image)
-                                                        <img src="{{ asset('storage/' . $item->product->image) }}"
+                                                    @php
+                                                        $productImage = null;
+                                                        // Try to get main image_url first
+                                                        if ($item->product->image_url && file_exists(public_path($item->product->image_url))) {
+                                                            $productImage = asset($item->product->image_url);
+                                                        } else {
+                                                            // Fallback to first additional image
+                                                            $firstImage = $item->product->images()->first();
+                                                            if ($firstImage && file_exists(public_path($firstImage->image_path))) {
+                                                                $productImage = asset($firstImage->image_path);
+                                                            } elseif ($item->product->image && file_exists(public_path($item->product->image))) {
+                                                                $productImage = asset($item->product->image);
+                                                            }
+                                                        }
+                                                    @endphp
+                                                    @if ($productImage)
+                                                        <img src="{{ $productImage }}"
                                                             alt="{{ $item->product->name }}"
                                                             class="w-12 h-12 object-cover rounded-lg">
                                                     @else

@@ -216,12 +216,11 @@
                                             <div class="flex items-center">
                                                 @php
                                                     $productImage = null;
-                                                    // Try to get primary image first
-                                                    $primaryImage = $item->product->images()->where('is_primary', true)->first();
-                                                    if ($primaryImage && file_exists(public_path($primaryImage->image_path))) {
-                                                        $productImage = asset($primaryImage->image_path);
+                                                    // Try to get main image_url first
+                                                    if ($item->product->image_url && file_exists(public_path($item->product->image_url))) {
+                                                        $productImage = asset($item->product->image_url);
                                                     } else {
-                                                        // Fallback to first image
+                                                        // Fallback to first additional image
                                                         $firstImage = $item->product->images()->first();
                                                         if ($firstImage && file_exists(public_path($firstImage->image_path))) {
                                                             $productImage = asset($firstImage->image_path);

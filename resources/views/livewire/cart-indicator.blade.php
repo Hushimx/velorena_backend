@@ -1,9 +1,7 @@
 <div class="cart-indicator">
     <a href="{{ route('cart.index') }}" class="cart-link" title="{{ trans('Shopping Cart') }}">
         <i class="fas fa-shopping-cart"></i>
-        @if($itemCount > 0)
-            <span class="cart-badge">{{ $itemCount }}</span>
-        @endif
+        <span class="cart-badge" data-count="{{ $itemCount }}" style="{{ $itemCount == 0 ? 'display: none;' : '' }}">{{ $itemCount }}</span>
     </a>
 
     <style>
@@ -53,6 +51,7 @@
         border: 2px solid white;
         padding: 0 4px;
     }
+
 
     /* Responsive */
     @media (max-width: 768px) {

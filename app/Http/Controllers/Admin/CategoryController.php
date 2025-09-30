@@ -26,18 +26,31 @@ class CategoryController extends Controller
             'name_ar' => 'required|string|max:255',
             'description' => 'nullable|string',
             'description_ar' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'slider_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'is_active' => 'boolean',
             'sort_order' => 'nullable|integer|min:0'
         ]);
 
-        $data = $request->all();
+        // Exclude file fields from data array - we'll add processed paths
+        $data = $request->except(['slider_image', 'main_image']);
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->storeAs('public/categories', $imageName);
-            $data['image'] = 'storage/categories/' . $imageName;
+
+        // Handle slider image upload
+        if ($request->hasFile('slider_image')) {
+            $sliderImage = $request->file('slider_image');
+            $sliderImageName = time() . '_slider_' . $sliderImage->getClientOriginalName();
+            $path = $sliderImage->storeAs('categories', $sliderImageName, 'public');
+            $data['slider_image'] = Storage::url($path);
+        }
+
+        // Handle main image upload
+        if ($request->hasFile('main_image')) {
+            $mainImage = $request->file('main_image');
+            $mainImageName = time() . '_main_' . $mainImage->getClientOriginalName();
+            $path = $mainImage->storeAs('categories', $mainImageName, 'public');
+            $data['main_image'] = Storage::url($path);
         }
 
         Category::create($data);
@@ -63,23 +76,43 @@ class CategoryController extends Controller
             'name_ar' => 'required|string|max:255',
             'description' => 'nullable|string',
             'description_ar' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'slider_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'is_active' => 'boolean',
             'sort_order' => 'nullable|integer|min:0'
         ]);
 
-        $data = $request->all();
+        // Exclude file fields from data array - we'll add processed paths
+        $data = $request->except(['slider_image', 'main_image']);
 
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($category->image && Storage::exists(str_replace('storage/', 'public/', $category->image))) {
-                Storage::delete(str_replace('storage/', 'public/', $category->image));
+
+        // Handle slider image upload
+        if ($request->hasFile('slider_image')) {
+            // Delete old slider image if exists
+            if ($category->slider_image) {
+                $oldPath = str_replace('/storage/', '', $category->slider_image);
+                Storage::disk('public')->delete($oldPath);
             }
 
-            $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->storeAs('public/categories', $imageName);
-            $data['image'] = 'storage/categories/' . $imageName;
+            $sliderImage = $request->file('slider_image');
+            $sliderImageName = time() . '_slider_' . $sliderImage->getClientOriginalName();
+            $path = $sliderImage->storeAs('categories', $sliderImageName, 'public');
+            $data['slider_image'] = Storage::url($path);
+        }
+
+        // Handle main image upload
+        if ($request->hasFile('main_image')) {
+            // Delete old main image if exists
+            if ($category->main_image) {
+                $oldPath = str_replace('/storage/', '', $category->main_image);
+                Storage::disk('public')->delete($oldPath);
+            }
+
+            $mainImage = $request->file('main_image');
+            $mainImageName = time() . '_main_' . $mainImage->getClientOriginalName();
+            $path = $mainImage->storeAs('categories', $mainImageName, 'public');
+            $data['main_image'] = Storage::url($path);
         }
 
         $category->update($data);
@@ -95,9 +128,17 @@ class CategoryController extends Controller
             return back()->with('error', trans('categories.cannot_delete_with_products'));
         }
 
-        // Delete image if exists
-        if ($category->image && Storage::exists(str_replace('storage/', 'public/', $category->image))) {
-            Storage::delete(str_replace('storage/', 'public/', $category->image));
+
+        // Delete slider image if exists
+        if ($category->slider_image) {
+            $oldPath = str_replace('/storage/', '', $category->slider_image);
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        // Delete main image if exists
+        if ($category->main_image) {
+            $oldPath = str_replace('/storage/', '', $category->main_image);
+            Storage::disk('public')->delete($oldPath);
         }
 
         $category->delete();

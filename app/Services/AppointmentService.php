@@ -19,6 +19,15 @@ class AppointmentService
         return DB::transaction(function () use ($data) {
             $user = Auth::user();
 
+            $duration = $data['duration'] ?? 30; // Default 30 minutes
+
+            // Always check global time slot availability first
+            $this->checkGlobalTimeSlotAvailability(
+                $data['appointment_date'], 
+                $data['appointment_time'], 
+                $duration
+            );
+
             // Check if designer is available (only if designer_id is provided)
             if (isset($data['designer_id']) && $data['designer_id']) {
                 $this->checkDesignerAvailability($data['designer_id'], $data['appointment_date'], $data['appointment_time']);
@@ -32,7 +41,7 @@ class AppointmentService
                 'appointment_time' => $data['appointment_time'],
                 'service_type' => $data['service_type'],
                 'description' => $data['description'] ?? null,
-                'duration' => $data['duration'] ?? 60, // Default 1 hour
+                'duration' => $duration,
                 'location' => $data['location'] ?? null,
                 'notes' => $data['notes'] ?? null,
                 'status' => 'pending',
@@ -55,13 +64,22 @@ class AppointmentService
                 throw new \Exception('Cannot modify appointment that is not pending or confirmed');
             }
 
-            // Check designer availability if designer or time is being changed
-            if (isset($data['designer_id']) || isset($data['appointment_date']) || isset($data['appointment_time'])) {
-                $designerId = $data['designer_id'] ?? $appointment->designer_id;
+            // Check availability if time-related fields are being changed
+            if (isset($data['appointment_date']) || isset($data['appointment_time']) || isset($data['duration'])) {
                 $appointmentDate = $data['appointment_date'] ?? $appointment->appointment_date;
                 $appointmentTime = $data['appointment_time'] ?? $appointment->appointment_time;
+                $duration = $data['duration'] ?? $appointment->duration ?? 30;
 
-                // Only check designer availability if designer_id is provided and not null
+                // Always check global time slot availability first
+                $this->checkGlobalTimeSlotAvailability(
+                    $appointmentDate, 
+                    $appointmentTime, 
+                    $duration, 
+                    $appointment->id
+                );
+
+                // Check designer availability if designer or time is being changed
+                $designerId = $data['designer_id'] ?? $appointment->designer_id;
                 if ($designerId) {
                     $this->checkDesignerAvailability($designerId, $appointmentDate, $appointmentTime, $appointment->id);
                 }
@@ -151,11 +169,11 @@ class AppointmentService
             throw new \Exception('Designer is not available for appointments');
         }
 
-        // Check for conflicting appointments
+        // Check for conflicting appointments (exact time match)
         $conflictingAppointment = Appointment::where('designer_id', $designerId)
             ->where('appointment_date', $appointmentDate)
             ->where('appointment_time', $appointmentTime)
-            ->whereIn('status', ['pending', 'confirmed'])
+            ->whereIn('status', ['pending', 'accepted', 'confirmed'])
             ->when($excludeAppointmentId, function ($query) use ($excludeAppointmentId) {
                 return $query->where('id', '!=', $excludeAppointmentId);
             })
@@ -163,6 +181,34 @@ class AppointmentService
 
         if ($conflictingAppointment) {
             throw new \Exception('Designer has a conflicting appointment at this time');
+        }
+    }
+
+    /**
+     * Check global time slot availability (any designer)
+     */
+    public function checkGlobalTimeSlotAvailability(string $appointmentDate, string $appointmentTime, int $duration = 30, ?int $excludeAppointmentId = null): void
+    {
+        $appointmentStartTime = Carbon::parse($appointmentTime);
+        $appointmentEndTime = $appointmentStartTime->copy()->addMinutes($duration);
+
+        // Check for any conflicting appointments at this time slot
+        $conflictingAppointments = Appointment::where('appointment_date', $appointmentDate)
+            ->whereIn('status', ['pending', 'accepted', 'confirmed'])
+            ->when($excludeAppointmentId, function ($query) use ($excludeAppointmentId) {
+                return $query->where('id', '!=', $excludeAppointmentId);
+            })
+            ->get();
+
+        foreach ($conflictingAppointments as $existingAppointment) {
+            $existingStartTime = Carbon::parse($existingAppointment->appointment_time);
+            $existingDuration = $existingAppointment->duration_minutes ?? 30;
+            $existingEndTime = $existingStartTime->copy()->addMinutes($existingDuration);
+
+            // Check if time slots overlap
+            if ($appointmentStartTime->lt($existingEndTime) && $appointmentEndTime->gt($existingStartTime)) {
+                throw new \Exception('This time slot is already reserved. Please choose a different time.');
+            }
         }
     }
 

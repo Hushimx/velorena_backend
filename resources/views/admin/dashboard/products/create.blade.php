@@ -184,28 +184,69 @@
                         </div>
                     </div>
 
-                    <!-- Images Section -->
-                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
+                    <!-- Main Product Image Section -->
+                    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200" style="background: linear-gradient(135deg, var(--brand-yellow-light) 0%, var(--brand-yellow) 100%); border-color: var(--brand-yellow-dark);">
                         <div class="flex items-center mb-6 gap-3">
-                            <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fas fa-images text-white text-sm"></i>
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style="background: var(--brand-brown);">
+                                <i class="fas fa-image text-white text-sm"></i>
                             </div>
-                            <h2 class="text-xl font-semibold text-gray-900">{{ trans('products.images') }}</h2>
+                            <h2 class="text-xl font-semibold" style="color: var(--brand-brown);">{{ trans('products.main_image') }}</h2>
                         </div>
 
                         <div class="space-y-4">
-                            <div
-                                class="border-2 border-dashed border-purple-300 rounded-xl p-8 text-center hover:border-purple-400 transition-all duration-200 bg-white">
-                                <input type="file" name="images[]" id="images" accept="image/*" multiple
-                                    class="hidden">
-                                <label for="images" class="cursor-pointer">
-                                    <p class="text-lg font-medium text-gray-700 mb-2">
-                                        {{ trans('products.click_to_upload_images') }}</p>
-                                    <p class="text-sm text-gray-500">{{ trans('products.images_requirements') }}</p>
+                            <div class="border-2 border-dashed rounded-xl p-8 text-center hover:border-opacity-60 transition-all duration-200" 
+                                 style="border-color: var(--brand-brown); background: rgba(255, 255, 255, 0.5);">
+                                <input type="file" name="main_image" id="main_image" accept="image/*" class="hidden">
+                                <label for="main_image" class="cursor-pointer">
+                                    <div class="mb-3">
+                                        <i class="fas fa-cloud-upload-alt text-3xl" style="color: var(--brand-brown);"></i>
+                                    </div>
+                                    <p class="text-sm font-medium mb-1" style="color: var(--brand-brown);">
+                                        {{ trans('products.click_to_upload_main_image') }}
+                                    </p>
+                                    <p class="text-xs" style="color: var(--brand-brown-light);">
+                                        {{ trans('products.main_image_requirements') }}
+                                    </p>
                                 </label>
                             </div>
-                            <div id="image-preview" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-                                style="display: none;">
+                            <div id="main-image-preview" class="mt-4" style="display: none;">
+                                <img id="main-image-preview-img" src="" alt="Preview" class="w-32 h-32 object-cover rounded-lg shadow-md" style="border: 2px solid var(--brand-brown);">
+                                <p class="text-xs mt-2" style="color: var(--brand-brown-light);">{{ trans('products.main_image_preview') }}</p>
+                            </div>
+                            @error('main_image')
+                                <p class="mt-2 text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <!-- Additional Images Section -->
+                    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200" style="background: linear-gradient(135deg, var(--brand-yellow-light) 0%, var(--brand-yellow) 100%); border-color: var(--brand-yellow-dark);">
+                        <div class="flex items-center mb-6 gap-3">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style="background: var(--brand-brown);">
+                                <i class="fas fa-images text-white text-sm"></i>
+                            </div>
+                            <h2 class="text-xl font-semibold" style="color: var(--brand-brown);">{{ trans('products.additional_images') }}</h2>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="border-2 border-dashed rounded-xl p-8 text-center hover:border-opacity-60 transition-all duration-200" 
+                                 style="border-color: var(--brand-brown); background: rgba(255, 255, 255, 0.5);">
+                                <input type="file" name="images[]" id="images" accept="image/*" multiple class="hidden">
+                                <label for="images" class="cursor-pointer">
+                                    <div class="mb-3">
+                                        <i class="fas fa-cloud-upload-alt text-3xl" style="color: var(--brand-brown);"></i>
+                                    </div>
+                                    <p class="text-sm font-medium mb-1" style="color: var(--brand-brown);">
+                                        {{ trans('products.click_to_upload_images') }}
+                                    </p>
+                                    <p class="text-xs" style="color: var(--brand-brown-light);">
+                                        {{ trans('products.images_requirements') }}
+                                    </p>
+                                </label>
+                            </div>
+                            <div id="image-preview" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" style="display: none;">
                                 <!-- Image previews will be added here -->
                             </div>
                             <input type="hidden" name="primary_image" id="primary_image" value="0">
@@ -538,6 +579,25 @@
             const imageInput = document.getElementById('images');
             const imagePreview = document.getElementById('image-preview');
             const primaryImageInput = document.getElementById('primary_image');
+            
+            // Main image upload preview
+            const mainImageInput = document.getElementById('main_image');
+            const mainImagePreview = document.getElementById('main-image-preview');
+            const mainImagePreviewImg = document.getElementById('main-image-preview-img');
+            
+            if (mainImageInput && mainImagePreview && mainImagePreviewImg) {
+                mainImageInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file && file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            mainImagePreviewImg.src = e.target.result;
+                            mainImagePreview.style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
             const addOptionBtn = document.getElementById('add-option-btn');
             const optionsContainer = document.getElementById('product-options-container');
             let optionCounter = 0;

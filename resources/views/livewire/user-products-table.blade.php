@@ -46,20 +46,25 @@
                                     <div class="product-image">
                                         @php
                                             $productImage = null;
-                                            // Try to get primary image first
-                                            $primaryImage = $product->images()->where('is_primary', true)->first();
-                                            if ($primaryImage && file_exists(public_path($primaryImage->image_path))) {
-                                                $productImage = asset($primaryImage->image_path);
+                                            // Try to get main product image first (image_url)
+                                            if ($product->image_url && file_exists(public_path($product->image_url))) {
+                                                $productImage = asset($product->image_url);
                                             } else {
-                                                // Fallback to first image
-                                                $firstImage = $product->images()->first();
-                                                if ($firstImage && file_exists(public_path($firstImage->image_path))) {
-                                                    $productImage = asset($firstImage->image_path);
-                                                } elseif (
-                                                    $product->image &&
-                                                    file_exists(public_path($product->image))
-                                                ) {
-                                                    $productImage = asset($product->image);
+                                                // Fallback to first additional image
+                                                $primaryImage = $product->images()->orderBy('sort_order')->first();
+                                                if ($primaryImage && file_exists(public_path($primaryImage->image_path))) {
+                                                    $productImage = asset($primaryImage->image_path);
+                                                } else {
+                                                    // Fallback to first image
+                                                    $firstImage = $product->images()->first();
+                                                    if ($firstImage && file_exists(public_path($firstImage->image_path))) {
+                                                        $productImage = asset($firstImage->image_path);
+                                                    } elseif (
+                                                        $product->image &&
+                                                        file_exists(public_path($product->image))
+                                                    ) {
+                                                        $productImage = asset($product->image);
+                                                    }
                                                 }
                                             }
                                         @endphp

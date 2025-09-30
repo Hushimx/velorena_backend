@@ -299,6 +299,53 @@
         .sidebar-link:hover::before {
             left: 100%;
         }
+        
+        /* Global Input and Select Styling Fix */
+        input[type="text"], 
+        input[type="email"], 
+        input[type="password"], 
+        input[type="number"], 
+        input[type="tel"], 
+        input[type="url"], 
+        input[type="search"], 
+        input[type="date"], 
+        input[type="datetime-local"], 
+        input[type="time"], 
+        input[type="file"],
+        textarea, 
+        select {
+            color: #1f2937 !important;
+            background-color: #ffffff !important;
+        }
+        
+        input::placeholder,
+        textarea::placeholder {
+            color: #6b7280 !important;
+        }
+        
+        /* Fix for Select2 dropdowns */
+        .select2-container--default .select2-selection--single {
+            color: #1f2937 !important;
+            background-color: #ffffff !important;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #1f2937 !important;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #6b7280 !important;
+        }
+        
+        /* Fix for file inputs */
+        input[type="file"] {
+            color: #1f2937 !important;
+        }
+        
+        input[type="file"]::file-selector-button {
+            color: #1f2937 !important;
+            background-color: #f3f4f6 !important;
+        }
     </style>
     @livewireStyles
 </head>

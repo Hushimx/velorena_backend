@@ -64,3 +64,4 @@ class TestWhatsAppCommand extends Command
         }
     }
 }
+

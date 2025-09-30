@@ -99,3 +99,4 @@ class WhatsAppNotification extends Notification implements ShouldQueue
         }
     }
 }
+

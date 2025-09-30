@@ -237,7 +237,7 @@ class GuestCartService
                     'name' => $product->name,
                     'name_ar' => $product->name_ar,
                     'base_price' => $product->base_price,
-                    'image' => $product->image,
+                    'image' => $product->image_url ?? $product->image,
                     'options' => $product->options
                 ],
                 'quantity' => $item['quantity'],

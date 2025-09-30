@@ -231,6 +231,91 @@ class AuthController extends Controller
     }
 
     /**
+     * Check email availability
+     * 
+     * @OA\Post(
+     *     path="/api/auth/check-email",
+     *     operationId="checkEmail",
+     *     tags={"Authentication"},
+     *     summary="Check email availability",
+     *     description="Check if an email address is available for registration",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email"},
+     *             @OA\Property(
+     *                 property="email", 
+     *                 type="string", 
+     *                 format="email", 
+     *                 description="Email address to check",
+     *                 example="john@example.com"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Email availability checked",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Email is available"),
+     *             @OA\Property(property="available", type="boolean", example=true)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Email already taken",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Email is already taken"),
+     *             @OA\Property(property="available", type="boolean", example=false)
+     *         )
+     *     )
+     * )
+     */
+    public function checkEmail(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|email'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid email format',
+                    'available' => false,
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $email = $request->email;
+            $exists = User::where('email', $email)->exists();
+
+            if ($exists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Email is already taken',
+                    'available' => false,
+                ], 422);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Email is available',
+                'available' => true,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to check email availability',
+                'available' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Login user
      * 
      * @OA\Post(

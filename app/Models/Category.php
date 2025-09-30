@@ -13,6 +13,8 @@ class Category extends Model
         'description',
         'description_ar',
         'image',
+        'slider_image',
+        'main_image',
         'is_active',
         'sort_order'
     ];

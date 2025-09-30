@@ -310,17 +310,48 @@ class DesignController extends Controller
      */
     public function uploadReadyDesign(Request $request): JsonResponse
     {
+        // Debug the request to see what's being sent
+        Log::info('Upload request received', [
+            'authenticated' => Auth::check(),
+            'user_id' => Auth::id(),
+            'files' => $request->allFiles(),
+            'all_data' => $request->all(),
+            'content_type' => $request->header('Content-Type'),
+            'authorization' => $request->header('Authorization'),
+            'request_method' => $request->method(),
+            'has_files' => $request->hasFile('design_files')
+        ]);
+
         if (!Auth::check()) {
+            Log::error('Upload failed - not authenticated', [
+                'headers' => $request->headers->all(),
+                'user_id' => Auth::id()
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'يجب تسجيل الدخول أولاً'
             ], 401);
         }
 
-        $request->validate([
-            'design_files' => 'required|array|min:1|max:10', // Allow 1-10 files
-            'design_files.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:10240', // 10MB max per file
-        ]);
+        try {
+            $request->validate([
+                'design_files' => 'required|array|min:1|max:10', // Allow 1-10 files
+                'design_files.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:10240', // 10MB max per file
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation failed for design upload', [
+                'errors' => $e->errors(),
+                'request_data' => $request->all(),
+                'files' => $request->allFiles(),
+                'user_id' => Auth::id()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل في التحقق من صحة الملفات',
+                'errors' => $e->errors()
+            ], 422);
+        }
 
         try {
             $uploadedDesigns = [];
@@ -342,7 +373,8 @@ class DesignController extends Controller
 
                     // Create cart design entry
                     $cartDesign = CartDesign::create([
-                        'user_id' => Auth::id(),
+                        'user_id' => Auth::check() ? Auth::id() : null,
+                        'session_id' => Auth::check() ? null : session()->getId(),
                         'title' => $title,
                         'design_data' => [
                             'original_design_id' => 'uploaded_' . Str::uuid(),
@@ -362,7 +394,8 @@ class DesignController extends Controller
                     ];
 
                     Log::info('Design uploaded successfully', [
-                        'user_id' => Auth::id(),
+                        'user_id' => Auth::check() ? Auth::id() : null,
+                        'session_id' => Auth::check() ? null : session()->getId(),
                         'design_id' => $cartDesign->id,
                         'filename' => $filename,
                         'image_url' => $imageUrl

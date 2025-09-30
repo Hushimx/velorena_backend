@@ -12,7 +12,7 @@ return [
 
     'access_token' => env('WHATSAPP_ACCESS_TOKEN', '68d9d5b40d8e2'),
     
-    'instance_id' => env('WHATSAPP_INSTANCE_ID', ''),
+    'instance_id' => env('WHATSAPP_INSTANCE_ID', '68DBB04FECCBA'),
     
     'base_url' => env('WHATSAPP_BASE_URL', 'https://app.smartwats.com/api'),
     
@@ -39,3 +39,4 @@ return [
     
     'retry_delay' => env('WHATSAPP_RETRY_DELAY', 1000), // milliseconds
 ];
+

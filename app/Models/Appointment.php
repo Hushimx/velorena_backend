@@ -303,30 +303,61 @@ class Appointment extends Model
         $this->deleteZoomMeeting();
     }
 
-    // Check if time slot is available
+    // Check if time slot is available (global check - any designer)
     public static function isTimeSlotAvailable($designerId, $date, $time, $duration = 15, $excludeId = null)
     {
-        $query = self::where('designer_id', $designerId)
-            ->where('appointment_date', $date)
-            ->where('status', '!=', 'cancelled')
-            ->where('status', '!=', 'rejected');
-
-        if ($excludeId) {
-            $query->where('id', '!=', $excludeId);
-        }
+        // First check global availability (any designer)
+        $globalQuery = self::where('appointment_date', $date)
+            ->whereIn('status', ['pending', 'accepted', 'confirmed'])
+            ->when($excludeId, function ($query) use ($excludeId) {
+                return $query->where('id', '!=', $excludeId);
+            });
 
         $appointmentTime = Carbon::parse($time);
         $appointmentEnd = $appointmentTime->copy()->addMinutes($duration);
 
-        return !$query->where(function ($q) use ($appointmentTime, $appointmentEnd) {
+        // Check for time overlap conflicts
+        $hasConflict = $globalQuery->where(function ($q) use ($appointmentTime, $appointmentEnd) {
             $q->where(function ($subQ) use ($appointmentTime, $appointmentEnd) {
+                // Check if existing appointment starts before new appointment and ends after new appointment starts
                 $subQ->where('appointment_time', '<=', $appointmentTime)
-                    ->whereRaw('TIME_TO_SEC(appointment_time) + (duration_minutes * 60) > ?', [$appointmentTime->secondsSinceMidnight()]);
+                    ->whereRaw('TIME_TO_SEC(appointment_time) + (COALESCE(duration_minutes, 30) * 60) > ?', [$appointmentTime->secondsSinceMidnight()]);
             })->orWhere(function ($subQ) use ($appointmentTime, $appointmentEnd) {
+                // Check if existing appointment starts within new appointment time range
                 $subQ->where('appointment_time', '<', $appointmentEnd)
                     ->where('appointment_time', '>=', $appointmentTime);
             });
         })->exists();
+
+        if ($hasConflict) {
+            return false;
+        }
+
+        // If designer is specified, also check designer-specific availability
+        if ($designerId) {
+            $designerQuery = self::where('designer_id', $designerId)
+                ->where('appointment_date', $date)
+                ->whereIn('status', ['pending', 'accepted', 'confirmed'])
+                ->when($excludeId, function ($query) use ($excludeId) {
+                    return $query->where('id', '!=', $excludeId);
+                });
+
+            $designerConflict = $designerQuery->where(function ($q) use ($appointmentTime, $appointmentEnd) {
+                $q->where(function ($subQ) use ($appointmentTime, $appointmentEnd) {
+                    $subQ->where('appointment_time', '<=', $appointmentTime)
+                        ->whereRaw('TIME_TO_SEC(appointment_time) + (COALESCE(duration_minutes, 30) * 60) > ?', [$appointmentTime->secondsSinceMidnight()]);
+                })->orWhere(function ($subQ) use ($appointmentTime, $appointmentEnd) {
+                    $subQ->where('appointment_time', '<', $appointmentEnd)
+                        ->where('appointment_time', '>=', $appointmentTime);
+                });
+            })->exists();
+
+            if ($designerConflict) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // Get available time slots for a designer on a specific date

@@ -50,8 +50,8 @@ class CartIndicator extends Component
             
             $items = $cartItems->map(function($item) {
                 return [
-                    'product_name' => $item->product->name_ar ?? $item->product->name,
-                    'product_image' => $item->product->image,
+                    'product_name' => app()->getLocale() === 'ar' ? ($item->product->name_ar ?? $item->product->name) : $item->product->name,
+                    'product_image' => $item->product->image_url ?? $item->product->image,
                     'quantity' => $item->quantity,
                     'unit_price' => $item->unit_price,
                     'total_price' => $item->total_price
@@ -71,8 +71,8 @@ class CartIndicator extends Component
             
             $items = collect($cartItems)->map(function($item) {
                 return [
-                    'product_name' => $item['product']['name_ar'] ?? $item['product']['name'],
-                    'product_image' => $item['product']['image'] ?? null,
+                    'product_name' => app()->getLocale() === 'ar' ? ($item['product']['name_ar'] ?? $item['product']['name']) : $item['product']['name'],
+                    'product_image' => $item['product']['image_url'] ?? $item['product']['image'] ?? null,
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['unit_price'],
                     'total_price' => $item['total_price']

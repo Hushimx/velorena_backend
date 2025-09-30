@@ -60,16 +60,16 @@ class AppointmentController extends Controller
         try {
             DB::beginTransaction();
 
-            // Check if time slot is available
             $designerId = $request->designer_id;
             $date = $request->appointment_date;
             $time = $request->appointment_time;
-            $duration = $request->duration_minutes ?? 15;
+            $duration = $request->duration_minutes ?? 30;
 
-            if ($designerId && !Appointment::isTimeSlotAvailable($designerId, $date, $time, $duration)) {
+            // Check if time slot is available using the improved availability checking
+            if (!Appointment::isTimeSlotAvailable($designerId, $date, $time, $duration)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Selected time slot is not available'
+                    'message' => 'This time slot is already reserved. Please choose a different time.'
                 ], 409);
             }
 
@@ -223,12 +223,12 @@ class AppointmentController extends Controller
                 $designerId = $request->designer_id ?? $appointment->designer_id;
                 $date = $request->appointment_date ?? $appointment->appointment_date;
                 $time = $request->appointment_time ?? $appointment->appointment_time;
-                $duration = $request->duration_minutes ?? $appointment->duration_minutes;
+                $duration = $request->duration_minutes ?? $appointment->duration_minutes ?? 30;
 
-                if ($designerId && !Appointment::isTimeSlotAvailable($designerId, $date, $time, $duration, $appointment->id)) {
+                if (!Appointment::isTimeSlotAvailable($designerId, $date, $time, $duration, $appointment->id)) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Selected time slot is not available'
+                        'message' => 'This time slot is already reserved. Please choose a different time.'
                     ], 409);
                 }
             }

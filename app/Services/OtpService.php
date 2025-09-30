@@ -130,16 +130,59 @@ class OtpService
      */
     private function sendWhatsAppOtp(string $phone, string $code): void
     {
-        // For now, we'll just log the WhatsApp OTP
-        // In production, you would integrate with WhatsApp Business API
-        Log::info("WhatsApp OTP sent to {$phone}: {$code}");
-        
-        // Example of how to send real WhatsApp message (uncomment when WhatsApp service is configured)
-        /*
-        // WhatsApp Business API example
-        $whatsapp = new WhatsAppService();
-        $whatsapp->sendMessage($phone, "Your OTP code is: {$code}");
-        */
+        try {
+            $whatsappService = app(\App\Services\WhatsAppService::class);
+            
+            // Check if service is configured
+            if (!$whatsappService->isConfigured()) {
+                Log::warning("WhatsApp service not configured", [
+                    'phone' => $phone,
+                    'code' => $code,
+                    'access_token_set' => !empty(config('whatsapp.access_token')),
+                    'instance_id_set' => !empty(config('whatsapp.instance_id'))
+                ]);
+                
+                // Fallback to logging
+                Log::info("WhatsApp OTP (service not configured) sent to {$phone}: {$code}");
+                return;
+            }
+            
+            // Format phone number for WhatsApp
+            $formattedPhone = $whatsappService->formatPhoneNumber($phone);
+            
+            Log::info("Attempting to send WhatsApp OTP", [
+                'original_phone' => $phone,
+                'formatted_phone' => $formattedPhone,
+                'code' => $code
+            ]);
+            
+            // Create WhatsApp message
+            $message = "🔐 رمز التحقق الخاص بك\n\n";
+            $message .= "رمز التحقق: {$code}\n\n";
+            $message .= "هذا الرمز صالح لمدة 10 دقائق\n";
+            $message .= "لا تشارك هذا الرمز مع أي شخص\n\n";
+            $message .= "شكراً لاستخدام خدماتنا!";
+            
+            // Send WhatsApp message
+            $result = $whatsappService->sendTextMessage($formattedPhone, $message);
+            
+            Log::info("WhatsApp OTP sent successfully", [
+                'phone' => $formattedPhone,
+                'code' => $code,
+                'result' => $result
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error("Failed to send WhatsApp OTP", [
+                'phone' => $phone,
+                'code' => $code,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // Fallback to logging (for development)
+            Log::info("WhatsApp OTP (fallback due to error) sent to {$phone}: {$code}");
+        }
     }
 
     /**

@@ -124,7 +124,7 @@ foreach ($endpoints as $endpoint => $config) {
         if ($firstProduct && isset($firstProduct['images']) && !empty($firstProduct['images'])) {
             $firstImage = $firstProduct['images'][0];
             echo "Sample image: " . ($firstImage['image_url'] ?? $firstImage['image_path'] ?? 'N/A') . "\n";
-            echo "Primary image: " . ($firstImage['is_primary'] ? 'Yes' : 'No') . "\n";
+            echo "Primary image: " . ($firstImage['sort_order'] == 1 ? 'Yes' : 'No') . "\n";
         }
     }
     

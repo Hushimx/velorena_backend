@@ -27,10 +27,14 @@
 
         <!-- Category Details -->
         <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-            <!-- Header with Image -->
+            <!-- Header with Images -->
             <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-8">
                 <div class="flex items-center space-x-6">
-                    @if ($category->image)
+                    <!-- Main Image (Mobile Categories) -->
+                    @if ($category->main_image)
+                        <img src="{{ asset($category->main_image) }}" alt="{{ $category->name }}"
+                            class="h-24 w-24 rounded-lg object-cover border-4 border-white shadow-lg">
+                    @elseif ($category->image)
                         <img src="{{ asset($category->image) }}" alt="{{ $category->name }}"
                             class="h-24 w-24 rounded-lg object-cover border-4 border-white shadow-lg">
                     @else

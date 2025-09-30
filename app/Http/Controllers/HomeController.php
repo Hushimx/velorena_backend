@@ -71,12 +71,14 @@ class HomeController extends Controller
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($category) {
+                // Prioritize slider_image for slider, fallback to image
+                $imageUrl = $category->slider_image ?? $category->image;
                 return [
                     'id' => $category->id,
                     'name' => $category->name_ar ?? $category->name,
                     'name_en' => $category->name,
                     'name_ar' => $category->name_ar,
-                    'image_url' => $category->image ? asset($category->image) : asset('assets/imgs/تنظيم المـواتمرات (2).png'),
+                    'image_url' => $imageUrl ? asset($imageUrl) : asset('assets/imgs/تنظيم المـواتمرات (2).png'),
                     'url' => route('user.products.index', ['category' => $category->id]),
                     'badge' => null // You can add badge logic here if needed
                 ];

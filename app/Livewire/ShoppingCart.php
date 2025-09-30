@@ -132,7 +132,7 @@ class ShoppingCart extends Component
                     'name' => $item->product->name,
                     'name_ar' => $item->product->name_ar,
                     'base_price' => $item->product->base_price,
-                    'image' => $item->product->image,
+                    'image' => $item->product->image_url ?? $item->product->image,
                     'options' => $item->product->options
                 ],
                 'quantity' => $item->quantity,
@@ -256,18 +256,17 @@ class ShoppingCart extends Component
             // Store the current URL for redirect after login
             session(['url.intended' => url()->current()]);
             
-            // Show login error toast
+            // Show login error toast and redirect immediately
             $this->dispatch(
                 'showToast',
                 message: 'يرجى تسجيل الدخول أولاً لإتمام عملية الشراء',
                 type: 'warning',
                 title: 'تسجيل الدخول مطلوب',
-                duration: 3000
+                duration: 2000
             );
             
-            // Redirect to login page after 3 seconds
-            $this->dispatch('redirectToLogin');
-            return;
+            // Redirect to login immediately
+            return redirect()->route('login');
         }
 
         if (empty($this->cartItems)) {
@@ -503,18 +502,17 @@ class ShoppingCart extends Component
             // Store the current URL for redirect after login
             session(['url.intended' => url()->current()]);
             
-            // Show login error toast
+            // Show login error toast and redirect immediately
             $this->dispatch(
                 'showToast',
                 message: 'يرجى تسجيل الدخول أولاً لحجز موعد',
                 type: 'warning',
                 title: 'تسجيل الدخول مطلوب',
-                duration: 3000
+                duration: 2000
             );
             
-            // Redirect to login page after 3 seconds
-            $this->dispatch('redirectToLogin');
-            return;
+            // Redirect to login immediately
+            return redirect()->route('login');
         }
 
         if (empty($this->cartItems)) {

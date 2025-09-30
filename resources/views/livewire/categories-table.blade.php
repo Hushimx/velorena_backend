@@ -33,7 +33,7 @@
                     class="block text-sm font-medium text-gray-700 mb-1">{{ trans('categories.search') }}</label>
                 <input type="text" wire:model.live.debounce.500ms="search" wire:key="search-input"
                     placeholder="{{ trans('categories.categories_search_placeholder') }}"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white text-gray-900 placeholder-gray-500">
             </div>
         </div>
     </div>
@@ -42,24 +42,27 @@
     <div class="bg-white rounded-lg shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+                <thead class="bg-gray-800">
                     <tr>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                            {{ trans('categories.image') }}
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider">
                             {{ trans('categories.name') }}
                         </th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
                             {{ trans('categories.name_ar') }}
                         </th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
                             {{ trans('categories.status') }}
                         </th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
                             {{ trans('categories.products_count') }}
                         </th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
                             {{ trans('categories.created_at') }}
                         </th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
                             {{ trans('actions') }}
                         </th>
                     </tr>
@@ -67,22 +70,25 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($categories as $category)
                         <tr class="hover:bg-gray-50" wire:key="category-row-{{ $category->id }}">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    @if ($category->image)
-                                        <img class="h-10 w-10 rounded-lg object-cover ml-3"
-                                            src="{{ asset($category->image) }}" alt="{{ $category->name }}">
-                                    @else
-                                        <div
-                                            class="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center ml-3">
-                                            <i class="fas fa-image text-gray-400"></i>
-                                        </div>
-                                    @endif
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">{{ $category->name }}</div>
-                                        <div class="text-sm text-gray-500">
-                                            {{ Str::limit($category->description, 50) }}</div>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                @if ($category->main_image)
+                                    <img class="h-12 w-12 rounded-lg object-cover mx-auto"
+                                        src="{{ asset($category->main_image) }}" alt="{{ $category->name }}">
+                                @elseif ($category->image)
+                                    <img class="h-12 w-12 rounded-lg object-cover mx-auto"
+                                        src="{{ asset($category->image) }}" alt="{{ $category->name }}">
+                                @else
+                                    <div
+                                        class="h-12 w-12 rounded-lg bg-gray-200 flex items-center justify-center mx-auto">
+                                        <i class="fas fa-image text-gray-400"></i>
                                     </div>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">{{ $category->name }}</div>
+                                    <div class="text-sm text-gray-500">
+                                        {{ Str::limit($category->description, 50) }}</div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
@@ -128,7 +134,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
                                 {{ trans('categories.no_categories_exist') }}</td>
                         </tr>
                     @endforelse

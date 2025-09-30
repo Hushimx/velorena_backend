@@ -187,13 +187,99 @@
                         </div>
                     </div>
 
-                    <!-- Images Section -->
-                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
+                    <!-- Main Product Image Section -->
+                    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200" style="background: linear-gradient(135deg, var(--brand-yellow-light) 0%, var(--brand-yellow) 100%); border-color: var(--brand-yellow-dark);">
                         <div class="flex items-center mb-6 gap-3">
-                            <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style="background: var(--brand-brown);">
+                                <i class="fas fa-image text-white text-sm"></i>
+                            </div>
+                            <h2 class="text-xl font-semibold" style="color: var(--brand-brown);">{{ trans('products.main_image') }}</h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Current Main Image Display -->
+                            <div class="flex items-center gap-4">
+                                @php
+                                    $mainProductImage = null;
+                                    $altText = app()->getLocale() === 'ar' ? $product->name_ar ?? $product->name : $product->name;
+
+                                    // Try to get main image_url first
+                                    if ($product->image_url && file_exists(public_path($product->image_url))) {
+                                        $mainProductImage = $product->image_url;
+                                    } else {
+                                        // Fallback to first additional image
+                                        $firstImage = $product->images()->first();
+                                        if ($firstImage && file_exists(public_path($firstImage->image_path))) {
+                                            $mainProductImage = $firstImage->image_path;
+                                            $altText = $firstImage->alt_text ?: $product->name;
+                                        } elseif ($product->image && file_exists(public_path($product->image))) {
+                                            $mainProductImage = $product->image;
+                                        }
+                                    }
+                                @endphp
+                                
+                                @if ($mainProductImage)
+                                    <div class="flex-shrink-0">
+                                        <img src="{{ asset($mainProductImage) }}" alt="{{ $altText }}"
+                                            class="w-24 h-24 rounded-xl object-cover shadow-md" style="border: 2px solid var(--brand-brown);">
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm mb-2" style="color: var(--brand-brown); font-weight: 600;">{{ trans('products.current_main_image') }}</p>
+                                        <p class="text-xs" style="color: var(--brand-brown-light);">{{ trans('products.main_image_help') }}</p>
+                                    </div>
+                                @else
+                                    <div class="flex-shrink-0">
+                                        <div class="w-24 h-24 rounded-xl flex items-center justify-center shadow-md" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px solid var(--brand-brown);">
+                                            <i class="fas fa-image text-2xl" style="color: var(--brand-brown-light);"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm mb-2" style="color: var(--brand-brown); font-weight: 600;">{{ trans('products.no_main_image') }}</p>
+                                        <p class="text-xs" style="color: var(--brand-brown-light);">{{ trans('products.main_image_help') }}</p>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- Main Image Upload -->
+                            <div>
+                                <label for="main_image" class="block text-sm font-semibold mb-3" style="color: var(--brand-brown);">
+                                    {{ trans('products.upload_main_image') }}
+                                </label>
+                                <div class="border-2 border-dashed rounded-xl p-6 text-center hover:border-opacity-60 transition-all duration-200" 
+                                     style="border-color: var(--brand-brown); background: rgba(255, 255, 255, 0.5);">
+                                    <input type="file" name="main_image" id="main_image" accept="image/*" class="hidden">
+                                    <label for="main_image" class="cursor-pointer">
+                                        <div class="mb-3">
+                                            <i class="fas fa-cloud-upload-alt text-3xl" style="color: var(--brand-brown);"></i>
+                                        </div>
+                                        <p class="text-sm font-medium mb-1" style="color: var(--brand-brown);">
+                                            {{ trans('products.click_to_upload_main_image') }}
+                                        </p>
+                                        <p class="text-xs" style="color: var(--brand-brown-light);">
+                                            {{ trans('products.main_image_requirements') }}
+                                        </p>
+                                    </label>
+                                </div>
+                                <div id="main-image-preview" class="mt-4" style="display: none;">
+                                    <img id="main-image-preview-img" src="" alt="Preview" class="w-32 h-32 object-cover rounded-lg shadow-md" style="border: 2px solid var(--brand-brown);">
+                                    <p class="text-xs mt-2" style="color: var(--brand-brown-light);">{{ trans('products.main_image_preview') }}</p>
+                                </div>
+                                @error('main_image')
+                                    <p class="mt-2 text-sm text-red-600 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Images Section -->
+                    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200" style="background: linear-gradient(135deg, var(--brand-yellow-light) 0%, var(--brand-yellow) 100%); border-color: var(--brand-yellow-dark);">
+                        <div class="flex items-center mb-6 gap-3">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style="background: var(--brand-brown);">
                                 <i class="fas fa-images text-white text-sm"></i>
                             </div>
-                            <h2 class="text-xl font-semibold text-gray-900">{{ trans('products.images') }}</h2>
+                            <h2 class="text-xl font-semibold" style="color: var(--brand-brown);">{{ trans('products.additional_images') }}</h2>
                         </div>
 
                         <div class="gap-3">
@@ -208,7 +294,7 @@
                                             <div class="relative group existing-image"
                                                 data-image-id="{{ $image->id }}">
                                                 <img src="{{ asset($image->image_path) }}" alt="{{ $image->alt_text }}"
-                                                    class="w-full h-32 object-cover rounded-lg border-2 {{ $image->is_primary ? 'border-purple-500' : 'border-gray-200' }} hover:border-purple-400 transition-all duration-200">
+                                                    class="w-full h-32 object-cover rounded-lg border-2 {{ $image->sort_order == 1 ? 'border-purple-500' : 'border-gray-200' }} hover:border-purple-400 transition-all duration-200">
                                                 <div
                                                     class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg flex items-center justify-center">
                                                     <button type="button"
@@ -216,7 +302,7 @@
                                                         {{ trans('products.remove') }}
                                                     </button>
                                                 </div>
-                                                @if ($image->is_primary)
+                                                @if ($image->sort_order == 1)
                                                     <div class="absolute top-2 left-2">
                                                         <span
                                                             class="bg-purple-600 text-white text-xs px-2 py-1 rounded-full shadow-sm">{{ trans('products.primary') }}</span>
@@ -224,7 +310,7 @@
                                                 @endif
                                                 <div class="absolute top-2 right-2">
                                                     <button type="button"
-                                                        class="set-primary-existing-btn bg-purple-600 text-white text-xs px-2 py-1 rounded-full shadow-sm {{ $image->is_primary ? 'hidden' : '' }}"
+                                                        class="set-primary-existing-btn bg-purple-600 text-white text-xs px-2 py-1 rounded-full shadow-sm {{ $image->sort_order == 1 ? 'hidden' : '' }}"
                                                         data-image-id="{{ $image->id }}">
                                                         {{ trans('products.set_primary') }}
                                                     </button>
@@ -570,6 +656,25 @@
             const imageInput = document.getElementById('images');
             const imagePreview = document.getElementById('image-preview');
             const primaryImageInput = document.getElementById('primary_image');
+            
+            // Main image upload preview
+            const mainImageInput = document.getElementById('main_image');
+            const mainImagePreview = document.getElementById('main-image-preview');
+            const mainImagePreviewImg = document.getElementById('main-image-preview-img');
+            
+            if (mainImageInput && mainImagePreview && mainImagePreviewImg) {
+                mainImageInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file && file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            mainImagePreviewImg.src = e.target.result;
+                            mainImagePreview.style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
 
             // Handle new image uploads
             imageInput.addEventListener('change', function(e) {

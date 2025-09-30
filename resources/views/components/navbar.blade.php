@@ -987,28 +987,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const itemCount = parseInt(cartBadge.textContent) || 0;
                 console.log('🚀 Quick preview: Cart badge shows', itemCount, 'items');
                 
-                if (itemCount > 0) {
-                    // Show immediate preview based on badge
-                    console.log('🚀 Showing quick preview for', itemCount, 'items');
-                    quickPreviewShown = true;
-                    displayCartPreview({
-                        items: Array.from({length: Math.min(itemCount, 3)}, (_, i) => ({
-                            product_name: `منتج ${i + 1}`,
-                            product_image: '/assets/imgs/no-image.png',
-                            quantity: 1,
-                            unit_price: '0.00',
-                            total_price: '0.00'
-                        })),
-                        item_count: itemCount,
-                        total_price: '0.00'
-                    });
-                    showCartPreview();
-                    
-                    // Then try to load real data in background
-                    setTimeout(() => loadCartPreview(), 100);
-                } else {
-                    loadCartPreview();
-                }
+                // Always show cart preview (empty or not)
+                console.log('🚀 Showing cart preview for', itemCount, 'items');
+                quickPreviewShown = true;
+                // Load real data
+                loadCartPreview();
+                showCartPreview();
             } else {
                 loadCartPreview();
             }
@@ -1207,25 +1191,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     const apiItemCount = data.data?.item_count || 0;
                     
-                    // Only update if API has items, or if we don't have a quick preview yet
-                    if (apiItemCount > 0 || !quickPreviewShown) {
-                        console.log('🛒 Updating preview with API data');
-                        
-                        cartPreviewCache = {
-                            data: data.data,
-                            timestamp: Date.now()
-                        };
-                        
-                        // Cache for 30 seconds
-                        cacheTimeout = setTimeout(() => {
-                            cartPreviewCache = null;
-                        }, 30000);
-                        
-                        displayCartPreview(data.data);
-                        showCartPreview();
-                    } else {
-                        console.log('🛒 API returned empty cart, keeping quick preview');
-                    }
+                    // Always update with API data (empty or not)
+                    console.log('🛒 Updating preview with API data');
+                    
+                    cartPreviewCache = {
+                        data: data.data,
+                        timestamp: Date.now()
+                    };
+                    
+                    // Cache for 30 seconds
+                    cacheTimeout = setTimeout(() => {
+                        cartPreviewCache = null;
+                    }, 30000);
+                    
+                    displayCartPreview(data.data);
+                    showCartPreview();
                 } else {
                     console.error('🛒 Cart preview API error:', data.error || data);
                     tryLivewireCartData();
@@ -1276,22 +1256,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const itemCount = parseInt(cartBadge.textContent) || 0;
                 console.log('🔴 Manual extraction: found', itemCount, 'items');
                 
-                // Create a basic cart preview with just the count
-                if (itemCount > 0) {
-                    displayCartPreview({
-                        items: [{
-                            product_name: 'منتج في السلة',
-                            product_image: '/assets/imgs/no-image.png',
-                            quantity: itemCount,
-                            unit_price: '0.00',
-                            total_price: '0.00'
-                        }],
-                        item_count: itemCount,
-                        total_price: '0.00'
-                    });
-                } else {
-                    displayCartPreview({ items: [], item_count: 0, total_price: 0 });
-                }
+                // Show empty cart instead of placeholder data
+                displayCartPreview({ items: [], item_count: 0, total_price: 0 });
             } else {
                 console.log('🔴 No cart badge found either, showing empty cart');
                 displayCartPreview({ items: [], item_count: 0, total_price: 0 });

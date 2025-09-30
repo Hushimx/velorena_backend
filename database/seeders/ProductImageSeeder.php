@@ -20,7 +20,6 @@ class ProductImageSeeder extends Seeder
                 [
                     'image_path' => 'storage/products/1758452511_0_بوث.jpg',
                     'alt_text' => 'بوث معارض',
-                    'is_primary' => true,
                     'sort_order' => 1
                 ]
             ],
@@ -30,7 +29,6 @@ class ProductImageSeeder extends Seeder
                 [
                     'image_path' => 'storage/products/1758453822_0_طاولة--.jpg',
                     'alt_text' => 'طاولة دعائية',
-                    'is_primary' => true,
                     'sort_order' => 1
                 ]
             ],
@@ -40,7 +38,6 @@ class ProductImageSeeder extends Seeder
                 [
                     'image_path' => 'storage/products/1758518421_0_بنر.png',
                     'alt_text' => 'لوحة بنر',
-                    'is_primary' => true,
                     'sort_order' => 1
                 ]
             ],
@@ -50,7 +47,6 @@ class ProductImageSeeder extends Seeder
                 [
                     'image_path' => 'storage/products/1758518679_0_بوب اب.png',
                     'alt_text' => 'بوب اب',
-                    'is_primary' => true,
                     'sort_order' => 1
                 ]
             ],
@@ -60,7 +56,6 @@ class ProductImageSeeder extends Seeder
                 [
                     'image_path' => 'storage/products/1758519504_0_رول اب.png',
                     'alt_text' => 'رول اب',
-                    'is_primary' => true,
                     'sort_order' => 1
                 ]
             ],
@@ -70,13 +65,11 @@ class ProductImageSeeder extends Seeder
                 [
                     'image_path' => 'storage/products/1758519638_0_بروش اســم.png',
                     'alt_text' => 'بروش اسم',
-                    'is_primary' => true,
                     'sort_order' => 1
                 ],
                 [
                     'image_path' => 'storage/products/1758519642_0_بروش اســم.png',
                     'alt_text' => 'بروش اسم - تصميم 2',
-                    'is_primary' => false,
                     'sort_order' => 2
                 ]
             ],
@@ -86,7 +79,6 @@ class ProductImageSeeder extends Seeder
                 [
                     'image_path' => 'storage/products/1758519793_0_تيشترتات.jpg',
                     'alt_text' => 'تيشرتات',
-                    'is_primary' => true,
                     'sort_order' => 1
                 ]
             ],
@@ -96,7 +88,6 @@ class ProductImageSeeder extends Seeder
                 [
                     'image_path' => 'storage/products/1758520853_0_كابات.png',
                     'alt_text' => 'كابات',
-                    'is_primary' => true,
                     'sort_order' => 1
                 ]
             ],
@@ -106,7 +97,6 @@ class ProductImageSeeder extends Seeder
                 [
                     'image_path' => 'storage/products/1758521690_0_بطائق اي دي.png',
                     'alt_text' => 'بطاقات تعريفية ( عادي ـ ID )',
-                    'is_primary' => true,
                     'sort_order' => 1
                 ]
             ],
@@ -116,7 +106,6 @@ class ProductImageSeeder extends Seeder
                 [
                     'image_path' => 'storage/products/1758522227_0_طاولة دعائية مع مظلة .png',
                     'alt_text' => 'طاولة دعائية مع مضلة',
-                    'is_primary' => true,
                     'sort_order' => 1
                 ]
             ],
@@ -126,7 +115,6 @@ class ProductImageSeeder extends Seeder
                 [
                     'image_path' => 'storage/products/1758522487_0_طاولة قـــابلـــة للطـــي .png',
                     'alt_text' => 'طاولة قابلة للطي',
-                    'is_primary' => true,
                     'sort_order' => 1
                 ]
             ],
@@ -136,7 +124,6 @@ class ProductImageSeeder extends Seeder
                 [
                     'image_path' => 'storage/products/1758522795_0_طاولة دعائية مقوسة .png',
                     'alt_text' => 'طاولة دعائية مقوسة',
-                    'is_primary' => true,
                     'sort_order' => 1
                 ]
             ],
@@ -146,7 +133,6 @@ class ProductImageSeeder extends Seeder
                 [
                     'image_path' => 'storage/products/1758523555_0_باك دورب.png',
                     'alt_text' => 'استاند باك دروب',
-                    'is_primary' => true,
                     'sort_order' => 1
                 ]
             ],
@@ -156,7 +142,6 @@ class ProductImageSeeder extends Seeder
                 [
                     'image_path' => 'storage/products/1758524944_0_شنطة.jpg',
                     'alt_text' => 'طباعة على شنط',
-                    'is_primary' => true,
                     'sort_order' => 1
                 ]
             ],
@@ -166,7 +151,6 @@ class ProductImageSeeder extends Seeder
                 [
                     'image_path' => 'storage/products/1758525377_0_مج سيراميك.jpg',
                     'alt_text' => 'كاسات سيراميك مع الطباعة',
-                    'is_primary' => true,
                     'sort_order' => 1
                 ]
             ],
@@ -176,7 +160,6 @@ class ProductImageSeeder extends Seeder
                 [
                     'image_path' => 'storage/products/1758525838_0_مح اسيتل.jpg',
                     'alt_text' => 'مج ستيل',
-                    'is_primary' => true,
                     'sort_order' => 1
                 ]
             ]

@@ -51,7 +51,7 @@ class CartController extends Controller
                     'name' => $item->product->name,
                     'name_ar' => $item->product->name_ar,
                     'base_price' => $item->product->base_price,
-                    'image' => $item->product->image,
+                    'image' => $item->product->image_url ?? $item->product->image,
                     'options' => $item->product->options
                 ],
                 'quantity' => $item->quantity,

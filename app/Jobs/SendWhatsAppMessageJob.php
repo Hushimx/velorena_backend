@@ -75,3 +75,4 @@ class SendWhatsAppMessageJob implements ShouldQueue
         ]);
     }
 }
+

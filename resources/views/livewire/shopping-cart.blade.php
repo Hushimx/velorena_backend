@@ -57,17 +57,22 @@
                                 if (isset($item['product_id'])) {
                                     $product = \App\Models\Product::find($item['product_id']);
                                     if ($product) {
-                                        // Try to get primary image first
-                                        $primaryImage = $product->images()->where('is_primary', true)->first();
-                                        if ($primaryImage && file_exists(public_path($primaryImage->image_path))) {
-                                            $productImage = asset($primaryImage->image_path);
+                                        // Try to get main product image first (image_url)
+                                        if ($product->image_url && file_exists(public_path($product->image_url))) {
+                                            $productImage = asset($product->image_url);
                                         } else {
-                                            // Fallback to first image
-                                            $firstImage = $product->images()->first();
-                                            if ($firstImage && file_exists(public_path($firstImage->image_path))) {
-                                                $productImage = asset($firstImage->image_path);
-                                            } elseif ($product->image && file_exists(public_path($product->image))) {
-                                                $productImage = asset($product->image);
+                                            // Fallback to first additional image
+                                            $primaryImage = $product->images()->orderBy('sort_order')->first();
+                                            if ($primaryImage && file_exists(public_path($primaryImage->image_path))) {
+                                                $productImage = asset($primaryImage->image_path);
+                                            } else {
+                                                // Fallback to first image
+                                                $firstImage = $product->images()->first();
+                                                if ($firstImage && file_exists(public_path($firstImage->image_path))) {
+                                                    $productImage = asset($firstImage->image_path);
+                                                } elseif ($product->image && file_exists(public_path($product->image))) {
+                                                    $productImage = asset($product->image);
+                                                }
                                             }
                                         }
                                     }
@@ -85,10 +90,6 @@
                         <!-- Product Details -->
                         <div class="cart-item-details">
                             <h3 class="cart-item-title">{{ $item['product_name'] ?? 'Unknown Product' }}</h3>
-                            <p class="cart-item-base-price">
-                                {{ trans('cart.base_price') }}:
-                                <span class="price-value">{{ number_format($item['base_price'] ?? 0, 2) }} {{ trans('products.currency') }}</span>
-                            </p>
 
                             <!-- Selected Options -->
                             @if (!empty($item['selected_options']))
@@ -305,25 +306,10 @@
             @endif
         </div>
 
-        <!-- Order Summary -->
-        <div class="order-summary-card">
-            <div class="order-summary-content">
-                <h3 class="summary-title">{{ trans('cart.order_summary') }}</h3>
-                <div class="summary-details">
-                    <div class="summary-item">
-                        <span class="summary-label">{{ trans('cart.subtotal') }}:</span>
-                        <span class="summary-value">{{ number_format($subtotal, 2) }} {{ trans('products.currency') }}</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">{{ trans('cart.tax') }}:</span>
-                        <span class="summary-value">{{ number_format($tax, 2) }} {{ trans('products.currency') }}</span>
-                    </div>
-                    <div class="summary-total">
-                        <span class="summary-label">{{ trans('cart.total') }}:</span>
-                        <span class="summary-total-value px-2">{{ number_format($total, 2) }} {{ trans('products.currency') }}</span>
-                    </div>
-                </div>
-                <div class="summary-actions">
+        <!-- Action Buttons -->
+        @if(count($cartItems) > 0)
+            <div class="cart-actions">
+                <div class="action-buttons">
                     <a href="{{ route('user.products.index') }}" class="continue-shopping-btn">
                         <i class="fas fa-arrow-left"></i>
                         <span>{{ trans('cart.continue_shopping') }}</span>
@@ -338,7 +324,8 @@
                     </button>
                 </div>
             </div>
-        </div>
+        @endif
+
     @endif
 
     <!-- Old design modal removed - now using cart-wide design modal at the bottom -->
@@ -406,8 +393,9 @@
         .cart-header-title {
             color: var(--brand-brown);
             font-weight: 700;
-            font-size: 2rem;
+            font-size: 1.5rem;
             margin-bottom: 0.5rem;
+            text-align: center;
         }
 
         .cart-header-subtitle {
@@ -654,17 +642,6 @@
             margin-bottom: 0.75rem;
         }
 
-        .cart-item-base-price {
-            color: var(--brand-brown);
-            font-size: 1rem;
-            margin-bottom: 1rem;
-            opacity: 0.8;
-        }
-
-        .price-value {
-            color: var(--brand-brown);
-            font-weight: 700;
-        }
 
         /* Cart Item Options */
         .cart-item-options {
@@ -1671,6 +1648,23 @@
         }
 
         .summary-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Cart Actions Styles */
+        .cart-actions {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--brand-yellow-light) 0%, #ffffff 100%);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(42, 30, 30, 0.1);
+            border: 2px solid var(--brand-yellow);
+        }
+
+        .action-buttons {
             display: flex;
             gap: 1rem;
             flex-wrap: wrap;

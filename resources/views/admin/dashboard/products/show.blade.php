@@ -252,7 +252,7 @@
                                     <div class="relative group">
                                         <img src="{{ asset($image->image_path) }}" alt="{{ $image->alt_text }}"
                                             class="w-full h-48 object-cover rounded-lg shadow-md group-hover:shadow-lg transition duration-200">
-                                        @if ($image->is_primary)
+                                        @if ($image->sort_order == 1)
                                             <div class="absolute top-2 left-2">
                                                 <span
                                                     class="bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow-sm">Primary</span>

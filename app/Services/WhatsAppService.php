@@ -11,12 +11,14 @@ class WhatsAppService
     protected $accessToken;
     protected $instanceId;
     protected $baseUrl;
+    protected $timeout;
 
     public function __construct()
     {
         $this->accessToken = config('whatsapp.access_token');
         $this->instanceId = config('whatsapp.instance_id');
         $this->baseUrl = config('whatsapp.base_url', 'https://app.smartwats.com/api');
+        $this->timeout = config('whatsapp.timeout', 30);
     }
 
     /**
@@ -30,8 +32,20 @@ class WhatsAppService
     public function sendTextMessage(string $phoneNumber, string $message): array
     {
         try {
-            $response = Http::post($this->baseUrl . '/send', [
-                'number' => $phoneNumber,
+            // Validate inputs
+            if (empty($phoneNumber) || empty($message)) {
+                throw new Exception('Phone number and message are required');
+            }
+
+            // Ensure phone number is properly formatted
+            $formattedPhone = $this->formatPhoneNumber($phoneNumber);
+            
+            if (!$this->validatePhoneNumber($formattedPhone)) {
+                throw new Exception('Invalid phone number format: ' . $phoneNumber);
+            }
+
+            $response = Http::timeout($this->timeout ?? 30)->post($this->baseUrl . '/send', [
+                'number' => $formattedPhone,
                 'type' => 'text',
                 'message' => $message,
                 'instance_id' => $this->instanceId,
@@ -40,16 +54,25 @@ class WhatsAppService
 
             if ($response->successful()) {
                 $data = $response->json();
-                Log::info('WhatsApp message sent successfully', [
-                    'phone' => $phoneNumber,
-                    'message' => $message,
-                    'response' => $data
-                ]);
-                return $data;
+                
+                // Check if the response indicates success
+                if (isset($data['status']) && $data['status'] === 'success') {
+                    Log::info('WhatsApp message sent successfully', [
+                        'phone' => $formattedPhone,
+                        'message_length' => strlen($message),
+                        'response' => $data
+                    ]);
+                    return $data;
+                } else {
+                    Log::warning('WhatsApp message may not have been delivered', [
+                        'phone' => $formattedPhone,
+                        'response' => $data
+                    ]);
+                    return $data;
+                }
             } else {
                 Log::error('WhatsApp API error', [
-                    'phone' => $phoneNumber,
-                    'message' => $message,
+                    'phone' => $formattedPhone,
                     'status' => $response->status(),
                     'response' => $response->body()
                 ]);
@@ -58,7 +81,7 @@ class WhatsAppService
         } catch (Exception $e) {
             Log::error('WhatsApp service error', [
                 'phone' => $phoneNumber,
-                'message' => $message,
+                'message_length' => strlen($message),
                 'error' => $e->getMessage()
             ]);
             throw $e;
@@ -236,3 +259,4 @@ class WhatsAppService
         return $cleaned;
     }
 }
+

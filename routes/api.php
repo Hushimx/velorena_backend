@@ -12,8 +12,8 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\DesignController;
 use App\Http\Controllers\Api\SupportTicketController;
-use App\Http\Controllers\Api\WhatsAppController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\Api\WhatsAppController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +35,26 @@ Route::get('/test', function () {
     return response()->json(['message' => 'API route working', 'timestamp' => now()]);
 });
 
+// Test file upload route
+Route::post('/test-upload', function (Request $request) {
+    \Log::info('Test upload endpoint called', [
+        'files' => $request->allFiles(),
+        'content_type' => $request->header('Content-Type'),
+        'all_data' => $request->all(),
+        'method' => $request->method()
+    ]);
+    
+    return response()->json([
+        'message' => 'Upload test endpoint working',
+        'files_received' => count($request->allFiles()),
+        'content_type' => $request->header('Content-Type'),
+        'all_data' => $request->all(),
+        'timestamp' => now()
+    ]);
+});
+
+// Test endpoint removed - using authenticated endpoint now
+
 // Swagger documentation routes are now handled by RouteServiceProvider
 
 // Public routes
@@ -42,6 +62,7 @@ Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+    Route::post('/check-email', [AuthController::class, 'checkEmail']);
 
     // OTP routes
     Route::post('/send-otp', [OtpController::class, 'sendOtp']);
@@ -95,8 +116,8 @@ Route::get('/cart/preview', function() {
             
             $items = $cartItems->map(function($item) {
                 return [
-                    'product_name' => $item->product->name_ar ?? $item->product->name,
-                    'product_image' => $item->product->image,
+                    'product_name' => app()->getLocale() === 'ar' ? ($item->product->name_ar ?? $item->product->name) : $item->product->name,
+                    'product_image' => $item->product->image_url ?? $item->product->image,
                     'quantity' => $item->quantity,
                     'unit_price' => $item->unit_price,
                     'total_price' => $item->total_price
@@ -129,8 +150,8 @@ Route::get('/cart/preview', function() {
             
             $items = collect($cartItems)->map(function($item) {
                 return [
-                    'product_name' => $item['product']['name_ar'] ?? $item['product']['name'],
-                    'product_image' => $item['product']['image'] ?? null,
+                    'product_name' => app()->getLocale() === 'ar' ? ($item['product']['name_ar'] ?? $item['product']['name']) : $item['product']['name'],
+                    'product_image' => $item['product']['image_url'] ?? $item['product']['image'] ?? null,
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['unit_price'],
                     'total_price' => $item['total_price']
@@ -435,18 +456,18 @@ Route::prefix('test')->group(function () {
 });
 
 // ========================================
-// WHATSAPP ROUTES
+// WHATSAPP ROUTES (Temporarily disabled - controller missing)
 // ========================================
-Route::prefix('whatsapp')->group(function () {
-    // Public routes (no authentication required)
-    Route::post('/send', [WhatsAppController::class, 'sendMessage']);
-    Route::post('/send-bulk', [WhatsAppController::class, 'sendBulkMessage']);
-    Route::get('/qr-code', [WhatsAppController::class, 'getQRCode']);
-    Route::post('/webhook', [WhatsAppController::class, 'setWebhook']);
-    Route::post('/reboot', [WhatsAppController::class, 'rebootInstance']);
-    Route::get('/status', [WhatsAppController::class, 'getStatus']);
-    Route::post('/validate-phone', [WhatsAppController::class, 'validatePhoneNumber']);
-});
+// Route::prefix('whatsapp')->group(function () {
+//     // Public routes (no authentication required)
+//     Route::post('/send', [WhatsAppController::class, 'sendMessage']);
+//     Route::post('/send-bulk', [WhatsAppController::class, 'sendBulkMessage']);
+//     Route::get('/qr-code', [WhatsAppController::class, 'getQRCode']);
+//     Route::post('/webhook', [WhatsAppController::class, 'setWebhook']);
+//     Route::post('/reboot', [WhatsAppController::class, 'rebootInstance']);
+//     Route::get('/status', [WhatsAppController::class, 'getStatus']);
+//     Route::post('/validate-phone', [WhatsAppController::class, 'validatePhoneNumber']);
+// });
 
 // Webhook routes (no authentication required)
 Route::post('/webhooks/tap', [App\Http\Controllers\Api\TapPaymentController::class, 'webhook'])->name('api.webhooks.tap');

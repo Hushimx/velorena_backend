@@ -103,7 +103,7 @@ class Product extends Model
 
     public function primaryImage(): HasMany
     {
-        return $this->hasMany(ProductImage::class)->where('is_primary', true);
+        return $this->hasMany(ProductImage::class)->orderBy('sort_order')->limit(1);
     }
 
     /**

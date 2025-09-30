@@ -35,8 +35,23 @@
                             <td class="table-cell">
                                 <div class="product-info">
                                     <div class="product-image">
-                                        @if ($item->product->image)
-                                            <img src="{{ asset($item->product->image) }}"
+                                        @php
+                                            $productImage = null;
+                                            // Try to get main image_url first
+                                            if ($item->product->image_url && file_exists(public_path($item->product->image_url))) {
+                                                $productImage = $item->product->image_url;
+                                            } else {
+                                                // Fallback to first additional image
+                                                $firstImage = $item->product->images()->first();
+                                                if ($firstImage && file_exists(public_path($firstImage->image_path))) {
+                                                    $productImage = $firstImage->image_path;
+                                                } elseif ($item->product->image && file_exists(public_path($item->product->image))) {
+                                                    $productImage = $item->product->image;
+                                                }
+                                            }
+                                        @endphp
+                                        @if ($productImage)
+                                            <img src="{{ asset($productImage) }}"
                                                 alt="{{ $item->product->name }}">
                                         @else
                                             <div class="no-image">
