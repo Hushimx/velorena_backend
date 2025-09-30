@@ -13,8 +13,46 @@ class AppointmentController extends Controller
         $appointments = Appointment::with(['user', 'designer', 'order'])
             ->latest()
             ->paginate(20);
-            
+
         return view('admin.dashboard.appointments.index', compact('appointments'));
+    }
+
+    public function create()
+    {
+        $users = \App\Models\User::all();
+        $designers = \App\Models\Designer::where('is_active', true)->get();
+        $orders = \App\Models\Order::latest()->get();
+
+        return view('admin.dashboard.appointments.create', compact('users', 'designers', 'orders'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'designer_id' => 'nullable|exists:designers,id',
+            'order_id' => 'nullable|exists:orders,id',
+            'appointment_date' => 'required|date|after:today',
+            'appointment_time' => 'required|date_format:H:i',
+            'duration_minutes' => 'required|integer|min:15|max:480',
+            'notes' => 'nullable|string|max:1000',
+            'order_notes' => 'nullable|string|max:1000',
+        ]);
+
+        $appointment = Appointment::create([
+            'user_id' => $request->user_id,
+            'designer_id' => $request->designer_id,
+            'order_id' => $request->order_id,
+            'appointment_date' => $request->appointment_date,
+            'appointment_time' => $request->appointment_time,
+            'duration_minutes' => $request->duration_minutes,
+            'notes' => $request->notes,
+            'order_notes' => $request->order_notes,
+            'status' => 'pending',
+        ]);
+
+        return redirect()->route('admin.appointments.show', $appointment)
+            ->with('success', __('admin.appointment_created_success'));
     }
 
     public function show(Appointment $appointment)

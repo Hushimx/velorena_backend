@@ -91,7 +91,8 @@ class OrdersTable extends Component
                     $subQuery->where('order_number', 'like', "%{$search}%")
                         ->orWhere('phone', 'like', "%{$search}%")
                         ->orWhereHas('user', function ($userQuery) use ($search) {
-                            $userQuery->where('name', 'like', "%{$search}%")
+                            $userQuery->where('full_name', 'like', "%{$search}%")
+                                ->orWhere('company_name', 'like', "%{$search}%")
                                 ->orWhere('email', 'like', "%{$search}%");
                         });
                 });
