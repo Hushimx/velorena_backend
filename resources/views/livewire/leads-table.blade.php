@@ -63,7 +63,7 @@
                 <select wire:model.live="marketerFilter" wire:key="marketer-filter"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">جميع المسوقيين</option>
-                    @foreach($marketers as $marketer)
+                    @foreach ($marketers as $marketer)
                         <option value="{{ $marketer->id }}">{{ $marketer->name }}</option>
                     @endforeach
                 </select>
@@ -77,14 +77,22 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">اسم الشركة</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الشخص المسؤول</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">البريد الإلكتروني</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المسوق المسؤول</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الأولوية</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاريخ الإنشاء</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">اسم
+                            الشركة</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            الشخص المسؤول</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            البريد الإلكتروني</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            المسوق المسؤول</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            الحالة</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            الأولوية</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            تاريخ الإنشاء</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            الإجراءات</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -103,24 +111,24 @@
                                 <div class="text-sm text-gray-900">{{ $lead->marketer->name ?? 'غير مسند' }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                    @if($lead->status == 'new') bg-gray-100 text-gray-800
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    @if ($lead->status == 'new') bg-gray-100 text-gray-800
                                     @elseif($lead->status == 'contacted') bg-blue-100 text-blue-800
                                     @elseif($lead->status == 'qualified') bg-yellow-100 text-yellow-800
                                     @elseif($lead->status == 'proposal_sent') bg-purple-100 text-purple-800
                                     @elseif($lead->status == 'negotiation') bg-orange-100 text-orange-800
                                     @elseif($lead->status == 'closed_won') bg-green-100 text-green-800
-                                    @else bg-red-100 text-red-800
-                                    @endif">
+                                    @else bg-red-100 text-red-800 @endif">
                                     {{ ucfirst($lead->status) }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                    @if($lead->priority == 'high') bg-red-100 text-red-800
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    @if ($lead->priority == 'high') bg-red-100 text-red-800
                                     @elseif($lead->priority == 'medium') bg-yellow-100 text-yellow-800
-                                    @else bg-green-100 text-green-800
-                                    @endif">
+                                    @else bg-green-100 text-green-800 @endif">
                                     {{ ucfirst($lead->priority) }}
                                 </span>
                             </td>
@@ -128,7 +136,7 @@
                                 {{ $lead->created_at->format('Y-m-d') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div class="flex space-x-2">
+                                <div class="flex gap-3">
                                     <a href="{{ route('admin.leads.show', $lead) }}"
                                         class="text-blue-600 hover:text-blue-900">
                                         <i class="fas fa-eye"></i>
@@ -156,7 +164,7 @@
         </div>
 
         <!-- Pagination -->
-        @if($leads->hasPages())
+        @if ($leads->hasPages())
             <div class="px-6 py-3 border-t border-gray-200">
                 {{ $leads->links() }}
             </div>
@@ -164,7 +172,7 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    @if($showDeleteModal)
+    @if ($showDeleteModal)
         <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" id="delete-modal">
             <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
                 <div class="mt-3 text-center">
