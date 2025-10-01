@@ -25,7 +25,6 @@ Route::group(
     [
         'middleware' => [
             \App\Http\Middleware\SetLocale::class,
-            LocaleSessionRedirect::class,
             LaravelLocalizationViewPath::class
         ]
     ],
@@ -165,6 +164,8 @@ Route::group(
             // Orders routes
             Route::get('/orders', [App\Http\Controllers\UserOrderController::class, 'index'])->name('user.orders.index');
             Route::get('/orders/{order}', [App\Http\Controllers\UserOrderController::class, 'show'])->name('user.orders.show');
+            Route::get('/orders/{order}/checkout', [App\Http\Controllers\UserOrderController::class, 'checkout'])->name('user.orders.checkout');
+            Route::post('/orders/{order}/process-payment', [App\Http\Controllers\UserOrderController::class, 'processPayment'])->name('user.orders.process-payment');
             Route::delete('/orders/{order}', [App\Http\Controllers\UserOrderController::class, 'destroy'])->name('user.orders.destroy');
             Route::post('/orders/{order}/initiate-payment', [App\Http\Controllers\UserOrderController::class, 'initiatePayment'])->name('user.orders.initiate-payment');
             Route::post('/orders/{order}/check-payment', [App\Http\Controllers\UserOrderController::class, 'checkPaymentStatus'])->name('user.orders.check-payment');

@@ -232,26 +232,73 @@ class OrderController extends Controller
             ], 403);
         }
 
+        // Auto-confirm order if it's pending (for immediate payment)
+        if ($order->status === 'pending') {
+            $order->update(['status' => 'confirmed', 'confirmed_at' => now()]);
+        }
+
         // Check if order can make payment
         if (!$order->canMakePayment()) {
+            Log::warning('Order cannot make payment', [
+                'order_id' => $order->id,
+                'status' => $order->status,
+                'payment_status' => $order->getPaymentStatus()
+            ]);
+            
             return response()->json([
                 'success' => false,
-                'message' => 'This order cannot be paid at this time. Order must be confirmed and unpaid.'
+                'message' => 'This order cannot be paid at this time. Order status: ' . $order->status . ', Payment status: ' . $order->getPaymentStatus()
             ], 400);
         }
 
         try {
+            // Validate order total
+            if (!$order->total || $order->total <= 0) {
+                Log::error('Invalid order total for payment', [
+                    'order_id' => $order->id,
+                    'total' => $order->total
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid order total for payment'
+                ], 400);
+            }
+
             // Use the existing TapPaymentService
             $tapPaymentService = app(\App\Services\TapPaymentService::class);
+            
+            // Prepare customer phone number
+            $customerPhone = $order->phone ?? $user->phone ?? '';
+            $cleanPhone = preg_replace('/\D/', '', $customerPhone);
+            
+            // Ensure we have a valid phone number
+            if (empty($cleanPhone) || strlen($cleanPhone) < 9) {
+                $cleanPhone = '123456789'; // Fallback phone number
+            }
+            
+            // Prepare customer name
+            $customerName = $user->full_name ?? $user->company_name ?? 'Customer';
+            if (empty($customerName)) {
+                $customerName = 'Customer';
+            }
+            
+            // Split name into first and last name
+            $nameParts = explode(' ', trim($customerName), 2);
+            $firstName = $nameParts[0];
+            $lastName = $nameParts[1] ?? '';
             
             $chargeData = [
                 'amount' => $order->total,
                 'currency' => 'SAR',
                 'customer' => [
-                    'first_name' => $user->full_name ?? $user->company_name,
-                    'last_name' => '',
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
                     'email' => $user->email,
-                    'phone' => $order->phone,
+                    'phone' => [
+                        'country_code' => '966',
+                        'number' => $cleanPhone
+                    ]
                 ],
                 'source' => [
                     'id' => 'src_all'
@@ -263,12 +310,25 @@ class OrderController extends Controller
                     'url' => config('app.url') . '/api/webhooks/tap'
                 ],
                 'description' => "Payment for Order #{$order->order_number}",
+                'reference' => [
+                    'order' => $order->order_number
+                ],
+                'receipt' => [
+                    'email' => true,
+                    'sms' => true
+                ],
                 'metadata' => [
                     'order_id' => $order->id,
                     'order_number' => $order->order_number,
                     'user_id' => $order->user_id
                 ]
             ];
+
+            Log::info('Initiating Tap payment', [
+                'order_id' => $order->id,
+                'amount' => $order->total,
+                'charge_data' => $chargeData
+            ]);
 
             $result = $tapPaymentService->createCharge($chargeData);
 
@@ -284,6 +344,11 @@ class OrderController extends Controller
                     'gateway_response' => $result['data']
                 ]);
 
+                Log::info('Payment initiated successfully', [
+                    'payment_id' => $payment->id,
+                    'charge_id' => $result['charge_id']
+                ]);
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Payment initiated successfully',
@@ -295,24 +360,32 @@ class OrderController extends Controller
                     ]
                 ]);
             } else {
+                Log::error('Tap payment charge failed', [
+                    'order_id' => $order->id,
+                    'error' => $result['error'] ?? 'Unknown error',
+                    'result' => $result
+                ]);
+
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to create payment charge',
-                    'error' => $result['error']
+                    'message' => 'Failed to create payment charge with payment gateway',
+                    'error' => $result['error'] ?? 'Payment gateway error',
+                    'details' => config('app.debug') ? $result : null
                 ], 400);
             }
 
         } catch (\Exception $e) {
-            Log::error('Payment initiation failed', [
+            Log::error('Payment initiation exception', [
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
                 'order_id' => $order->id,
                 'user_id' => $user->id
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Internal server error',
-                'error' => $e->getMessage()
+                'message' => 'Payment service error: ' . $e->getMessage(),
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], 500);
         }
     }

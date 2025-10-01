@@ -15,33 +15,36 @@ class HomeBannerSeeder extends Seeder
     {
         $banners = [
             [
-                'title' => 'Welcome to Qaads',
-                'title_ar' => 'مرحباً بك في قادس',
-                'description' => 'Discover our amazing collection of products and services',
-                'description_ar' => 'اكتشف مجموعتنا المذهلة من المنتجات والخدمات',
-                'image' => 'storage/home-banners/welcome-banner.jpg',
+                'title' => 'From Idea to Print',
+                'title_ar' => 'من الفكرة إلى الطباعة',
+                'description' => 'Transform your ideas into reality with our professional printing services',
+                'description_ar' => 'حول أفكارك إلى واقع مع خدمات الطباعة الاحترافية',
+                'image' => 'banners/بنر - من الفكرة إلى الطباعة[1].jpg',
                 'is_active' => true,
                 'sort_order' => 1,
             ],
             [
-                'title' => 'Special Offers',
-                'title_ar' => 'عروض خاصة',
-                'description' => 'Don\'t miss out on our exclusive deals and discounts',
-                'description_ar' => 'لا تفوت عروضنا الحصرية والخصومات',
-                'image' => 'storage/home-banners/special-offers.jpg',
+                'title' => 'Your Scent Precedes Your Impact',
+                'title_ar' => 'عطرك يسبق أثره',
+                'description' => 'Make a lasting impression with premium quality prints',
+                'description_ar' => 'اترك انطباعاً دائماً مع طباعة عالية الجودة',
+                'image' => 'banners/بنر للمنصة - عطرك يسبق أثره[1].jpg',
                 'is_active' => true,
                 'sort_order' => 2,
             ],
             [
-                'title' => 'New Arrivals',
-                'title_ar' => 'وصل حديثاً',
-                'description' => 'Check out our latest products and collections',
-                'description_ar' => 'اطلع على أحدث منتجاتنا ومجموعاتنا',
-                'image' => 'storage/home-banners/new-arrivals.jpg',
+                'title' => 'Premium Printing Services',
+                'title_ar' => 'خدمات طباعة متميزة',
+                'description' => 'Discover our wide range of printing and design solutions',
+                'description_ar' => 'اكتشف مجموعتنا الواسعة من حلول الطباعة والتصميم',
+                'image' => 'banners/بنر11[1].jpg',
                 'is_active' => true,
                 'sort_order' => 3,
             ],
         ];
+
+        // Clear existing banners first
+        HomeBanner::truncate();
 
         foreach ($banners as $banner) {
             HomeBanner::create($banner);

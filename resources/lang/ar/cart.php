@@ -97,4 +97,22 @@ return [
     'delete' => 'حذف',
     'confirm_clear_all_designs' => 'هل أنت متأكد من حذف جميع التصاميم المحفوظة؟ هذا الإجراء لا يمكن التراجع عنه.',
     'confirm_delete_design' => 'هل أنت متأكد من حذف هذا التصميم؟',
+    
+    // Upload Ready Designs
+    'upload_ready_designs' => 'رفع التصاميم الجاهزة',
+    'upload_ready_designs_description' => 'ارفع تصاميمك الخاصة لاستخدامها في منتجاتك',
+    'upload_designs_title' => 'رفع التصاميم الجاهزة',
+    'upload_designs_subtitle' => 'ارفع ملفات التصميم الخاصة بك لاستخدامها في منتجاتك',
+    'choose_from_gallery' => 'اختر من المعرض',
+    'take_photo' => 'التقاط صورة',
+    'selected_files' => 'الملفات المحددة',
+    'clear_all' => 'مسح الكل',
+    'upload_designs' => 'رفع التصاميم',
+    'uploading' => 'جاري الرفع...',
+    'upload_success' => 'تم رفع التصاميم بنجاح!',
+    'upload_error' => 'فشل في رفع التصاميم. يرجى المحاولة مرة أخرى.',
+    'file_type_not_supported' => 'نوع الملف غير مدعوم. يرجى رفع الصور فقط.',
+    'file_size_too_large' => 'حجم الملف كبير جداً. الحد الأقصى هو 10 ميجابايت.',
+    'max_files_exceeded' => 'الحد الأقصى 10 ملفات مسموح.',
+    'no_files_selected' => 'لم يتم تحديد ملفات. يرجى اختيار ملفات للرفع.',
 ];

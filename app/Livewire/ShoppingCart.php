@@ -36,6 +36,9 @@ class ShoppingCart extends Component
     public $cartDesigns = [];
     public $showDesignSelector = false;
 
+    // Upload Design properties
+    public $showUploadDesignModal = false;
+
     // Login modal properties
     public $showLoginModal = false;
 
@@ -43,6 +46,7 @@ class ShoppingCart extends Component
         'cartUpdated' => 'loadCart',
         'save-cart-design' => 'saveCartDesign',
         'close-cart-design-modal' => 'closeCartDesignModal',
+        'close-upload-design-modal' => 'closeUploadDesignModal',
         'close-modal' => 'closeLoginModal'
     ];
 
@@ -881,6 +885,16 @@ class ShoppingCart extends Component
             ]);
             session()->flash('error', 'فشل في حذف جميع التصاميم: ' . $e->getMessage());
         }
+    }
+
+    public function openUploadDesignModal()
+    {
+        $this->showUploadDesignModal = true;
+    }
+
+    public function closeUploadDesignModal()
+    {
+        $this->showUploadDesignModal = false;
     }
 
     public function closeLoginModal()

@@ -182,9 +182,30 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), User::getValidationRules());
+            // Log request data for debugging
+            \Log::info('Registration attempt', [
+                'data' => $request->except('password', 'password_confirmation')
+            ]);
+
+            // Get validation rules
+            try {
+                $rules = User::getValidationRules();
+            } catch (\Exception $e) {
+                \Log::error('Failed to get validation rules', ['error' => $e->getMessage()]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation configuration error',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            // Validate request
+            $validator = Validator::make($request->all(), $rules);
 
             if ($validator->fails()) {
+                \Log::warning('Registration validation failed', [
+                    'errors' => $validator->errors()
+                ]);
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation failed',
@@ -195,19 +216,21 @@ class AuthController extends Controller
             // Create user
             $user = User::create([
                 'client_type' => $request->client_type,
-                'full_name' => $request->full_name,
-                'company_name' => $request->company_name,
-                'contact_person' => $request->contact_person,
+                'full_name' => $request->full_name ?? null,
+                'company_name' => $request->company_name ?? null,
+                'contact_person' => $request->contact_person ?? null,
                 'email' => $request->email,
-                'phone' => $request->phone,
-                'address' => $request->address,
-                'city' => $request->city,
-                'country' => $request->country,
-                'vat_number' => $request->vat_number,
-                'cr_number' => $request->cr_number,
-                'notes' => $request->notes,
+                'phone' => $request->phone ?? null,
+                'address' => $request->address ?? null,
+                'city' => $request->city ?? null,
+                'country' => $request->country ?? 'Saudi Arabia',
+                'vat_number' => $request->vat_number ?? null,
+                'cr_number' => $request->cr_number ?? null,
+                'notes' => $request->notes ?? null,
                 'password' => Hash::make($request->password),
             ]);
+
+            \Log::info('User registered successfully', ['user_id' => $user->id]);
 
             // Generate token
             $token = $user->createToken('auth_token')->plainTextToken;
@@ -222,9 +245,98 @@ class AuthController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
+            \Log::error('Registration failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Registration failed',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Check phone availability
+     * 
+     * @OA\Post(
+     *     path="/api/auth/check-phone",
+     *     operationId="checkPhone",
+     *     tags={"Authentication"},
+     *     summary="Check phone availability",
+     *     description="Check if a phone number is available for registration",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"phone"},
+     *             @OA\Property(
+     *                 property="phone", 
+     *                 type="string", 
+     *                 description="Phone number to check",
+     *                 example="966501234567"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Phone availability checked",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Phone is available"),
+     *             @OA\Property(property="available", type="boolean", example=true)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Phone already taken",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Phone is already taken"),
+     *             @OA\Property(property="available", type="boolean", example=false)
+     *         )
+     *     )
+     * )
+     */
+    public function checkPhone(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'phone' => 'required|string'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid phone format',
+                    'available' => false,
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $phone = $request->phone;
+            $exists = User::where('phone', $phone)->exists();
+
+            if ($exists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Phone is already taken',
+                    'available' => false,
+                ], 422);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Phone is available',
+                'available' => true,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to check phone availability',
+                'available' => false,
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -316,6 +428,136 @@ class AuthController extends Controller
     }
 
     /**
+     * Forgot Password - Send OTP
+     */
+    public function forgotPassword(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'identifier' => 'required|string'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $identifier = $request->identifier;
+            
+            // Check if user exists by email or phone
+            $user = User::where('email', $identifier)
+                       ->orWhere('phone', $identifier)
+                       ->first();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found',
+                ], 404);
+            }
+
+            // Send OTP via WhatsApp to user's phone
+            $otpService = app(\App\Services\OtpService::class);
+            $result = $otpService->sendOtp($user->phone, 'whatsapp', 10);
+
+            if ($result['success']) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'OTP sent successfully',
+                    'otp_id' => $result['otp_id'],
+                    'phone' => $user->phone,
+                ], 200);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message'],
+                ], 500);
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('Forgot password failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send OTP',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Reset Password - Verify OTP and Set New Password
+     */
+    public function resetPassword(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'phone' => 'required|string',
+                'code' => 'required|string',
+                'password' => 'required|string|min:8|confirmed',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            // Verify OTP
+            $otpService = app(\App\Services\OtpService::class);
+            $otpResult = $otpService->verifyOtp($request->phone, $request->code, 'whatsapp');
+
+            if (!$otpResult['success']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $otpResult['message'],
+                ], 422);
+            }
+
+            // Find user by phone
+            $user = User::where('phone', $request->phone)->first();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found',
+                ], 404);
+            }
+
+            // Update password
+            $user->password = Hash::make($request->password);
+            $user->save();
+
+            \Log::info('Password reset successfully', ['user_id' => $user->id]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password reset successfully',
+            ], 200);
+
+        } catch (\Exception $e) {
+            \Log::error('Reset password failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to reset password',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Login user
      * 
      * @OA\Post(
@@ -394,7 +636,7 @@ class AuthController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'email' => 'required|email',
+                'email' => 'required|string', // Can be email or phone
                 'password' => 'required|string',
             ]);
 
@@ -406,9 +648,14 @@ class AuthController extends Controller
                 ], 422);
             }
 
-            $credentials = $request->only('email', 'password');
+            $loginField = $request->email;
+            $password = $request->password;
 
-            if (!Auth::attempt($credentials)) {
+            // Determine if login field is email or phone
+            $fieldType = filter_var($loginField, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
+
+            // Attempt authentication
+            if (!Auth::attempt([$fieldType => $loginField, 'password' => $password])) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Invalid credentials',
@@ -417,6 +664,8 @@ class AuthController extends Controller
 
             $user = Auth::user();
             $token = $user->createToken('auth_token')->plainTextToken;
+
+            \Log::info('User logged in successfully', ['user_id' => $user->id]);
 
             return response()->json([
                 'success' => true,
@@ -428,6 +677,11 @@ class AuthController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            \Log::error('Login failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Login failed',

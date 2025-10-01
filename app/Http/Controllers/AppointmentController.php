@@ -692,6 +692,40 @@ class AppointmentController extends Controller
 
         $appointment->accept();
 
+        // Send WhatsApp message to client
+        try {
+            $whatsappService = app(\App\Services\WhatsAppService::class);
+            
+            // Check if service is configured
+            if ($whatsappService->isConfigured()) {
+                // Format phone number for WhatsApp
+                $formattedPhone = $whatsappService->formatPhoneNumber($appointment->user->phone);
+                
+                $message = "✅ تم قبول موعدك!\n\n";
+                $message .= "المصمم: " . $designer->name . "\n";
+                $message .= "📅 التاريخ: " . $appointment->appointment_date->format('Y-m-d') . "\n";
+                $message .= "⏰ الوقت: " . $appointment->appointment_time->format('H:i') . "\n";
+                $message .= "⏱ المدة: " . $appointment->duration_minutes . " دقيقة\n\n";
+                $message .= "سيتم إرسال رابط الاجتماع عند بدء الموعد.\n\n";
+                $message .= "نتطلع لرؤيتك! 🎨";
+                
+                // Send WhatsApp message
+                $result = $whatsappService->sendTextMessage($formattedPhone, $message);
+                
+                \Log::info("WhatsApp appointment acceptance notification sent", [
+                    'appointment_id' => $appointment->id,
+                    'phone' => $formattedPhone,
+                    'result' => $result
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to send WhatsApp message for accepted appointment', [
+                'appointment_id' => $appointment->id,
+                'error' => $e->getMessage()
+            ]);
+            // Don't fail the accept action if WhatsApp fails
+        }
+
         return back()->with('success', 'Appointment accepted successfully.');
     }
 
@@ -739,6 +773,128 @@ class AppointmentController extends Controller
         ]);
 
         return back()->with('success', 'Appointment marked as completed.');
+    }
+
+    /**
+     * Start an appointment meeting
+     */
+    public function start(Appointment $appointment)
+    {
+        $designer = Auth::guard('designer')->user();
+
+        if (!$designer || $appointment->designer_id !== $designer->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        if (!$appointment->canBeStarted()) {
+            return back()->withErrors(['appointment' => 'Only accepted appointments can be started.']);
+        }
+
+        // Start the appointment
+        $appointment->start();
+
+        // Send WhatsApp message to client with meeting link
+        try {
+            $whatsappService = app(\App\Services\WhatsAppService::class);
+            
+            // Check if service is configured
+            if (!$whatsappService->isConfigured()) {
+                \Log::warning("WhatsApp service not configured for appointment start notification", [
+                    'appointment_id' => $appointment->id,
+                    'user_phone' => $appointment->user->phone
+                ]);
+                return back()->with('success', trans('dashboard.meeting_started_success'));
+            }
+            
+            // Format phone number for WhatsApp
+            $formattedPhone = $whatsappService->formatPhoneNumber($appointment->user->phone);
+            
+            $message = "🎥 تم بدء اجتماعك مع المصمم\n\n";
+            $message .= "يمكنك الانضمام للاجتماع من خلال الرابط التالي:\n";
+            $message .= $appointment->getMeetingUrl() . "\n\n";
+            $message .= "📅 تاريخ الموعد: " . $appointment->appointment_date->format('Y-m-d') . "\n";
+            $message .= "⏰ وقت الموعد: " . $appointment->appointment_time->format('H:i') . "\n\n";
+            $message .= "نحن في انتظارك! 😊";
+            
+            // Send WhatsApp message
+            $result = $whatsappService->sendTextMessage($formattedPhone, $message);
+            
+            \Log::info("WhatsApp meeting start notification sent successfully", [
+                'appointment_id' => $appointment->id,
+                'phone' => $formattedPhone,
+                'result' => $result
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Failed to send WhatsApp message for started appointment', [
+                'appointment_id' => $appointment->id,
+                'user_phone' => $appointment->user->phone,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            // Don't fail the start action if WhatsApp fails
+        }
+
+        return back()->with('success', trans('dashboard.meeting_started_success'));
+    }
+
+    /**
+     * Cancel an appointment (Designer)
+     */
+    public function designerCancel(Request $request, Appointment $appointment)
+    {
+        $designer = Auth::guard('designer')->user();
+
+        if (!$designer || $appointment->designer_id !== $designer->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        if (!$appointment->canBeCancelled()) {
+            return back()->withErrors(['appointment' => 'This appointment cannot be cancelled.']);
+        }
+
+        $request->validate([
+            'cancellation_reason' => 'required|string|max:500'
+        ]);
+
+        // Cancel the appointment with reason
+        $appointment->cancel($request->cancellation_reason);
+
+        // Send WhatsApp message to client
+        try {
+            $whatsappService = app(\App\Services\WhatsAppService::class);
+            
+            // Check if service is configured
+            if ($whatsappService->isConfigured()) {
+                // Format phone number for WhatsApp
+                $formattedPhone = $whatsappService->formatPhoneNumber($appointment->user->phone);
+                
+                $message = "❌ تم إلغاء موعدك\n\n";
+                $message .= "المصمم: " . $designer->name . "\n";
+                $message .= "📅 التاريخ: " . $appointment->appointment_date->format('Y-m-d') . "\n";
+                $message .= "⏰ الوقت: " . $appointment->appointment_time->format('H:i') . "\n\n";
+                $message .= "💬 سبب الإلغاء:\n" . $request->cancellation_reason . "\n\n";
+                $message .= "نعتذر عن الإزعاج. يمكنك حجز موعد جديد في أي وقت.";
+                
+                // Send WhatsApp message
+                $result = $whatsappService->sendTextMessage($formattedPhone, $message);
+                
+                \Log::info("WhatsApp appointment cancellation notification sent", [
+                    'appointment_id' => $appointment->id,
+                    'phone' => $formattedPhone,
+                    'reason' => $request->cancellation_reason,
+                    'result' => $result
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to send WhatsApp message for cancelled appointment', [
+                'appointment_id' => $appointment->id,
+                'error' => $e->getMessage()
+            ]);
+            // Don't fail the cancel action if WhatsApp fails
+        }
+
+        return back()->with('success', 'Appointment cancelled successfully and client has been notified.');
     }
 
     /**

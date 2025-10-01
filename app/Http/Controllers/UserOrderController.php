@@ -232,6 +232,200 @@ class UserOrderController extends Controller
     }
 
     /**
+     * Show checkout page for confirmed order
+     */
+    public function checkout(Order $order)
+    {
+        // Ensure the order belongs to the authenticated user
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to order.');
+        }
+
+        // Only allow checkout for confirmed orders
+        if ($order->status !== 'confirmed') {
+            return redirect()->route('user.orders.show', $order)
+                ->with('error', 'This order cannot be paid at this time.');
+        }
+
+        // Check if already paid
+        if ($order->isPaid()) {
+            return redirect()->route('user.orders.show', $order)
+                ->with('info', 'This order has already been paid.');
+        }
+
+        $order->load(['items.product', 'user']);
+        
+        // Get user addresses
+        $addresses = \App\Models\Address::where('user_id', Auth::id())
+            ->orderBy('is_default', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('users.orders.checkout', compact('order', 'addresses'));
+    }
+
+    /**
+     * Process payment for confirmed order
+     */
+    public function processPayment(Request $request, Order $order)
+    {
+        // Ensure the order belongs to the authenticated user
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to order.');
+        }
+
+        // Only allow payment for confirmed orders
+        if ($order->status !== 'confirmed') {
+            return redirect()->back()
+                ->with('error', 'This order cannot be paid at this time.');
+        }
+
+        // Check if already paid
+        if ($order->isPaid()) {
+            return redirect()->route('user.orders.show', $order)
+                ->with('info', 'This order has already been paid.');
+        }
+
+        $request->validate([
+            'address_id' => 'nullable|exists:addresses,id',
+            'shipping_address' => 'required_if:address_id,null|string|max:500',
+            'billing_address' => 'nullable|string|max:500',
+            'phone' => 'required|string|max:20'
+        ]);
+
+        try {
+            // Update order with address and phone information
+            $updateData = [
+                'phone' => $request->phone
+            ];
+
+            if ($request->address_id) {
+                $address = \App\Models\Address::where('user_id', Auth::id())
+                    ->where('id', $request->address_id)
+                    ->first();
+                
+                if ($address) {
+                    $updateData['shipping_address'] = $address->full_address;
+                    $updateData['billing_address'] = $address->full_address;
+                }
+            } else {
+                $updateData['shipping_address'] = $request->shipping_address;
+                $updateData['billing_address'] = $request->billing_address;
+            }
+
+            $order->update($updateData);
+
+            // Use the existing TapPaymentService
+            $tapPaymentService = app(\App\Services\TapPaymentService::class);
+            
+            // Prepare customer phone number
+            $customerPhone = $order->phone ?? $order->user->phone ?? '';
+            $cleanPhone = preg_replace('/\D/', '', $customerPhone);
+            
+            // Ensure we have a valid phone number
+            if (empty($cleanPhone) || strlen($cleanPhone) < 9) {
+                $cleanPhone = '123456789'; // Fallback phone number
+            }
+            
+            // Prepare customer name
+            $customerName = $order->user->full_name ?? $order->user->company_name ?? 'Customer';
+            if (empty($customerName)) {
+                $customerName = 'Customer';
+            }
+            
+            // Split name into first and last name
+            $nameParts = explode(' ', trim($customerName), 2);
+            $firstName = $nameParts[0];
+            $lastName = $nameParts[1] ?? '';
+            
+            $chargeData = [
+                'amount' => $order->total,
+                'currency' => 'SAR',
+                'customer' => [
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'email' => $order->user->email,
+                    'phone' => [
+                        'country_code' => '966',
+                        'number' => $cleanPhone
+                    ]
+                ],
+                'source' => [
+                    'id' => 'src_all'
+                ],
+                'redirect' => [
+                    'url' => route('user.orders.show', $order)
+                ],
+                'post' => [
+                    'url' => route('api.webhooks.tap')
+                ],
+                'description' => "Payment for Order #{$order->order_number}",
+                'reference' => [
+                    'order' => $order->order_number
+                ],
+                'receipt' => [
+                    'email' => true,
+                    'sms' => true
+                ],
+                'metadata' => [
+                    'order_id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'user_id' => $order->user_id
+                ]
+            ];
+
+            Log::info('Initiating Tap payment from checkout', [
+                'order_id' => $order->id,
+                'amount' => $order->total,
+                'charge_data' => $chargeData
+            ]);
+
+            $result = $tapPaymentService->createCharge($chargeData);
+
+            if ($result['success']) {
+                // Create payment record
+                $payment = \App\Models\Payment::create([
+                    'order_id' => $order->id,
+                    'charge_id' => $result['charge_id'],
+                    'amount' => $order->total,
+                    'currency' => 'SAR',
+                    'status' => 'pending',
+                    'payment_method' => 'tap',
+                    'gateway_response' => $result['data']
+                ]);
+
+                Log::info('Payment initiated successfully from checkout', [
+                    'payment_id' => $payment->id,
+                    'charge_id' => $result['charge_id']
+                ]);
+
+                // Redirect to Tap payment page
+                return redirect($result['payment_url']);
+
+            } else {
+                Log::error('Tap payment charge failed from checkout', [
+                    'order_id' => $order->id,
+                    'error' => $result['error'] ?? 'Unknown error',
+                    'result' => $result
+                ]);
+
+                return redirect()->back()
+                    ->with('error', 'Failed to create payment. Please try again.');
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Payment processing failed', [
+                'order_id' => $order->id,
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Failed to process payment. Please try again.');
+        }
+    }
+
+    /**
      * Map Tap payment status to local status
      */
     private function mapTapStatusToLocal($tapStatus)

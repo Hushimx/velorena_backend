@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('company_name')->nullable(); // Required if company
             $table->string('contact_person')->nullable(); // Contact person if company
             $table->string('email')->unique();
-            $table->string('phone')->nullable();
+            $table->string('phone')->unique();
             $table->text('address')->nullable();
             $table->string('city')->nullable();
             $table->string('country')->nullable();

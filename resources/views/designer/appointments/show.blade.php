@@ -81,7 +81,7 @@
                                 <span>{{ trans('dashboard.reject_appointment') }}</span>
                             </button>
                         </form>
-                    @elseif(in_array($appointment->status, ['accepted', 'confirmed']))
+                    @elseif(in_array($appointment->status, ['accepted', 'confirmed', 'started']))
                         <form action="{{ route('designer.appointments.complete', $appointment) }}" method="POST"
                             class="inline">
                             @csrf
@@ -93,6 +93,15 @@
                                 <span>{{ trans('dashboard.complete_appointment') }}</span>
                             </button>
                         </form>
+                    @endif
+
+                    @if($appointment->canBeCancelled())
+                        <button type="button"
+                            class="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center gap-2"
+                            onclick="openCancelModal()">
+                            <i class="fas fa-ban"></i>
+                            <span>{{ trans('dashboard.cancel_appointment_designer') }}</span>
+                        </button>
                     @endif
                 </div>
             </div>
@@ -156,6 +165,80 @@
                         </div>
                     @endif
                 </div>
+
+                <!-- Zoom Meeting Section -->
+                @if($appointment->hasZoomMeeting())
+                    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-video me-2 text-blue-600"></i>
+                            {{ trans('dashboard.video_meeting') }}
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <!-- Meeting Status -->
+                            <div class="flex items-center justify-between p-4 rounded-lg {{ $appointment->isMeetingActive() ? 'bg-green-50 border border-green-200' : ($appointment->canJoinMeeting() ? 'bg-yellow-50 border border-yellow-200' : 'bg-gray-50 border border-gray-200') }}">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 rounded-full {{ $appointment->isMeetingActive() ? 'bg-green-500' : ($appointment->canJoinMeeting() ? 'bg-yellow-500' : 'bg-gray-400') }} me-3"></div>
+                                    <div>
+                                        <p class="font-medium text-gray-900">
+                                            @if($appointment->isMeetingActive())
+                                                {{ trans('dashboard.meeting_active') }}
+                                            @elseif($appointment->canJoinMeeting())
+                                                {{ trans('dashboard.meeting_ready') }}
+                                            @else
+                                                {{ trans('dashboard.meeting_scheduled') }}
+                                            @endif
+                                        </p>
+                                        <p class="text-sm text-gray-500">
+                                            {{ $appointment->getMeetingDateTime()->format('l, F j, Y \a\t g:i A') }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Meeting Actions -->
+                            @if($appointment->canJoinMeeting())
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    @if($appointment->canBeStarted())
+                                        <form action="{{ route('designer.appointments.start', $appointment) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit" 
+                                                    class="btn btn-primary flex items-center justify-center"
+                                                    onclick="return confirm('{{ trans('dashboard.start_meeting_confirm') }}')">
+                                                <i class="fas fa-play me-2"></i>
+                                                {{ trans('dashboard.start_meeting') }}
+                                            </button>
+                                        </form>
+                                    @elseif($appointment->isStarted())
+                                        <a href="{{ $appointment->getHostMeetingUrl() }}" 
+                                           target="_blank" 
+                                           class="btn btn-primary flex items-center justify-center">
+                                            <i class="fas fa-video me-2"></i>
+                                            {{ trans('dashboard.start_meeting') }}
+                                        </a>
+                                    @endif
+                                    
+                                    @if($appointment->isStarted() || $appointment->isMeetingActive())
+                                        <a href="{{ $appointment->getMeetingUrl() }}" 
+                                           target="_blank" 
+                                           class="btn btn-outline-primary flex items-center justify-center">
+                                            <i class="fas fa-users me-2"></i>
+                                            {{ trans('dashboard.join_meeting') }}
+                                        </a>
+                                    @endif
+                                </div>
+                            @endif
+
+                            <!-- Meeting Info -->
+                            <div class="text-sm text-gray-600">
+                                <p><strong>{{ trans('dashboard.meeting_type') }}:</strong> {{ ucfirst($appointment->getMeetingType()) }}</p>
+                                @if($appointment->zoom_meeting_created_at)
+                                    <p><strong>{{ trans('dashboard.created_at') }}:</strong> {{ $appointment->zoom_meeting_created_at->format('Y-m-d H:i') }}</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
                 <!-- Customer Information -->
                 <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -883,5 +966,74 @@
                 closeImageModal();
             }
         });
+
+        // Cancel appointment modal
+        function openCancelModal() {
+            const modal = document.getElementById('cancelModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeCancelModal() {
+            const modal = document.getElementById('cancelModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('cancellationReasonInput').value = '';
+        }
+
+        function submitCancellation() {
+            const reason = document.getElementById('cancellationReasonInput').value.trim();
+            if (!reason) {
+                alert('{{ trans('dashboard.cancellation_reason_required') }}');
+                return;
+            }
+            
+            if (confirm('{{ trans('dashboard.cancel_appointment_confirm') }}')) {
+                document.getElementById('cancellationReason').value = reason;
+                document.getElementById('cancelAppointmentForm').submit();
+            }
+        }
     </script>
+
+    <!-- Cancel Appointment Modal -->
+    <div id="cancelModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900">{{ trans('dashboard.cancel_appointment_designer') }}</h3>
+                <button onclick="closeCancelModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ trans('dashboard.cancellation_reason') }} <span class="text-red-500">*</span>
+                </label>
+                <textarea 
+                    id="cancellationReasonInput"
+                    rows="4" 
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    placeholder="{{ trans('dashboard.cancellation_reason_placeholder') }}"></textarea>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button 
+                    onclick="submitCancellation()"
+                    class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors">
+                    <i class="fas fa-ban me-2"></i>
+                    {{ trans('dashboard.cancel_appointment_designer') }}
+                </button>
+                <button 
+                    onclick="closeCancelModal()"
+                    class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                    {{ trans('dashboard.cancel') }}
+                </button>
+            </div>
+
+            <form id="cancelAppointmentForm" action="{{ route('designer.appointments.cancel', $appointment) }}" method="POST" class="hidden">
+                @csrf
+                <input type="hidden" name="cancellation_reason" id="cancellationReason">
+            </form>
+        </div>
+    </div>
 @endsection

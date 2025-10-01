@@ -1,341 +1,601 @@
-<div class="shopping-cart-container">
-    <!-- Cart Header -->
-    <div class="cart-header-card">
-        <div class="cart-header-content">
-            <div class="cart-header-info">
-                <div class="cart-icon">
-                    <i class="fas fa-shopping-cart"></i>
+<div class="shopping-cart-wrapper">
+    <div class="shopping-cart-container">
+        <!-- Cart Header -->
+        <div class="cart-header-card">
+            <div class="cart-header-content">
+                <div class="cart-header-info">
+                    <div class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="cart-header-text">
+                        <h2 class="cart-header-title">{{ trans('cart.shopping_cart') }}</h2>
+                        <p class="cart-header-subtitle">
+                            <span class="item-count">{{ $itemCount }}</span>
+                            {{ trans('cart.items_in_cart') }}
+                        </p>
+                    </div>
                 </div>
-                <div class="cart-header-text">
-                    <h2 class="cart-header-title">{{ trans('cart.shopping_cart') }}</h2>
-                    <p class="cart-header-subtitle">
-                        <span class="item-count">{{ $itemCount }}</span>
-                        {{ trans('cart.items_in_cart') }}
-                    </p>
-                </div>
+                @if ($itemCount > 0)
+                    <button wire:click="clearCart"
+                        wire:confirm="{{ trans('cart.confirm_clear_cart', ['default' => 'Are you sure you want to clear all items from your cart? This action cannot be undone.']) }}"
+                        class="clear-cart-btn">
+                        <i class="fas fa-trash"></i>
+                        <span>{{ trans('cart.clear_cart') }}</span>
+                    </button>
+                @endif
             </div>
-            @if ($itemCount > 0)
-                <button wire:click="clearCart"
-                    wire:confirm="{{ trans('cart.confirm_clear_cart', ['default' => 'Are you sure you want to clear all items from your cart? This action cannot be undone.']) }}"
-                    class="clear-cart-btn">
-                    <i class="fas fa-trash"></i>
-                    <span>{{ trans('cart.clear_cart') }}</span>
-                </button>
-            @endif
         </div>
-    </div>
 
-    @if ($itemCount == 0)
-        <!-- Empty Cart -->
-        <div class="empty-cart-card">
-            <div class="empty-cart-content">
-                <div class="empty-cart-icon">
-                    <i class="fas fa-shopping-cart"></i>
+        @if ($itemCount == 0)
+            <!-- Empty Cart -->
+            <div class="empty-cart-card">
+                <div class="empty-cart-content">
+                    <div class="empty-cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h3 class="empty-cart-title">{{ trans('cart.empty_cart') }}</h3>
+                    <p class="empty-cart-message">{{ trans('cart.empty_cart_message') }}</p>
+                    <a href="{{ route('user.products.index') }}" class="continue-shopping-btn">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>{{ trans('cart.continue_shopping') }}</span>
+                    </a>
                 </div>
-                <h3 class="empty-cart-title">{{ trans('cart.empty_cart') }}</h3>
-                <p class="empty-cart-message">{{ trans('cart.empty_cart_message') }}</p>
-                <a href="{{ route('user.products.index') }}" class="continue-shopping-btn">
-                    <i class="fas fa-shopping-bag"></i>
-                    <span>{{ trans('cart.continue_shopping') }}</span>
-                </a>
             </div>
-        </div>
-    @else
-        <!-- Cart Items -->
-        <div class="cart-items-container">
-            @foreach ($cartItems as $index => $rawItem)
-                @php
-                    // Handle mixed structure - some items might be wrapped in arrays
-                    $item = is_array($rawItem) && isset($rawItem[0]) && is_array($rawItem[0]) ? $rawItem[0] : $rawItem;
-                @endphp
-                <div class="cart-item-card" wire:key="cart-item-{{ $item['id'] ?? $item['cart_key'] ?? $index }}">
-                    <div class="cart-item-content">
-                        <!-- Product Image -->
-                        <div class="cart-item-image">
-                            @php
-                                $productImage = null;
-                                if (isset($item['product_id'])) {
-                                    $product = \App\Models\Product::find($item['product_id']);
-                                    if ($product) {
-                                        // Try to get main product image first (image_url)
-                                        if ($product->image_url && file_exists(public_path($product->image_url))) {
-                                            $productImage = asset($product->image_url);
-                                        } else {
-                                            // Fallback to first additional image
-                                            $primaryImage = $product->images()->orderBy('sort_order')->first();
-                                            if ($primaryImage && file_exists(public_path($primaryImage->image_path))) {
-                                                $productImage = asset($primaryImage->image_path);
+        @else
+            <!-- Cart Items -->
+            <div class="cart-items-container">
+                @foreach ($cartItems as $index => $rawItem)
+                    @php
+                        // Handle mixed structure - some items might be wrapped in arrays
+                        $item = is_array($rawItem) && isset($rawItem[0]) && is_array($rawItem[0]) ? $rawItem[0] : $rawItem;
+                    @endphp
+                    <div class="cart-item-card" wire:key="cart-item-{{ $item['id'] ?? $item['cart_key'] ?? $index }}">
+                        <div class="cart-item-content">
+                            <!-- Product Image -->
+                            <div class="cart-item-image">
+                                @php
+                                    $productImage = null;
+                                    if (isset($item['product_id'])) {
+                                        $product = \App\Models\Product::find($item['product_id']);
+                                        if ($product) {
+                                            // Try to get main product image first (image_url)
+                                            if ($product->image_url && file_exists(public_path($product->image_url))) {
+                                                $productImage = asset($product->image_url);
                                             } else {
-                                                // Fallback to first image
-                                                $firstImage = $product->images()->first();
-                                                if ($firstImage && file_exists(public_path($firstImage->image_path))) {
-                                                    $productImage = asset($firstImage->image_path);
-                                                } elseif ($product->image && file_exists(public_path($product->image))) {
-                                                    $productImage = asset($product->image);
+                                                // Fallback to first additional image
+                                                $primaryImage = $product->images()->orderBy('sort_order')->first();
+                                                if ($primaryImage && file_exists(public_path($primaryImage->image_path))) {
+                                                    $productImage = asset($primaryImage->image_path);
+                                                } else {
+                                                    // Fallback to first image
+                                                    $firstImage = $product->images()->first();
+                                                    if ($firstImage && file_exists(public_path($firstImage->image_path))) {
+                                                        $productImage = asset($firstImage->image_path);
+                                                    } elseif ($product->image && file_exists(public_path($product->image))) {
+                                                        $productImage = asset($product->image);
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                                }
-                            @endphp
-                            @if ($productImage)
-                                <img src="{{ $productImage }}" alt="{{ $item['product_name'] ?? 'Product' }}">
-                            @else
-                                <div class="cart-item-placeholder">
-                                    <i class="fas fa-box"></i>
-                                </div>
-                            @endif
-                        </div>
-
-                        <!-- Product Details -->
-                        <div class="cart-item-details">
-                            <h3 class="cart-item-title">{{ $item['product_name'] ?? 'Unknown Product' }}</h3>
-
-                            <!-- Selected Options -->
-                            @if (!empty($item['selected_options']))
-                                <div class="cart-item-options">
-                                    <h4 class="options-title">{{ trans('cart.selected_options') }}:</h4>
-                                    <div class="options-list">
-                                        @foreach ($item['selected_options'] as $optionName => $optionValue)
-                                            <div class="option-item">
-                                                <span class="option-name">{{ $optionName }}:</span>
-                                                <span class="option-value">{{ $optionValue['value'] }}</span>
-                                                @if ($optionValue['price_adjustment'] != 0)
-                                                    <span
-                                                        class="price-adjustment {{ $optionValue['price_adjustment'] > 0 ? 'positive' : 'negative' }}">
-                                                        ({{ $optionValue['price_adjustment'] > 0 ? '+' : '' }}{{ number_format($optionValue['price_adjustment'], 2) }} {{ trans('products.currency') }})
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        @endforeach
+                                @endphp
+                                @if ($productImage)
+                                    <img src="{{ $productImage }}" alt="{{ $item['product_name'] ?? 'Product' }}">
+                                @else
+                                    <div class="cart-item-placeholder">
+                                        <i class="fas fa-box"></i>
                                     </div>
-                                </div>
-                            @endif
+                                @endif
+                            </div>
 
-                            <!-- Selected Designs -->
-                            @if (!empty($item['designs']) && count($item['designs']) > 0)
-                                <div class="cart-item-designs">
-                                    <h4 class="designs-title">{{ trans('cart.selected_designs') }}:</h4>
-                                    <div class="designs-list">
-                                        @foreach ($item['designs'] as $design)
-                                            <div class="design-item">
-                                                <div class="design-thumbnail">
-                                                    <img src="{{ $design['thumbnail_url'] ?? $design['image_url'] }}"
-                                                        alt="{{ $design['title'] }}" class="design-thumb">
-                                                </div>
-                                                <div class="design-info">
-                                                    <span class="design-title">{{ $design['title'] }}</span>
-                                                    @if (!empty($design['notes']))
-                                                        <span class="design-notes">({{ $design['notes'] }})</span>
+                            <!-- Product Details -->
+                            <div class="cart-item-details">
+                                <h3 class="cart-item-title">{{ $item['product_name'] ?? 'Unknown Product' }}</h3>
+
+                                <!-- Selected Options -->
+                                @if (!empty($item['selected_options']))
+                                    <div class="cart-item-options">
+                                        <h4 class="options-title">{{ trans('cart.selected_options') }}:</h4>
+                                        <div class="options-list">
+                                            @foreach ($item['selected_options'] as $optionName => $optionValue)
+                                                <div class="option-item">
+                                                    <span class="option-name">{{ $optionName }}:</span>
+                                                    <span class="option-value">{{ $optionValue['value'] }}</span>
+                                                    @if ($optionValue['price_adjustment'] != 0)
+                                                        <span
+                                                            class="price-adjustment {{ $optionValue['price_adjustment'] > 0 ? 'positive' : 'negative' }}">
+                                                            ({{ $optionValue['price_adjustment'] > 0 ? '+' : '' }}{{ number_format($optionValue['price_adjustment'], 2) }} {{ trans('products.currency') }})
+                                                        </span>
                                                     @endif
                                                 </div>
-                                                <button
-                                                    wire:click="removeDesignFromProduct({{ $item['product_id'] }}, {{ $design['id'] }})"
-                                                    class="remove-design-btn"
-                                                    wire:confirm="{{ trans('cart.confirm_remove_design') }}"
-                                                    wire:loading.attr="disabled"
-                                                    wire:target="removeDesignFromProduct({{ $item['product_id'] }}, {{ $design['id'] }})"
-                                                    title="{{ trans('cart.remove_this_design') }}">
-                                                    <span wire:loading.remove wire:target="removeDesignFromProduct({{ $item['product_id'] }}, {{ $design['id'] }})">
-                                                        <i class="fas fa-trash"></i>
-                                                    </span>
-                                                    <span wire:loading wire:target="removeDesignFromProduct({{ $item['product_id'] }}, {{ $design['id'] }})">
-                                                        <i class="fas fa-spinner fa-spin"></i>
-                                                    </span>
-                                                </button>
-                                            </div>
-                                        @endforeach
+                                            @endforeach
+                                        </div>
                                     </div>
-                                </div>
-                            @endif
+                                @endif
 
-                            <!-- Notes -->
-                            @if (!empty($item['notes']))
-                                <div class="cart-item-notes">
-                                    <h4 class="notes-title">{{ trans('cart.notes') }}:</h4>
-                                    <p class="notes-content">{{ $item['notes'] }}</p>
-                                </div>
-                            @endif
-                        </div>
+                                <!-- Selected Designs -->
+                                @if (!empty($item['designs']) && count($item['designs']) > 0)
+                                    <div class="cart-item-designs">
+                                        <h4 class="designs-title">{{ trans('cart.selected_designs') }}:</h4>
+                                        <div class="designs-list">
+                                            @foreach ($item['designs'] as $design)
+                                                <div class="design-item">
+                                                    <div class="design-thumbnail">
+                                                        <img src="{{ $design['thumbnail_url'] ?? $design['image_url'] }}"
+                                                            alt="{{ $design['title'] }}" class="design-thumb">
+                                                    </div>
+                                                    <div class="design-info">
+                                                        <span class="design-title">{{ $design['title'] }}</span>
+                                                        @if (!empty($design['notes']))
+                                                            <span class="design-notes">({{ $design['notes'] }})</span>
+                                                        @endif
+                                                    </div>
+                                                    <button
+                                                        wire:click="removeDesignFromProduct({{ $item['product_id'] }}, {{ $design['id'] }})"
+                                                        class="remove-design-btn"
+                                                        wire:confirm="{{ trans('cart.confirm_remove_design') }}"
+                                                        wire:loading.attr="disabled"
+                                                        wire:target="removeDesignFromProduct({{ $item['product_id'] }}, {{ $design['id'] }})"
+                                                        title="{{ trans('cart.remove_this_design') }}">
+                                                        <span wire:loading.remove wire:target="removeDesignFromProduct({{ $item['product_id'] }}, {{ $design['id'] }})">
+                                                            <i class="fas fa-trash"></i>
+                                                        </span>
+                                                        <span wire:loading wire:target="removeDesignFromProduct({{ $item['product_id'] }}, {{ $design['id'] }})">
+                                                            <i class="fas fa-spinner fa-spin"></i>
+                                                        </span>
+                                                    </button>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
 
-                        <!-- Quantity Controls -->
-                        <div class="cart-item-quantity">
-                            <label class="quantity-label">{{ trans('cart.quantity') }}:</label>
-                            <div class="quantity-controls"
-                                wire:key="quantity-controls-{{ $item['product_id'] ?? 0 }}-{{ $item['quantity'] ?? 1 }}">
-                                <button
-                                    wire:click="updateQuantity({{ $item['id'] ?? $item['cart_key'] ?? 0 }}, {{ max(1, ($item['quantity'] ?? 1) - 1) }})"
-                                    class="quantity-btn minus {{ ($item['quantity'] ?? 1) <= 1 ? 'disabled' : '' }}"
-                                    {{ ($item['quantity'] ?? 1) <= 1 ? 'disabled' : '' }}>
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                                <span class="quantity-value">{{ $item['quantity'] ?? 1 }}</span>
-                                <button
-                                    wire:click="updateQuantity({{ $item['id'] ?? $item['cart_key'] ?? 0 }}, {{ ($item['quantity'] ?? 1) + 1 }})"
-                                    class="quantity-btn plus">
-                                    <i class="fas fa-plus"></i>
+                                <!-- Notes -->
+                                @if (!empty($item['notes']))
+                                    <div class="cart-item-notes">
+                                        <h4 class="notes-title">{{ trans('cart.notes') }}:</h4>
+                                        <p class="notes-content">{{ $item['notes'] }}</p>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- Quantity Controls -->
+                            <div class="cart-item-quantity">
+                                <label class="quantity-label">{{ trans('cart.quantity') }}:</label>
+                                <div class="quantity-controls"
+                                    wire:key="quantity-controls-{{ $item['product_id'] ?? 0 }}-{{ $item['quantity'] ?? 1 }}">
+                                    <button
+                                        wire:click="updateQuantity({{ $item['id'] ?? $item['cart_key'] ?? 0 }}, {{ max(1, ($item['quantity'] ?? 1) - 1) }})"
+                                        class="quantity-btn minus {{ ($item['quantity'] ?? 1) <= 1 ? 'disabled' : '' }}"
+                                        {{ ($item['quantity'] ?? 1) <= 1 ? 'disabled' : '' }}>
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <span class="quantity-value">{{ $item['quantity'] ?? 1 }}</span>
+                                    <button
+                                        wire:click="updateQuantity({{ $item['id'] ?? $item['cart_key'] ?? 0 }}, {{ ($item['quantity'] ?? 1) + 1 }})"
+                                        class="quantity-btn plus">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="cart-item-actions">
+                                <button wire:click="removeItem({{ $item['id'] ?? $item['cart_key'] ?? 0 }})" class="remove-item-btn">
+                                    <i class="fas fa-trash"></i>
+                                    <span>{{ trans('cart.remove') }}</span>
                                 </button>
                             </div>
                         </div>
+                    </div>
+                @endforeach
+            </div>
 
-                        <!-- Actions -->
-                        <div class="cart-item-actions">
-                            <button wire:click="removeItem({{ $item['id'] ?? $item['cart_key'] ?? 0 }})" class="remove-item-btn">
-                                <i class="fas fa-trash"></i>
-                                <span>{{ trans('cart.remove') }}</span>
+            <!-- Design Tools Section -->
+            <div class="design-tools-section">
+                <div class="design-tools-header">
+                    <div class="tools-header-info">
+                        <div class="tools-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <div class="tools-header-text">
+                            <h3 class="tools-title">{{ trans('cart.design_tools') }}</h3>
+                            <p class="tools-subtitle">{{ trans('cart.design_tools_subtitle') }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="design-tools-grid">
+                    <a href="{{ route('design.search') }}" class="design-tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h4>{{ trans('cart.search_designs') }}</h4>
+                            <p>{{ trans('cart.search_designs_description') }}</p>
+                        </div>
+                        <div class="tool-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ route('design.studio') }}" class="design-tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-paint-brush"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h4>{{ trans('cart.design_studio') }}</h4>
+                            <p>{{ trans('cart.design_studio_description') }}</p>
+                        </div>
+                        <div class="tool-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </a>
+                    
+                    <button wire:click="openUploadDesignModal" class="design-tool-card upload-design-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h4>{{ trans('cart.upload_ready_designs') }}</h4>
+                            <p>{{ trans('cart.upload_ready_designs_description') }}</p>
+                        </div>
+                        <div class="tool-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </button>
+                </div>
+                
+                <!-- Saved Designs -->
+                @if (count($cartDesigns) > 0)
+                    <div class="saved-designs-section">
+                        <div class="saved-designs-header">
+                            <h4 class="saved-designs-title">
+                                <i class="fas fa-bookmark me-2"></i>
+                                {{ trans('cart.saved_designs') }} ({{ count($cartDesigns) }})
+                            </h4>
+                            <button wire:click="clearAllCartDesigns" 
+                                wire:confirm="{{ trans('cart.confirm_clear_all_designs') }}"
+                                wire:loading.attr="disabled"
+                                wire:target="clearAllCartDesigns"
+                                class="clear-all-designs-btn"
+                                title="{{ trans('cart.clear_all_designs') }}">
+                                <span wire:loading.remove wire:target="clearAllCartDesigns">
+                                    <i class="fas fa-trash-alt"></i>
+                                    <span>{{ trans('cart.clear_all_designs') }}</span>
+                                </span>
+                                <span wire:loading wire:target="clearAllCartDesigns">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <span>{{ trans('cart.deleting') }}</span>
+                                </span>
                             </button>
                         </div>
+                        <div class="saved-designs-grid">
+                            @foreach ($cartDesigns as $design)
+                                <div class="saved-design-item">
+                                    <div class="design-thumbnail">
+                                        @if ($design['thumbnail_url'])
+                                            <img src="{{ $design['thumbnail_url'] }}" alt="{{ $design['title'] }}" class="design-thumb-img">
+                                        @else
+                                            <div class="design-placeholder">
+                                                <i class="fas fa-image"></i>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="design-info">
+                                        <p class="design-date">{{ \Carbon\Carbon::parse($design['created_at'])->diffForHumans() }}</p>
+                                        <button wire:click="deleteCartDesign({{ $design['id'] }})" class="delete-design-btn" 
+                                            wire:confirm="{{ trans('cart.confirm_delete_design') }}" 
+                                            wire:loading.attr="disabled"
+                                            wire:target="deleteCartDesign({{ $design['id'] }})"
+                                            title="{{ trans('cart.delete') }}">
+                                            <span wire:loading.remove wire:target="deleteCartDesign({{ $design['id'] }})">
+                                                <i class="fas fa-trash"></i>
+                                                <span>{{ trans('cart.delete') }}</span>
+                                            </span>
+                                            <span wire:loading wire:target="deleteCartDesign({{ $design['id'] }})">
+                                                <i class="fas fa-spinner fa-spin"></i>
+                                                <span>{{ trans('cart.deleting') }}</span>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="design-actions">
+                                        <button wire:click="deleteCartDesign({{ $design['id'] }})" class="remove-design-btn" 
+                                            wire:confirm="{{ trans('cart.confirm_delete_design') }}" 
+                                            wire:loading.attr="disabled"
+                                            wire:target="deleteCartDesign({{ $design['id'] }})"
+                                            title="{{ trans('cart.delete') }}">
+                                            <span wire:loading.remove wire:target="deleteCartDesign({{ $design['id'] }})">
+                                                <i class="fas fa-trash"></i>
+                                            </span>
+                                            <span wire:loading wire:target="deleteCartDesign({{ $design['id'] }})">
+                                                <i class="fas fa-spinner fa-spin"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
-                </div>
-            @endforeach
-        </div>
+                @endif
+            </div>
 
-        <!-- Design Tools Section -->
-        <div class="design-tools-section">
-            <div class="design-tools-header">
-                <div class="tools-header-info">
-                    <div class="tools-icon">
-                        <i class="fas fa-palette"></i>
-                    </div>
-                    <div class="tools-header-text">
-                        <h3 class="tools-title">{{ trans('cart.design_tools') }}</h3>
-                        <p class="tools-subtitle">{{ trans('cart.design_tools_subtitle') }}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="design-tools-grid">
-                <a href="{{ route('design.search') }}" class="design-tool-card">
-                    <div class="tool-icon">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <div class="tool-info">
-                        <h4>{{ trans('cart.search_designs') }}</h4>
-                        <p>{{ trans('cart.search_designs_description') }}</p>
-                    </div>
-                    <div class="tool-arrow">
-                        <i class="fas fa-arrow-left"></i>
-                    </div>
-                </a>
-                
-                <a href="{{ route('design.studio') }}" class="design-tool-card">
-                    <div class="tool-icon">
-                        <i class="fas fa-paint-brush"></i>
-                    </div>
-                    <div class="tool-info">
-                        <h4>{{ trans('cart.design_studio') }}</h4>
-                        <p>{{ trans('cart.design_studio_description') }}</p>
-                    </div>
-                    <div class="tool-arrow">
-                        <i class="fas fa-arrow-left"></i>
-                    </div>
-                </a>
-            </div>
-            
-            <!-- Saved Designs -->
-            @if (count($cartDesigns) > 0)
-                <div class="saved-designs-section">
-                    <div class="saved-designs-header">
-                        <h4 class="saved-designs-title">
-                            <i class="fas fa-bookmark me-2"></i>
-                            {{ trans('cart.saved_designs') }} ({{ count($cartDesigns) }})
-                        </h4>
-                        <button wire:click="clearAllCartDesigns" 
-                            wire:confirm="{{ trans('cart.confirm_clear_all_designs') }}"
-                            wire:loading.attr="disabled"
-                            wire:target="clearAllCartDesigns"
-                            class="clear-all-designs-btn"
-                            title="{{ trans('cart.clear_all_designs') }}">
-                            <span wire:loading.remove wire:target="clearAllCartDesigns">
-                                <i class="fas fa-trash-alt"></i>
-                                <span>{{ trans('cart.clear_all_designs') }}</span>
-                            </span>
-                            <span wire:loading wire:target="clearAllCartDesigns">
-                                <i class="fas fa-spinner fa-spin"></i>
-                                <span>{{ trans('cart.deleting') }}</span>
-                            </span>
+            <!-- Action Buttons -->
+            @if(count($cartItems) > 0)
+                <div class="cart-actions">
+                    <div class="action-buttons">
+                        <a href="{{ route('user.products.index') }}" class="continue-shopping-btn">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>{{ trans('cart.continue_shopping') }}</span>
+                        </a>
+                        <button wire:click="showCheckout" class="checkout-btn">
+                            <i class="fas fa-credit-card"></i>
+                            <span>{{ trans('cart.checkout') }}</span>
                         </button>
-                    </div>
-                    <div class="saved-designs-grid">
-                        @foreach ($cartDesigns as $design)
-                            <div class="saved-design-item">
-                                <div class="design-thumbnail">
-                                    @if ($design['thumbnail_url'])
-                                        <img src="{{ $design['thumbnail_url'] }}" alt="{{ $design['title'] }}" class="design-thumb-img">
-                                    @else
-                                        <div class="design-placeholder">
-                                            <i class="fas fa-image"></i>
-                                        </div>
-                                    @endif
-                                </div>
-                                <div class="design-info">
-                                    <p class="design-date">{{ \Carbon\Carbon::parse($design['created_at'])->diffForHumans() }}</p>
-                                    <button wire:click="deleteCartDesign({{ $design['id'] }})" class="delete-design-btn" 
-                                        wire:confirm="{{ trans('cart.confirm_delete_design') }}" 
-                                        wire:loading.attr="disabled"
-                                        wire:target="deleteCartDesign({{ $design['id'] }})"
-                                        title="{{ trans('cart.delete') }}">
-                                        <span wire:loading.remove wire:target="deleteCartDesign({{ $design['id'] }})">
-                                            <i class="fas fa-trash"></i>
-                                            <span>{{ trans('cart.delete') }}</span>
-                                        </span>
-                                        <span wire:loading wire:target="deleteCartDesign({{ $design['id'] }})">
-                                            <i class="fas fa-spinner fa-spin"></i>
-                                            <span>{{ trans('cart.deleting') }}</span>
-                                        </span>
-                                    </button>
-                                </div>
-                                <div class="design-actions">
-                                    <button wire:click="deleteCartDesign({{ $design['id'] }})" class="remove-design-btn" 
-                                        wire:confirm="{{ trans('cart.confirm_delete_design') }}" 
-                                        wire:loading.attr="disabled"
-                                        wire:target="deleteCartDesign({{ $design['id'] }})"
-                                        title="{{ trans('cart.delete') }}">
-                                        <span wire:loading.remove wire:target="deleteCartDesign({{ $design['id'] }})">
-                                            <i class="fas fa-trash"></i>
-                                        </span>
-                                        <span wire:loading wire:target="deleteCartDesign({{ $design['id'] }})">
-                                            <i class="fas fa-spinner fa-spin"></i>
-                                        </span>
-                                    </button>
-                                </div>
-                            </div>
-                        @endforeach
+                        <button wire:click="bookAppointment" class="appointment-btn">
+                            <i class="fas fa-calendar-plus"></i>
+                            <span>{{ trans('cart.make_appointment') }}</span>
+                        </button>
                     </div>
                 </div>
             @endif
-        </div>
 
-        <!-- Action Buttons -->
-        @if(count($cartItems) > 0)
-            <div class="cart-actions">
-                <div class="action-buttons">
-                    <a href="{{ route('user.products.index') }}" class="continue-shopping-btn">
-                        <i class="fas fa-arrow-left"></i>
-                        <span>{{ trans('cart.continue_shopping') }}</span>
-                    </a>
-                    <button wire:click="showCheckout" class="checkout-btn">
-                        <i class="fas fa-credit-card"></i>
-                        <span>{{ trans('cart.checkout') }}</span>
-                    </button>
-                    <button wire:click="bookAppointment" class="appointment-btn">
-                        <i class="fas fa-calendar-plus"></i>
-                        <span>{{ trans('cart.make_appointment') }}</span>
-                    </button>
+        @endif
+
+        <!-- Old design modal removed - now using cart-wide design modal at the bottom -->
+        
+        <!-- Cart Design Modal -->
+        @if ($showCartDesignModal)
+            <div class="cart-design-modal-overlay" wire:click="closeCartDesignModal">
+                <div class="cart-design-modal-fullscreen" wire:click.stop>
+                    <div class="modal-header">
+                        <h3 class="modal-title">
+                            <i class="fas fa-palette me-2"></i>
+                            تصميم إبداعي للسلة
+                        </h3>
+                        <button wire:click="closeCartDesignModal" class="modal-close-btn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="modal-body-fullscreen">
+                        @if ($showDesignSelector)
+                            @livewire('design-selector')
+                        @endif
+                    </div>
                 </div>
             </div>
         @endif
 
-    @endif
+        <!-- Upload Design Modal -->
+        @if ($showUploadDesignModal)
+            <div class="upload-design-modal-overlay" wire:click="closeUploadDesignModal">
+                <div class="upload-design-modal" wire:click.stop>
+                    <div class="modal-header">
+                        <h3 class="modal-title">
+                            <i class="fas fa-cloud-upload-alt me-2"></i>
+                            رفع تصاميم جاهزة
+                        </h3>
+                        <button wire:click="closeUploadDesignModal" class="modal-close-btn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <div class="upload-section">
+                            <div class="upload-area" id="upload-area">
+                                <div class="upload-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <h4 class="upload-title">اسحب وأفلت الصور هنا أو انقر للاختيار</h4>
+                                <p class="upload-subtitle">يمكنك رفع حتى 10 صور في المرة الواحدة</p>
+                                <input type="file" id="design-files" multiple accept="image/*" style="display: none;">
+                            </div>
+                            
+                            <div class="upload-actions">
+                                <button type="button" class="upload-btn" onclick="document.getElementById('design-files').click()">
+                                    <i class="fas fa-folder-open"></i>
+                                    <span>اختيار من المعرض</span>
+                                </button>
+                                <button type="button" class="camera-btn" onclick="openCamera()">
+                                    <i class="fas fa-camera"></i>
+                                    <span>التقاط صورة</span>
+                                </button>
+                            </div>
+                            
+                            <div class="selected-files" id="selected-files" style="display: none;">
+                                <h5>الملفات المختارة:</h5>
+                                <div class="files-list" id="files-list"></div>
+                                <div class="files-actions">
+                                    <button type="button" class="clear-files-btn" onclick="clearSelectedFiles()">
+                                        <i class="fas fa-trash"></i>
+                                        <span>مسح الكل</span>
+                                    </button>
+                                    <button type="button" class="upload-files-btn" onclick="uploadDesigns()">
+                                        <i class="fas fa-upload"></i>
+                                        <span>رفع التصاميم</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
-    <!-- Old design modal removed - now using cart-wide design modal at the bottom -->
-
-    <script>
+        <!-- Login Modal -->
+        <x-login-modal 
+            :show="$showLoginModal" 
+            title="{{ trans('cart.login_required', ['default' => 'Login Required']) }}"
+            message="{{ trans('cart.login_required_message', ['default' => 'Please login to continue with your order.']) }}"
+        />
+        
+        <!-- Scripts -->
+        <script>
         document.addEventListener('livewire:init', () => {
             document.addEventListener('cartUpdated', function() {
                 console.log('Cart updated event received - Database Cart Mode');
             });
         });
+
+        // Upload Design Modal JavaScript
+        let selectedFiles = [];
+
+        // File input change handler
+        document.getElementById('design-files')?.addEventListener('change', function(e) {
+            handleFiles(e.target.files);
+        });
+
+        // Drag and drop handlers
+        const uploadArea = document.getElementById('upload-area');
+        if (uploadArea) {
+            uploadArea.addEventListener('click', () => {
+                document.getElementById('design-files').click();
+            });
+
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                handleFiles(e.dataTransfer.files);
+            });
+        }
+
+        function handleFiles(files) {
+            const maxFiles = 10;
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            
+            if (files.length > maxFiles) {
+                alert(`يمكنك رفع ${maxFiles} ملفات كحد أقصى`);
+                return;
+            }
+
+            Array.from(files).forEach(file => {
+                if (!allowedTypes.includes(file.type)) {
+                    alert(`نوع الملف ${file.name} غير مدعوم. يرجى اختيار صورة.`);
+                    return;
+                }
+
+                if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                    alert(`حجم الملف ${file.name} كبير جداً. الحد الأقصى 10 ميجابايت.`);
+                    return;
+                }
+
+                selectedFiles.push(file);
+            });
+
+            displaySelectedFiles();
+        }
+
+        function displaySelectedFiles() {
+            const filesList = document.getElementById('files-list');
+            const selectedFilesDiv = document.getElementById('selected-files');
+            
+            if (selectedFiles.length === 0) {
+                selectedFilesDiv.style.display = 'none';
+                return;
+            }
+
+            selectedFilesDiv.style.display = 'block';
+            filesList.innerHTML = '';
+
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    fileItem.innerHTML = `
+                        <img src="${e.target.result}" alt="${file.name}" class="file-preview">
+                        <div class="file-name">${file.name}</div>
+                        <button type="button" class="remove-file-btn" onclick="removeFile(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                };
+                reader.readAsDataURL(file);
+                
+                filesList.appendChild(fileItem);
+            });
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            displaySelectedFiles();
+        }
+
+        function clearSelectedFiles() {
+            selectedFiles = [];
+            displaySelectedFiles();
+        }
+
+        function openCamera() {
+            // For web, we'll use the file input with camera capture
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.capture = 'camera';
+            input.onchange = function(e) {
+                handleFiles(e.target.files);
+            };
+            input.click();
+        }
+
+        function uploadDesigns() {
+            if (selectedFiles.length === 0) {
+                alert('يرجى اختيار ملفات للرفع');
+                return;
+            }
+
+            const formData = new FormData();
+            selectedFiles.forEach((file, index) => {
+                formData.append('design_files[]', file);
+            });
+
+            // Show loading state
+            const uploadBtn = document.querySelector('.upload-files-btn');
+            const originalText = uploadBtn.innerHTML;
+            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>جاري الرفع...</span>';
+            uploadBtn.disabled = true;
+
+            // Upload via fetch
+            fetch('/api/designs/upload-ready-design', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`تم رفع ${data.uploaded_count || selectedFiles.length} تصميم بنجاح!`);
+                    // Close modal and refresh cart designs
+                    @this.call('closeUploadDesignModal');
+                    @this.call('loadCartDesigns');
+                    clearSelectedFiles();
+                } else {
+                    alert('فشل في رفع التصاميم: ' + (data.message || 'خطأ غير معروف'));
+                }
+            })
+            .catch(error => {
+                console.error('Upload error:', error);
+                alert('حدث خطأ أثناء رفع التصاميم');
+            })
+            .finally(() => {
+                // Reset button state
+                uploadBtn.innerHTML = originalText;
+                uploadBtn.disabled = false;
+            });
+        }
     </script>
 
     <style>
@@ -1031,6 +1291,230 @@
             flex-shrink: 0;
         }
 
+        .upload-design-card {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            border-color: #28a745;
+        }
+
+        .upload-design-card:hover {
+            border-color: #20c997;
+            background: linear-gradient(135deg, #d4edda 0%, #e8f5e8 100%);
+        }
+
+        .upload-design-card .tool-icon {
+            background: #28a745;
+            color: white;
+        }
+
+        /* Upload Design Modal Styles */
+        .upload-design-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .upload-design-modal {
+            width: 90vw;
+            max-width: 600px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .upload-section {
+            padding: 2rem;
+        }
+
+        .upload-area {
+            border: 3px dashed #28a745;
+            border-radius: 15px;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #f8fff8 0%, #ffffff 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #20c997;
+            background: linear-gradient(135deg, #f0f8f0 0%, #f8fff8 100%);
+        }
+
+        .upload-area.dragover {
+            border-color: #20c997;
+            background: linear-gradient(135deg, #d4edda 0%, #e8f5e8 100%);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #28a745;
+            margin-bottom: 1rem;
+        }
+
+        .upload-title {
+            color: #28a745;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtitle {
+            color: #6c757d;
+            margin: 0;
+        }
+
+        .upload-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .upload-btn, .camera-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .upload-btn:hover, .camera-btn:hover {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .camera-btn {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        }
+
+        .camera-btn:hover {
+            background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
+        }
+
+        .selected-files {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+
+        .selected-files h5 {
+            color: #28a745;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .files-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .file-item {
+            position: relative;
+            background: white;
+            border-radius: 8px;
+            padding: 0.5rem;
+            border: 1px solid #e9ecef;
+            text-align: center;
+        }
+
+        .file-preview {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-name {
+            font-size: 0.8rem;
+            color: #6c757d;
+            word-break: break-all;
+        }
+
+        .remove-file-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+
+        .files-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .clear-files-btn, .upload-files-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .clear-files-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+        }
+
+        .clear-files-btn:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .upload-files-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+        }
+
+        .upload-files-btn:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .upload-files-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .saved-designs-section {
             border-top: 2px solid rgba(255, 193, 7, 0.2);
             padding-top: 2rem;
@@ -1504,6 +1988,62 @@
         </div>
     @endif
 
+    <!-- Upload Design Modal -->
+    @if ($showUploadDesignModal)
+        <div class="upload-design-modal-overlay" wire:click="closeUploadDesignModal">
+            <div class="upload-design-modal" wire:click.stop>
+                <div class="modal-header">
+                    <h3 class="modal-title">
+                        <i class="fas fa-cloud-upload-alt me-2"></i>
+                        رفع تصاميم جاهزة
+                    </h3>
+                    <button wire:click="closeUploadDesignModal" class="modal-close-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="upload-section">
+                        <div class="upload-area" id="upload-area">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <h4 class="upload-title">اسحب وأفلت الصور هنا أو انقر للاختيار</h4>
+                            <p class="upload-subtitle">يمكنك رفع حتى 10 صور في المرة الواحدة</p>
+                            <input type="file" id="design-files" multiple accept="image/*" style="display: none;">
+                        </div>
+                        
+                        <div class="upload-actions">
+                            <button type="button" class="upload-btn" onclick="document.getElementById('design-files').click()">
+                                <i class="fas fa-folder-open"></i>
+                                <span>اختيار من المعرض</span>
+                            </button>
+                            <button type="button" class="camera-btn" onclick="openCamera()">
+                                <i class="fas fa-camera"></i>
+                                <span>التقاط صورة</span>
+                            </button>
+                        </div>
+                        
+                        <div class="selected-files" id="selected-files" style="display: none;">
+                            <h5>الملفات المختارة:</h5>
+                            <div class="files-list" id="files-list"></div>
+                            <div class="files-actions">
+                                <button type="button" class="clear-files-btn" onclick="clearSelectedFiles()">
+                                    <i class="fas fa-trash"></i>
+                                    <span>مسح الكل</span>
+                                </button>
+                                <button type="button" class="upload-files-btn" onclick="uploadDesigns()">
+                                    <i class="fas fa-upload"></i>
+                                    <span>رفع التصاميم</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <style>
         /* Full Screen Cart Design Modal */
         .cart-design-modal-overlay {
@@ -1918,11 +2458,5 @@
             }
         }
     </style>
+    </div>
 
-    <!-- Login Modal -->
-    <x-login-modal 
-        :show="$showLoginModal" 
-        title="{{ trans('cart.login_required', ['default' => 'Login Required']) }}"
-        message="{{ trans('cart.login_required_message', ['default' => 'Please login to continue with your order.']) }}"
-    />
-</div>

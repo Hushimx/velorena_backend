@@ -139,4 +139,18 @@ return [
     'item_notes' => 'Item Notes',
     'required' => 'Required',
     'no_price_change' => 'No price change',
+    
+    // Checkout
+    'checkout' => 'Checkout',
+    'complete_payment_for_order' => 'Complete payment for order',
+    'choose_existing_address' => 'Choose Existing Address',
+    'add_new_address' => 'Add New Address',
+    'enter_shipping_address' => 'Enter shipping address',
+    'enter_billing_address' => 'Enter billing address',
+    'enter_phone_number' => 'Enter phone number',
+    'phone_number' => 'Phone Number',
+    'default' => 'Default',
+    'or' => 'Or',
+    'secure_payment_note' => 'Your payment information is secure and encrypted',
+    'please_select_or_add_address' => 'Please select an existing address or add a new one',
 ];

@@ -45,6 +45,8 @@ Route::prefix('designer')->group(function () {
         Route::post('/appointments/{appointment}/accept', [App\Http\Controllers\AppointmentController::class, 'accept'])->name('designer.appointments.accept');
         Route::post('/appointments/{appointment}/reject', [App\Http\Controllers\AppointmentController::class, 'reject'])->name('designer.appointments.reject');
         Route::post('/appointments/{appointment}/complete', [App\Http\Controllers\AppointmentController::class, 'complete'])->name('designer.appointments.complete');
+        Route::post('/appointments/{appointment}/start', [App\Http\Controllers\AppointmentController::class, 'start'])->name('designer.appointments.start');
+        Route::post('/appointments/{appointment}/cancel', [App\Http\Controllers\AppointmentController::class, 'designerCancel'])->name('designer.appointments.cancel');
         Route::post('/appointments/{appointment}/link-order', [App\Http\Controllers\AppointmentController::class, 'linkOrder'])->name('designer.appointments.link-order');
         Route::post('/appointments/{appointment}/unlink-order', [App\Http\Controllers\AppointmentController::class, 'unlinkOrder'])->name('designer.appointments.unlink-order');
         Route::put('/appointments/{appointment}', [App\Http\Controllers\AppointmentController::class, 'update'])->name('designer.appointments.update');

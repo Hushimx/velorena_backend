@@ -19,6 +19,9 @@ class AppointmentService
         return DB::transaction(function () use ($data) {
             $user = Auth::user();
 
+            // Validate appointment date is not in the past
+            $this->validateAppointmentDate($data['appointment_date'], $data['appointment_time']);
+
             $duration = $data['duration'] ?? 30; // Default 30 minutes
 
             // Always check global time slot availability first
@@ -69,6 +72,9 @@ class AppointmentService
                 $appointmentDate = $data['appointment_date'] ?? $appointment->appointment_date;
                 $appointmentTime = $data['appointment_time'] ?? $appointment->appointment_time;
                 $duration = $data['duration'] ?? $appointment->duration ?? 30;
+
+                // Validate appointment date is not in the past
+                $this->validateAppointmentDate($appointmentDate, $appointmentTime);
 
                 // Always check global time slot availability first
                 $this->checkGlobalTimeSlotAvailability(
@@ -315,5 +321,23 @@ class AppointmentService
             ->orderBy('appointment_time')
             ->with(['user', 'order'])
             ->get();
+    }
+
+    /**
+     * Validate that appointment date and time are not in the past
+     */
+    private function validateAppointmentDate(string $appointmentDate, string $appointmentTime): void
+    {
+        $appointmentDateTime = Carbon::createFromFormat('Y-m-d H:i', $appointmentDate . ' ' . $appointmentTime);
+        $now = Carbon::now();
+
+        if ($appointmentDateTime->lt($now)) {
+            throw new \Exception('Appointment date and time must be in the future');
+        }
+
+        // Additional check: if appointment is today, ensure it's at least 30 minutes in the future
+        if ($appointmentDateTime->isToday() && $appointmentDateTime->lt($now->addMinutes(30))) {
+            throw new \Exception('Appointments must be scheduled at least 30 minutes in advance');
+        }
     }
 }

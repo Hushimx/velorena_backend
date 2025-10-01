@@ -27,18 +27,42 @@ class TapPaymentService
     public function createCharge(array $chargeData): array
     {
         try {
+            // Validate API key
+            if (empty($this->apiKey)) {
+                Log::error('Tap Payment API Key Missing', [
+                    'api_key_exists' => !empty($this->apiKey),
+                    'test_mode' => $this->isTestMode
+                ]);
+                
+                return [
+                    'success' => false,
+                    'error' => 'Tap payment API key is not configured'
+                ];
+            }
+
+            // Log the request being sent
+            Log::info('Tap Payment Request', [
+                'url' => $this->baseUrl . '/charges',
+                'test_mode' => $this->isTestMode,
+                'amount' => $chargeData['amount'] ?? null,
+                'currency' => $chargeData['currency'] ?? null,
+                'customer_email' => $chargeData['customer']['email'] ?? null,
+                'customer_phone' => $chargeData['customer']['phone']['number'] ?? null
+            ]);
+
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $this->apiKey,
                 'Content-Type' => 'application/json',
-            ])->post($this->baseUrl . '/charges', $chargeData);
+            ])->timeout(30)->post($this->baseUrl . '/charges', $chargeData);
 
             $responseData = $response->json();
 
             if ($response->successful()) {
-                Log::info('Tap Payment Charge Created', [
+                Log::info('Tap Payment Charge Created Successfully', [
                     'charge_id' => $responseData['id'] ?? null,
                     'amount' => $chargeData['amount'] ?? null,
-                    'currency' => $chargeData['currency'] ?? null
+                    'currency' => $chargeData['currency'] ?? null,
+                    'payment_url' => $responseData['transaction']['url'] ?? null
                 ]);
 
                 return [
@@ -50,20 +74,30 @@ class TapPaymentService
             } else {
                 Log::error('Tap Payment Charge Failed', [
                     'status' => $response->status(),
-                    'response' => $responseData,
-                    'request_data' => $chargeData
+                    'response_headers' => $response->headers(),
+                    'response_body' => $response->body(),
+                    'response_json' => $responseData,
+                    'request_data' => $chargeData,
+                    'api_key_prefix' => substr($this->apiKey, 0, 10) . '...'
                 ]);
+
+                $errorMessage = $responseData['message'] ?? 'Payment charge creation failed';
+                if (isset($responseData['errors'])) {
+                    $errorMessage .= ' - Errors: ' . json_encode($responseData['errors']);
+                }
 
                 return [
                     'success' => false,
-                    'error' => $responseData['message'] ?? 'Payment charge creation failed',
-                    'details' => $responseData
+                    'error' => $errorMessage,
+                    'details' => $responseData,
+                    'status_code' => $response->status()
                 ];
             }
         } catch (Exception $e) {
             Log::error('Tap Payment Service Exception', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $chargeData
             ]);
 
             return [

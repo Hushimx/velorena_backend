@@ -97,4 +97,22 @@ return [
     'delete' => 'Delete',
     'confirm_clear_all_designs' => 'Are you sure you want to delete all saved designs? This action cannot be undone.',
     'confirm_delete_design' => 'Are you sure you want to delete this design?',
+    
+    // Upload Ready Designs
+    'upload_ready_designs' => 'Upload Ready Designs',
+    'upload_ready_designs_description' => 'Upload your own designs to use in your products',
+    'upload_designs_title' => 'Upload Ready Designs',
+    'upload_designs_subtitle' => 'Upload your own design files to use in your products',
+    'choose_from_gallery' => 'Choose from Gallery',
+    'take_photo' => 'Take Photo',
+    'selected_files' => 'Selected Files',
+    'clear_all' => 'Clear All',
+    'upload_designs' => 'Upload Designs',
+    'uploading' => 'Uploading...',
+    'upload_success' => 'Designs uploaded successfully!',
+    'upload_error' => 'Failed to upload designs. Please try again.',
+    'file_type_not_supported' => 'File type not supported. Please upload images only.',
+    'file_size_too_large' => 'File size too large. Maximum size is 10MB.',
+    'max_files_exceeded' => 'Maximum 10 files allowed.',
+    'no_files_selected' => 'No files selected. Please choose files to upload.',
 ];

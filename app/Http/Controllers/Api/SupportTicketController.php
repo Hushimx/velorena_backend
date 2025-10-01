@@ -131,7 +131,15 @@ class SupportTicketController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), SupportTicket::getValidationRules());
+        // Validation rules for API (no user_id required as we use Auth::user())
+        $rules = [
+            'subject' => 'required|string|max:255',
+            'description' => 'required|string|max:5000',
+            'priority' => 'required|in:low,medium,high,urgent',
+            'category' => 'required|in:technical,billing,general,feature_request,bug_report',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return response()->json([
@@ -146,6 +154,7 @@ class SupportTicketController extends Controller
             'description' => $request->description,
             'priority' => $request->priority,
             'category' => $request->category,
+            'status' => 'open', // Set default status
         ]);
 
         $ticket->load(['user']);

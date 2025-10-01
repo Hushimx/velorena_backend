@@ -501,4 +501,22 @@ return [
     "navigate_to_sections" => "Navigate to other sections",
     "edit_order" => "Edit Order",
     "add_to_order" => "Add to Order",
+
+    // Video Meeting
+    "video_meeting" => "Video Meeting",
+    "meeting_active" => "Meeting is Active",
+    "meeting_ready" => "Meeting Ready to Join",
+    "meeting_scheduled" => "Meeting Scheduled",
+    "start_meeting" => "Start Meeting",
+    "join_meeting" => "Join Meeting",
+    "meeting_type" => "Meeting Type",
+    "meeting_started" => "Meeting Started",
+    "start_meeting_confirm" => "Do you want to start the meeting? A WhatsApp message with the meeting link will be sent to the client.",
+    "meeting_started_success" => "Meeting started successfully and link sent to client",
+    "started" => "Started",
+    "cancel_appointment_designer" => "Cancel Appointment",
+    "cancellation_reason" => "Cancellation Reason",
+    "cancellation_reason_placeholder" => "Please write the reason for cancellation...",
+    "cancellation_reason_required" => "Please write the reason for cancellation",
+    "cancel_appointment_confirm" => "Are you sure you want to cancel this appointment? The reason will be sent to the client.",
 ];

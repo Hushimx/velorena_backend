@@ -15,6 +15,7 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
+        'address_id',
         'order_number',
         'status',
         'subtotal',
@@ -24,6 +25,19 @@ class Order extends Model
         'shipping_address',
         'billing_address',
         'phone',
+        'shipping_contact_name',
+        'shipping_contact_phone',
+        'shipping_city',
+        'shipping_district',
+        'shipping_postal_code',
+        'shipping_latitude',
+        'shipping_longitude',
+        'shipping_delivery_instruction',
+        'shipping_drop_off_location',
+        'shipping_additional_notes',
+        'tracking_number',
+        'courier_company',
+        'estimated_delivery_date',
         'confirmed_at',
         'shipped_at',
         'delivered_at',
@@ -34,16 +48,24 @@ class Order extends Model
         'subtotal' => 'decimal:2',
         'tax' => 'decimal:2',
         'total' => 'decimal:2',
+        'shipping_latitude' => 'decimal:8',
+        'shipping_longitude' => 'decimal:8',
         'confirmed_at' => 'datetime',
         'shipped_at' => 'datetime',
         'delivered_at' => 'datetime',
         'cancelled_at' => 'datetime',
+        'estimated_delivery_date' => 'datetime',
     ];
 
     // Relationships
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
     }
 
     public function items(): HasMany

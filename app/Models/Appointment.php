@@ -29,6 +29,8 @@ class Appointment extends Model
         'rejected_at',
         'completed_at',
         'cancelled_at',
+        'started_at',
+        'cancellation_reason',
         'google_meet_id',
         'google_meet_link',
         'meet_created_at',
@@ -45,6 +47,7 @@ class Appointment extends Model
         'rejected_at' => 'datetime',
         'completed_at' => 'datetime',
         'cancelled_at' => 'datetime',
+        'started_at' => 'datetime',
         'meet_created_at' => 'datetime',
         'zoom_meeting_created_at' => 'datetime',
     ];
@@ -135,6 +138,11 @@ class Appointment extends Model
         return $query->where('status', 'rejected');
     }
 
+    public function scopeStarted($query)
+    {
+        return $query->where('status', 'started');
+    }
+
     public function scopeToday($query)
     {
         return $query->where('appointment_date', today());
@@ -202,6 +210,7 @@ class Appointment extends Model
             'rejected' => 'bg-red-100 text-red-800',
             'completed' => 'bg-blue-100 text-blue-800',
             'cancelled' => 'bg-gray-100 text-gray-800',
+            'started' => 'bg-purple-100 text-purple-800',
             default => 'bg-gray-100 text-gray-800'
         };
     }
@@ -214,6 +223,7 @@ class Appointment extends Model
             'rejected' => 'Rejected',
             'completed' => 'Completed',
             'cancelled' => 'Cancelled',
+            'started' => 'Started',
             default => 'Unknown'
         };
     }
@@ -243,6 +253,11 @@ class Appointment extends Model
         return $this->status === 'cancelled';
     }
 
+    public function isStarted()
+    {
+        return $this->status === 'started';
+    }
+
     public function canBeAccepted()
     {
         return $this->isPending();
@@ -261,6 +276,11 @@ class Appointment extends Model
     public function canBeCancelled()
     {
         return in_array($this->status, ['pending', 'accepted']);
+    }
+
+    public function canBeStarted()
+    {
+        return $this->status === 'accepted';
     }
 
     // Action methods
@@ -293,14 +313,24 @@ class Appointment extends Model
         ]);
     }
 
-    public function cancel()
+    public function cancel($reason = null)
     {
         $this->update([
-            'status' => 'cancelled'
+            'status' => 'cancelled',
+            'cancelled_at' => now(),
+            'cancellation_reason' => $reason
         ]);
 
         // Delete Zoom meeting when appointment is cancelled
         $this->deleteZoomMeeting();
+    }
+
+    public function start()
+    {
+        $this->update([
+            'status' => 'started',
+            'started_at' => now()
+        ]);
     }
 
     // Check if time slot is available (global check - any designer)

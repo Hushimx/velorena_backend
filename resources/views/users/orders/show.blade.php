@@ -167,7 +167,14 @@
                                 </div>
 
                                 <!-- Payment Action Button -->
-                                @if($order->canMakePayment())
+                                @if($order->status === 'confirmed' && $order->getPaymentStatus() !== 'paid')
+                                    <div class="payment-action-section">
+                                        <a href="{{ route('user.orders.checkout', $order) }}" class="pay-btn">
+                                            <i class="fas fa-credit-card"></i>
+                                            <span>{{ trans('orders.pay_now') }}</span>
+                                        </a>
+                                    </div>
+                                @elseif($order->canMakePayment())
                                     <div class="payment-action-section">
                                         <form action="{{ route('user.orders.initiate-payment', $order) }}" method="POST" class="d-inline">
                                             @csrf

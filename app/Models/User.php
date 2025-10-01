@@ -69,6 +69,11 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
+    public function addresses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Address::class);
+    }
+
     public function appointments(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Appointment::class);
@@ -95,6 +100,30 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the user's Expo push tokens
+     */
+    public function expoPushTokens(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(ExpoPushToken::class, 'tokenable');
+    }
+
+    /**
+     * Get active Expo push tokens
+     */
+    public function activeExpoPushTokens(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->expoPushTokens()->active();
+    }
+
+    /**
+     * Route notifications for Expo push notifications
+     */
+    public function routeNotificationForExpoPush(): array
+    {
+        return $this->activeExpoPushTokens()->pluck('token')->toArray();
+    }
+
+    /**
      * Get validation rules for user registration
      */
     public static function getValidationRules($isUpdate = false): array
@@ -102,7 +131,7 @@ class User extends Authenticatable
         $rules = [
             'client_type' => 'required|in:individual,company',
             'email' => 'required|email|unique:users,email' . ($isUpdate ? ',' . request()->user()->id : ''),
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'required|string|max:20|unique:users,phone' . ($isUpdate ? ',' . request()->user()->id : ''),
             'address' => 'nullable|string|max:500',
             'city' => 'nullable|string|max:100',
             'vat_number' => 'nullable|string|max:50',

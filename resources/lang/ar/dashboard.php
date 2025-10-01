@@ -500,4 +500,22 @@ return [
     "choose_meeting_time" => "اختر متى تريد الاجتماع",
     "available_date" => "التاريخ والوقت",
     "available_dates" => "التواريخ المتاحة",
+
+    // Video Meeting
+    "video_meeting" => "الاجتماع المرئي",
+    "meeting_active" => "الاجتماع نشط الآن",
+    "meeting_ready" => "الاجتماع جاهز للانضمام",
+    "meeting_scheduled" => "الاجتماع مجدول",
+    "start_meeting" => "بدء الاجتماع",
+    "join_meeting" => "انضمام للاجتماع",
+    "meeting_type" => "نوع الاجتماع",
+    "meeting_started" => "تم بدء الاجتماع",
+    "start_meeting_confirm" => "هل تريد بدء الاجتماع؟ سيتم إرسال رابط الاجتماع للعميل على واتساب.",
+    "meeting_started_success" => "تم بدء الاجتماع بنجاح وإرسال الرابط للعميل",
+    "started" => "تم البدء",
+    "cancel_appointment_designer" => "إلغاء الموعد",
+    "cancellation_reason" => "سبب الإلغاء",
+    "cancellation_reason_placeholder" => "يرجى كتابة سبب إلغاء الموعد...",
+    "cancellation_reason_required" => "يرجى كتابة سبب الإلغاء",
+    "cancel_appointment_confirm" => "هل أنت متأكد من إلغاء هذا الموعد؟ سيتم إرسال السبب للعميل.",
 ];

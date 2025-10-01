@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\OptionValue;
+use App\Models\Address;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -23,11 +24,11 @@ class OrderService
             // Debug: Log the incoming data
             Log::info('Order creation data:', $data);
 
-            // Create order
-            $order = Order::create([
+            // Prepare order data
+            $orderData = [
                 'user_id' => $user->id,
                 'order_number' => Order::generateOrderNumber(),
-                'phone' => $data['phone'],
+                'phone' => $data['phone'] ?? null,
                 'shipping_address' => $data['shipping_address'] ?? null,
                 'billing_address' => $data['billing_address'] ?? null,
                 'notes' => $data['notes'] ?? null,
@@ -35,12 +36,49 @@ class OrderService
                 'subtotal' => 0,
                 'tax' => 0,
                 'total' => 0
-            ]);
+            ];
+
+            // Handle address relationship and detailed shipping info
+            if (isset($data['address_id'])) {
+                $address = Address::where('user_id', $user->id)
+                    ->where('id', $data['address_id'])
+                    ->first();
+                
+                if ($address) {
+                    $orderData['address_id'] = $address->id;
+                    $orderData['shipping_contact_name'] = $address->contact_name;
+                    $orderData['shipping_contact_phone'] = $address->contact_phone;
+                    $orderData['shipping_address'] = $address->address_line;
+                    $orderData['shipping_city'] = $address->city;
+                    $orderData['shipping_district'] = $address->district;
+                    $orderData['shipping_postal_code'] = $address->postal_code;
+                    $orderData['shipping_latitude'] = $address->latitude;
+                    $orderData['shipping_longitude'] = $address->longitude;
+                    $orderData['shipping_delivery_instruction'] = $address->delivery_instruction;
+                    $orderData['shipping_drop_off_location'] = $address->drop_off_location;
+                    $orderData['shipping_additional_notes'] = $address->additional_notes;
+                }
+            } else {
+                // Handle direct shipping data if provided (for backward compatibility)
+                $orderData['shipping_contact_name'] = $data['shipping_contact_name'] ?? $user->full_name ?? $user->contact_person;
+                $orderData['shipping_contact_phone'] = $data['shipping_contact_phone'] ?? $data['phone'];
+                $orderData['shipping_city'] = $data['shipping_city'] ?? null;
+                $orderData['shipping_district'] = $data['shipping_district'] ?? null;
+                $orderData['shipping_postal_code'] = $data['shipping_postal_code'] ?? null;
+                $orderData['shipping_latitude'] = $data['shipping_latitude'] ?? null;
+                $orderData['shipping_longitude'] = $data['shipping_longitude'] ?? null;
+                $orderData['shipping_delivery_instruction'] = $data['shipping_delivery_instruction'] ?? 'hand_to_me';
+                $orderData['shipping_drop_off_location'] = $data['shipping_drop_off_location'] ?? null;
+                $orderData['shipping_additional_notes'] = $data['shipping_additional_notes'] ?? null;
+            }
+
+            // Create order
+            $order = Order::create($orderData);
 
             $subtotal = $this->addOrderItems($order, $data['items']);
             $this->updateOrderTotals($order, $subtotal);
 
-            return $order->load(['items.product', 'items.product.options.values']);
+            return $order->load(['items.product', 'items.product.options.values', 'address']);
         });
     }
 
@@ -136,25 +174,34 @@ class OrderService
         foreach ($items as $itemData) {
             $product = Product::findOrFail($itemData['product_id']);
 
-            // Calculate unit price (base price + options)
-            $unitPrice = $product->base_price;
-            $optionsPrice = 0;
-            $selectedOptions = [];
+            // Use provided prices if available (from cart), otherwise calculate
+            if (isset($itemData['unit_price']) && isset($itemData['total_price'])) {
+                // Use cart-calculated prices
+                $unitPrice = $itemData['unit_price'];
+                $totalPrice = $itemData['total_price'];
+                $selectedOptions = $itemData['selected_options'] ?? $itemData['options'] ?? [];
+            } else {
+                // Calculate unit price (base price + options)
+                $unitPrice = $product->base_price;
+                $optionsPrice = 0;
+                $selectedOptions = [];
 
-            // Handle options safely
-            $options = $itemData['options'] ?? [];
-            if (is_array($options) && !empty($options)) {
-                foreach ($options as $optionValueId) {
-                    $optionValue = OptionValue::find($optionValueId);
-                    if ($optionValue) {
-                        $optionsPrice += $optionValue->price_adjustment;
-                        $selectedOptions[] = $optionValueId;
+                // Handle options safely
+                $options = $itemData['options'] ?? [];
+                if (is_array($options) && !empty($options)) {
+                    foreach ($options as $optionValueId) {
+                        $optionValue = OptionValue::find($optionValueId);
+                        if ($optionValue) {
+                            $optionsPrice += $optionValue->price_adjustment;
+                            $selectedOptions[] = $optionValueId;
+                        }
                     }
                 }
+
+                $unitPrice += $optionsPrice;
+                $totalPrice = $unitPrice * $itemData['quantity'];
             }
 
-            $unitPrice += $optionsPrice;
-            $totalPrice = $unitPrice * $itemData['quantity'];
             $subtotal += $totalPrice;
 
             // Create order item
@@ -164,7 +211,7 @@ class OrderService
                 'quantity' => $itemData['quantity'],
                 'unit_price' => $unitPrice,
                 'total_price' => $totalPrice,
-                'options' => json_encode($selectedOptions),
+                'options' => is_array($selectedOptions) ? json_encode($selectedOptions) : $selectedOptions,
                 'notes' => $itemData['notes'] ?? null
             ]);
         }

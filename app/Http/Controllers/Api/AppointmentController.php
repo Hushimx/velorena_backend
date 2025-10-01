@@ -42,11 +42,16 @@ use App\Http\Requests\Api\UpdateAppointmentRequest;
 use App\Http\Resources\Api\AppointmentResource;
 use App\Http\Resources\Api\AppointmentCollection;
 use App\Services\AppointmentService;
+use App\Services\OrderService;
 use App\Models\Appointment;
+use App\Models\CartItem;
+use App\Models\CartDesign;
+use App\Models\OrderDesign;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @OA\Tag(
@@ -582,6 +587,39 @@ class AppointmentController extends Controller
             // Get available time slots excluding booked appointments
             $availableSlots = \App\Models\AvailabilitySlot::getAvailableTimeSlotsExcludingBooked($date);
             
+            // Filter out past time slots if the date is today
+            $today = \Carbon\Carbon::today()->format('Y-m-d');
+            if ($date === $today) {
+                $now = \Carbon\Carbon::now();
+                $bufferTime = $now->addMinutes(30); // Add 30-minute buffer
+                $bufferTimeString = $bufferTime->format('H:i');
+                
+                \Log::info('Filtering past time slots for today', [
+                    'date' => $date,
+                    'current_time' => $now->format('H:i'),
+                    'buffer_time' => $bufferTimeString,
+                    'original_slots_count' => count($availableSlots)
+                ]);
+                
+                // Filter out slots that are in the past (with 30-minute buffer)
+                $availableSlots = array_filter($availableSlots, function($slot) use ($bufferTimeString) {
+                    $isAfterBuffer = $slot >= $bufferTimeString;
+                    
+                    \Log::info('Slot filtering', [
+                        'slot' => $slot,
+                        'buffer_time' => $bufferTimeString,
+                        'is_after_buffer' => $isAfterBuffer
+                    ]);
+                    
+                    return $isAfterBuffer;
+                });
+                
+                \Log::info('Filtered slots result', [
+                    'filtered_slots_count' => count($availableSlots),
+                    'filtered_slots' => array_values($availableSlots)
+                ]);
+            }
+            
             // Get day of week for additional info
             $dayOfWeek = \Carbon\Carbon::parse($date)->format("l");
             
@@ -610,6 +648,185 @@ class AppointmentController extends Controller
                 "success" => false,
                 "message" => "Failed to get available slots",
                 "error" => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Create appointment with order from cart
+     * 
+     * @OA\Post(
+     *     path="/api/appointments/create-from-cart",
+     *     summary="Create appointment with order from cart",
+     *     description="Create a new appointment and order from cart items with 'waiting_for_appointment' status. This endpoint creates an order from cart items and links it to the appointment.",
+     *     tags={"Appointments", "Cart"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"appointment_date", "appointment_time", "service_type"},
+     *             @OA\Property(property="appointment_date", type="string", format="date", example="2025-09-08", description="Appointment date (must be today or future)"),
+     *             @OA\Property(property="appointment_time", type="string", format="time", example="10:00", description="Appointment time (HH:MM) - must be from available slots"),
+     *             @OA\Property(property="service_type", type="string", example="Interior Design Consultation", maxLength=100, description="Type of service requested"),
+     *             @OA\Property(property="description", type="string", example="Need help with living room design", maxLength=500, description="Detailed description of the service needed"),
+     *             @OA\Property(property="duration", type="integer", example=60, minimum=30, maximum=480, description="Duration in minutes (default: 60)"),
+     *             @OA\Property(property="location", type="string", example="123 Main St, City", maxLength=200, description="Appointment location (optional)"),
+     *             @OA\Property(property="notes", type="string", example="Please bring color samples", maxLength=500, description="Additional notes for the appointment"),
+     *             @OA\Property(property="order_notes", type="string", example="Order created from cart for appointment", maxLength=500, description="Notes related to the order")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Appointment and order created successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Appointment and order created successfully"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="appointment", type="object"),
+     *                 @OA\Property(property="order", type="object")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error or cart is empty",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated - Bearer token required"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
+    public function createFromCart(Request $request): JsonResponse
+    {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'appointment_date' => 'required|date|after_or_equal:today',
+            'appointment_time' => 'required|date_format:H:i',
+            'service_type' => 'required|string|max:100',
+            'description' => 'nullable|string|max:500',
+            'duration' => 'nullable|integer|min:30|max:480',
+            'location' => 'nullable|string|max:200',
+            'notes' => 'nullable|string|max:500',
+            'order_notes' => 'nullable|string|max:500'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $user = Auth::user();
+            
+            // Check if user has items in cart
+            $cartItems = CartItem::where('user_id', $user->id)->with('product')->get();
+            $cartDesigns = CartDesign::where('user_id', $user->id)->where('is_active', true)->get();
+            
+            if ($cartItems->isEmpty() && $cartDesigns->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cart is empty. Please add items to cart before booking an appointment.'
+                ], 422);
+            }
+
+            return DB::transaction(function () use ($request, $user, $cartItems, $cartDesigns) {
+                // Create order from cart items
+                $orderService = new OrderService();
+                
+                // Prepare order data
+                $orderData = [
+                    'phone' => $user->phone ?? '',
+                    'shipping_address' => $user->address ?? '',
+                    'billing_address' => $user->address ?? '',
+                    'notes' => $request->order_notes ?? 'Order created from cart for appointment booking',
+                    'items' => []
+                ];
+
+                // Add cart items to order
+                foreach ($cartItems as $cartItem) {
+                    $orderData['items'][] = [
+                        'product_id' => $cartItem->product_id,
+                        'quantity' => $cartItem->quantity,
+                        'unit_price' => $cartItem->unit_price,
+                        'total_price' => $cartItem->total_price,
+                        'options' => $cartItem->selected_options,
+                        'notes' => $cartItem->notes
+                    ];
+                }
+
+                // Create order
+                $order = $orderService->createOrder($orderData);
+
+                // Set order status to waiting_for_appointment
+                $order->update(['status' => 'waiting_for_appointment']);
+
+                // Copy cart designs to order
+                foreach ($cartDesigns as $design) {
+                    OrderDesign::create([
+                        'order_id' => $order->id,
+                        'title' => $design->title ?? 'Design',
+                        'image_url' => $design->image_url ?? '',
+                        'thumbnail_url' => $design->thumbnail_url,
+                        'design_data' => $design->design_data,
+                        'priority' => 1
+                    ]);
+                }
+
+                // Clear cart items and designs
+                CartItem::where('user_id', $user->id)->delete();
+                CartDesign::where('user_id', $user->id)->delete();
+
+                // Create appointment data
+                $appointmentData = [
+                    'appointment_date' => $request->appointment_date,
+                    'appointment_time' => $request->appointment_time,
+                    'service_type' => $request->service_type,
+                    'description' => $request->description,
+                    'duration' => $request->duration ?? 60,
+                    'location' => $request->location,
+                    'notes' => $request->notes,
+                    'order_id' => $order->id,
+                    'order_notes' => $request->order_notes ?? "موعد مرتبط بالطلب #{$order->id}"
+                ];
+
+                // Create appointment
+                $appointment = $this->appointmentService->createAppointment($appointmentData);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Appointment and order created successfully',
+                    'data' => [
+                        'appointment' => new AppointmentResource($appointment),
+                        'order' => [
+                            'id' => $order->id,
+                            'order_number' => $order->order_number,
+                            'status' => $order->status,
+                            'total' => $order->total,
+                            'created_at' => $order->created_at
+                        ]
+                    ]
+                ], 201);
+            });
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create appointment and order',
+                'error' => $e->getMessage()
             ], 500);
         }
     }

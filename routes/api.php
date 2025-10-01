@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\DesignController;
 use App\Http\Controllers\Api\SupportTicketController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\Api\WhatsAppController;
+use App\Http\Controllers\Api\ExpoPushTokenController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,12 +63,28 @@ Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-    Route::post('/check-email', [AuthController::class, 'checkEmail']);
+    
+    // Phone check with rate limiting (10 requests per minute)
+    Route::post('/check-phone', [AuthController::class, 'checkPhone'])
+        ->middleware('throttle:10,1');
+    
+    // Email check with rate limiting (10 requests per minute)
+    Route::post('/check-email', [AuthController::class, 'checkEmail'])
+        ->middleware('throttle:10,1');
 
-    // OTP routes
-    Route::post('/send-otp', [OtpController::class, 'sendOtp']);
-    Route::post('/verify-otp', [OtpController::class, 'verifyOtp']);
-    Route::post('/resend-otp', [OtpController::class, 'resendOtp']);
+    // Password reset routes
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])
+        ->middleware('throttle:3,1');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])
+        ->middleware('throttle:5,1');
+
+    // OTP routes with rate limiting (5 requests per minute)
+    Route::post('/send-otp', [OtpController::class, 'sendOtp'])
+        ->middleware('throttle:5,1');
+    Route::post('/verify-otp', [OtpController::class, 'verifyOtp'])
+        ->middleware('throttle:10,1');
+    Route::post('/resend-otp', [OtpController::class, 'resendOtp'])
+        ->middleware('throttle:3,1');
 });
 
 // Public product and category routes
@@ -245,6 +262,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/documents/delete', [DocumentController::class, 'deleteDocument']);
     Route::get('/documents/info', [DocumentController::class, 'getDocumentInfo']);
 
+    // Expo Push Token routes
+    Route::prefix('expo-push')->group(function () {
+        Route::post('/register', [ExpoPushTokenController::class, 'register']);
+        Route::get('/tokens', [ExpoPushTokenController::class, 'index']);
+        Route::post('/deactivate', [ExpoPushTokenController::class, 'deactivate']);
+        Route::delete('/delete', [ExpoPushTokenController::class, 'delete']);
+        Route::post('/test', [ExpoPushTokenController::class, 'sendTest']);
+    });
+
 
     // ========================================
     // CART MANAGEMENT ROUTES
@@ -264,6 +290,18 @@ Route::middleware('auth:sanctum')->group(function () {
         
         // DELETE /api/cart/clear - Clear entire cart
         Route::delete('/clear', [CartController::class, 'clearCart']);
+    });
+
+    // ========================================
+    // ADDRESS MANAGEMENT ROUTES
+    // ========================================
+    Route::prefix('addresses')->group(function () {
+        Route::get('/', [App\Http\Controllers\Api\AddressController::class, 'index']);
+        Route::get('/{address}', [App\Http\Controllers\Api\AddressController::class, 'show']);
+        Route::post('/', [App\Http\Controllers\Api\AddressController::class, 'store']);
+        Route::put('/{address}', [App\Http\Controllers\Api\AddressController::class, 'update']);
+        Route::delete('/{address}', [App\Http\Controllers\Api\AddressController::class, 'destroy']);
+        Route::post('/{address}/set-default', [App\Http\Controllers\Api\AddressController::class, 'setDefault']);
     });
 
     // Order routes
@@ -295,6 +333,12 @@ Route::middleware('auth:sanctum')->group(function () {
         // Required: appointment_date, appointment_time, service_type
         // Optional: designer_id, description, duration, location, notes, order_id, order_notes
         Route::post('/', [AppointmentController::class, 'store']);
+
+        // POST /api/appointments/create-from-cart
+        // Create a new appointment with order from cart items
+        // Required: appointment_date, appointment_time, service_type
+        // Optional: description, duration, location, notes, order_notes
+        Route::post('/create-from-cart', [AppointmentController::class, 'createFromCart']);
 
 
 

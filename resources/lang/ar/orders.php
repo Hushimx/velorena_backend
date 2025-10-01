@@ -139,4 +139,18 @@ return [
     'item_notes' => 'ملاحظات العنصر',
     'required' => 'مطلوب',
     'no_price_change' => 'لا يوجد تغيير في السعر',
+    
+    // Checkout
+    'checkout' => 'الدفع',
+    'complete_payment_for_order' => 'إتمام الدفع للطلب',
+    'choose_existing_address' => 'اختر عنوان موجود',
+    'add_new_address' => 'إضافة عنوان جديد',
+    'enter_shipping_address' => 'أدخل عنوان الشحن',
+    'enter_billing_address' => 'أدخل عنوان الفواتير',
+    'enter_phone_number' => 'أدخل رقم الهاتف',
+    'phone_number' => 'رقم الهاتف',
+    'default' => 'افتراضي',
+    'or' => 'أو',
+    'secure_payment_note' => 'سيتم توجيهك إلى صفحة دفع آمنة لاستكمال عملية الدفع',
+    'please_select_or_add_address' => 'يرجى اختيار عنوان موجود أو إضافة عنوان جديد',
 ];
