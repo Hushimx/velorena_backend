@@ -11,7 +11,7 @@
                 <h1 class="text-2xl font-bold text-gray-900">{{ trans('categories.category_details') }}</h1>
                 <p class="text-gray-600">{{ trans('categories.view_category_information') }}</p>
             </div>
-            <div class="flex space-x-3">
+            <div class="flex gap-3">
                 <a href="{{ route('admin.categories.edit', $category) }}"
                     class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
                     <i class="fas fa-edit pl-2"></i>
@@ -29,7 +29,7 @@
         <div class="bg-white rounded-lg shadow-sm overflow-hidden">
             <!-- Header with Images -->
             <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-8">
-                <div class="flex items-center space-x-6">
+                <div class="flex items-center gap-3">
                     <!-- Main Image (Mobile Categories) -->
                     @if ($category->main_image)
                         <img src="{{ asset($category->main_image) }}" alt="{{ $category->name }}"
@@ -154,7 +154,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             @foreach ($category->products()->latest()->take(6)->get() as $product)
                                 <div class="bg-gray-50 rounded-lg p-4">
-                                    <div class="flex items-center space-x-3">
+                                    <div class="flex items-center gap-3">
                                         @if ($product->image)
                                             <img src="{{ asset($product->image) }}" alt="{{ $product->name }}"
                                                 class="h-12 w-12 rounded object-cover">

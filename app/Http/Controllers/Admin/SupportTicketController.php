@@ -60,6 +60,36 @@ class SupportTicketController extends Controller
         return view('admin.dashboard.support-tickets.show', compact('supportTicket', 'admins'));
     }
 
+    public function create()
+    {
+        $admins = Admin::all();
+        $users = \App\Models\User::select('id', 'full_name', 'company_name', 'email')->get();
+
+        return view('admin.dashboard.support-tickets.create', compact('admins', 'users'));
+    }
+
+    public function store(Request $request)
+    {
+        $validationRules = SupportTicket::getAdminValidationRules();
+        $validationRules['user_id'] = 'required|exists:users,id';
+        
+        $request->validate($validationRules);
+
+        $supportTicket = SupportTicket::create([
+            'user_id' => $request->user_id,
+            'subject' => $request->subject,
+            'description' => $request->description,
+            'priority' => $request->priority,
+            'category' => $request->category,
+            'status' => $request->status,
+            'assigned_to' => $request->assigned_to,
+            'admin_notes' => $request->admin_notes,
+        ]);
+
+        return redirect()->route('admin.support-tickets.show', $supportTicket)
+            ->with('success', __('admin.support_ticket_created_success'));
+    }
+
     public function edit(SupportTicket $supportTicket)
     {
         $supportTicket->load(['user', 'assignedAdmin']);
