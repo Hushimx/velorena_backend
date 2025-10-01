@@ -8,7 +8,8 @@
         <!-- Header -->
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold" style="color: var(--brand-brown);">{{ trans('admin.view_availability_slot') }}</h1>
+                <h1 class="text-2xl font-bold" style="color: var(--brand-brown);">{{ trans('admin.view_availability_slot') }}
+                </h1>
                 <p class="text-gray-600">{{ trans('admin.availability_slot_details') }}</p>
             </div>
             <div class="flex gap-3">
@@ -26,14 +27,15 @@
         <!-- Availability Slot Details -->
         <div class="card">
             <div class="card-header">
-                <h3 class="text-lg font-medium text-gray-900">{{ trans('admin.availability_slot_information') }}</h3>
+                <h3 class="text-lg font-medium text-white">
+                    {{ trans('admin.availability_slot_information') }}</h3>
             </div>
-            
+
             <div class="card-body">
                 <dl class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Day of Week -->
                     <div>
-                        <dt class="text-sm font-medium text-gray-500 mb-2">{{ trans('admin.day_of_week') }}</dt>
+                        <dt class="text-sm font-medium text-gray-500 mb-2 text-white">{{ trans('admin.day_of_week') }}</dt>
                         <dd class="flex items-center text-gray-900">
                             <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center ml-3">
                                 <i class="fas fa-calendar-day text-blue-600 text-sm"></i>
@@ -94,7 +96,7 @@
                     </div>
 
                     <!-- Notes -->
-                    @if($availabilitySlot->notes)
+                    @if ($availabilitySlot->notes)
                         <div class="md:col-span-2 lg:col-span-3">
                             <dt class="text-sm font-medium text-gray-500 mb-2">{{ trans('admin.notes') }}</dt>
                             <dd>
@@ -111,20 +113,20 @@
         <!-- Generated Time Slots Preview -->
         <div class="card">
             <div class="card-header">
-                <h3 class="text-lg font-medium text-gray-900">{{ trans('admin.generated_time_slots') }}</h3>
-                <p class="text-sm text-gray-600 mt-1">{{ trans('admin.time_slots_preview_description') }}</p>
+                <h3 class="text-lg font-medium text-white">{{ trans('admin.generated_time_slots') }}</h3>
+                <p class="text-sm text-white mt-1">{{ trans('admin.time_slots_preview_description') }}</p>
             </div>
-            
+
             <div class="card-body">
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                    @foreach($availabilitySlot->generateTimeSlots() as $timeSlot)
+                    @foreach ($availabilitySlot->generateTimeSlots() as $timeSlot)
                         <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
                             <span class="text-sm font-medium text-blue-800">{{ $timeSlot }}</span>
                         </div>
                     @endforeach
                 </div>
-                
-                @if(empty($availabilitySlot->generateTimeSlots()))
+
+                @if (empty($availabilitySlot->generateTimeSlots()))
                     <div class="text-center py-8">
                         <i class="fas fa-exclamation-triangle text-gray-400 text-2xl mb-2"></i>
                         <p class="text-gray-600">{{ trans('admin.no_time_slots_generated') }}</p>
@@ -135,7 +137,8 @@
 
         <!-- Actions -->
         <div class="flex justify-end gap-3">
-            <form action="{{ route('admin.availability-slots.toggle-status', $availabilitySlot) }}" method="POST" class="inline">
+            <form action="{{ route('admin.availability-slots.toggle-status', $availabilitySlot) }}" method="POST"
+                class="inline">
                 @csrf
                 @method('PATCH')
                 <button type="submit" class="btn {{ $availabilitySlot->is_active ? 'btn-warning' : 'btn-success' }}">
@@ -143,7 +146,7 @@
                     <span>{{ $availabilitySlot->is_active ? trans('admin.deactivate') : trans('admin.activate') }}</span>
                 </button>
             </form>
-            
+
             <form action="{{ route('admin.availability-slots.destroy', $availabilitySlot) }}" method="POST" class="inline"
                 onsubmit="return confirm('{{ trans('admin.confirm_delete_availability_slot') }}')">
                 @csrf
