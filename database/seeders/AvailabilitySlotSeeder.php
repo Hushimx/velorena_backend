@@ -79,7 +79,14 @@ class AvailabilitySlotSeeder extends Seeder
         ];
 
         foreach ($availabilitySlots as $slot) {
-            AvailabilitySlot::create($slot);
+            AvailabilitySlot::updateOrCreate(
+                [
+                    'day_of_week' => $slot['day_of_week'],
+                    'start_time' => $slot['start_time'],
+                    'end_time' => $slot['end_time']
+                ],
+                $slot
+            );
         }
     }
 }

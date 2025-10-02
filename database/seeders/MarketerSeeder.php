@@ -39,7 +39,10 @@ class MarketerSeeder extends Seeder
         ];
 
         foreach ($marketers as $marketer) {
-            Marketer::create($marketer);
+            Marketer::updateOrCreate(
+                ['email' => $marketer['email']],
+                $marketer
+            );
         }
     }
 }
