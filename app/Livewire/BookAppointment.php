@@ -163,10 +163,10 @@ class BookAppointment extends Component
             // Dispatch event to notify other components about the new appointment
             $this->dispatch('appointment-created', $appointment->id);
 
-            // Show success message and redirect
+            // Show success message and redirect to success page
             session()->flash('success', 'Appointment booked successfully! Order #' . $order->order_number . ' has been created and linked to your appointment.');
 
-            return redirect()->route('appointments.index');
+            return redirect()->route('appointments.success', ['appointment' => $appointment->id]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Appointment booking failed: ' . $e->getMessage());

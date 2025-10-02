@@ -29,6 +29,68 @@
             </div>
         </div>
 
+        <!-- Payment Action Section (Top) -->
+        @if($order->status === 'confirmed' && $order->getPaymentStatus() !== 'paid')
+            <div class="payment-action-top-section">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="payment-action-card">
+                                <div class="payment-action-content">
+                                    <div class="payment-action-info">
+                                        <h3 class="payment-action-title">
+                                            <i class="fas fa-credit-card"></i>
+                                            {{ trans('orders.complete_payment_for_order') }}
+                                        </h3>
+                                        <p class="payment-action-subtitle">
+                                            {{ trans('orders.secure_payment_note') }}
+                                        </p>
+                                    </div>
+                                    <div class="payment-action-button">
+                                        <a href="{{ route('user.orders.checkout', $order) }}" class="pay-btn pay-btn-large">
+                                            <i class="fas fa-credit-card"></i>
+                                            <span>{{ trans('orders.pay_now') }}</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @elseif($order->canMakePayment())
+            <div class="payment-action-top-section">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="payment-action-card">
+                                <div class="payment-action-content">
+                                    <div class="payment-action-info">
+                                        <h3 class="payment-action-title">
+                                            <i class="fas fa-credit-card"></i>
+                                            {{ trans('orders.complete_payment_for_order') }}
+                                        </h3>
+                                        <p class="payment-action-subtitle">
+                                            {{ trans('orders.secure_payment_note') }}
+                                        </p>
+                                    </div>
+                                    <div class="payment-action-button">
+                                        <form action="{{ route('user.orders.initiate-payment', $order) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="pay-btn pay-btn-large">
+                                                <i class="fas fa-credit-card"></i>
+                                                <span>{{ trans('orders.pay_now') }}</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Order Details -->
         <div class="order-details-section">
             <div class="container">
@@ -166,25 +228,8 @@
                                     </div>
                                 </div>
 
-                                <!-- Payment Action Button -->
-                                @if($order->status === 'confirmed' && $order->getPaymentStatus() !== 'paid')
-                                    <div class="payment-action-section">
-                                        <a href="{{ route('user.orders.checkout', $order) }}" class="pay-btn">
-                                            <i class="fas fa-credit-card"></i>
-                                            <span>{{ trans('orders.pay_now') }}</span>
-                                        </a>
-                                    </div>
-                                @elseif($order->canMakePayment())
-                                    <div class="payment-action-section">
-                                        <form action="{{ route('user.orders.initiate-payment', $order) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="pay-btn">
-                                                <i class="fas fa-credit-card"></i>
-                                                <span>{{ trans('orders.pay_now') }}</span>
-                                            </button>
-                                        </form>
-                                    </div>
-                                @elseif($order->isPaid())
+                                <!-- Payment Status Display -->
+                                @if($order->isPaid())
                                     <div class="payment-status-section">
                                         <div class="payment-completed-badge">
                                             <i class="fas fa-check-circle"></i>
@@ -938,6 +983,113 @@
 
             .breadcrumb-item:not(:last-child)::after {
                 display: none;
+            }
+        }
+
+        /* Payment Action Top Section */
+        .payment-action-top-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 2rem 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .payment-action-card {
+            background: #fff;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e9ecef;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .payment-action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #28a745 0%, #20c997 50%, #28a745 100%);
+        }
+
+        .payment-action-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .payment-action-info {
+            flex: 1;
+        }
+
+        .payment-action-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #28a745;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .payment-action-subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .payment-action-button {
+            flex-shrink: 0;
+        }
+
+        .pay-btn-large {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .pay-btn-large:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .pay-btn-large:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .payment-action-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+            }
+
+            .payment-action-card {
+                padding: 1.5rem;
+            }
+
+            .payment-action-title {
+                font-size: 1.25rem;
+            }
+
+            .pay-btn-large {
+                padding: 0.875rem 1.5rem;
+                font-size: 1rem;
             }
         }
     </style>

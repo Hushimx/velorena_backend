@@ -1021,4 +1021,77 @@ class AuthController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get user notification preferences
+     */
+    public function getNotificationPreferences()
+    {
+        try {
+            $user = Auth::user();
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'email' => $user->email_notifications ?? true,
+                    'sms' => $user->sms_notifications ?? true,
+                    'whatsapp' => $user->whatsapp_notifications ?? true,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get notification preferences',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Update user notification preferences
+     */
+    public function updateNotificationPreferences(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'boolean',
+            'sms' => 'boolean',
+            'whatsapp' => 'boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $user = Auth::user();
+            
+            $user->update([
+                'email_notifications' => $request->input('email', $user->email_notifications),
+                'sms_notifications' => $request->input('sms', $user->sms_notifications),
+                'whatsapp_notifications' => $request->input('whatsapp', $user->whatsapp_notifications),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification preferences updated successfully',
+                'data' => [
+                    'email' => $user->email_notifications,
+                    'sms' => $user->sms_notifications,
+                    'whatsapp' => $user->whatsapp_notifications,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update notification preferences',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

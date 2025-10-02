@@ -442,15 +442,21 @@
         let selectedFiles = [];
 
         // File input change handler
-        document.getElementById('design-files')?.addEventListener('change', function(e) {
-            handleFiles(e.target.files);
-        });
+        const fileInput = document.getElementById('design-files');
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                handleFiles(e.target.files);
+            });
+        }
 
         // Drag and drop handlers
         const uploadArea = document.getElementById('upload-area');
         if (uploadArea) {
             uploadArea.addEventListener('click', () => {
-                document.getElementById('design-files').click();
+                const fileInput = document.getElementById('design-files');
+                if (fileInput) {
+                    fileInput.click();
+                }
             });
 
             uploadArea.addEventListener('dragover', (e) => {
@@ -574,7 +580,12 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     alert(`تم رفع ${data.uploaded_count || selectedFiles.length} تصميم بنجاح!`);

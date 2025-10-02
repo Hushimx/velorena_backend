@@ -1,97 +1,183 @@
 @extends('components.layout')
 
-@section('pageTitle', 'تم حجز الموعد بنجاح')
-@section('title', 'تم حجز الموعد بنجاح')
+@section('pageTitle', trans('appointments.appointment_booked_successfully'))
+@section('title', trans('appointments.appointment_booked_successfully'))
 
 @section('content')
     <!-- Navbar from Welcome Page -->
     <x-navbar />
 
-    <div class="success-page">
+    <div class="appointment-success-page">
         <!-- Success Hero Section -->
-        <div class="success-hero">
+        <div class="success-hero-section">
             <div class="container">
                 <div class="success-content">
                     <div class="success-icon">
                         <i class="fas fa-check-circle"></i>
                     </div>
-                    <h1 class="success-title">تم حجز الموعد بنجاح!</h1>
-                    <p class="success-subtitle">تم تأكيد حجز موعدك وسيتم التواصل معك قريباً</p>
-                    
-                    <!-- Success Details -->
-                    <div class="success-details">
-                        <div class="detail-card">
-                            <div class="detail-icon">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <div class="detail-content">
-                                <h3>موعدك محجوز</h3>
-                                <p>تم تأكيد حجز موعدك بنجاح</p>
-                            </div>
-                        </div>
-                        
-                        <div class="detail-card">
-                            <div class="detail-icon">
-                                <i class="fas fa-envelope"></i>
-                            </div>
-                            <div class="detail-content">
-                                <h3>تأكيد بالبريد الإلكتروني</h3>
-                                <p>سيتم إرسال تفاصيل الموعد إلى بريدك الإلكتروني</p>
-                            </div>
-                        </div>
-                        
-                        <div class="detail-card">
-                            <div class="detail-icon">
-                                <i class="fas fa-phone"></i>
-                            </div>
-                            <div class="detail-content">
-                                <h3>متابعة هاتفية</h3>
-                                <p>سنتواصل معك قبل الموعد للتأكيد</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Action Buttons -->
-                    <div class="success-actions">
-                        <a href="{{ route('appointments.index') }}" class="btn btn-primary">
-                            <i class="fas fa-calendar-alt"></i>
-                            عرض مواعيدي
-                        </a>
-                        <a href="{{ route('home') }}" class="btn btn-secondary">
-                            <i class="fas fa-home"></i>
-                            العودة للرئيسية
-                        </a>
-                    </div>
+                    <h1 class="success-title">{{ trans('appointments.appointment_booked_successfully') }}</h1>
+                    <p class="success-subtitle">{{ trans('appointments.appointment_success_message') }}</p>
                 </div>
             </div>
         </div>
 
-        <!-- Additional Info Section -->
-        <div class="info-section">
+        <!-- Success Details -->
+        <div class="success-details-section">
             <div class="container">
-                <div class="info-grid">
-                    <div class="info-card">
-                        <div class="info-icon">
-                            <i class="fas fa-clock"></i>
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <!-- Appointment Info Card -->
+                        <div class="appointment-info-card">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <i class="fas fa-calendar-check"></i>
+                                    {{ trans('appointments.appointment_details') }}
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="appointment-details-grid">
+                                    <div class="detail-item">
+                                        <div class="detail-label">
+                                            <i class="fas fa-calendar"></i>
+                                            {{ trans('appointments.appointment_date') }}
+                                        </div>
+                                        <div class="detail-value">{{ $appointment->appointment_date->format('F j, Y') }}</div>
+                                    </div>
+                                    
+                                    <div class="detail-item">
+                                        <div class="detail-label">
+                                            <i class="fas fa-clock"></i>
+                                            {{ trans('appointments.appointment_time') }}
+                                        </div>
+                                        <div class="detail-value">{{ $appointment->appointment_time }}</div>
+                                    </div>
+                                    
+                                    <div class="detail-item">
+                                        <div class="detail-label">
+                                            <i class="fas fa-hourglass-half"></i>
+                                            {{ trans('appointments.duration') }}
+                                        </div>
+                                        <div class="detail-value">{{ $appointment->duration_minutes }} {{ trans('appointments.minutes') }}</div>
+                                    </div>
+                                    
+                                    <div class="detail-item">
+                                        <div class="detail-label">
+                                            <i class="fas fa-info-circle"></i>
+                                            {{ trans('appointments.status') }}
+                                        </div>
+                                        <div class="detail-value">
+                                            <span class="status-badge status-{{ $appointment->status }}">
+                                                {{ trans('appointments.' . $appointment->status) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                @if($appointment->notes)
+                                    <div class="appointment-notes">
+                                        <h4 class="notes-title">{{ trans('appointments.notes') }}</h4>
+                                        <p class="notes-content">{{ $appointment->notes }}</p>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
-                        <h4>تذكير بالموعد</h4>
-                        <p>سوف نتذكرك بالموعد قبل 24 ساعة من الموعد المحدد</p>
-                    </div>
-                    
-                    <div class="info-card">
-                        <div class="info-icon">
-                            <i class="fas fa-edit"></i>
+
+                        <!-- Order Info Card (if linked) -->
+                        @if($appointment->order)
+                            <div class="order-info-card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        {{ trans('appointments.linked_order') }}
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="order-summary">
+                                        <div class="order-number">
+                                            <strong>{{ trans('orders.order_number') }}:</strong> {{ $appointment->order->order_number }}
+                                        </div>
+                                        <div class="order-total">
+                                            <strong>{{ trans('orders.total') }}:</strong> 
+                                            {{ number_format($appointment->order->total, 2) }} {{ trans('orders.currency') }}
+                                        </div>
+                                        <div class="order-items-count">
+                                            <strong>{{ trans('orders.items_count') }}:</strong> {{ $appointment->order->items->count() }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="order-actions">
+                                        <a href="{{ route('user.orders.show', $appointment->order) }}" class="btn btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                            {{ trans('orders.view_order') }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Next Steps Card -->
+                        <div class="next-steps-card">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <i class="fas fa-list-check"></i>
+                                    {{ trans('appointments.next_steps') }}
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="steps-list">
+                                    <div class="step-item">
+                                        <div class="step-number">1</div>
+                                        <div class="step-content">
+                                            <h4 class="step-title">{{ trans('appointments.step_1_title') }}</h4>
+                                            <p class="step-description">{{ trans('appointments.step_1_description') }}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="step-item">
+                                        <div class="step-number">2</div>
+                                        <div class="step-content">
+                                            <h4 class="step-title">{{ trans('appointments.step_2_title') }}</h4>
+                                            <p class="step-description">{{ trans('appointments.step_2_description') }}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="step-item">
+                                        <div class="step-number">3</div>
+                                        <div class="step-content">
+                                            <h4 class="step-title">{{ trans('appointments.step_3_title') }}</h4>
+                                            <p class="step-description">{{ trans('appointments.step_3_description') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <h4>تعديل الموعد</h4>
-                        <p>يمكنك تعديل أو إلغاء الموعد من صفحة مواعيدي</p>
-                    </div>
-                    
-                    <div class="info-card">
-                        <div class="info-icon">
-                            <i class="fas fa-headset"></i>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons-section">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <a href="{{ route('appointments.index') }}" class="btn btn-primary btn-lg w-100">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        {{ trans('appointments.view_my_appointments') }}
+                                    </a>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <a href="{{ route('user.orders.index') }}" class="btn btn-outline-primary btn-lg w-100">
+                                        <i class="fas fa-shopping-bag"></i>
+                                        {{ trans('orders.view_my_orders') }}
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12">
+                                    <a href="{{ route('user.products.index') }}" class="btn btn-outline-secondary btn-lg w-100">
+                                        <i class="fas fa-arrow-left"></i>
+                                        {{ trans('appointments.continue_shopping') }}
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                        <h4>الدعم الفني</h4>
-                        <p>تواصل معنا في أي وقت للحصول على المساعدة</p>
                     </div>
                 </div>
             </div>
@@ -104,449 +190,309 @@
     <style>
         /* Brand Colors */
         :root {
-            --brand-yellow: #ffde9f;
-            --brand-yellow-dark: #f5d182;
-            --brand-brown: #2a1e1e;
-            --brand-brown-light: #3a2e2e;
-            --brand-yellow-light: #fff4e6;
-            --brand-yellow-hover: #f0d4a0;
-            --brand-brown-dark: #1a1414;
-            --brand-brown-hover: #4a3e3e;
+            --brand-primary: #2c3e50;
+            --brand-secondary: #3498db;
+            --brand-accent: #e74c3c;
+            --brand-success: #27ae60;
+            --brand-warning: #f39c12;
+            --brand-light: #ecf0f1;
+            --brand-dark: #34495e;
         }
 
-        /* Success Page Styles */
-        .success-page {
+        .appointment-success-page {
             min-height: 100vh;
-            background: linear-gradient(135deg, var(--brand-yellow-light) 0%, #ffffff 100%);
-            direction: rtl;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
 
         /* Success Hero Section */
-        .success-hero {
-            background: linear-gradient(135deg, var(--brand-yellow) 0%, var(--brand-yellow-dark) 100%);
+        .success-hero-section {
+            background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
+            color: white;
             padding: 4rem 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .success-hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
-            pointer-events: none;
+            text-align: center;
         }
 
         .success-content {
-            text-align: center;
-            position: relative;
-            z-index: 2;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .success-icon {
-            width: 120px;
-            height: 120px;
-            background: rgba(255, 255, 255, 0.2);
+            font-size: 4rem;
+            color: var(--brand-success);
+            margin-bottom: 1.5rem;
+            animation: bounceIn 0.8s ease-out;
+        }
+
+        .success-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .success-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+
+        /* Success Details Section */
+        .success-details-section {
+            padding: 3rem 0;
+        }
+
+        /* Cards */
+        .appointment-info-card,
+        .order-info-card,
+        .next-steps-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e9ecef;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--brand-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        /* Appointment Details Grid */
+        .appointment-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--brand-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            color: #495057;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-accepted {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        /* Appointment Notes */
+        .appointment-notes {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid var(--brand-primary);
+        }
+
+        .notes-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--brand-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .notes-content {
+            color: #495057;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* Order Info */
+        .order-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .order-number,
+        .order-total,
+        .order-items-count {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+            border: 1px solid #e9ecef;
+        }
+
+        .order-actions {
+            text-align: center;
+        }
+
+        /* Next Steps */
+        .steps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .step-number {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: var(--brand-primary);
+            color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 2rem;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
-            animation: successPulse 2s ease-in-out infinite, successBounce 1s ease-out 0.5s both;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .success-icon::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            animation: successShine 3s ease-in-out infinite;
-        }
-
-        @keyframes successBounce {
-            0% {
-                opacity: 0;
-                transform: scale(0.3) rotate(-180deg);
-            }
-            50% {
-                transform: scale(1.1) rotate(0deg);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1) rotate(0deg);
-            }
-        }
-
-        @keyframes successShine {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .success-icon i {
-            font-size: 4rem;
-            color: var(--brand-brown);
-            position: relative;
-            z-index: 1;
-            animation: iconCheckmark 0.8s ease-out 1s both;
-        }
-
-        @keyframes iconCheckmark {
-            0% {
-                opacity: 0;
-                transform: scale(0.5);
-            }
-            50% {
-                transform: scale(1.2);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        @keyframes successPulse {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
-            }
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
-            }
-        }
-
-        .success-title {
-            font-family: 'Cairo', cursive;
-            font-size: 3.5rem;
             font-weight: 700;
-            color: var(--brand-brown);
-            margin-bottom: 1rem;
-            text-shadow: 0 2px 4px rgba(42, 30, 30, 0.1);
-            animation: titleSlideUp 1s ease-out 0.8s both;
-            background: linear-gradient(45deg, var(--brand-brown), var(--brand-brown-dark));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        @keyframes titleSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .success-subtitle {
-            font-size: 1.3rem;
-            color: var(--brand-brown-light);
-            margin-bottom: 3rem;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            font-weight: 500;
-            animation: subtitleFadeIn 1s ease-out 1.2s both;
-        }
-
-        @keyframes subtitleFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Success Details */
-        .success-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-            max-width: 1000px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .detail-card {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            animation: detailCardSlideIn 0.8s ease-out both;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .detail-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: left 0.6s ease;
-        }
-
-        .detail-card:hover::before {
-            left: 100%;
-        }
-
-        .detail-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            background: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 12px 35px rgba(42, 30, 30, 0.2);
-        }
-
-        .detail-card:nth-child(1) { animation-delay: 1.4s; }
-        .detail-card:nth-child(2) { animation-delay: 1.6s; }
-        .detail-card:nth-child(3) { animation-delay: 1.8s; }
-
-        @keyframes detailCardSlideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .detail-icon {
-            width: 60px;
-            height: 60px;
-            background: var(--brand-brown);
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 1.1rem;
             flex-shrink: 0;
         }
 
-        .detail-icon i {
-            font-size: 1.5rem;
-            color: var(--brand-yellow);
+        .step-content {
+            flex: 1;
         }
 
-        .detail-content h3 {
-            font-family: 'Cairo', cursive;
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--brand-brown);
+        .step-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--brand-primary);
             margin-bottom: 0.5rem;
         }
 
-        .detail-content p {
-            color: var(--brand-brown-light);
-            font-size: 1rem;
+        .step-description {
+            color: #6c757d;
             margin: 0;
             line-height: 1.5;
         }
 
-        /* Success Actions */
-        .success-actions {
-            display: flex;
-            gap: 1.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
+        /* Action Buttons */
+        .action-buttons-section {
+            margin-top: 2rem;
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 2rem;
-            border-radius: 15px;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
             font-weight: 600;
-            font-size: 1.1rem;
             text-decoration: none;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
             border: 2px solid transparent;
         }
 
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
         .btn-primary {
-            background: linear-gradient(135deg, var(--brand-brown) 0%, var(--brand-brown-dark) 100%);
-            color: var(--brand-yellow);
-            border-color: var(--brand-brown);
+            background: var(--brand-primary);
+            color: white;
+            border-color: var(--brand-primary);
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, var(--brand-brown-dark) 0%, var(--brand-brown) 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(42, 30, 30, 0.4);
-            color: var(--brand-yellow);
-            text-decoration: none;
+            background: var(--brand-dark);
+            border-color: var(--brand-dark);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
         }
 
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: var(--brand-brown);
-            border-color: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(10px);
+        .btn-outline-primary {
+            background: transparent;
+            color: var(--brand-primary);
+            border-color: var(--brand-primary);
         }
 
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.4);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(42, 30, 30, 0.2);
-            color: var(--brand-brown);
-            text-decoration: none;
+        .btn-outline-primary:hover {
+            background: var(--brand-primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
         }
 
-        /* Info Section */
-        .info-section {
-            padding: 4rem 0;
+        .btn-outline-secondary {
+            background: transparent;
+            color: #6c757d;
+            border-color: #6c757d;
         }
 
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            max-width: 1000px;
-            margin: 0 auto;
+        .btn-outline-secondary:hover {
+            background: #6c757d;
+            color: white;
+            transform: translateY(-2px);
         }
 
-        .info-card {
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 2rem;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(42, 30, 30, 0.08);
-            border: 1px solid rgba(255, 222, 159, 0.2);
-            transition: all 0.3s ease;
+        .btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
         }
 
-        .info-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 48px rgba(42, 30, 30, 0.12);
-        }
-
-        .info-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--brand-yellow) 0%, var(--brand-yellow-dark) 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-            border: 3px solid var(--brand-brown);
-        }
-
-        .info-icon i {
-            font-size: 2rem;
-            color: var(--brand-brown);
-        }
-
-        .info-card h4 {
-            font-family: 'Cairo', cursive;
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--brand-brown);
-            margin-bottom: 1rem;
-        }
-
-        .info-card p {
-            color: var(--brand-brown-light);
-            font-size: 1rem;
-            line-height: 1.6;
-            margin: 0;
+        /* Animations */
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            .success-hero {
-                padding: 3rem 0;
-            }
-
-            .success-title {
-                font-size: 2.5rem;
-            }
-
-            .success-subtitle {
-                font-size: 1.1rem;
-            }
-
-            .success-icon {
-                width: 100px;
-                height: 100px;
-            }
-
-            .success-icon i {
-                font-size: 3rem;
-            }
-
-            .success-details {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-
-            .detail-card {
-                flex-direction: column;
-                text-align: center;
-                padding: 1.5rem;
-            }
-
-            .success-actions {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .btn {
-                width: 100%;
-                max-width: 300px;
-                justify-content: center;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .success-hero {
-                padding: 2rem 0;
-            }
-
             .success-title {
                 font-size: 2rem;
             }
@@ -555,22 +501,21 @@
                 font-size: 1rem;
             }
 
-            .success-icon {
-                width: 80px;
-                height: 80px;
-            }
-
-            .success-icon i {
-                font-size: 2.5rem;
-            }
-
-            .info-section {
-                padding: 3rem 0;
-            }
-
-            .info-grid {
+            .appointment-details-grid {
                 grid-template-columns: 1fr;
-                gap: 1.5rem;
+            }
+
+            .order-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .step-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .step-number {
+                align-self: center;
             }
         }
     </style>

@@ -36,6 +36,70 @@ Route::get('/test', function () {
     return response()->json(['message' => 'API route working', 'timestamp' => now()]);
 });
 
+// Guest-friendly test notification endpoint
+Route::post('/test-notification-guest', function () {
+    try {
+        // Send a test notification to all registered tokens (both authenticated and guest)
+        $allTokens = \App\Models\ExpoPushToken::where('is_active', true)->get();
+        
+        if ($allTokens->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No active push tokens found. Make sure you have registered a token first.'
+            ]);
+        }
+        
+        // Use the ExpoPushService to send notifications
+        $expoService = new \App\Services\ExpoPushService();
+        
+        $notification = [
+            'title' => 'Test Notification (Guest)',
+            'body' => 'This is a test notification sent to all registered devices',
+            'data' => ['type' => 'test', 'timestamp' => now()->toISOString()]
+        ];
+        
+        $tokens = $allTokens->pluck('token')->toArray();
+        $result = $expoService->sendToDevices($tokens, $notification);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Test notification sent to ' . count($tokens) . ' devices',
+            'tokens_sent_to' => $tokens,
+            'expo_response' => $result
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to send test notification: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Debug route for notifications (works for both authenticated and guest users)
+Route::get('/debug/notifications', function () {
+    $user = Auth::user();
+    
+    if (!$user) {
+        // Show guest user info
+        $guestTokens = \App\Models\ExpoPushToken::whereNull('tokenable_id')->get();
+        return response()->json([
+            'authenticated' => false,
+            'message' => 'Not logged in - using guest mode',
+            'guest_tokens_count' => $guestTokens->count(),
+            'guest_tokens' => $guestTokens->pluck('token')->toArray()
+        ]);
+    }
+    
+    $tokens = $user->expoPushTokens ?? collect();
+    return response()->json([
+        'authenticated' => true,
+        'user_id' => $user->id,
+        'tokens_count' => $tokens->count(),
+        'tokens' => $tokens->pluck('token')->toArray()
+    ]);
+});
+
 // Test file upload route
 Route::post('/test-upload', function (Request $request) {
     \Log::info('Test upload endpoint called', [
@@ -256,6 +320,10 @@ Route::prefix('appointments')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::put('/profile', [AuthController::class, 'updateProfile']);
+
+    // User notification preferences
+    Route::get('/user/notification-preferences', [AuthController::class, 'getNotificationPreferences']);
+    Route::put('/user/notification-preferences', [AuthController::class, 'updateNotificationPreferences']);
 
     // Document routes
     Route::post('/documents/upload', [DocumentController::class, 'uploadDocument']);

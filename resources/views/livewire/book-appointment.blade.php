@@ -667,8 +667,6 @@
         padding: 2rem;
         border: 2px solid var(--brand-brown);
         box-shadow: 0 8px 32px rgba(42, 30, 30, 0.15);
-        position: sticky;
-        top: 2rem;
     }
 
     .summary-header {

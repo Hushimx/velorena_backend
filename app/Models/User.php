@@ -38,6 +38,9 @@ class User extends Authenticatable
         'vat_document_path',
         'notes',
         'password',
+        'email_notifications',
+        'sms_notifications',
+        'whatsapp_notifications',
     ];
 
     /**

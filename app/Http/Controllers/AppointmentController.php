@@ -28,9 +28,19 @@ class AppointmentController extends Controller
     /**
      * Show the appointment booking success page
      */
-    public function success()
+    public function success(Request $request)
     {
-        return view('users.appointments.success');
+        $appointmentId = $request->get('appointment');
+        
+        if (!$appointmentId) {
+            return redirect()->route('appointments.index')
+                ->with('error', 'No appointment specified.');
+        }
+        
+        $appointment = Appointment::with(['user', 'designer', 'order.items.product'])
+            ->findOrFail($appointmentId);
+            
+        return view('users.appointments.success', compact('appointment'));
     }
 
     /**
