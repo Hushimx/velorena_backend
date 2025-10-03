@@ -40,3 +40,5 @@ echo "To get a real token, you need to:\n";
 echo "1. Rebuild your app with proper Expo configuration\n";
 echo "2. Make sure you're on a real device (not simulator)\n";
 echo "3. Check the console logs for the actual token generation\n";
+
+
