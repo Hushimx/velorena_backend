@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\OtpController;
 use App\Http\Controllers\Api\DocumentController;
@@ -76,6 +77,9 @@ Route::post('/test-notification-guest', function () {
     }
 });
 
+// Guest token registration endpoint (no authentication required)
+Route::post('/expo-push/register-guest', [ExpoPushTokenController::class, 'registerGuest']);
+
 // Debug route for notifications (works for both authenticated and guest users)
 Route::get('/debug/notifications', function () {
     $user = Auth::user();
@@ -102,7 +106,7 @@ Route::get('/debug/notifications', function () {
 
 // Test file upload route
 Route::post('/test-upload', function (Request $request) {
-    \Log::info('Test upload endpoint called', [
+        Log::info('Test upload endpoint called', [
         'files' => $request->allFiles(),
         'content_type' => $request->header('Content-Type'),
         'all_data' => $request->all(),
@@ -179,7 +183,7 @@ Route::get('/test-cart', function() {
 // Cart preview endpoint
 Route::get('/cart/preview', function() {
     try {
-        \Log::info('Cart preview API called', [
+        Log::info('Cart preview API called', [
             'authenticated' => Auth::check(),
             'user_id' => Auth::id(),
             'session_id' => session()->getId()
@@ -190,7 +194,7 @@ Route::get('/cart/preview', function() {
             $user = Auth::user();
             $cartItems = \App\Models\CartItem::where('user_id', $user->id)->with('product')->get();
             
-            \Log::info('Authenticated cart items found', [
+            Log::info('Authenticated cart items found', [
                 'count' => $cartItems->count(),
                 'items' => $cartItems->pluck('id')
             ]);
@@ -224,7 +228,7 @@ Route::get('/cart/preview', function() {
             $cartSummary = $guestCartService->getCartSummary();
             $cartItems = $guestCartService->getCartItemsWithProducts();
             
-            \Log::info('Guest cart data', [
+            Log::info('Guest cart data', [
                 'summary' => $cartSummary,
                 'items_count' => count($cartItems)
             ]);
@@ -255,7 +259,7 @@ Route::get('/cart/preview', function() {
             ]);
         }
     } catch (\Exception $e) {
-        \Log::error('Cart preview API error', [
+        Log::error('Cart preview API error', [
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString()
         ]);

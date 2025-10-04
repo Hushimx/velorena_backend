@@ -34,13 +34,15 @@
 
                 <!-- Search Bar -->
                 <div class="navbar-search-container flex-grow-1 mx-4">
-                    <div class="search-wrapper position-relative">
+                    <form action="{{ route('user.products.index') }}" method="GET" class="search-wrapper position-relative">
                         <input type="text" 
                                class="form-control search-input" 
                                placeholder="{{ trans('Search products...') }}"
                                id="navbar-search"
+                               name="search"
+                               value="{{ request('search') }}"
                                autocomplete="off">
-                        <button class="search-btn" type="button">
+                        <button class="search-btn" type="submit">
                             <i class="fas fa-search"></i>
                         </button>
                         <!-- Search Results Dropdown -->
@@ -49,7 +51,7 @@
                                 <!-- Results will be populated via JavaScript -->
                             </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
 
                 <!-- Right Side: Cart and User -->
@@ -355,13 +357,17 @@
     padding: 12px 50px 12px 20px;
     border: 2px solid #e9ecef;
     font-size: 0.95rem;
-    transition: all 0.3s ease;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .search-input:focus {
     border-color: #007bff;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
     outline: none;
+}
+
+.search-input:hover {
+    border-color: #007bff;
 }
 
 .search-btn {
@@ -376,7 +382,7 @@
     align-items: center;
     justify-content: center;
     color: white;
-    transition: all 0.3s ease;
+    transition: none;
 }
 
 
@@ -907,7 +913,6 @@
 /* Touch Optimization */
 @media (hover: none) and (pointer: coarse) {
     .cart-container:hover .cart-indicator,
-    .search-wrapper:hover,
     .user-toggle:hover {
         transform: none;
     }

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @OA\Info(
@@ -183,7 +184,7 @@ class AuthController extends Controller
     {
         try {
             // Log request data for debugging
-            \Log::info('Registration attempt', [
+            Log::info('Registration attempt', [
                 'data' => $request->except('password', 'password_confirmation')
             ]);
 
@@ -191,7 +192,7 @@ class AuthController extends Controller
             try {
                 $rules = User::getValidationRules();
             } catch (\Exception $e) {
-                \Log::error('Failed to get validation rules', ['error' => $e->getMessage()]);
+                Log::error('Failed to get validation rules', ['error' => $e->getMessage()]);
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation configuration error',
@@ -203,7 +204,7 @@ class AuthController extends Controller
             $validator = Validator::make($request->all(), $rules);
 
             if ($validator->fails()) {
-                \Log::warning('Registration validation failed', [
+                Log::warning('Registration validation failed', [
                     'errors' => $validator->errors()
                 ]);
                 return response()->json([
@@ -230,10 +231,13 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password),
             ]);
 
-            \Log::info('User registered successfully', ['user_id' => $user->id]);
+            Log::info('User registered successfully', ['user_id' => $user->id]);
 
             // Generate token
             $token = $user->createToken('auth_token')->plainTextToken;
+
+            // Link any guest tokens to this user if provided
+            $this->linkGuestTokens($user, $request);
 
             return response()->json([
                 'success' => true,
@@ -245,7 +249,7 @@ class AuthController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
-            \Log::error('Registration failed', [
+            Log::error('Registration failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -665,7 +669,10 @@ class AuthController extends Controller
             $user = Auth::user();
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            \Log::info('User logged in successfully', ['user_id' => $user->id]);
+            Log::info('User logged in successfully', ['user_id' => $user->id]);
+
+            // Link any guest tokens to this user if provided
+            $this->linkGuestTokens($user, $request);
 
             return response()->json([
                 'success' => true,
@@ -677,7 +684,7 @@ class AuthController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Login failed', [
+            Log::error('Login failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -1092,6 +1099,43 @@ class AuthController extends Controller
                 'message' => 'Failed to update notification preferences',
                 'error' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+    /**
+     * Link guest tokens to authenticated user
+     */
+    private function linkGuestTokens($user, Request $request): void
+    {
+        try {
+            $guestToken = $request->input('guest_token');
+            
+            if ($guestToken) {
+                // Find the guest token and link it to the user
+                $expoToken = \App\Models\ExpoPushToken::where('token', $guestToken)
+                    ->whereNull('tokenable_id')
+                    ->first();
+                
+                if ($expoToken) {
+                    $expoToken->update([
+                        'tokenable_id' => $user->id,
+                        'tokenable_type' => get_class($user),
+                        'last_used_at' => now(),
+                    ]);
+                    
+                    Log::info('Guest token linked to user', [
+                        'user_id' => $user->id,
+                        'token_id' => $expoToken->id,
+                        'token' => $guestToken
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to link guest token', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+            // Don't throw exception - this is not critical for login/registration
         }
     }
 }

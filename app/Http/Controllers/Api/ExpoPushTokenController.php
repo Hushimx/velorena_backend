@@ -14,6 +14,93 @@ use Illuminate\Support\Facades\Log;
 class ExpoPushTokenController extends Controller
 {
     /**
+     * Register Expo push token for guest users (no authentication required)
+     */
+    public function registerGuest(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'token' => 'required|string|max:255',
+            'device_id' => 'nullable|string|max:255',
+            'platform' => 'nullable|string|in:ios,android,web',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $token = $request->input('token');
+            $deviceId = $request->input('device_id');
+            $platform = $request->input('platform', 'unknown');
+
+            // Check if token already exists
+            $existingToken = ExpoPushToken::where('token', $token)->first();
+
+            if ($existingToken) {
+                // Update existing token (keep as guest if not linked to user)
+                $existingToken->update([
+                    'device_id' => $deviceId,
+                    'platform' => $platform,
+                    'is_active' => true,
+                    'last_used_at' => now(),
+                ]);
+
+                $expoToken = $existingToken;
+                $action = 'updated';
+            } else {
+                // Create new guest token (no tokenable_id/type)
+                $expoToken = ExpoPushToken::create([
+                    'token' => $token,
+                    'tokenable_id' => null,
+                    'tokenable_type' => null,
+                    'device_id' => $deviceId,
+                    'platform' => $platform,
+                    'is_active' => true,
+                    'last_used_at' => now(),
+                ]);
+
+                $action = 'created';
+            }
+
+            Log::info('Guest Expo push token registered', [
+                'token_id' => $expoToken->id,
+                'action' => $action,
+                'platform' => $platform,
+                'device_id' => $deviceId
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Guest Expo push token {$action} successfully",
+                'data' => [
+                    'id' => $expoToken->id,
+                    'token' => $expoToken->token,
+                    'platform' => $expoToken->platform,
+                    'device_id' => $expoToken->device_id,
+                    'is_active' => $expoToken->is_active,
+                    'is_guest' => true,
+                    'created_at' => $expoToken->created_at,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to register guest Expo push token', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to register guest Expo push token',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Register or update Expo push token for the authenticated user
      */
     public function register(Request $request): JsonResponse
@@ -43,7 +130,10 @@ class ExpoPushTokenController extends Controller
             $existingToken = ExpoPushToken::where('token', $token)->first();
 
             if ($existingToken) {
-                // Update existing token
+                // Check if this is a guest token being linked to a user
+                $wasGuest = is_null($existingToken->tokenable_id);
+                
+                // Update existing token (link to user if it was a guest token)
                 $existingToken->update([
                     'tokenable_id' => $user->id,
                     'tokenable_type' => get_class($user),
@@ -54,9 +144,9 @@ class ExpoPushTokenController extends Controller
                 ]);
 
                 $expoToken = $existingToken;
-                $action = 'updated';
+                $action = $wasGuest ? 'linked' : 'updated';
             } else {
-                // Create new token
+                // Create new token for authenticated user
                 $expoToken = ExpoPushToken::create([
                     'token' => $token,
                     'tokenable_id' => $user->id,
