@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('expo_push_tokens', function (Blueprint $table) {
             $table->id();
             $table->string('token')->unique();
-            $table->morphs('tokenable'); // user_id, user_type (polymorphic)
+            $table->nullableMorphs('tokenable'); // user_id, user_type (polymorphic) - NULL for guests
             $table->string('device_id')->nullable(); // Device identifier
             $table->string('platform')->nullable(); // ios, android, web
             $table->boolean('is_active')->default(true);
