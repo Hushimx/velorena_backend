@@ -94,6 +94,9 @@ Route::prefix('admin')->group(function () {
             // Site Settings management routes
             Route::resource('site-settings', \App\Http\Controllers\Admin\SiteSettingsController::class);
             Route::post('site-settings/bulk-update', [\App\Http\Controllers\Admin\SiteSettingsController::class, 'updateBulk'])->name('site-settings.bulk-update');
+
+            // Posts management routes
+            Route::resource('posts', \App\Http\Controllers\Admin\PostsController::class);
         });
     });
 });

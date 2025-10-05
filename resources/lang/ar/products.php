@@ -215,4 +215,28 @@ return [
     "latest_products" => "أحدث المنتجات",
     "best_selling_products" => "الأكثر مبيعاً",
     "no_products_available" => "لا توجد منتجات متاحة",
+
+    // Main Image translations
+    "main_image" => "الصورة الرئيسية",
+    "click_to_upload_main_image" => "انقر لرفع الصورة الرئيسية",
+    "main_image_requirements" => "PNG, JPG, GIF حتى 5 ميجابايت",
+    "main_image_preview" => "معاينة الصورة الرئيسية",
+    "additional_images" => "الصور الإضافية",
+    "click_to_upload_images" => "انقر لرفع الصور",
+    "images_requirements" => "PNG, JPG, GIF حتى 5 ميجابايت لكل صورة",
+
+    // Product Options Section translations
+    "add_product_options_title" => "إضافة خيارات المنتج",
+    "add_product_options_description" => "إنشاء خيارات مثل الحجم واللون والمادة وغيرها",
+    "product_option" => "خيار المنتج",
+    "option_name_required" => "اسم الخيار *",
+    "option_name_arabic" => "اسم الخيار (عربي)",
+    "option_type" => "النوع",
+    "option_values" => "قيم الخيار",
+    "add_value" => "إضافة قيمة",
+    "value_placeholder" => "القيمة",
+    "value_arabic_placeholder" => "القيمة (عربي)",
+    "price_adjustment_placeholder" => "تعديل السعر",
+    "required_label" => "مطلوب",
+    "additional_seo_settings" => "إعدادات تحسين محركات البحث الإضافية",
 ];
