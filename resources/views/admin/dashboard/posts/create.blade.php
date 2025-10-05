@@ -647,20 +647,22 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
-                            <!-- Form Actions -->
-                            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200 gap-3">
-                                <a href="{{ route('admin.posts.index') }}"
-                                    class="inline-flex items-center px-6 py-3 gap-3 border border-gray-300 rounded-lg font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 shadow-sm">
-                                    <i class="fas fa-times"></i>
-                                    {{ trans('posts.cancel') }}
-                                </a>
-                                <button type="submit"
-                                    class="inline-flex items-center px-6 py-3 gap-3 bg-gradient-to-r from-blue-600 to-blue-700 border border-transparent rounded-lg font-medium text-white hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 shadow-lg">
-                                    <i class="fas fa-save"></i>
-                                    {{ trans('posts.create_post_button') }}
-                                </button>
-                            </div>
+                    <!-- Form Actions - Always Visible -->
+                    <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200 gap-3">
+                        <a href="{{ route('admin.posts.index') }}"
+                            class="inline-flex items-center px-6 py-3 gap-3 border border-gray-300 rounded-lg font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 shadow-sm">
+                            <i class="fas fa-times"></i>
+                            {{ trans('posts.cancel') }}
+                        </a>
+                        <button type="submit"
+                            class="inline-flex items-center px-6 py-3 gap-3 bg-gradient-to-r from-blue-600 to-blue-700 border border-transparent rounded-lg font-medium text-white hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 shadow-lg">
+                            <i class="fas fa-save"></i>
+                            {{ trans('posts.create_post_button') }}
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
