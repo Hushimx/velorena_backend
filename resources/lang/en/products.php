@@ -210,4 +210,28 @@ return [
     "latest_products" => "Latest Products",
     "best_selling_products" => "Best Selling Products",
     "no_products_available" => "No products available",
+
+    // Main Image translations
+    "main_image" => "Main Image",
+    "click_to_upload_main_image" => "Click to upload main image",
+    "main_image_requirements" => "PNG, JPG, GIF up to 5MB",
+    "main_image_preview" => "Main image preview",
+    "additional_images" => "Additional Images",
+    "click_to_upload_images" => "Click to upload images",
+    "images_requirements" => "PNG, JPG, GIF up to 5MB each",
+
+    // Product Options Section translations
+    "add_product_options_title" => "Add Product Options",
+    "add_product_options_description" => "Create options like size, color, material, etc.",
+    "product_option" => "Product Option",
+    "option_name_required" => "Option Name *",
+    "option_name_arabic" => "Option Name (Arabic)",
+    "option_type" => "Type",
+    "option_values" => "Option Values",
+    "add_value" => "Add Value",
+    "value_placeholder" => "Value",
+    "value_arabic_placeholder" => "Value (Arabic)",
+    "price_adjustment_placeholder" => "Price Adjustment",
+    "required_label" => "Required",
+    "additional_seo_settings" => "Additional SEO Settings",
 ];

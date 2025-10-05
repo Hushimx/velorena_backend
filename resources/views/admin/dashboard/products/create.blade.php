@@ -185,21 +185,26 @@
                     </div>
 
                     <!-- Main Product Image Section -->
-                    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200" style="background: linear-gradient(135deg, var(--brand-yellow-light) 0%, var(--brand-yellow) 100%); border-color: var(--brand-yellow-dark);">
+                    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200"
+                        style="background: linear-gradient(135deg, var(--brand-yellow-light) 0%, var(--brand-yellow) 100%); border-color: var(--brand-yellow-dark);">
                         <div class="flex items-center mb-6 gap-3">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style="background: var(--brand-brown);">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3"
+                                style="background: var(--brand-brown);">
                                 <i class="fas fa-image text-white text-sm"></i>
                             </div>
-                            <h2 class="text-xl font-semibold" style="color: var(--brand-brown);">{{ trans('products.main_image') }}</h2>
+                            <h2 class="text-xl font-semibold" style="color: var(--brand-brown);">
+                                {{ trans('products.main_image') }}</h2>
                         </div>
 
                         <div class="space-y-4">
-                            <div class="border-2 border-dashed rounded-xl p-8 text-center hover:border-opacity-60 transition-all duration-200" 
-                                 style="border-color: var(--brand-brown); background: rgba(255, 255, 255, 0.5);">
-                                <input type="file" name="main_image" id="main_image" accept="image/*" class="hidden">
+                            <div class="border-2 border-dashed rounded-xl p-8 text-center hover:border-opacity-60 transition-all duration-200"
+                                style="border-color: var(--brand-brown); background: rgba(255, 255, 255, 0.5);">
+                                <input type="file" name="main_image" id="main_image" accept="image/*"
+                                    class="hidden">
                                 <label for="main_image" class="cursor-pointer">
                                     <div class="mb-3">
-                                        <i class="fas fa-cloud-upload-alt text-3xl" style="color: var(--brand-brown);"></i>
+                                        <i class="fas fa-cloud-upload-alt text-3xl"
+                                            style="color: var(--brand-brown);"></i>
                                     </div>
                                     <p class="text-sm font-medium mb-1" style="color: var(--brand-brown);">
                                         {{ trans('products.click_to_upload_main_image') }}
@@ -210,8 +215,11 @@
                                 </label>
                             </div>
                             <div id="main-image-preview" class="mt-4" style="display: none;">
-                                <img id="main-image-preview-img" src="" alt="Preview" class="w-32 h-32 object-cover rounded-lg shadow-md" style="border: 2px solid var(--brand-brown);">
-                                <p class="text-xs mt-2" style="color: var(--brand-brown-light);">{{ trans('products.main_image_preview') }}</p>
+                                <img id="main-image-preview-img" src="" alt="Preview"
+                                    class="w-32 h-32 object-cover rounded-lg shadow-md"
+                                    style="border: 2px solid var(--brand-brown);">
+                                <p class="text-xs mt-2" style="color: var(--brand-brown-light);">
+                                    {{ trans('products.main_image_preview') }}</p>
                             </div>
                             @error('main_image')
                                 <p class="mt-2 text-sm text-red-600 flex items-center">
@@ -222,21 +230,26 @@
                     </div>
 
                     <!-- Additional Images Section -->
-                    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200" style="background: linear-gradient(135deg, var(--brand-yellow-light) 0%, var(--brand-yellow) 100%); border-color: var(--brand-yellow-dark);">
+                    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200"
+                        style="background: linear-gradient(135deg, var(--brand-yellow-light) 0%, var(--brand-yellow) 100%); border-color: var(--brand-yellow-dark);">
                         <div class="flex items-center mb-6 gap-3">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style="background: var(--brand-brown);">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3"
+                                style="background: var(--brand-brown);">
                                 <i class="fas fa-images text-white text-sm"></i>
                             </div>
-                            <h2 class="text-xl font-semibold" style="color: var(--brand-brown);">{{ trans('products.additional_images') }}</h2>
+                            <h2 class="text-xl font-semibold" style="color: var(--brand-brown);">
+                                {{ trans('products.additional_images') }}</h2>
                         </div>
 
                         <div class="space-y-4">
-                            <div class="border-2 border-dashed rounded-xl p-8 text-center hover:border-opacity-60 transition-all duration-200" 
-                                 style="border-color: var(--brand-brown); background: rgba(255, 255, 255, 0.5);">
-                                <input type="file" name="images[]" id="images" accept="image/*" multiple class="hidden">
+                            <div class="border-2 border-dashed rounded-xl p-8 text-center hover:border-opacity-60 transition-all duration-200"
+                                style="border-color: var(--brand-brown); background: rgba(255, 255, 255, 0.5);">
+                                <input type="file" name="images[]" id="images" accept="image/*" multiple
+                                    class="hidden">
                                 <label for="images" class="cursor-pointer">
                                     <div class="mb-3">
-                                        <i class="fas fa-cloud-upload-alt text-3xl" style="color: var(--brand-brown);"></i>
+                                        <i class="fas fa-cloud-upload-alt text-3xl"
+                                            style="color: var(--brand-brown);"></i>
                                     </div>
                                     <p class="text-sm font-medium mb-1" style="color: var(--brand-brown);">
                                         {{ trans('products.click_to_upload_images') }}
@@ -246,7 +259,8 @@
                                     </p>
                                 </label>
                             </div>
-                            <div id="image-preview" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" style="display: none;">
+                            <div id="image-preview" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                                style="display: none;">
                                 <!-- Image previews will be added here -->
                             </div>
                             <input type="hidden" name="primary_image" id="primary_image" value="0">
@@ -457,7 +471,8 @@
 
                             <!-- Additional SEO Settings -->
                             <div class="border-t border-green-200 pt-6">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Additional SEO Settings</h3>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                                    {{ trans('products.additional_seo_settings') }}</h3>
                                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     <div class="space-y-2">
                                         <label for="canonical_url" class="block text-sm font-semibold text-gray-700">
@@ -531,8 +546,10 @@
                         <div class="bg-white rounded-lg p-6 border border-indigo-200 shadow-sm">
                             <div class="flex items-center justify-between mb-4">
                                 <div>
-                                    <h3 class="text-lg font-medium text-gray-900">Add Product Options</h3>
-                                    <p class="text-sm text-gray-600">Create options like size, color, material, etc.</p>
+                                    <h3 class="text-lg font-medium text-gray-900">
+                                        {{ trans('products.add_product_options_title') }}</h3>
+                                    <p class="text-sm text-gray-600">
+                                        {{ trans('products.add_product_options_description') }}</p>
                                 </div>
                                 <button type="button" id="add-option-btn"
                                     class="gap-3 inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 border border-transparent rounded-lg font-medium text-sm text-white hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
@@ -575,16 +592,30 @@
     </div>
 
     <script>
+        // Pass translations to JavaScript
+        window.translations = {
+            product_option: '{{ trans('products.product_option') }}',
+            option_name_required: '{{ trans('products.option_name_required') }}',
+            option_name_arabic: '{{ trans('products.option_name_arabic') }}',
+            option_type: '{{ trans('products.option_type') }}',
+            option_values: '{{ trans('products.option_values') }}',
+            add_value: '{{ trans('products.add_value') }}',
+            value_placeholder: '{{ trans('products.value_placeholder') }}',
+            value_arabic_placeholder: '{{ trans('products.value_arabic_placeholder') }}',
+            price_adjustment_placeholder: '{{ trans('products.price_adjustment_placeholder') }}',
+            required_label: '{{ trans('products.required_label') }}'
+        };
+
         document.addEventListener('DOMContentLoaded', function() {
             const imageInput = document.getElementById('images');
             const imagePreview = document.getElementById('image-preview');
             const primaryImageInput = document.getElementById('primary_image');
-            
+
             // Main image upload preview
             const mainImageInput = document.getElementById('main_image');
             const mainImagePreview = document.getElementById('main-image-preview');
             const mainImagePreviewImg = document.getElementById('main-image-preview-img');
-            
+
             if (mainImageInput && mainImagePreview && mainImagePreviewImg) {
                 mainImageInput.addEventListener('change', function(e) {
                     const file = e.target.files[0];
@@ -671,7 +702,7 @@
                 const optionHtml = `
                     <div class="bg-white border border-indigo-200 rounded-lg p-6 shadow-sm" data-option-id="${optionId}">
                         <div class="flex items-center justify-between mb-4">
-                            <h4 class="text-lg font-medium text-gray-900">Product Option</h4>
+                            <h4 class="text-lg font-medium text-gray-900">${window.translations.product_option}</h4>
                             <button type="button" class="remove-option-btn text-red-600 hover:text-red-800 transition duration-200" data-option-id="${optionId}">
                                 ×
                             </button>
@@ -679,13 +710,13 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Option Name *</label>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">${window.translations.option_name_required}</label>
                                 <input type="text" name="options[${optionId}][name]" required
                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 shadow-sm"
                                        placeholder="e.g., Size, Color, Material">
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Option Name (Arabic)</label>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">${window.translations.option_name_arabic}</label>
                                 <input type="text" name="options[${optionId}][name_ar]"
                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 shadow-sm"
                                        placeholder="اسم الخيار">
@@ -694,7 +725,7 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Type</label>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">${window.translations.option_type}</label>
                                 <select name="options[${optionId}][type]"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 shadow-sm">
                                     <option value="select">Select</option>
@@ -707,16 +738,16 @@
                             <div class="flex items-center">
                                 <label class="flex items-center">
                                     <input type="checkbox" name="options[${optionId}][is_required]" class="mr-2" style="accent-color: #6366f1;">
-                                    <span class="text-sm text-gray-700">Required</span>
+                                    <span class="text-sm text-gray-700">${window.translations.required_label}</span>
                                 </label>
                             </div>
                         </div>
 
                         <div class="option-values-container" data-option-id="${optionId}">
                             <div class="flex justify-between items-center mb-2">
-                                <label class="block text-sm font-semibold text-gray-700">Option Values</label>
+                                <label class="block text-sm font-semibold text-gray-700">${window.translations.option_values}</label>
                                 <button type="button" class="add-value-btn text-sm text-green-600 hover:text-green-800 transition duration-200" data-option-id="${optionId}">
-                                    <i class="fas fa-plus mr-1"></i>Add Value
+                                    <i class="fas fa-plus mr-1"></i>${window.translations.add_value}
                                 </button>
                             </div>
                             <div class="values-list space-y-2">
@@ -751,13 +782,13 @@
                     const valueHtml = `
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-2 p-3 bg-gray-50 rounded border">
                             <input type="text" name="options[${optionId}][values][${valueIndex}][value]"
-                                   placeholder="Value"
+                                   placeholder="${window.translations.value_placeholder}"
                                    class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                             <input type="text" name="options[${optionId}][values][${valueIndex}][value_ar]"
-                                   placeholder="Value (Arabic)"
+                                   placeholder="${window.translations.value_arabic_placeholder}"
                                    class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                             <input type="number" name="options[${optionId}][values][${valueIndex}][price_adjustment]"
-                                   placeholder="Price Adjustment" step="0.01"
+                                   placeholder="${window.translations.price_adjustment_placeholder}" step="0.01"
                                    class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
                             <div class="flex items-center justify-end">
                                 <button type="button" class="remove-value-btn text-red-600 hover:text-red-800 transition duration-200">
