@@ -11,13 +11,6 @@
             font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
         }
-
-        /* Simple textarea styling */
-        .content-textarea {
-            min-height: 300px;
-            font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-        }
     </style>
 @endsection
 
@@ -191,7 +184,7 @@
                                 </label>
                                 <textarea name="content" id="content" rows="12" required
                                     placeholder="{{ trans('posts.enter_post_content') }}"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:bg-gray-50 focus:bg-white shadow-sm text-gray-900 content-textarea">{{ old('content') }}</textarea>
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:bg-gray-50 focus:bg-white shadow-sm text-gray-900 content-textarea ckeditor">{{ old('content') }}</textarea>
                                 @error('content')
                                     <p class="mt-2 text-sm text-red-600 flex items-center">
                                         <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
@@ -337,7 +330,7 @@
                                         {{ trans('posts.content_ar') }}
                                     </label>
                                     <textarea name="content_ar" id="content_ar" rows="12" placeholder="{{ trans('posts.enter_post_content_ar') }}"
-                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:bg-gray-50 focus:bg-white shadow-sm text-gray-900 content-textarea">{{ old('content_ar') }}</textarea>
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:bg-gray-50 focus:bg-white shadow-sm text-gray-900 content-textarea ckeditor">{{ old('content_ar') }}</textarea>
                                     @error('content_ar')
                                         <p class="mt-2 text-sm text-red-600 flex items-center">
                                             <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
@@ -671,6 +664,8 @@
 @endsection
 
 @push('scripts')
+    <!-- CKEditor 5 Classic -->
+    <script src="{{ asset('assets/lib/ckeditor5-classic/build/ckeditor.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
@@ -746,6 +741,67 @@
                             this.classList.remove('bg-green-600', 'hover:bg-green-700');
                             this.classList.add('bg-purple-600', 'hover:bg-purple-700');
                         }, 2000);
+                    }
+                });
+            }
+        });
+    </script>
+    <script>
+        let contentEditor, contentArEditor;
+
+        // Initialize CKEditor for content textareas
+        async function initializeEditors() {
+            try {
+                // Initialize main content editor
+                contentEditor = await ClassicEditor.create(document.querySelector('#content'), {
+                    language: 'en',
+                    toolbar: [
+                        'heading', '|',
+                        'bold', 'italic', 'underline', 'strikethrough', '|',
+                        'bulletedList', 'numberedList', '|',
+                        'link', 'blockQuote', '|',
+                        'undo', 'redo'
+                    ],
+                    direction: 'ltr' // English content
+                });
+
+                // Initialize Arabic content editor
+                contentArEditor = await ClassicEditor.create(document.querySelector('#content_ar'), {
+                    language: 'ar',
+                    toolbar: [
+                        'heading', '|',
+                        'bold', 'italic', 'underline', 'strikethrough', '|',
+                        'bulletedList', 'numberedList', '|',
+                        'link', 'blockQuote', '|',
+                        'undo', 'redo'
+                    ],
+                    direction: 'rtl' // Arabic content
+                });
+
+                // Make editors available globally for form submission
+                window.contentEditor = contentEditor;
+                window.contentArEditor = contentArEditor;
+
+            } catch (error) {
+                console.error('Error initializing CKEditor:', error);
+            }
+        }
+
+        // Initialize editors when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEditors();
+        });
+
+        // Handle form submission to sync CKEditor content
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    if (contentEditor) {
+                        contentEditor.updateSourceElement();
+                    }
+                    if (contentArEditor) {
+                        contentArEditor.updateSourceElement();
                     }
                 });
             }
