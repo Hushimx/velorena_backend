@@ -11,6 +11,56 @@
             font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
         }
+
+        /* CKEditor height customization - Force height */
+        .ck-editor__editable {
+            min-height: 400px !important;
+            max-height: 600px !important;
+            height: 400px !important;
+            overflow-y: auto !important;
+            resize: none !important;
+        }
+
+        /* Alternative: Set specific height */
+        .ck-editor__editable_inline {
+            min-height: 400px !important;
+            max-height: 600px !important;
+            height: 400px !important;
+            overflow-y: auto !important;
+            resize: none !important;
+        }
+
+        /* Custom height for specific editors */
+        #content+.ck-editor .ck-editor__editable {
+            min-height: 400px !important;
+            max-height: 600px !important;
+            height: 400px !important;
+            overflow-y: auto !important;
+            resize: none !important;
+        }
+
+        #content_ar+.ck-editor .ck-editor__editable {
+            min-height: 400px !important;
+            max-height: 600px !important;
+            height: 400px !important;
+            overflow-y: auto !important;
+            resize: none !important;
+        }
+
+        .ck-editor__editable:focus {
+            min-height: 400px !important;
+            max-height: 600px !important;
+            height: 400px !important;
+            overflow-y: auto !important;
+        }
+
+        .ck-content {
+            min-height: 400px !important;
+            max-height: 600px !important;
+            height: 400px !important;
+            overflow-y: auto !important;
+            resize: none !important;
+        }
     </style>
 @endsection
 
@@ -177,7 +227,7 @@
                                 <label for="content" class="block text-sm font-semibold text-gray-700">
                                     {{ trans('posts.content') }} <span class="text-red-500">*</span>
                                 </label>
-                                <textarea name="content" id="content" rows="12" required
+                                <textarea name="content" id="content" rows="12" col="5" required
                                     placeholder="{{ trans('posts.enter_post_content') }}"
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:bg-gray-50 focus:bg-white shadow-sm text-gray-900 content-textarea ckeditor">{{ old('content', $post->content) }}</textarea>
                                 @error('content')
@@ -623,17 +673,28 @@
             </div>
 
             <!-- Form Actions - Always Visible -->
-            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200 gap-3 mb-3">
-                <a href="{{ route('admin.posts.index') }}"
-                    class="inline-flex items-center px-6 py-3 gap-3 border border-gray-300 rounded-lg font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 shadow-sm">
-                    <i class="fas fa-times"></i>
-                    {{ trans('posts.cancel') }}
-                </a>
-                <button type="submit"
-                    class="inline-flex items-center px-6 py-3 gap-3 bg-gradient-to-r from-green-600 to-green-700 border border-transparent rounded-lg font-medium text-white hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-200 shadow-lg">
-                    <i class="fas fa-save"></i>
-                    {{ trans('posts.update_post_button') }}
-                </button>
+            <div class="flex justify-between items-center pt-6 border-t border-gray-200 gap-3 mb-3">
+                <div class="flex gap-3">
+                    <a href="{{ route('admin.posts.preview', $post) }}"
+                        class="inline-flex items-center px-6 py-3 gap-3 border border-purple-300 rounded-lg font-medium text-purple-700 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-200 shadow-sm"
+                        target="_blank">
+                        <i class="fas fa-eye"></i>
+                        {{ trans('posts.preview_post') }}
+                    </a>
+                </div>
+
+                <div class="flex gap-3">
+                    <a href="{{ route('admin.posts.index') }}"
+                        class="inline-flex items-center px-6 py-3 gap-3 border border-gray-300 rounded-lg font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 shadow-sm">
+                        <i class="fas fa-times"></i>
+                        {{ trans('posts.cancel') }}
+                    </a>
+                    <button type="submit"
+                        class="inline-flex items-center px-6 py-3 gap-3 bg-gradient-to-r from-green-600 to-green-700 border border-transparent rounded-lg font-medium text-white hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-200 shadow-lg">
+                        <i class="fas fa-save"></i>
+                        {{ trans('posts.update_post_button') }}
+                    </button>
+                </div>
             </div>
             </form>
         </div>

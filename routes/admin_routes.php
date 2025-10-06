@@ -97,6 +97,10 @@ Route::prefix('admin')->group(function () {
 
             // Posts management routes
             Route::resource('posts', \App\Http\Controllers\Admin\PostsController::class);
+            Route::get('posts/{post}/preview', [\App\Http\Controllers\Admin\PostsController::class, 'preview'])->name('posts.preview');
+
+            // Image upload for CKEditor
+            Route::post('upload/image', [\App\Http\Controllers\Admin\ImageUploadController::class, 'upload'])->name('upload.image');
         });
     });
 });

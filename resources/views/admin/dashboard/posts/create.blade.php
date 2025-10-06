@@ -11,6 +11,58 @@
             font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
         }
+
+        /* CKEditor height customization - Force height */
+        .ck-editor__editable {
+            min-height: 400px !important;
+            max-height: 600px !important;
+            height: 400px !important;
+            overflow-y: auto !important;
+            resize: none !important;
+        }
+
+        /* Alternative: Set specific height */
+        .ck-editor__editable_inline {
+            min-height: 400px !important;
+            max-height: 600px !important;
+            height: 400px !important;
+            overflow-y: auto !important;
+            resize: none !important;
+        }
+
+        /* Custom height for specific editors */
+        #content+.ck-editor .ck-editor__editable {
+            min-height: 400px !important;
+            max-height: 600px !important;
+            height: 400px !important;
+            overflow-y: auto !important;
+            resize: none !important;
+        }
+
+        #content_ar+.ck-editor .ck-editor__editable {
+            min-height: 400px !important;
+            max-height: 600px !important;
+            height: 400px !important;
+            overflow-y: auto !important;
+            resize: none !important;
+        }
+
+        /* Force height on focus and typing */
+        .ck-editor__editable:focus {
+            min-height: 400px !important;
+            max-height: 600px !important;
+            height: 400px !important;
+            overflow-y: auto !important;
+        }
+
+        /* Additional selectors to catch all cases */
+        .ck-content {
+            min-height: 400px !important;
+            max-height: 600px !important;
+            height: 400px !important;
+            overflow-y: auto !important;
+            resize: none !important;
+        }
     </style>
 @endsection
 
@@ -644,17 +696,27 @@
                     </div>
 
                     <!-- Form Actions - Always Visible -->
-                    <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200 gap-3">
-                        <a href="{{ route('admin.posts.index') }}"
-                            class="inline-flex items-center px-6 py-3 gap-3 border border-gray-300 rounded-lg font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 shadow-sm">
-                            <i class="fas fa-times"></i>
-                            {{ trans('posts.cancel') }}
-                        </a>
-                        <button type="submit"
-                            class="inline-flex items-center px-6 py-3 gap-3 bg-gradient-to-r from-blue-600 to-blue-700 border border-transparent rounded-lg font-medium text-white hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 shadow-lg">
-                            <i class="fas fa-save"></i>
-                            {{ trans('posts.create_post_button') }}
-                        </button>
+                    <div class="flex justify-between items-center pt-6 border-t border-gray-200 gap-3">
+                        <div class="flex gap-3">
+                            <button type="button" id="preview-draft-btn"
+                                class="inline-flex items-center px-6 py-3 gap-3 border border-purple-300 rounded-lg font-medium text-purple-700 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-200 shadow-sm">
+                                <i class="fas fa-eye"></i>
+                                {{ trans('posts.preview_draft') }}
+                            </button>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <a href="{{ route('admin.posts.index') }}"
+                                class="inline-flex items-center px-6 py-3 gap-3 border border-gray-300 rounded-lg font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 shadow-sm">
+                                <i class="fas fa-times"></i>
+                                {{ trans('posts.cancel') }}
+                            </a>
+                            <button type="submit"
+                                class="inline-flex items-center px-6 py-3 gap-3 bg-gradient-to-r from-blue-600 to-blue-700 border border-transparent rounded-lg font-medium text-white hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 shadow-lg">
+                                <i class="fas fa-save"></i>
+                                {{ trans('posts.create_post_button') }}
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -755,32 +817,492 @@
                 // Initialize main content editor
                 contentEditor = await ClassicEditor.create(document.querySelector('#content'), {
                     language: 'en',
-                    toolbar: [
-                        'heading', '|',
-                        'bold', 'italic', 'underline', 'strikethrough', '|',
-                        'bulletedList', 'numberedList', '|',
-                        'link', 'blockQuote', '|',
-                        'undo', 'redo'
-                    ],
-                    direction: 'ltr' // English content
+                    toolbar: {
+                        items: [
+                            'heading', '|',
+                            'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', '|',
+                            'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
+                            'bulletedList', 'numberedList', 'todoList', '|',
+                            'outdent', 'indent', '|',
+                            'alignment', '|',
+                            'link', 'blockQuote', 'insertTable', '|',
+                            'imageUpload', 'mediaEmbed', '|',
+                            'code', 'codeBlock', '|',
+                            'horizontalLine', 'pageBreak', '|',
+                            'specialCharacters', '|',
+                            'findAndReplace', '|',
+                            'selectAll', '|',
+                            'sourceEditing', '|',
+                            'undo', 'redo'
+                        ],
+                        shouldNotGroupWhenFull: true
+                    },
+                    heading: {
+                        options: [{
+                                model: 'paragraph',
+                                title: 'Paragraph',
+                                class: 'ck-heading_paragraph'
+                            },
+                            {
+                                model: 'heading1',
+                                view: 'h1',
+                                title: 'Heading 1',
+                                class: 'ck-heading_heading1'
+                            },
+                            {
+                                model: 'heading2',
+                                view: 'h2',
+                                title: 'Heading 2',
+                                class: 'ck-heading_heading2'
+                            },
+                            {
+                                model: 'heading3',
+                                view: 'h3',
+                                title: 'Heading 3',
+                                class: 'ck-heading_heading3'
+                            },
+                            {
+                                model: 'heading4',
+                                view: 'h4',
+                                title: 'Heading 4',
+                                class: 'ck-heading_heading4'
+                            },
+                            {
+                                model: 'heading5',
+                                view: 'h5',
+                                title: 'Heading 5',
+                                class: 'ck-heading_heading5'
+                            },
+                            {
+                                model: 'heading6',
+                                view: 'h6',
+                                title: 'Heading 6',
+                                class: 'ck-heading_heading6'
+                            }
+                        ]
+                    },
+                    fontSize: {
+                        options: [
+                            9, 11, 13, 'default', 17, 19, 21, 27, 35
+                        ],
+                        supportAllValues: true
+                    },
+                    fontFamily: {
+                        options: [
+                            'default',
+                            'Arial, Helvetica, sans-serif',
+                            'Courier New, Courier, monospace',
+                            'Georgia, serif',
+                            'Lucida Sans Unicode, Lucida Grande, sans-serif',
+                            'Tahoma, Geneva, sans-serif',
+                            'Times New Roman, Times, serif',
+                            'Trebuchet MS, Helvetica, sans-serif',
+                            'Verdana, Geneva, sans-serif'
+                        ],
+                        supportAllValues: true
+                    },
+                    image: {
+                        toolbar: [
+                            'imageTextAlternative', '|',
+                            'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', '|',
+                            'imageStyle:inline', 'imageStyle:block', 'imageStyle:side', '|',
+                            'resizeImage', '|',
+                            'imageResize'
+                        ],
+                        styles: [
+                            'full',
+                            'side',
+                            'alignLeft',
+                            'alignCenter',
+                            'alignRight'
+                        ]
+                    },
+                    table: {
+                        contentToolbar: [
+                            'tableColumn', 'tableRow', 'mergeTableCells',
+                            'tableProperties', 'tableCellProperties'
+                        ],
+                        tableProperties: {
+                            borderColors: ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff'],
+                            backgroundColors: ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff']
+                        },
+                        tableCellProperties: {
+                            borderColors: ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff'],
+                            backgroundColors: ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff']
+                        }
+                    },
+                    mediaEmbed: {
+                        previewsInData: true
+                    },
+                    link: {
+                        addTargetToExternalLinks: true,
+                        defaultProtocol: 'https://',
+                        decorators: {
+                            addTargetToExternalLinks: {
+                                mode: 'automatic',
+                                callback: url => /^(https?:)?\/\//.test(url),
+                                attributes: {
+                                    target: '_blank',
+                                    rel: 'noopener noreferrer'
+                                }
+                            }
+                        }
+                    },
+                    direction: 'ltr', // English content
+                    // Set editor height
+                    ui: {
+                        viewportOffset: {
+                            top: 50
+                        }
+                    },
+                    // Image upload configuration
+                    simpleUpload: {
+                        uploadUrl: '{{ route('admin.upload.image') }}',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    },
+                    // Remove plugins that might not be available
+                    removePlugins: ['Title'],
+                    // Additional features
+                    extraPlugins: [],
+                    // Enable source editing
+                    allowSourceEditing: true
                 });
 
                 // Initialize Arabic content editor
                 contentArEditor = await ClassicEditor.create(document.querySelector('#content_ar'), {
                     language: 'ar',
-                    toolbar: [
-                        'heading', '|',
-                        'bold', 'italic', 'underline', 'strikethrough', '|',
-                        'bulletedList', 'numberedList', '|',
-                        'link', 'blockQuote', '|',
-                        'undo', 'redo'
-                    ],
-                    direction: 'rtl' // Arabic content
+                    toolbar: {
+                        items: [
+                            'heading', '|',
+                            'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', '|',
+                            'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
+                            'bulletedList', 'numberedList', 'todoList', '|',
+                            'outdent', 'indent', '|',
+                            'alignment', '|',
+                            'link', 'blockQuote', 'insertTable', '|',
+                            'imageUpload', 'mediaEmbed', '|',
+                            'code', 'codeBlock', '|',
+                            'horizontalLine', 'pageBreak', '|',
+                            'specialCharacters', '|',
+                            'findAndReplace', '|',
+                            'selectAll', '|',
+                            'sourceEditing', '|',
+                            'undo', 'redo'
+                        ],
+                        shouldNotGroupWhenFull: true
+                    },
+                    heading: {
+                        options: [{
+                                model: 'paragraph',
+                                title: 'Paragraph',
+                                class: 'ck-heading_paragraph'
+                            },
+                            {
+                                model: 'heading1',
+                                view: 'h1',
+                                title: 'Heading 1',
+                                class: 'ck-heading_heading1'
+                            },
+                            {
+                                model: 'heading2',
+                                view: 'h2',
+                                title: 'Heading 2',
+                                class: 'ck-heading_heading2'
+                            },
+                            {
+                                model: 'heading3',
+                                view: 'h3',
+                                title: 'Heading 3',
+                                class: 'ck-heading_heading3'
+                            },
+                            {
+                                model: 'heading4',
+                                view: 'h4',
+                                title: 'Heading 4',
+                                class: 'ck-heading_heading4'
+                            },
+                            {
+                                model: 'heading5',
+                                view: 'h5',
+                                title: 'Heading 5',
+                                class: 'ck-heading_heading5'
+                            },
+                            {
+                                model: 'heading6',
+                                view: 'h6',
+                                title: 'Heading 6',
+                                class: 'ck-heading_heading6'
+                            }
+                        ]
+                    },
+                    fontSize: {
+                        options: [
+                            9, 11, 13, 'default', 17, 19, 21, 27, 35
+                        ],
+                        supportAllValues: true
+                    },
+                    fontFamily: {
+                        options: [
+                            'default',
+                            'Arial, Helvetica, sans-serif',
+                            'Courier New, Courier, monospace',
+                            'Georgia, serif',
+                            'Lucida Sans Unicode, Lucida Grande, sans-serif',
+                            'Tahoma, Geneva, sans-serif',
+                            'Times New Roman, Times, serif',
+                            'Trebuchet MS, Helvetica, sans-serif',
+                            'Verdana, Geneva, sans-serif',
+                            'Amiri, serif',
+                            'Cairo, sans-serif',
+                            'Noto Sans Arabic, sans-serif'
+                        ],
+                        supportAllValues: true
+                    },
+                    image: {
+                        toolbar: [
+                            'imageTextAlternative', '|',
+                            'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', '|',
+                            'imageStyle:inline', 'imageStyle:block', 'imageStyle:side', '|',
+                            'resizeImage', '|',
+                            'imageResize'
+                        ],
+                        styles: [
+                            'full',
+                            'side',
+                            'alignLeft',
+                            'alignCenter',
+                            'alignRight'
+                        ]
+                    },
+                    table: {
+                        contentToolbar: [
+                            'tableColumn', 'tableRow', 'mergeTableCells',
+                            'tableProperties', 'tableCellProperties'
+                        ],
+                        tableProperties: {
+                            borderColors: ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff'],
+                            backgroundColors: ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff']
+                        },
+                        tableCellProperties: {
+                            borderColors: ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff'],
+                            backgroundColors: ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff']
+                        }
+                    },
+                    mediaEmbed: {
+                        previewsInData: true
+                    },
+                    link: {
+                        addTargetToExternalLinks: true,
+                        defaultProtocol: 'https://',
+                        decorators: {
+                            addTargetToExternalLinks: {
+                                mode: 'automatic',
+                                callback: url => /^(https?:)?\/\//.test(url),
+                                attributes: {
+                                    target: '_blank',
+                                    rel: 'noopener noreferrer'
+                                }
+                            }
+                        }
+                    },
+                    direction: 'rtl', // Arabic content
+                    // Set editor height
+                    ui: {
+                        viewportOffset: {
+                            top: 50
+                        }
+                    },
+                    // Image upload configuration
+                    simpleUpload: {
+                        uploadUrl: '{{ route('admin.upload.image') }}',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    },
+                    // Remove plugins that might not be available
+                    removePlugins: ['Title'],
+                    // Additional features
+                    extraPlugins: [],
+                    // Enable source editing
+                    allowSourceEditing: true
                 });
 
                 // Make editors available globally for form submission
                 window.contentEditor = contentEditor;
                 window.contentArEditor = contentArEditor;
+
+                // Set custom height for editors after initialization
+                setTimeout(() => {
+                    // Set height for main content editor
+                    const contentEditable = contentEditor.ui.view.editable.element;
+                    if (contentEditable) {
+                        contentEditable.style.minHeight = '400px';
+                        contentEditable.style.maxHeight = '600px';
+                        contentEditable.style.height = '400px';
+                        contentEditable.style.overflowY = 'auto';
+                    }
+
+                    // Set height for Arabic content editor
+                    const contentArEditable = contentArEditor.ui.view.editable.element;
+                    if (contentArEditable) {
+                        contentArEditable.style.minHeight = '400px';
+                        contentArEditable.style.maxHeight = '600px';
+                        contentArEditable.style.height = '400px';
+                        contentArEditable.style.overflowY = 'auto';
+                    }
+
+                    // Add event listeners to maintain height during typing
+                    if (contentEditor) {
+                        // Listen for content changes
+                        contentEditor.model.document.on('change:data', () => {
+                            const editable = contentEditor.ui.view.editable.element;
+                            if (editable) {
+                                editable.style.minHeight = '400px';
+                                editable.style.maxHeight = '600px';
+                                editable.style.height = '400px';
+                                editable.style.overflowY = 'auto';
+                                editable.style.resize = 'none';
+                            }
+                        });
+
+                        // Listen for focus events
+                        contentEditor.ui.view.editable.element.addEventListener('focus', () => {
+                            const editable = contentEditor.ui.view.editable.element;
+                            if (editable) {
+                                editable.style.minHeight = '400px';
+                                editable.style.maxHeight = '600px';
+                                editable.style.height = '400px';
+                                editable.style.overflowY = 'auto';
+                                editable.style.resize = 'none';
+                            }
+                        });
+
+                        // Listen for input events
+                        contentEditor.ui.view.editable.element.addEventListener('input', () => {
+                            const editable = contentEditor.ui.view.editable.element;
+                            if (editable) {
+                                editable.style.minHeight = '400px';
+                                editable.style.maxHeight = '600px';
+                                editable.style.height = '400px';
+                                editable.style.overflowY = 'auto';
+                                editable.style.resize = 'none';
+                            }
+                        });
+                    }
+
+                    if (contentArEditor) {
+                        // Listen for content changes
+                        contentArEditor.model.document.on('change:data', () => {
+                            const editable = contentArEditor.ui.view.editable.element;
+                            if (editable) {
+                                editable.style.minHeight = '400px';
+                                editable.style.maxHeight = '600px';
+                                editable.style.height = '400px';
+                                editable.style.overflowY = 'auto';
+                                editable.style.resize = 'none';
+                            }
+                        });
+
+                        // Listen for focus events
+                        contentArEditor.ui.view.editable.element.addEventListener('focus', () => {
+                            const editable = contentArEditor.ui.view.editable.element;
+                            if (editable) {
+                                editable.style.minHeight = '400px';
+                                editable.style.maxHeight = '600px';
+                                editable.style.height = '400px';
+                                editable.style.overflowY = 'auto';
+                                editable.style.resize = 'none';
+                            }
+                        });
+
+                        // Listen for input events
+                        contentArEditor.ui.view.editable.element.addEventListener('input', () => {
+                            const editable = contentArEditor.ui.view.editable.element;
+                            if (editable) {
+                                editable.style.minHeight = '400px';
+                                editable.style.maxHeight = '600px';
+                                editable.style.height = '400px';
+                                editable.style.overflowY = 'auto';
+                                editable.style.resize = 'none';
+                            }
+                        });
+                    }
+
+                    // Add MutationObserver to watch for DOM changes
+                    const observer = new MutationObserver(() => {
+                        const editables = document.querySelectorAll('.ck-editor__editable');
+                        editables.forEach(editable => {
+                            editable.style.minHeight = '400px';
+                            editable.style.maxHeight = '600px';
+                            editable.style.height = '400px';
+                            editable.style.overflowY = 'auto';
+                            editable.style.resize = 'none';
+                        });
+                    });
+
+                    // Start observing
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true,
+                        attributes: true,
+                        attributeFilter: ['style', 'class']
+                    });
+
+                    // Preview draft functionality
+                    const previewDraftBtn = document.getElementById('preview-draft-btn');
+                    if (previewDraftBtn) {
+                        previewDraftBtn.addEventListener('click', function() {
+                            // Collect form data
+                            const formData = new FormData(document.querySelector('form'));
+
+                            // Update CKEditor content before preview
+                            if (contentEditor) {
+                                contentEditor.updateSourceElement();
+                            }
+                            if (contentArEditor) {
+                                contentArEditor.updateSourceElement();
+                            }
+
+                            // Create a temporary form for preview
+                            const tempForm = document.createElement('form');
+                            tempForm.method = 'POST';
+                            tempForm.action = '{{ route('admin.posts.store') }}';
+                            tempForm.target = '_blank';
+                            tempForm.style.display = 'none';
+
+                            // Add CSRF token
+                            const csrfInput = document.createElement('input');
+                            csrfInput.type = 'hidden';
+                            csrfInput.name = '_token';
+                            csrfInput.value = '{{ csrf_token() }}';
+                            tempForm.appendChild(csrfInput);
+
+                            // Add preview flag
+                            const previewInput = document.createElement('input');
+                            previewInput.type = 'hidden';
+                            previewInput.name = 'preview';
+                            previewInput.value = '1';
+                            tempForm.appendChild(previewInput);
+
+                            // Copy all form data
+                            for (let [key, value] of formData.entries()) {
+                                if (key !== '_token') {
+                                    const input = document.createElement('input');
+                                    input.type = 'hidden';
+                                    input.name = key;
+                                    input.value = value;
+                                    tempForm.appendChild(input);
+                                }
+                            }
+
+                            document.body.appendChild(tempForm);
+                            tempForm.submit();
+                            document.body.removeChild(tempForm);
+                        });
+                    }
+                }, 100);
 
             } catch (error) {
                 console.error('Error initializing CKEditor:', error);
