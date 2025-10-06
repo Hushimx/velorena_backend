@@ -158,10 +158,15 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex gap-2">
+                                            <a href="{{ route('admin.posts.preview', $post) }}"
+                                                class="text-purple-600 hover:text-purple-900 transition-colors duration-200"
+                                                title="{{ trans('posts.preview_post') }}" target="_blank">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
                                             <a href="{{ route('admin.posts.show', $post) }}"
                                                 class="text-blue-600 hover:text-blue-900 transition-colors duration-200"
                                                 title="{{ trans('posts.view_post') }}">
-                                                <i class="fas fa-eye"></i>
+                                                <i class="fas fa-info-circle"></i>
                                             </a>
                                             <a href="{{ route('admin.posts.edit', $post) }}"
                                                 class="text-indigo-600 hover:text-indigo-900 transition-colors duration-200"

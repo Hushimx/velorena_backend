@@ -93,6 +93,11 @@ class PostsController extends Controller
 
         $post = Post::create($data);
 
+        // If this is a preview request, redirect to preview page
+        if ($request->has('preview')) {
+            return redirect()->route('admin.posts.preview', $post);
+        }
+
         return redirect()->route('admin.posts.index')
             ->with('success', trans('posts.post_created_successfully'));
     }
@@ -104,6 +109,40 @@ class PostsController extends Controller
     {
         $post->load('admin');
         return view('admin.dashboard.posts.show', compact('post'));
+    }
+
+    /**
+     * Preview the post
+     */
+    public function preview(Post $post)
+    {
+        try {
+            // Load the admin relationship
+            $post->load('admin');
+
+            // Debug logging if in debug mode
+            if (config('app.debug')) {
+                \Log::info('Preview Post Debug', [
+                    'post_id' => $post->id,
+                    'post_title' => $post->title,
+                    'post_status' => $post->status,
+                    'has_content' => !empty($post->content),
+                    'has_admin' => $post->admin ? true : false,
+                    'admin_name' => $post->admin->name ?? 'No admin',
+                ]);
+            }
+
+            return view('admin.dashboard.posts.preview', compact('post'));
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::error('Preview Post Error: ' . $e->getMessage());
+
+            // Return a simple error view
+            return view('admin.dashboard.posts.preview', [
+                'post' => null,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     /**
