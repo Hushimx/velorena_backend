@@ -372,9 +372,18 @@
             color: #1f2937 !important;
             background-color: #f3f4f6 !important;
         }
+
+        .ck.ck-editor__main {
+            color: #000 !important;
+        }
+
+        .ck.ck-editor__main,
+        .ck.ck-editor__main p {
+            color: #000 !important;
+        }
     </style>
-    @stack('styles')
     @livewireStyles
+    @stack('styles')
 </head>
 
 <body>
