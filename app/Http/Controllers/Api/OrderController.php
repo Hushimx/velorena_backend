@@ -304,7 +304,7 @@ class OrderController extends Controller
                     'id' => 'src_all'
                 ],
                 'redirect' => [
-                    'url' => config('app.url') . '/api/payments/success'
+                    'url' => config('app.url') . '/payment/success?source=mobile&test_mode=' . (config('services.tap.test_mode', true) ? 'true' : 'false')
                 ],
                 'post' => [
                     'url' => config('app.url') . '/api/webhooks/tap'

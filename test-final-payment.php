@@ -140,3 +140,4 @@ echo "   1. Check server is running on port 8000\n";
 echo "   2. Verify API keys in .env file\n";
 echo "   3. Check Laravel logs: storage/logs/laravel.log\n";
 echo "   4. Test with official Tap test cards only\n";
+

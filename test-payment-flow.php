@@ -226,3 +226,4 @@ echo "   1. Set TAP_TEST_MODE=false\n";
 echo "   2. Use live API keys\n";
 echo "   3. Update webhook URL to production domain\n";
 echo "   4. Test with real cards\n";
+
