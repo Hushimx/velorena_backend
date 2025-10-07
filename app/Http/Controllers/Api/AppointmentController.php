@@ -443,6 +443,12 @@ class AppointmentController extends Controller
      *         required=true,
      *         @OA\Schema(type="integer")
      *     ),
+     *     @OA\RequestBody(
+     *         required=false,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="cancellation_reason", type="string", example="Schedule conflict", description="Reason for cancellation")
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Appointment cancelled successfully",
@@ -465,7 +471,7 @@ class AppointmentController extends Controller
      *     )
      * )
      */
-    public function destroy(Appointment $appointment): JsonResponse
+    public function destroy(Request $request, Appointment $appointment): JsonResponse
     {
         try {
             // Check if user can access this appointment
@@ -476,8 +482,11 @@ class AppointmentController extends Controller
                 ], 403);
             }
 
+            // Get cancellation reason from request
+            $cancellationReason = $request->input('cancellation_reason');
+
             // Cancel the appointment instead of deleting
-            $this->appointmentService->cancelAppointment($appointment);
+            $this->appointmentService->cancelAppointment($appointment, $cancellationReason, 'user');
 
             return response()->json([
                 'success' => true,

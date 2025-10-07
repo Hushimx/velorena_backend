@@ -233,7 +233,12 @@ class TapPaymentController extends Controller
             if ($status === 'completed') {
                 $payment->order->update(['status' => 'processing']);
             } elseif ($status === 'failed') {
-                $payment->order->update(['status' => 'cancelled']);
+                // Don't cancel the order, just mark payment as failed
+                // Order stays as 'confirmed' so user can retry payment
+                $payment->order->update([
+                    'status' => 'confirmed', // Keep order confirmed
+                    'notes' => ($payment->order->notes ? $payment->order->notes . ' | ' : '') . 'Payment failed - can retry'
+                ]);
             }
 
             Log::info('Tap webhook processed', [

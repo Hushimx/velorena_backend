@@ -95,6 +95,19 @@
                         </form>
                     @endif
 
+                    <!-- Zoom Meeting Button for Started Appointments -->
+                    @if($appointment->status === 'started' && $appointment->isMeetingLive() && $appointment->zoom_meeting_url)
+                        <button type="button" 
+                                onclick="joinZoomMeeting('{{ $appointment->zoom_meeting_url }}')"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2">
+                            <div class="live-indicator">
+                                <div class="live-dot"></div>
+                                <i class="fas fa-video"></i>
+                            </div>
+                            <span>انضمام للاجتماع المباشر</span>
+                        </button>
+                    @endif
+
                     @if($appointment->canBeCancelled())
                         <button type="button"
                             class="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center gap-2"
@@ -993,6 +1006,12 @@
                 document.getElementById('cancelAppointmentForm').submit();
             }
         }
+
+        function joinZoomMeeting(zoomUrl) {
+            if (confirm('هل تريد الانضمام للاجتماع؟')) {
+                window.open(zoomUrl, '_blank');
+            }
+        }
     </script>
 
     <!-- Cancel Appointment Modal -->
@@ -1036,4 +1055,33 @@
             </form>
         </div>
     </div>
+
+    <style>
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ff4444;
+            box-shadow: 0 0 8px rgba(255, 68, 68, 0.8);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 68, 68, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
+            }
+        }
+    </style>
 @endsection

@@ -31,6 +31,7 @@ class Appointment extends Model
         'cancelled_at',
         'started_at',
         'cancellation_reason',
+        'cancelled_by',
         'google_meet_id',
         'google_meet_link',
         'meet_created_at',
@@ -313,12 +314,13 @@ class Appointment extends Model
         ]);
     }
 
-    public function cancel($reason = null)
+    public function cancel($reason = null, $cancelledBy = 'user')
     {
         $this->update([
             'status' => 'cancelled',
             'cancelled_at' => now(),
-            'cancellation_reason' => $reason
+            'cancellation_reason' => $reason,
+            'cancelled_by' => $cancelledBy
         ]);
 
         // Delete Zoom meeting when appointment is cancelled
@@ -564,6 +566,14 @@ class Appointment extends Model
     {
         $meetingTime = $this->getMeetingDateTime();
         return now()->between($meetingTime, $meetingTime->addMinutes($this->duration_minutes));
+    }
+
+    /**
+     * Check if the meeting is live (started and within time range)
+     */
+    public function isMeetingLive(): bool
+    {
+        return $this->status === 'started' && $this->isMeetingActive();
     }
 
 

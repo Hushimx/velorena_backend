@@ -115,18 +115,16 @@ class AppointmentService
     /**
      * Cancel an appointment
      */
-    public function cancelAppointment(Appointment $appointment, string $reason = null): Appointment
+    public function cancelAppointment(Appointment $appointment, string $reason = null, string $cancelledBy = 'user'): Appointment
     {
-        return DB::transaction(function () use ($appointment, $reason) {
+        return DB::transaction(function () use ($appointment, $reason, $cancelledBy) {
             // Check if appointment can be cancelled
             if (!$this->canCancelAppointment($appointment)) {
                 throw new \Exception('Cannot cancel appointment that is already completed or cancelled');
             }
 
-            $appointment->update([
-                'status' => 'cancelled',
-                'notes' => $reason ? ($appointment->notes . "\nCancellation reason: " . $reason) : $appointment->notes
-            ]);
+            // Use the model's cancel method which handles Zoom meeting cleanup
+            $appointment->cancel($reason, $cancelledBy);
 
             return $appointment->load(['designer', 'user', 'order']);
         });

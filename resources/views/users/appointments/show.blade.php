@@ -401,6 +401,19 @@
 
                         <!-- Actions -->
                         <div class="actions-section">
+                            <!-- Zoom Meeting Button for Started Appointments -->
+                            @if ($appointment->status === 'started' && $appointment->isMeetingLive() && $appointment->zoom_meeting_url)
+                                <button type="button" 
+                                        onclick="joinZoomMeeting('{{ $appointment->zoom_meeting_url }}')"
+                                        class="zoom-meeting-btn">
+                                    <div class="live-indicator">
+                                        <div class="live-dot"></div>
+                                        <i class="fas fa-video"></i>
+                                    </div>
+                                    <span>انضمام للاجتماع المباشر</span>
+                                </button>
+                            @endif
+
                             @if ($appointment->canBeCancelled())
                                 <form action="{{ route('appointments.cancel', $appointment) }}" method="POST"
                                     class="action-form">
@@ -433,6 +446,14 @@
 
     <!-- Footer from Welcome Page -->
     <x-footer />
+
+    <script>
+        function joinZoomMeeting(zoomUrl) {
+            if (confirm('هل تريد الانضمام للاجتماع؟')) {
+                window.open(zoomUrl, '_blank');
+            }
+        }
+    </script>
 
     <style>
         /* Appointment Show Page Styles - Based on Product Show Page Design */
@@ -1106,6 +1127,55 @@
         .cancel-btn:hover {
             background: linear-gradient(135deg, #c82333 0%, #dc3545 100%);
             box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+        }
+
+        .zoom-meeting-btn {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            margin-bottom: 1rem;
+        }
+
+        .zoom-meeting-btn:hover {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ff4444;
+            box-shadow: 0 0 8px rgba(255, 68, 68, 0.8);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 68, 68, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
+            }
         }
 
         /* Order Items Styles */

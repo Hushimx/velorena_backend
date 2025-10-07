@@ -182,7 +182,7 @@ class AppointmentController extends Controller
     /**
      * Cancel an appointment
      */
-    public function cancel(Appointment $appointment)
+    public function cancel(Request $request, Appointment $appointment)
     {
         if ($appointment->user_id !== Auth::id()) {
             abort(403);
@@ -192,10 +192,11 @@ class AppointmentController extends Controller
             return back()->withErrors(['appointment' => trans('dashboard.appointment_cannot_cancel', ['default' => 'This appointment cannot be cancelled.'])]);
         }
 
-        $appointment->update([
-            'status' => 'cancelled',
-            'cancelled_at' => now(),
-        ]);
+        // Get cancellation reason from request
+        $cancellationReason = $request->input('cancellation_reason');
+
+        // Use the model's cancel method which handles Zoom meeting cleanup and source tracking
+        $appointment->cancel($cancellationReason, 'user');
 
         return back()->with('success', trans('dashboard.appointment_cancelled_success'));
     }
@@ -867,8 +868,8 @@ class AppointmentController extends Controller
             'cancellation_reason' => 'required|string|max:500'
         ]);
 
-        // Cancel the appointment with reason
-        $appointment->cancel($request->cancellation_reason);
+        // Cancel the appointment with reason and source tracking
+        $appointment->cancel($request->cancellation_reason, 'designer');
 
         // Send WhatsApp message to client
         try {
