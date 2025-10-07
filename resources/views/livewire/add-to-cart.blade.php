@@ -5,6 +5,30 @@
             <!-- Product Title -->
             <div class="product-header">
                 <h1 class="product-title">{{ app()->getLocale() === 'ar' ? ($product->name_ar ?? $product->name) : $product->name }}</h1>
+                
+                <!-- Product Rating - Enhanced -->
+                <div class="product-rating-container">
+                    @if($product->review_count > 0)
+                        <div class="rating-summary">
+                            <div class="rating-stars-large">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="fas fa-star {{ $i <= round($product->average_rating) ? 'filled' : 'empty' }}"></i>
+                                @endfor
+                            </div>
+                            <div class="rating-details">
+                                <span class="rating-number">{{ number_format($product->average_rating, 1) }}</span>
+                                <span class="rating-separator">•</span>
+                                <span class="rating-count">{{ $product->review_count }} تقييم</span>
+                            </div>
+                        </div>
+                    @else
+                        <div class="no-rating">
+                            <i class="far fa-star"></i>
+                            <span>لا توجد تقييمات بعد</span>
+                        </div>
+                    @endif
+                </div>
+                
                 <p class="product-description">
                     {{ app()->getLocale() === 'ar' ? ($product->description_ar ?? $product->description ?? trans('products.default_description')) : ($product->description ?? trans('products.default_description')) }}
                 </p>
@@ -74,22 +98,6 @@
                     </div>
                 @endforeach
             @endif
-
-            <!-- Notes Section -->
-            <div class="option-group">
-                <h3 class="option-title">{{ trans('cart.notes') }} :</h3>
-                <div class="notes-input">
-                    <textarea wire:model="notes" class="form-control" rows="3" placeholder="{{ trans('cart.notes_placeholder') }}"></textarea>
-                </div>
-                @error('notes')
-                    <div class="error-message">{{ $message }}</div>
-                @enderror
-            </div>
-
-
-
-
-            <!-- Action Buttons -->
         </div>
     </div>
 
@@ -705,6 +713,79 @@
         .sticky-btn-buy-now:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+        }
+
+        /* Product Rating Styles - Enhanced */
+        .product-rating-container {
+            margin: 1rem 0 1.5rem 0;
+        }
+
+        .rating-summary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            background: linear-gradient(135deg, #fff9e6 0%, #fff4d6 100%);
+            border-radius: 50px;
+            border: 2px solid #ffc107;
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
+        }
+
+        .rating-stars-large {
+            display: flex;
+            gap: 3px;
+        }
+
+        .rating-stars-large i {
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+        }
+
+        .rating-stars-large i.filled {
+            color: #ffc107;
+            text-shadow: 0 1px 2px rgba(255, 193, 7, 0.3);
+        }
+
+        .rating-stars-large i.empty {
+            color: #e0e0e0;
+        }
+
+        .rating-details {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .rating-number {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: #2a1e1e;
+        }
+
+        .rating-separator {
+            color: #999;
+            font-weight: 300;
+        }
+
+        .rating-count {
+            font-size: 0.95rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .no-rating {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #f5f5f5;
+            border-radius: 50px;
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .no-rating i {
+            font-size: 1rem;
         }
 
         /* Responsive Design */

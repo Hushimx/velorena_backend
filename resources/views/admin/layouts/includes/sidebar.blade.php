@@ -104,6 +104,39 @@
             </div>
         </div>
 
+        <!-- Reviews Tree -->
+        <div class="tree-item">
+            <a href="{{ route('admin.reviews.index') }}"
+                class="sidebar-link {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}"
+                onclick="toggleTree(event, 'reviews-tree')">
+                <i class="fas fa-star-half-alt"></i>
+                <span>{{ __('admin.reviews') }}</span>
+                <i class="fas fa-chevron-left tree-toggle" id="reviews-toggle"></i>
+            </a>
+            <div class="tree-children" id="reviews-tree">
+                <a href="{{ route('admin.reviews.index') }}"
+                    class="sidebar-link tree-child {{ request()->routeIs('admin.reviews.index') ? 'active' : '' }}">
+                    <i class="fas fa-list"></i>
+                    <span>{{ __('admin.all_reviews') }}</span>
+                </a>
+                <a href="{{ route('admin.reviews.index', ['status' => 'pending']) }}"
+                    class="sidebar-link tree-child {{ request()->get('status') === 'pending' ? 'active' : '' }}">
+                    <i class="fas fa-clock text-yellow-500"></i>
+                    <span>{{ __('admin.pending_reviews') }}</span>
+                </a>
+                <a href="{{ route('admin.reviews.index', ['status' => 'approved']) }}"
+                    class="sidebar-link tree-child {{ request()->get('status') === 'approved' ? 'active' : '' }}">
+                    <i class="fas fa-check-circle text-green-500"></i>
+                    <span>{{ __('admin.approved_reviews') }}</span>
+                </a>
+                <a href="{{ route('admin.reviews.index', ['status' => 'rejected']) }}"
+                    class="sidebar-link tree-child {{ request()->get('status') === 'rejected' ? 'active' : '' }}">
+                    <i class="fas fa-times-circle text-red-500"></i>
+                    <span>{{ __('admin.rejected_reviews') }}</span>
+                </a>
+            </div>
+        </div>
+
         <!-- Appointments -->
         <a href="{{ route('admin.appointments.index') }}"
             class="sidebar-link {{ request()->routeIs('admin.appointments.*') ? 'active' : '' }}">

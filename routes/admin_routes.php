@@ -53,6 +53,15 @@ Route::prefix('admin')->group(function () {
             Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
             Route::resource('appointments', \App\Http\Controllers\Admin\AppointmentController::class);
             Route::resource('marketers', \App\Http\Controllers\Admin\MarketerController::class);
+            
+            // Reviews management routes
+            Route::resource('reviews', \App\Http\Controllers\Admin\ReviewController::class);
+            Route::post('reviews/bulk-approve', [\App\Http\Controllers\Admin\ReviewController::class, 'bulkApprove'])->name('reviews.bulk-approve');
+            Route::post('reviews/bulk-reject', [\App\Http\Controllers\Admin\ReviewController::class, 'bulkReject'])->name('reviews.bulk-reject');
+            Route::post('reviews/bulk-delete', [\App\Http\Controllers\Admin\ReviewController::class, 'bulkDelete'])->name('reviews.bulk-delete');
+            Route::patch('reviews/{review}/approve', [\App\Http\Controllers\Admin\ReviewController::class, 'approve'])->name('reviews.approve');
+            Route::patch('reviews/{review}/reject', [\App\Http\Controllers\Admin\ReviewController::class, 'reject'])->name('reviews.reject');
+            Route::get('products/{product}/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'productReviews'])->name('products.reviews');
 
             // Bulk upload routes for leads (must be before resource route)
             Route::get('leads/bulk-upload', [\App\Http\Controllers\Admin\LeadController::class, 'bulkUpload'])->name('leads.bulk-upload');

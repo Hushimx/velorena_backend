@@ -556,7 +556,8 @@ class Appointment extends Model
     public function canJoinMeeting(): bool
     {
         $meetingTime = $this->getMeetingDateTime();
-        return now()->gte($meetingTime->subMinutes(5));
+        $joinTime = $meetingTime->copy()->subMinutes(5);
+        return now()->gte($joinTime);
     }
 
     /**
@@ -565,7 +566,8 @@ class Appointment extends Model
     public function isMeetingActive(): bool
     {
         $meetingTime = $this->getMeetingDateTime();
-        return now()->between($meetingTime, $meetingTime->addMinutes($this->duration_minutes));
+        $meetingEndTime = $meetingTime->copy()->addMinutes($this->duration_minutes ?? 60);
+        return now()->between($meetingTime, $meetingEndTime);
     }
 
     /**

@@ -21,8 +21,21 @@ class StoreOrderRequest extends FormRequest
     {
         return [
             'phone' => 'required|string|max:20|regex:/^[\+]?[0-9\s\-\(\)]{7,20}$/',
-            'shipping_address' => 'nullable|string|max:500',
+            
+            // Address - either address_id OR shipping_address is required
+            'address_id' => 'nullable|integer|exists:addresses,id',
+            'shipping_address' => 'required_without:address_id|string|max:500',
             'billing_address' => 'nullable|string|max:500',
+            
+            // Optional detailed shipping fields (for fallback when no address_id)
+            'shipping_contact_name' => 'nullable|string|max:255',
+            'shipping_contact_phone' => 'nullable|string|max:20',
+            'shipping_city' => 'nullable|string|max:100',
+            'shipping_district' => 'nullable|string|max:100',
+            'shipping_street' => 'nullable|string|max:255',
+            'shipping_house_description' => 'nullable|string|max:500',
+            'shipping_postal_code' => 'nullable|string|max:20',
+            
             'notes' => 'nullable|string|max:500',
             'items' => 'required|array|min:1|max:50',
             'items.*.product_id' => 'required|integer|exists:products,id',

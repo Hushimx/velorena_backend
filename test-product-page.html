@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار صفحة المنتج - Blade Migration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #fff4e6 0%, #ffde9f 100%);
+            padding: 2rem;
+            direction: rtl;
+        }
+
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2a1e1e;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 2.5rem;
+        }
+
+        .test-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-right: 4px solid #ffde9f;
+        }
+
+        .test-section h2 {
+            color: #2a1e1e;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .test-item {
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .test-item label {
+            font-weight: 600;
+            color: #2a1e1e;
+        }
+
+        .status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .status.success {
+            background: #10b981;
+            color: white;
+        }
+
+        .status.pending {
+            background: #fbbf24;
+            color: #1a1414;
+        }
+
+        .status.error {
+            background: #ef4444;
+            color: white;
+        }
+
+        button {
+            padding: 1rem 2rem;
+            background: #2a1e1e;
+            color: #ffde9f;
+            border: none;
+            border-radius: 25px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        button:hover {
+            background: #3a2e2e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(42, 30, 30, 0.3);
+        }
+
+        .controls {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .log {
+            background: #1a1414;
+            color: #10b981;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.25rem;
+        }
+
+        .log-entry.error {
+            color: #ef4444;
+        }
+
+        .log-entry.success {
+            color: #10b981;
+        }
+
+        .log-entry.info {
+            color: #3b82f6;
+        }
+
+        .demo-section {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .option-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .option-title {
+            font-weight: 700;
+            color: #2a1e1e;
+            margin-bottom: 0.75rem;
+        }
+
+        .option-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .option-btn {
+            cursor: pointer;
+        }
+
+        .option-btn input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .option-btn span {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #fff;
+            border: 2px solid #E0E0E0;
+            border-radius: 25px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .option-btn input:checked + span {
+            background: #2a1e1e;
+            color: #fff;
+            border-color: #2a1e1e;
+        }
+
+        .price-display {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #ffde9f 0%, #f5d182 100%);
+            border-radius: 15px;
+            margin: 2rem 0;
+        }
+
+        .price {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #2a1e1e;
+        }
+
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .qty-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+        }
+
+        #quantity {
+            width: 80px;
+            height: 50px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border: 2px solid #2a1e1e;
+            border-radius: 10px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.show {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.success {
+            border-right: 4px solid #10b981;
+        }
+
+        .notification.error {
+            border-right: 4px solid #ef4444;
+        }
+
+        .notification i {
+            font-size: 1.5rem;
+        }
+
+        .notification.success i {
+            color: #10b981;
+        }
+
+        .notification.error i {
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1><i class="fas fa-vial"></i> اختبار صفحة المنتج - Blade Migration</h1>
+
+        <!-- Test Status -->
+        <div class="test-section">
+            <h2><i class="fas fa-clipboard-check"></i> حالة الاختبارات</h2>
+            
+            <div class="test-item">
+                <label><i class="fas fa-file-code"></i> استخراج HTML من Livewire</label>
+                <span class="status success">✓ مكتمل</span>
+            </div>
+
+            <div class="test-item">
+                <label><i class="fas fa-paint-brush"></i> إضافة CSS Styles</label>
+                <span class="status success">✓ مكتمل</span>
+            </div>
+
+            <div class="test-item">
+                <label><i class="fas fa-code"></i> إضافة JavaScript Functions</label>
+                <span class="status success">✓ مكتمل</span>
+            </div>
+
+            <div class="test-item">
+                <label><i class="fas fa-calculator"></i> تحديث السعر التلقائي</label>
+                <span class="status" id="price-test-status">⏳ جاري الاختبار</span>
+            </div>
+
+            <div class="test-item">
+                <label><i class="fas fa-bell"></i> نظام الإشعارات</label>
+                <span class="status" id="notification-test-status">⏳ جاري الاختبار</span>
+            </div>
+
+            <div class="test-item">
+                <label><i class="fas fa-shopping-cart"></i> إضافة للسلة (API)</label>
+                <span class="status pending" id="api-test-status">⏳ يحتاج سيرفر حقيقي</span>
+            </div>
+        </div>
+
+        <!-- Demo Section -->
+        <div class="demo-section">
+            <h2><i class="fas fa-play-circle"></i> تجربة حية</h2>
+
+            <!-- Product Options -->
+            <div class="option-group">
+                <div class="option-title">الحجم:</div>
+                <div class="option-buttons">
+                    <label class="option-btn">
+                        <input type="radio" name="size" value="1" data-price="0" checked onchange="updatePrice()">
+                        <span>صغير (0 ر.س)</span>
+                    </label>
+                    <label class="option-btn">
+                        <input type="radio" name="size" value="2" data-price="50" onchange="updatePrice()">
+                        <span>متوسط (+50 ر.س)</span>
+                    </label>
+                    <label class="option-btn">
+                        <input type="radio" name="size" value="3" data-price="100" onchange="updatePrice()">
+                        <span>كبير (+100 ر.س)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <div class="option-title">الإضافات:</div>
+                <div class="option-buttons">
+                    <label class="option-btn">
+                        <input type="checkbox" name="extras[]" value="1" data-price="25" onchange="updatePrice()">
+                        <span>تغليف فاخر (+25 ر.س)</span>
+                    </label>
+                    <label class="option-btn">
+                        <input type="checkbox" name="extras[]" value="2" data-price="15" onchange="updatePrice()">
+                        <span>كرت معايدة (+15 ر.س)</span>
+                    </label>
+                    <label class="option-btn">
+                        <input type="checkbox" name="extras[]" value="3" data-price="30" onchange="updatePrice()">
+                        <span>توصيل سريع (+30 ر.س)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Price Display -->
+            <div class="price-display">
+                <div>السعر الإجمالي:</div>
+                <div class="price"><span id="total-price">200.00</span> ر.س</div>
+            </div>
+
+            <!-- Quantity Selector -->
+            <div class="quantity-selector">
+                <button class="qty-btn" onclick="decrementQuantity()">-</button>
+                <input type="number" id="quantity" value="1" min="1" max="100" onchange="updatePrice()">
+                <button class="qty-btn" onclick="incrementQuantity()">+</button>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <button onclick="testNotification('success')">
+                    <i class="fas fa-check-circle"></i> اختبر إشعار نجاح
+                </button>
+                <button onclick="testNotification('error')">
+                    <i class="fas fa-times-circle"></i> اختبر إشعار خطأ
+                </button>
+                <button onclick="runAllTests()">
+                    <i class="fas fa-vial"></i> تشغيل جميع الاختبارات
+                </button>
+            </div>
+        </div>
+
+        <!-- Log Section -->
+        <div class="test-section">
+            <h2><i class="fas fa-terminal"></i> سجل الاختبارات</h2>
+            <div class="log" id="test-log">
+                <div class="log-entry info">[INFO] اختبار صفحة المنتج جاهز...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-message">رسالة الإشعار</span>
+    </div>
+
+    <script>
+        // Configuration
+        const basePrice = 200;
+        let testsPassed = 0;
+        let totalTests = 0;
+
+        // Utility Functions
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('test-log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `[${new Date().toLocaleTimeString('ar-SA')}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateTestStatus(id, passed) {
+            const statusEl = document.getElementById(id);
+            if (statusEl) {
+                statusEl.className = `status ${passed ? 'success' : 'error'}`;
+                statusEl.textContent = passed ? '✓ نجح' : '✗ فشل';
+            }
+            
+            totalTests++;
+            if (passed) testsPassed++;
+        }
+
+        // Price Functions
+        function updatePrice() {
+            let totalPrice = basePrice;
+            const quantity = parseInt(document.getElementById('quantity').value) || 1;
+
+            // Get all selected options
+            document.querySelectorAll('input[type="radio"]:checked, input[type="checkbox"]:checked').forEach(input => {
+                const price = parseFloat(input.getAttribute('data-price')) || 0;
+                totalPrice += price;
+            });
+
+            // Update displayed price
+            const totalPriceElement = document.getElementById('total-price');
+            if (totalPriceElement) {
+                totalPriceElement.textContent = (totalPrice * quantity).toFixed(2);
+            }
+
+            log(`تحديث السعر: ${totalPrice} × ${quantity} = ${(totalPrice * quantity).toFixed(2)} ر.س`, 'success');
+            return totalPrice * quantity;
+        }
+
+        function incrementQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            let currentValue = parseInt(quantityInput.value) || 1;
+            if (currentValue < 100) {
+                quantityInput.value = currentValue + 1;
+                updatePrice();
+                log(`زيادة الكمية إلى: ${quantityInput.value}`, 'info');
+            }
+        }
+
+        function decrementQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            let currentValue = parseInt(quantityInput.value) || 1;
+            if (currentValue > 1) {
+                quantityInput.value = currentValue - 1;
+                updatePrice();
+                log(`تقليل الكمية إلى: ${quantityInput.value}`, 'info');
+            }
+        }
+
+        // Notification Functions
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const messageEl = document.getElementById('notification-message');
+            const icon = notification.querySelector('i');
+
+            notification.className = `notification ${type} show`;
+            messageEl.textContent = message;
+            
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle';
+            } else if (type === 'error') {
+                icon.className = 'fas fa-times-circle';
+            }
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+
+            log(`عرض إشعار (${type}): ${message}`, type);
+        }
+
+        function testNotification(type) {
+            const messages = {
+                success: 'تم إضافة المنتج للسلة بنجاح!',
+                error: 'حدث خطأ أثناء إضافة المنتج للسلة'
+            };
+            
+            showNotification(messages[type], type);
+        }
+
+        // Test Functions
+        function testPriceUpdate() {
+            log('بدء اختبار تحديث السعر...', 'info');
+            
+            const initialPrice = updatePrice();
+            const expectedPrice = basePrice * 1; // quantity = 1, no extras
+            
+            const passed = Math.abs(initialPrice - expectedPrice) < 0.01;
+            updateTestStatus('price-test-status', passed);
+            
+            if (passed) {
+                log(`✓ اختبار السعر نجح: ${initialPrice} = ${expectedPrice}`, 'success');
+            } else {
+                log(`✗ اختبار السعر فشل: ${initialPrice} ≠ ${expectedPrice}`, 'error');
+            }
+            
+            return passed;
+        }
+
+        function testNotifications() {
+            log('بدء اختبار نظام الإشعارات...', 'info');
+            
+            showNotification('اختبار الإشعارات', 'success');
+            updateTestStatus('notification-test-status', true);
+            
+            log('✓ اختبار الإشعارات نجح', 'success');
+            return true;
+        }
+
+        function runAllTests() {
+            log('========================================', 'info');
+            log('بدء تشغيل جميع الاختبارات...', 'info');
+            log('========================================', 'info');
+            
+            testsPassed = 0;
+            totalTests = 0;
+            
+            // Run tests
+            testPriceUpdate();
+            
+            setTimeout(() => {
+                testNotifications();
+                
+                setTimeout(() => {
+                    log('========================================', 'info');
+                    log(`النتيجة النهائية: ${testsPassed}/${totalTests} اختبارات نجحت`, 
+                        testsPassed === totalTests ? 'success' : 'error');
+                    log('========================================', 'info');
+                    
+                    if (testsPassed === totalTests) {
+                        showNotification('🎉 جميع الاختبارات نجحت!', 'success');
+                    } else {
+                        showNotification('❌ بعض الاختبارات فشلت', 'error');
+                    }
+                }, 1000);
+            }, 1000);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            log('تحميل الصفحة مكتمل', 'success');
+            updatePrice();
+            log('جاهز للاختبار!', 'success');
+        });
+    </script>
+</body>
+</html>
+

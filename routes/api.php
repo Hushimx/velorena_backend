@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\SupportTicketController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\Api\WhatsAppController;
 use App\Http\Controllers\Api\ExpoPushTokenController;
+use App\Http\Controllers\Api\AddressController;
 
 /*
 |--------------------------------------------------------------------------
@@ -168,6 +169,9 @@ Route::prefix('products')->group(function () {
     Route::get('/best-selling', [ProductController::class, 'bestSelling']);
     Route::get('/id/{product}', [ProductController::class, 'showById']); // Backward compatibility - fetch by ID
     Route::get('/{product:slug}', [ProductController::class, 'show']); // New - fetch by slug
+    
+    // Product reviews routes (public)
+    Route::get('/{productId}/reviews', [App\Http\Controllers\Api\ReviewController::class, 'index']);
 });
 
 // Test endpoint
@@ -524,6 +528,26 @@ Route::middleware('auth:sanctum')->group(function () {
         
     });
 
+    // ========================================
+    // REVIEW ROUTES
+    // ========================================
+    Route::prefix('reviews')->group(function () {
+        // POST /api/reviews - Submit a new review
+        Route::post('/', [App\Http\Controllers\Api\ReviewController::class, 'store']);
+        
+        // GET /api/reviews/user - Get user's own reviews
+        Route::get('/user', [App\Http\Controllers\Api\ReviewController::class, 'userReviews']);
+        
+        // PUT /api/reviews/{id} - Update user's own review
+        Route::put('/{id}', [App\Http\Controllers\Api\ReviewController::class, 'update']);
+        
+        // DELETE /api/reviews/{id} - Delete user's own review
+        Route::delete('/{id}', [App\Http\Controllers\Api\ReviewController::class, 'destroy']);
+        
+        // GET /api/reviews/can-review/{productId} - Check if user can review a product
+        Route::get('/can-review/{productId}', [App\Http\Controllers\Api\ReviewController::class, 'canReview']);
+    });
+
     // Payment routes
     Route::prefix('payments')->group(function () {
         // POST /api/payments/create-charge
@@ -550,6 +574,29 @@ Route::middleware('auth:sanctum')->group(function () {
                 'message' => 'Payment completed successfully'
             ]);
         });
+    });
+
+    // ========================================
+    // ADDRESS MANAGEMENT ROUTES
+    // ========================================
+    Route::prefix('addresses')->group(function () {
+        // GET /api/addresses - Get all user addresses
+        Route::get('/', [AddressController::class, 'index']);
+        
+        // POST /api/addresses - Create new address
+        Route::post('/', [AddressController::class, 'store']);
+        
+        // GET /api/addresses/{id} - Get specific address
+        Route::get('/{id}', [AddressController::class, 'show']);
+        
+        // PUT /api/addresses/{id} - Update address
+        Route::put('/{id}', [AddressController::class, 'update']);
+        
+        // DELETE /api/addresses/{id} - Delete address
+        Route::delete('/{id}', [AddressController::class, 'destroy']);
+        
+        // POST /api/addresses/{id}/set-default - Set address as default
+        Route::post('/{id}/set-default', [AddressController::class, 'setDefault']);
     });
 });
 

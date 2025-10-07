@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Services\UnifiedNotificationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AppointmentController extends Controller
 {
@@ -67,7 +69,7 @@ class AppointmentController extends Controller
         return view('admin.dashboard.appointments.edit', compact('appointment'));
     }
 
-    public function update(Request $request, Appointment $appointment)
+    public function update(Request $request, Appointment $appointment, UnifiedNotificationService $notificationService)
     {
         $request->validate([
             'status' => 'required|in:pending,accepted,rejected,completed,cancelled',
@@ -95,6 +97,19 @@ class AppointmentController extends Controller
             // For other status changes, update directly
             $data['status'] = $newStatus;
             $appointment->update($data);
+            
+            // Send notification if status changed
+            if ($currentStatus !== $newStatus) {
+                try {
+                    $notificationService->sendAppointmentStatusNotification($appointment, $currentStatus, $newStatus);
+                } catch (\Exception $e) {
+                    Log::error('Failed to send appointment status notification', [
+                        'appointment_id' => $appointment->id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+            
             return redirect()->route('admin.appointments.show', $appointment)
                 ->with('success', __('admin.appointment_updated_success'));
         }
@@ -102,6 +117,20 @@ class AppointmentController extends Controller
         // Update other fields
         if (!empty($data)) {
             $appointment->update($data);
+        }
+
+        // Send notification if status changed
+        if ($currentStatus !== $newStatus) {
+            try {
+                $notificationService->sendAppointmentStatusNotification($appointment, $currentStatus, $newStatus);
+            } catch (\Exception $e) {
+                Log::error('Failed to send appointment status notification', [
+                    'appointment_id' => $appointment->id,
+                    'old_status' => $currentStatus,
+                    'new_status' => $newStatus,
+                    'error' => $e->getMessage()
+                ]);
+            }
         }
 
         return redirect()->route('admin.appointments.show', $appointment)

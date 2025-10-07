@@ -48,15 +48,17 @@ class OrderService
                     $orderData['address_id'] = $address->id;
                     $orderData['shipping_contact_name'] = $address->contact_name;
                     $orderData['shipping_contact_phone'] = $address->contact_phone;
-                    $orderData['shipping_address'] = $address->address_line;
                     $orderData['shipping_city'] = $address->city;
                     $orderData['shipping_district'] = $address->district;
+                    $orderData['shipping_street'] = $address->street;
+                    $orderData['shipping_house_description'] = $address->house_description;
                     $orderData['shipping_postal_code'] = $address->postal_code;
-                    $orderData['shipping_latitude'] = $address->latitude;
-                    $orderData['shipping_longitude'] = $address->longitude;
-                    $orderData['shipping_delivery_instruction'] = $address->delivery_instruction;
-                    $orderData['shipping_drop_off_location'] = $address->drop_off_location;
-                    $orderData['shipping_additional_notes'] = $address->additional_notes;
+                    // Build full address for backward compatibility
+                    $orderData['shipping_address'] = implode(', ', array_filter([
+                        $address->street,
+                        $address->district,
+                        $address->city
+                    ]));
                 }
             } else {
                 // Handle direct shipping data if provided (for backward compatibility)
@@ -64,12 +66,9 @@ class OrderService
                 $orderData['shipping_contact_phone'] = $data['shipping_contact_phone'] ?? $data['phone'];
                 $orderData['shipping_city'] = $data['shipping_city'] ?? null;
                 $orderData['shipping_district'] = $data['shipping_district'] ?? null;
+                $orderData['shipping_street'] = $data['shipping_street'] ?? null;
+                $orderData['shipping_house_description'] = $data['shipping_house_description'] ?? null;
                 $orderData['shipping_postal_code'] = $data['shipping_postal_code'] ?? null;
-                $orderData['shipping_latitude'] = $data['shipping_latitude'] ?? null;
-                $orderData['shipping_longitude'] = $data['shipping_longitude'] ?? null;
-                $orderData['shipping_delivery_instruction'] = $data['shipping_delivery_instruction'] ?? 'hand_to_me';
-                $orderData['shipping_drop_off_location'] = $data['shipping_drop_off_location'] ?? null;
-                $orderData['shipping_additional_notes'] = $data['shipping_additional_notes'] ?? null;
             }
 
             // Create order

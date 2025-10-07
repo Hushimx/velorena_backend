@@ -354,6 +354,50 @@ class Product extends Model
     }
 
     /**
+     * Get reviews for this product
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get approved reviews for this product
+     */
+    public function approvedReviews(): HasMany
+    {
+        return $this->hasMany(Review::class)->approved();
+    }
+
+    /**
+     * Get average rating for this product
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        return $this->approvedReviews()->avg('rating') ?? 0;
+    }
+
+    /**
+     * Get total review count for this product
+     */
+    public function getReviewCountAttribute(): int
+    {
+        return $this->approvedReviews()->count();
+    }
+
+    /**
+     * Get rating distribution for this product
+     */
+    public function getRatingDistributionAttribute(): array
+    {
+        $distribution = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $distribution[$i] = $this->approvedReviews()->where('rating', $i)->count();
+        }
+        return $distribution;
+    }
+
+    /**
      * Scope to get products with highlights
      */
     public function scopeWithHighlights($query)

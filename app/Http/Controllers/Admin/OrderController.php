@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\UnifiedNotificationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -25,7 +27,7 @@ class OrderController extends Controller
         return view('admin.dashboard.orders.edit', compact('order'));
     }
 
-    public function update(Request $request, Order $order)
+    public function update(Request $request, Order $order, UnifiedNotificationService $notificationService)
     {
         $request->validate([
             'status' => 'required|in:pending,confirmed,processing,shipped,delivered,cancelled',
@@ -36,6 +38,10 @@ class OrderController extends Controller
         ]);
 
         $data = $request->only(['status', 'notes', 'shipping_address', 'billing_address', 'phone']);
+
+        // Store old status for notification
+        $oldStatus = $order->status;
+        $newStatus = $request->status;
 
         // Handle status transitions
         switch ($request->status) {
@@ -60,6 +66,21 @@ class OrderController extends Controller
 
         // Update other fields
         $order->update($data);
+
+        // Send notification if status changed
+        if ($oldStatus !== $newStatus) {
+            try {
+                $notificationService->sendOrderStatusNotification($order, $oldStatus, $newStatus);
+            } catch (\Exception $e) {
+                // Log error but don't fail the request
+                Log::error('Failed to send order status notification', [
+                    'order_id' => $order->id,
+                    'old_status' => $oldStatus,
+                    'new_status' => $newStatus,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
 
         return redirect()->route('admin.orders.show', $order)
             ->with('success', trans('orders.order_updated_successfully'));
