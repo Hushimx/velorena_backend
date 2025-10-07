@@ -6,8 +6,19 @@
         <!-- Swiper -->
         <div class="swiper categoriesSwiper">
             <div class="swiper-wrapper">
-                @if(isset($categories) && count($categories) > 0)
-                    @foreach($categories as $category)
+                @php
+                    $categoriesWithImages = [];
+                    if(isset($categories) && count($categories) > 0) {
+                        foreach($categories as $category) {
+                            if(!empty($category['image_url']) && $category['image_url'] !== asset('assets/imgs/تنظيم المـواتمرات (2).png')) {
+                                $categoriesWithImages[] = $category;
+                            }
+                        }
+                    }
+                @endphp
+                
+                @if(count($categoriesWithImages) > 0)
+                    @foreach($categoriesWithImages as $category)
                     <div class="swiper-slide">
                         <div class="category-card" data-url="{{ $category['url'] }}">
                             <div class="category-image">

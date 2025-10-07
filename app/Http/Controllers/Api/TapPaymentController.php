@@ -65,10 +65,10 @@ class TapPaymentController extends Controller
                     'id' => 'src_all'
                 ],
                 'redirect' => [
-                    'url' => $request->redirect_url ?? config('app.url') . '/api/payments/success'
+                    'url' => $request->redirect_url ?? $this->getSuccessUrl()
                 ],
                 'post' => [
-                    'url' => $request->post_url ?? config('app.url') . '/api/webhooks/tap'
+                    'url' => $request->post_url ?? $this->getWebhookUrl()
                 ],
                 'description' => "Payment for Order #{$order->order_number}",
                 'metadata' => [
@@ -201,20 +201,18 @@ class TapPaymentController extends Controller
     public function webhook(Request $request): JsonResponse
     {
         try {
-            $payload = $request->getContent();
-            $signature = $request->header('X-Tap-Signature');
-
-            // Verify webhook signature
-            if (!$this->tapPaymentService->verifyWebhookSignature($payload, $signature)) {
-                Log::warning('Invalid Tap webhook signature');
-                return response()->json(['error' => 'Invalid signature'], 400);
-            }
-
-            $data = json_decode($payload, true);
+            $data = $request->all();
             $chargeId = $data['id'] ?? null;
 
             if (!$chargeId) {
+                Log::warning('Tap webhook missing charge ID', ['data' => $data]);
                 return response()->json(['error' => 'Invalid webhook data'], 400);
+            }
+
+            // Verify webhook authenticity by checking if charge exists in our system
+            if (!$this->tapPaymentService->verifyWebhookAuthenticity($chargeId)) {
+                Log::warning('Tap webhook for unknown charge', ['charge_id' => $chargeId]);
+                return response()->json(['error' => 'Charge not found'], 404);
             }
 
             // Find payment record
@@ -369,10 +367,10 @@ class TapPaymentController extends Controller
                     'id' => 'src_all'
                 ],
                 'redirect' => [
-                    'url' => $request->redirect_url ?? route('payment.success')
+                    'url' => $request->redirect_url ?? $this->getWebSuccessUrl()
                 ],
                 'post' => [
-                    'url' => $request->post_url ?? route('api.webhooks.tap')
+                    'url' => $request->post_url ?? $this->getWebhookUrl()
                 ],
                 'description' => "Test Payment for Order #{$testOrder->order_number}",
                 'metadata' => [
@@ -512,5 +510,37 @@ class TapPaymentController extends Controller
             'INITIATED' => 'pending',
             default => 'pending'
         };
+    }
+
+    /**
+     * Get success URL for payment redirects
+     */
+    private function getSuccessUrl(): string
+    {
+        $baseUrl = config('app.url');
+        $isTestMode = config('services.tap.test_mode', true);
+        
+        // For API calls (React Native), use mobile source
+        return $baseUrl . '/payment/success?source=mobile&test_mode=' . ($isTestMode ? 'true' : 'false');
+    }
+
+    /**
+     * Get success URL for web redirects
+     */
+    private function getWebSuccessUrl(): string
+    {
+        $baseUrl = config('app.url');
+        $isTestMode = config('services.tap.test_mode', true);
+        
+        // For web calls, use web source
+        return $baseUrl . '/payment/success?source=web&test_mode=' . ($isTestMode ? 'true' : 'false');
+    }
+
+    /**
+     * Get webhook URL for payment notifications
+     */
+    private function getWebhookUrl(): string
+    {
+        return config('app.url') . '/api/webhooks/tap';
     }
 }

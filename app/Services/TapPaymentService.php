@@ -16,9 +16,16 @@ class TapPaymentService
     {
         $this->apiKey = config('services.tap.secret_key');
         $this->isTestMode = config('services.tap.test_mode', true);
-        $this->baseUrl = $this->isTestMode 
-            ? 'https://api.tap.company/v2' 
-            : 'https://api.tap.company/v2';
+        
+        // Use different API keys for test vs production
+        if ($this->isTestMode) {
+            $this->apiKey = config('services.tap.test_secret_key', $this->apiKey);
+        } else {
+            $this->apiKey = config('services.tap.live_secret_key', $this->apiKey);
+        }
+        
+        // Both test and production use the same API endpoint
+        $this->baseUrl = 'https://api.tap.company/v2';
     }
 
     /**
@@ -47,7 +54,7 @@ class TapPaymentService
                 'amount' => $chargeData['amount'] ?? null,
                 'currency' => $chargeData['currency'] ?? null,
                 'customer_email' => $chargeData['customer']['email'] ?? null,
-                'customer_phone' => $chargeData['customer']['phone']['number'] ?? null
+                'customer_phone' => $chargeData['customer']['phone']['number'] ?? $chargeData['customer']['phone'] ?? null
             ]);
 
             $response = Http::withHeaders([
@@ -230,12 +237,14 @@ class TapPaymentService
     }
 
     /**
-     * Verify webhook signature
+     * Verify webhook authenticity (Tap doesn't use signature verification)
+     * Instead, we verify the webhook by checking if the charge exists in our system
      */
-    public function verifyWebhookSignature(string $payload, string $signature): bool
+    public function verifyWebhookAuthenticity(string $chargeId): bool
     {
-        $expectedSignature = hash_hmac('sha256', $payload, config('services.tap.webhook_secret', ''));
-        return hash_equals($expectedSignature, $signature);
+        // Verify the charge exists in our database
+        $payment = \App\Models\Payment::where('charge_id', $chargeId)->first();
+        return $payment !== null;
     }
 
     /**

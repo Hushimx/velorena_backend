@@ -1,3 +1,19 @@
+<?php
+$source = request()->get('source', 'web');
+$testMode = request()->get('test_mode', 'false') === 'true';
+
+// For mobile apps, return JSON response
+if ($source === 'mobile') {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => true,
+        'message' => 'Payment completed successfully',
+        'test_mode' => $testMode,
+        'timestamp' => now()->toISOString()
+    ]);
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,6 +36,15 @@
             border: none;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
+        .test-mode-badge {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -28,12 +53,21 @@
             <div class="col-lg-6">
                 <div class="card success-card success-animation">
                     <div class="card-body text-center p-5">
+                        <?php if ($testMode): ?>
+                        <div class="test-mode-badge">
+                            <i class="fas fa-flask"></i> TEST MODE - No Real Payment
+                        </div>
+                        <?php endif; ?>
+                        
                         <div class="mb-4">
                             <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
                         </div>
                         <h2 class="text-success mb-3">Payment Successful!</h2>
                         <p class="text-muted mb-4">
                             Thank you for your payment. Your transaction has been completed successfully.
+                            <?php if ($testMode): ?>
+                            <br><small class="text-warning">This was a test payment - no real money was charged.</small>
+                            <?php endif; ?>
                         </p>
                         
                         <div class="alert alert-info">

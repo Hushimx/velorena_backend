@@ -122,10 +122,10 @@ class UserOrderController extends Controller
                     'id' => 'src_all'
                 ],
                 'redirect' => [
-                    'url' => route('user.orders.show', $order)
+                    'url' => $this->getSuccessUrl()
                 ],
                 'post' => [
-                    'url' => route('api.webhooks.tap')
+                    'url' => $this->getWebhookUrl()
                 ],
                 'description' => "Payment for Order #{$order->order_number}",
                 'metadata' => [
@@ -354,10 +354,10 @@ class UserOrderController extends Controller
                     'id' => 'src_all'
                 ],
                 'redirect' => [
-                    'url' => route('user.orders.show', $order)
+                    'url' => $this->getSuccessUrl()
                 ],
                 'post' => [
-                    'url' => route('api.webhooks.tap')
+                    'url' => $this->getWebhookUrl()
                 ],
                 'description' => "Payment for Order #{$order->order_number}",
                 'reference' => [
@@ -443,5 +443,25 @@ class UserOrderController extends Controller
             default:
                 return 'pending';
         }
+    }
+
+    /**
+     * Get success URL for payment redirects
+     */
+    private function getSuccessUrl(): string
+    {
+        $baseUrl = config('app.url');
+        $isTestMode = config('services.tap.test_mode', true);
+        
+        // For web checkout, redirect to order details page
+        return $baseUrl . '/payment/success?source=web&test_mode=' . ($isTestMode ? 'true' : 'false');
+    }
+
+    /**
+     * Get webhook URL for payment notifications
+     */
+    private function getWebhookUrl(): string
+    {
+        return config('app.url') . '/api/webhooks/tap';
     }
 }

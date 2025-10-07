@@ -266,7 +266,7 @@
                     email: formData.get('email'),
                     phone: formData.get('phone')
                 },
-                redirect_url: window.location.origin + '/payment/success',
+                redirect_url: window.location.origin + '/payment/success?source=web&test_mode=true',
                 post_url: window.location.origin + '/api/webhooks/tap'
             };
 

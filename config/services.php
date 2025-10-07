@@ -47,10 +47,11 @@ return [
     ],
 
     'tap' => [
-        'secret_key' => env('TAP_SECRET_KEY'),
+        'secret_key' => env('TAP_SECRET_KEY'), // Legacy - use test_secret_key or live_secret_key
+        'test_secret_key' => env('TAP_TEST_SECRET_KEY'),
+        'live_secret_key' => env('TAP_LIVE_SECRET_KEY'),
         'public_key' => env('TAP_PUBLIC_KEY'),
         'test_mode' => env('TAP_TEST_MODE', true),
-        'webhook_secret' => env('TAP_WEBHOOK_SECRET'),
     ],
 
 ];

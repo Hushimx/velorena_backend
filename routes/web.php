@@ -197,6 +197,14 @@ Route::group(
             return view('payment.cancel');
         })->name('payment.cancel');
 
+        Route::get('/payment/failure', function () {
+            return view('payment.cancel'); // Reuse cancel page for failures
+        })->name('payment.failure');
+
+        Route::get('/payment/error', function () {
+            return view('payment.error');
+        })->name('payment.error');
+
         // Old Design selection routes (keep for backward compatibility)
         Route::middleware(['auth'])->group(function () {
             Route::get('/designs', [App\Http\Controllers\DesignController::class, 'index'])->name('designs.index');

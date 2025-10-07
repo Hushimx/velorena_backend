@@ -1,13 +1,14 @@
 <?php
 $source = request()->get('source', 'web');
 $testMode = request()->get('test_mode', 'false') === 'true';
+$error = request()->get('error', 'Payment failed');
 
 // For mobile apps, return JSON response
 if ($source === 'mobile') {
     header('Content-Type: application/json');
     echo json_encode([
         'success' => false,
-        'message' => 'Payment was cancelled',
+        'message' => $error,
         'test_mode' => $testMode,
         'timestamp' => now()->toISOString()
     ]);
@@ -19,18 +20,19 @@ if ($source === 'mobile') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Cancelled - Qaads</title>
+    <title>Payment Error - Qaads</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .cancel-animation {
-            animation: fadeIn 0.6s ease-out;
+        .error-animation {
+            animation: shake 0.6s ease-out;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
-        .cancel-card {
+        .error-card {
             border: none;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
@@ -43,13 +45,19 @@ if ($source === 'mobile') {
             font-weight: 600;
             margin-bottom: 1rem;
         }
+        .error-details {
+            background: #f8f9fa;
+            border-left: 4px solid #dc3545;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
     </style>
 </head>
 <body class="bg-light">
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-lg-6">
-                <div class="card cancel-card cancel-animation">
+                <div class="card error-card error-animation">
                     <div class="card-body text-center p-5">
                         <?php if ($testMode): ?>
                         <div class="test-mode-badge">
@@ -58,22 +66,28 @@ if ($source === 'mobile') {
                         <?php endif; ?>
                         
                         <div class="mb-4">
-                            <i class="fas fa-times-circle text-warning" style="font-size: 4rem;"></i>
+                            <i class="fas fa-exclamation-triangle text-danger" style="font-size: 4rem;"></i>
                         </div>
-                        <h2 class="text-warning mb-3">Payment Cancelled</h2>
+                        <h2 class="text-danger mb-3">Payment Failed</h2>
                         <p class="text-muted mb-4">
-                            Your payment has been cancelled. No charges have been made to your account.
+                            Unfortunately, your payment could not be processed. Please try again or contact support.
                             <?php if ($testMode): ?>
                             <br><small class="text-info">This was a test payment - no real money was involved.</small>
                             <?php endif; ?>
                         </p>
                         
+                        <div class="error-details">
+                            <h6><i class="fas fa-info-circle"></i> Error Details</h6>
+                            <p class="mb-0"><?php echo htmlspecialchars($error); ?></p>
+                        </div>
+                        
                         <div class="alert alert-warning">
-                            <h6><i class="fas fa-exclamation-triangle"></i> What Happened?</h6>
+                            <h6><i class="fas fa-lightbulb"></i> What You Can Do</h6>
                             <ul class="list-unstyled mb-0 text-start">
-                                <li><i class="fas fa-info-circle text-info"></i> You cancelled the payment process</li>
-                                <li><i class="fas fa-info-circle text-info"></i> No money has been charged</li>
-                                <li><i class="fas fa-info-circle text-info"></i> Your order is still pending</li>
+                                <li><i class="fas fa-check text-warning"></i> Check your card details</li>
+                                <li><i class="fas fa-check text-warning"></i> Ensure sufficient funds</li>
+                                <li><i class="fas fa-check text-warning"></i> Try a different payment method</li>
+                                <li><i class="fas fa-check text-warning"></i> Contact your bank if issues persist</li>
                             </ul>
                         </div>
 
@@ -94,22 +108,22 @@ if ($source === 'mobile') {
                         <h5 class="mb-0"><i class="fas fa-question-circle"></i> Need Help?</h5>
                     </div>
                     <div class="card-body">
-                        <p class="mb-3">If you're having trouble with payments, here are some common solutions:</p>
+                        <p class="mb-3">If you continue to experience payment issues, please contact our support team:</p>
                         <div class="row">
-                            <div class="col-md-6">
-                                <h6><i class="fas fa-credit-card"></i> Payment Issues</h6>
-                                <ul class="list-unstyled">
-                                    <li>• Check your card details</li>
-                                    <li>• Ensure sufficient funds</li>
-                                    <li>• Try a different card</li>
-                                </ul>
-                            </div>
                             <div class="col-md-6">
                                 <h6><i class="fas fa-headset"></i> Contact Support</h6>
                                 <ul class="list-unstyled">
-                                    <li>• Email: support@Qaads.com</li>
-                                    <li>• Phone: +965 1234 5678</li>
+                                    <li>• Email: support@qaads.com</li>
+                                    <li>• Phone: +966 11 234 5678</li>
                                     <li>• Live chat available</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-credit-card"></i> Payment Methods</h6>
+                                <ul class="list-unstyled">
+                                    <li>• Visa, Mastercard, Amex</li>
+                                    <li>• Mada (Saudi Arabia)</li>
+                                    <li>• Apple Pay, Google Pay</li>
                                 </ul>
                             </div>
                         </div>

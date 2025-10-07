@@ -47,7 +47,48 @@ class HomeBannerController extends Controller
      */
     public function index(): JsonResponse
     {
-        $banners = HomeBanner::active()->ordered()->get();
+        // Fixed JSON response for the three banners
+        $banners = [
+            [
+                'id' => 1,
+                'title' => 'From Idea to Print',
+                'title_ar' => 'من الفكرة إلى الطباعة',
+                'description' => 'Transform your creative ideas into stunning printed products',
+                'description_ar' => 'حول أفكارك الإبداعية إلى منتجات مطبوعة مذهلة',
+                'image' => '/banners/بنر - من الفكرة إلى الطباعة[1].jpg',
+                'link' => '/products',
+                'is_active' => true,
+                'sort_order' => 1,
+                'created_at' => now()->toISOString(),
+                'updated_at' => now()->toISOString()
+            ],
+            [
+                'id' => 2,
+                'title' => 'Your Scent Precedes Your Impact',
+                'title_ar' => 'عطرك يسبق أثره',
+                'description' => 'Discover our premium fragrance collection',
+                'description_ar' => 'اكتشف مجموعتنا المميزة من العطور',
+                'image' => '/banners/بنر للمنصة - عطرك يسبق أثره[1].jpg',
+                'link' => '/categories/fragrances',
+                'is_active' => true,
+                'sort_order' => 2,
+                'created_at' => now()->toISOString(),
+                'updated_at' => now()->toISOString()
+            ],
+            [
+                'id' => 3,
+                'title' => 'Premium Quality Products',
+                'title_ar' => 'منتجات عالية الجودة',
+                'description' => 'Experience the finest quality in every product',
+                'description_ar' => 'اختبر أجود أنواع الجودة في كل منتج',
+                'image' => '/banners/بنر11[1].jpg',
+                'link' => '/products/premium',
+                'is_active' => true,
+                'sort_order' => 3,
+                'created_at' => now()->toISOString(),
+                'updated_at' => now()->toISOString()
+            ]
+        ];
 
         return response()->json([
             'success' => true,
