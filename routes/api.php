@@ -17,6 +17,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\Api\WhatsAppController;
 use App\Http\Controllers\Api\ExpoPushTokenController;
 use App\Http\Controllers\Api\AddressController;
+use App\Http\Controllers\Api\FavoriteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -133,27 +134,27 @@ Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
     
-    // Phone check with rate limiting (10 requests per minute)
+    // Phone check with rate limiting (20 requests per minute)
     Route::post('/check-phone', [AuthController::class, 'checkPhone'])
-        ->middleware('throttle:10,1');
+        ->middleware('throttle:20,1');
     
-    // Email check with rate limiting (10 requests per minute)
+    // Email check with rate limiting (20 requests per minute)
     Route::post('/check-email', [AuthController::class, 'checkEmail'])
-        ->middleware('throttle:10,1');
+        ->middleware('throttle:20,1');
 
-    // Password reset routes
+    // Password reset routes (increased limits for better UX)
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])
-        ->middleware('throttle:3,1');
-    Route::post('/reset-password', [AuthController::class, 'resetPassword'])
-        ->middleware('throttle:5,1');
-
-    // OTP routes with rate limiting (5 requests per minute)
-    Route::post('/send-otp', [OtpController::class, 'sendOtp'])
-        ->middleware('throttle:5,1');
-    Route::post('/verify-otp', [OtpController::class, 'verifyOtp'])
         ->middleware('throttle:10,1');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])
+        ->middleware('throttle:10,1');
+
+    // OTP routes with rate limiting (increased limits for better UX)
+    Route::post('/send-otp', [OtpController::class, 'sendOtp'])
+        ->middleware('throttle:10,1');
+    Route::post('/verify-otp', [OtpController::class, 'verifyOtp'])
+        ->middleware('throttle:20,1');
     Route::post('/resend-otp', [OtpController::class, 'resendOtp'])
-        ->middleware('throttle:3,1');
+        ->middleware('throttle:5,1');
 });
 
 // Public product and category routes
@@ -546,6 +547,29 @@ Route::middleware('auth:sanctum')->group(function () {
         
         // GET /api/reviews/can-review/{productId} - Check if user can review a product
         Route::get('/can-review/{productId}', [App\Http\Controllers\Api\ReviewController::class, 'canReview']);
+    });
+
+    // ========================================
+    // FAVORITES ROUTES
+    // ========================================
+    Route::prefix('favorites')->group(function () {
+        // GET /api/favorites - Get all user's favorite products
+        Route::get('/', [FavoriteController::class, 'index']);
+        
+        // POST /api/favorites - Add a product to favorites
+        Route::post('/', [FavoriteController::class, 'store']);
+        
+        // POST /api/favorites/toggle - Toggle favorite status for a product
+        Route::post('/toggle', [FavoriteController::class, 'toggle']);
+        
+        // GET /api/favorites/ids - Get favorite product IDs only
+        Route::get('/ids', [FavoriteController::class, 'getFavoriteIds']);
+        
+        // GET /api/favorites/check/{productId} - Check if a product is favorited
+        Route::get('/check/{productId}', [FavoriteController::class, 'check']);
+        
+        // DELETE /api/favorites/{productId} - Remove a product from favorites
+        Route::delete('/{productId}', [FavoriteController::class, 'destroy']);
     });
 
     // Payment routes

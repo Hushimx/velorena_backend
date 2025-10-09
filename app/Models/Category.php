@@ -38,4 +38,42 @@ class Category extends Model
     {
         return $this->hasMany(Lead::class);
     }
+
+    /**
+     * Get the best available image URL for this category
+     */
+    public function getImageUrlAttribute()
+    {
+        // Check for main_image first (mobile/app image)
+        if (!empty($this->attributes['main_image'])) {
+            // If it's already a full URL, return as is
+            if (filter_var($this->attributes['main_image'], FILTER_VALIDATE_URL)) {
+                return $this->attributes['main_image'];
+            }
+            return asset($this->attributes['main_image']);
+        }
+
+        // Fallback to regular image field
+        if (!empty($this->attributes['image'])) {
+            if (filter_var($this->attributes['image'], FILTER_VALIDATE_URL)) {
+                return $this->attributes['image'];
+            }
+            return asset($this->attributes['image']);
+        }
+
+        // Fallback to slider image
+        if (!empty($this->attributes['slider_image'])) {
+            if (filter_var($this->attributes['slider_image'], FILTER_VALIDATE_URL)) {
+                return $this->attributes['slider_image'];
+            }
+            return asset($this->attributes['slider_image']);
+        }
+
+        return null;
+    }
+
+    /**
+     * Append image_url to JSON serialization
+     */
+    protected $appends = ['image_url'];
 }

@@ -135,8 +135,10 @@ class SupportTicketController extends Controller
         $rules = [
             'subject' => 'required|string|max:255',
             'description' => 'required|string|max:5000',
-            'priority' => 'required|in:low,medium,high,urgent',
+            'priority' => 'nullable|in:low,medium,high,urgent', // Made optional with default
             'category' => 'required|in:technical,billing,general,feature_request,bug_report',
+            'attachments' => 'nullable|array',
+            'attachments.*' => 'nullable|string',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -152,9 +154,10 @@ class SupportTicketController extends Controller
         $ticket = Auth::user()->supportTickets()->create([
             'subject' => $request->subject,
             'description' => $request->description,
-            'priority' => $request->priority,
+            'priority' => $request->priority ?? 'medium', // Default to medium if not provided
             'category' => $request->category,
             'status' => 'open', // Set default status
+            'attachments' => $request->attachments ?? [],
         ]);
 
         $ticket->load(['user']);

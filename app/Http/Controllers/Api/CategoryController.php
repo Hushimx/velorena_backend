@@ -103,6 +103,26 @@ class CategoryController extends Controller
 
         $categories = $query->orderBy('sort_order')->orderBy('name')->paginate($limit);
 
+        // Transform categories to ensure main_image and all image fields have full URLs
+        $categories->getCollection()->transform(function ($category) {
+            // Convert main_image to full URL if it exists and is not already a full URL
+            if (!empty($category->main_image) && !filter_var($category->main_image, FILTER_VALIDATE_URL)) {
+                $category->main_image = url($category->main_image);
+            }
+            
+            // Also convert image field to full URL
+            if (!empty($category->image) && !filter_var($category->image, FILTER_VALIDATE_URL)) {
+                $category->image = url($category->image);
+            }
+            
+            // And slider_image
+            if (!empty($category->slider_image) && !filter_var($category->slider_image, FILTER_VALIDATE_URL)) {
+                $category->slider_image = url($category->slider_image);
+            }
+            
+            return $category;
+        });
+
         return response()->json([
             'success' => true,
             'data' => $categories

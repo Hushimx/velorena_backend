@@ -103,6 +103,23 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the user's favorite products
+     */
+    public function favorites(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+    /**
+     * Get the user's favorite products (many-to-many relationship)
+     */
+    public function favoriteProducts(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Product::class, 'favorites')
+            ->withTimestamps();
+    }
+
+    /**
      * Get the user's Expo push tokens
      */
     public function expoPushTokens(): \Illuminate\Database\Eloquent\Relations\MorphMany
