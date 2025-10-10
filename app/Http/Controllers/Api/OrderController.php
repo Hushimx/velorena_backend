@@ -232,6 +232,15 @@ class OrderController extends Controller
             ], 403);
         }
 
+        // VALIDATE SHIPPING ADDRESS IS REQUIRED
+        if (empty($order->shipping_address) || empty($order->shipping_contact_phone)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Shipping address is required before payment. Please update the order with delivery address.',
+                'error_code' => 'MISSING_SHIPPING_ADDRESS'
+            ], 400);
+        }
+
         // Auto-confirm order if it's pending (for immediate payment)
         if ($order->status === 'pending') {
             $order->update(['status' => 'confirmed', 'confirmed_at' => now()]);
@@ -451,6 +460,118 @@ class OrderController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create order',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update order shipping address
+     * 
+     * @OA\Put(
+     *     path="/api/orders/{order}/shipping-address",
+     *     summary="Update order shipping address",
+     *     description="Update shipping address for an order before payment",
+     *     tags={"Orders"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="order",
+     *         in="path",
+     *         description="Order ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="address_id", type="integer", example=5, description="Saved address ID to use")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Shipping address updated successfully"
+     *     )
+     * )
+     */
+    public function updateShippingAddress(Request $request, Order $order): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+
+            // Check if user owns this order
+            if ($order->user_id !== $user->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access to order'
+                ], 403);
+            }
+
+            // Validate request
+            $request->validate([
+                'address_id' => 'required|integer|exists:addresses,id'
+            ]);
+
+            // Get the address and verify ownership
+            $address = \App\Models\Address::where('id', $request->address_id)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if (!$address) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Address not found or does not belong to you'
+                ], 404);
+            }
+
+            // Update order with address details
+            $order->update([
+                'address_id' => $address->id,
+                'shipping_contact_name' => $address->contact_name,
+                'shipping_contact_phone' => $address->contact_phone || $order->phone,
+                'shipping_city' => $address->city,
+                'shipping_district' => $address->district,
+                'shipping_street' => $address->street,
+                'shipping_house_description' => $address->house_description,
+                'shipping_postal_code' => $address->postal_code,
+                'shipping_address' => implode(', ', array_filter([
+                    $address->street,
+                    $address->district,
+                    $address->city
+                ])),
+                'phone' => $address->contact_phone
+            ]);
+
+            // Reload order with relationships
+            $order->load(['items.product', 'items.product.options.values', 'address']);
+
+            Log::info('Order shipping address updated', [
+                'order_id' => $order->id,
+                'address_id' => $address->id,
+                'user_id' => $user->id
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Shipping address updated successfully',
+                'data' => new OrderResource($order)
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Failed to update order shipping address', [
+                'error' => $e->getMessage(),
+                'order_id' => $order->id,
+                'user_id' => Auth::id()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update shipping address',
                 'error' => $e->getMessage()
             ], 500);
         }

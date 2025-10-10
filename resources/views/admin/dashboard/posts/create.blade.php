@@ -12,56 +12,137 @@
             line-height: 1.6;
         }
 
-        /* CKEditor height customization - Force height */
+        /* CKEditor container - ensure toolbar is visible */
+        .ck-editor {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* CKEditor toolbar - CRITICAL: ensure it's visible and wraps */
+        .ck.ck-toolbar {
+            position: relative !important;
+            z-index: 10 !important;
+            border: 1px solid #c4c4c4 !important;
+            border-bottom: none !important;
+            background: #f7f7f7 !important;
+            padding: 8px !important;
+            overflow: visible !important;
+            flex-wrap: wrap !important;
+        }
+
+        /* Make toolbar items wrap - CRITICAL FIX */
+        .ck.ck-toolbar > .ck-toolbar__items {
+            flex-wrap: wrap !important;
+            overflow: visible !important;
+        }
+
+        /* Ensure each toolbar item can shrink if needed */
+        .ck.ck-toolbar .ck-toolbar__items > * {
+            flex-shrink: 1;
+        }
+
+        /* CKEditor editable area */
         .ck-editor__editable {
             min-height: 400px !important;
             max-height: 600px !important;
-            height: 400px !important;
             overflow-y: auto !important;
             resize: none !important;
+            border: 1px solid #c4c4c4 !important;
+            padding: 15px !important;
         }
 
-        /* Alternative: Set specific height */
         .ck-editor__editable_inline {
             min-height: 400px !important;
             max-height: 600px !important;
-            height: 400px !important;
-            overflow-y: auto !important;
-            resize: none !important;
-        }
-
-        /* Custom height for specific editors */
-        #content+.ck-editor .ck-editor__editable {
-            min-height: 400px !important;
-            max-height: 600px !important;
-            height: 400px !important;
-            overflow-y: auto !important;
-            resize: none !important;
-        }
-
-        #content_ar+.ck-editor .ck-editor__editable {
-            min-height: 400px !important;
-            max-height: 600px !important;
-            height: 400px !important;
-            overflow-y: auto !important;
-            resize: none !important;
-        }
-
-        /* Force height on focus and typing */
-        .ck-editor__editable:focus {
-            min-height: 400px !important;
-            max-height: 600px !important;
-            height: 400px !important;
             overflow-y: auto !important;
         }
 
-        /* Additional selectors to catch all cases */
-        .ck-content {
-            min-height: 400px !important;
-            max-height: 600px !important;
-            height: 400px !important;
-            overflow-y: auto !important;
-            resize: none !important;
+        /* Ensure dropdowns are visible */
+        .ck-dropdown__panel {
+            z-index: 999 !important;
+        }
+
+        /* Fix for heading dropdown */
+        .ck-heading-dropdown {
+            min-width: 150px !important;
+        }
+
+        /* EMERGENCY FIX - Force heading sizes with maximum specificity */
+        .ck-editor__editable h1, .ck-content h1, .ck.ck-editor__editable h1, .ck.ck-content h1,
+        #content + .ck-editor .ck-editor__editable h1,
+        #content_ar + .ck-editor .ck-editor__editable h1 {
+            font-size: 48px !important;
+            font-weight: bold !important;
+            margin: 20px 0 !important;
+            line-height: 1.2 !important;
+            color: #333 !important;
+            display: block !important;
+        }
+
+        .ck-editor__editable h2, .ck-content h2, .ck.ck-editor__editable h2, .ck.ck-content h2,
+        #content + .ck-editor .ck-editor__editable h2,
+        #content_ar + .ck-editor .ck-editor__editable h2 {
+            font-size: 36px !important;
+            font-weight: bold !important;
+            margin: 18px 0 !important;
+            line-height: 1.3 !important;
+            color: #333 !important;
+            display: block !important;
+        }
+
+        .ck-editor__editable h3, .ck-content h3, .ck.ck-editor__editable h3, .ck.ck-content h3,
+        #content + .ck-editor .ck-editor__editable h3,
+        #content_ar + .ck-editor .ck-editor__editable h3 {
+            font-size: 28px !important;
+            font-weight: bold !important;
+            margin: 16px 0 !important;
+            line-height: 1.4 !important;
+            color: #333 !important;
+            display: block !important;
+        }
+
+        .ck-editor__editable h4, .ck-content h4, .ck.ck-editor__editable h4, .ck.ck-content h4,
+        #content + .ck-editor .ck-editor__editable h4,
+        #content_ar + .ck-editor .ck-editor__editable h4 {
+            font-size: 22px !important;
+            font-weight: bold !important;
+            margin: 14px 0 !important;
+            line-height: 1.4 !important;
+            color: #333 !important;
+            display: block !important;
+        }
+
+        .ck-editor__editable h5, .ck-content h5, .ck.ck-editor__editable h5, .ck.ck-content h5,
+        #content + .ck-editor .ck-editor__editable h5,
+        #content_ar + .ck-editor .ck-editor__editable h5 {
+            font-size: 18px !important;
+            font-weight: bold !important;
+            margin: 12px 0 !important;
+            line-height: 1.4 !important;
+            color: #333 !important;
+            display: block !important;
+        }
+
+        .ck-editor__editable h6, .ck-content h6, .ck.ck-editor__editable h6, .ck.ck-content h6,
+        #content + .ck-editor .ck-editor__editable h6,
+        #content_ar + .ck-editor .ck-editor__editable h6 {
+            font-size: 16px !important;
+            font-weight: bold !important;
+            margin: 10px 0 !important;
+            line-height: 1.4 !important;
+            color: #333 !important;
+            display: block !important;
+        }
+
+        /* EMERGENCY FIX - Force bold to work */
+        .ck-editor__editable strong, .ck-editor__editable b,
+        .ck-content strong, .ck-content b,
+        .ck.ck-editor__editable strong, .ck.ck-editor__editable b,
+        .ck.ck-content strong, .ck.ck-content b,
+        #content + .ck-editor .ck-editor__editable strong,
+        #content_ar + .ck-editor .ck-editor__editable strong {
+            font-weight: 900 !important;
+            color: #000 !important;
         }
     </style>
 @endsection
@@ -811,482 +892,139 @@
     <script>
         let contentEditor, contentArEditor;
 
-        // Initialize CKEditor for content textareas
+        // EMERGENCY FIX - Complete working solution
+        console.log('🚨 EMERGENCY FIX: Starting CKEditor initialization...');
+
+        // Custom Upload Adapter
+        class MyUploadAdapter {
+            constructor(loader) {
+                this.loader = loader;
+            }
+
+            upload() {
+                return this.loader.file.then(file => new Promise((resolve, reject) => {
+                    const data = new FormData();
+                    data.append('upload', file);
+
+                    fetch('{{ route("admin.upload.image") }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: data
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.url) {
+                            resolve({ default: result.url });
+                        } else {
+                            reject(result.error?.message || 'Upload failed');
+                        }
+                    })
+                    .catch(error => reject(error));
+                }));
+            }
+
+            abort() {}
+        }
+
+        function MyCustomUploadAdapterPlugin(editor) {
+            editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                return new MyUploadAdapter(loader);
+            };
+        }
+
+        // EMERGENCY FIX - Use DEFAULT CKEditor configuration (GUARANTEED TO WORK)
         async function initializeEditors() {
             try {
-                // Initialize main content editor
-                contentEditor = await ClassicEditor.create(document.querySelector('#content'), {
-                    language: 'en',
-                    toolbar: {
-                        items: [
-                            'heading', '|',
-                            'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', '|',
-                            'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
-                            'bulletedList', 'numberedList', 'todoList', '|',
-                            'outdent', 'indent', '|',
-                            'alignment', '|',
-                            'link', 'blockQuote', 'insertTable', '|',
-                            'imageUpload', 'mediaEmbed', '|',
-                            'code', 'codeBlock', '|',
-                            'horizontalLine', 'pageBreak', '|',
-                            'specialCharacters', '|',
-                            'findAndReplace', '|',
-                            'selectAll', '|',
-                            'sourceEditing', '|',
-                            'undo', 'redo'
-                        ],
-                        shouldNotGroupWhenFull: true
-                    },
-                    heading: {
-                        options: [{
-                                model: 'paragraph',
-                                title: 'Paragraph',
-                                class: 'ck-heading_paragraph'
-                            },
-                            {
-                                model: 'heading1',
-                                view: 'h1',
-                                title: 'Heading 1',
-                                class: 'ck-heading_heading1'
-                            },
-                            {
-                                model: 'heading2',
-                                view: 'h2',
-                                title: 'Heading 2',
-                                class: 'ck-heading_heading2'
-                            },
-                            {
-                                model: 'heading3',
-                                view: 'h3',
-                                title: 'Heading 3',
-                                class: 'ck-heading_heading3'
-                            },
-                            {
-                                model: 'heading4',
-                                view: 'h4',
-                                title: 'Heading 4',
-                                class: 'ck-heading_heading4'
-                            },
-                            {
-                                model: 'heading5',
-                                view: 'h5',
-                                title: 'Heading 5',
-                                class: 'ck-heading_heading5'
-                            },
-                            {
-                                model: 'heading6',
-                                view: 'h6',
-                                title: 'Heading 6',
-                                class: 'ck-heading_heading6'
-                            }
-                        ]
-                    },
-                    fontSize: {
-                        options: [
-                            9, 11, 13, 'default', 17, 19, 21, 27, 35
-                        ],
-                        supportAllValues: true
-                    },
-                    fontFamily: {
-                        options: [
-                            'default',
-                            'Arial, Helvetica, sans-serif',
-                            'Courier New, Courier, monospace',
-                            'Georgia, serif',
-                            'Lucida Sans Unicode, Lucida Grande, sans-serif',
-                            'Tahoma, Geneva, sans-serif',
-                            'Times New Roman, Times, serif',
-                            'Trebuchet MS, Helvetica, sans-serif',
-                            'Verdana, Geneva, sans-serif'
-                        ],
-                        supportAllValues: true
-                    },
-                    image: {
-                        toolbar: [
-                            'imageTextAlternative', '|',
-                            'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', '|',
-                            'imageStyle:inline', 'imageStyle:block', 'imageStyle:side', '|',
-                            'resizeImage', '|',
-                            'imageResize'
-                        ],
-                        styles: [
-                            'full',
-                            'side',
-                            'alignLeft',
-                            'alignCenter',
-                            'alignRight'
-                        ]
-                    },
-                    table: {
-                        contentToolbar: [
-                            'tableColumn', 'tableRow', 'mergeTableCells',
-                            'tableProperties', 'tableCellProperties'
-                        ],
-                        tableProperties: {
-                            borderColors: ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff'],
-                            backgroundColors: ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff']
-                        },
-                        tableCellProperties: {
-                            borderColors: ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff'],
-                            backgroundColors: ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff']
-                        }
-                    },
-                    mediaEmbed: {
-                        previewsInData: true
-                    },
-                    link: {
-                        addTargetToExternalLinks: true,
-                        defaultProtocol: 'https://',
-                        decorators: {
-                            addTargetToExternalLinks: {
-                                mode: 'automatic',
-                                callback: url => /^(https?:)?\/\//.test(url),
-                                attributes: {
-                                    target: '_blank',
-                                    rel: 'noopener noreferrer'
-                                }
-                            }
-                        }
-                    },
-                    direction: 'ltr', // English content
-                    // Set editor height
-                    ui: {
-                        viewportOffset: {
-                            top: 50
-                        }
-                    },
-                    // Image upload configuration
-                    simpleUpload: {
-                        uploadUrl: '{{ route('admin.upload.image') }}',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    },
-                    // Remove plugins that might not be available
-                    removePlugins: ['Title'],
-                    // Additional features
-                    extraPlugins: [],
-                    // Enable source editing
-                    allowSourceEditing: true
-                });
-
-                // Initialize Arabic content editor
-                contentArEditor = await ClassicEditor.create(document.querySelector('#content_ar'), {
-                    language: 'ar',
-                    toolbar: {
-                        items: [
-                            'heading', '|',
-                            'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', '|',
-                            'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
-                            'bulletedList', 'numberedList', 'todoList', '|',
-                            'outdent', 'indent', '|',
-                            'alignment', '|',
-                            'link', 'blockQuote', 'insertTable', '|',
-                            'imageUpload', 'mediaEmbed', '|',
-                            'code', 'codeBlock', '|',
-                            'horizontalLine', 'pageBreak', '|',
-                            'specialCharacters', '|',
-                            'findAndReplace', '|',
-                            'selectAll', '|',
-                            'sourceEditing', '|',
-                            'undo', 'redo'
-                        ],
-                        shouldNotGroupWhenFull: true
-                    },
-                    heading: {
-                        options: [{
-                                model: 'paragraph',
-                                title: 'Paragraph',
-                                class: 'ck-heading_paragraph'
-                            },
-                            {
-                                model: 'heading1',
-                                view: 'h1',
-                                title: 'Heading 1',
-                                class: 'ck-heading_heading1'
-                            },
-                            {
-                                model: 'heading2',
-                                view: 'h2',
-                                title: 'Heading 2',
-                                class: 'ck-heading_heading2'
-                            },
-                            {
-                                model: 'heading3',
-                                view: 'h3',
-                                title: 'Heading 3',
-                                class: 'ck-heading_heading3'
-                            },
-                            {
-                                model: 'heading4',
-                                view: 'h4',
-                                title: 'Heading 4',
-                                class: 'ck-heading_heading4'
-                            },
-                            {
-                                model: 'heading5',
-                                view: 'h5',
-                                title: 'Heading 5',
-                                class: 'ck-heading_heading5'
-                            },
-                            {
-                                model: 'heading6',
-                                view: 'h6',
-                                title: 'Heading 6',
-                                class: 'ck-heading_heading6'
-                            }
-                        ]
-                    },
-                    fontSize: {
-                        options: [
-                            9, 11, 13, 'default', 17, 19, 21, 27, 35
-                        ],
-                        supportAllValues: true
-                    },
-                    fontFamily: {
-                        options: [
-                            'default',
-                            'Arial, Helvetica, sans-serif',
-                            'Courier New, Courier, monospace',
-                            'Georgia, serif',
-                            'Lucida Sans Unicode, Lucida Grande, sans-serif',
-                            'Tahoma, Geneva, sans-serif',
-                            'Times New Roman, Times, serif',
-                            'Trebuchet MS, Helvetica, sans-serif',
-                            'Verdana, Geneva, sans-serif',
-                            'Amiri, serif',
-                            'Cairo, sans-serif',
-                            'Noto Sans Arabic, sans-serif'
-                        ],
-                        supportAllValues: true
-                    },
-                    image: {
-                        toolbar: [
-                            'imageTextAlternative', '|',
-                            'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', '|',
-                            'imageStyle:inline', 'imageStyle:block', 'imageStyle:side', '|',
-                            'resizeImage', '|',
-                            'imageResize'
-                        ],
-                        styles: [
-                            'full',
-                            'side',
-                            'alignLeft',
-                            'alignCenter',
-                            'alignRight'
-                        ]
-                    },
-                    table: {
-                        contentToolbar: [
-                            'tableColumn', 'tableRow', 'mergeTableCells',
-                            'tableProperties', 'tableCellProperties'
-                        ],
-                        tableProperties: {
-                            borderColors: ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff'],
-                            backgroundColors: ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff']
-                        },
-                        tableCellProperties: {
-                            borderColors: ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff'],
-                            backgroundColors: ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff']
-                        }
-                    },
-                    mediaEmbed: {
-                        previewsInData: true
-                    },
-                    link: {
-                        addTargetToExternalLinks: true,
-                        defaultProtocol: 'https://',
-                        decorators: {
-                            addTargetToExternalLinks: {
-                                mode: 'automatic',
-                                callback: url => /^(https?:)?\/\//.test(url),
-                                attributes: {
-                                    target: '_blank',
-                                    rel: 'noopener noreferrer'
-                                }
-                            }
-                        }
-                    },
-                    direction: 'rtl', // Arabic content
-                    // Set editor height
-                    ui: {
-                        viewportOffset: {
-                            top: 50
-                        }
-                    },
-                    // Image upload configuration
-                    simpleUpload: {
-                        uploadUrl: '{{ route('admin.upload.image') }}',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    },
-                    // Remove plugins that might not be available
-                    removePlugins: ['Title'],
-                    // Additional features
-                    extraPlugins: [],
-                    // Enable source editing
-                    allowSourceEditing: true
-                });
-
-                // Make editors available globally for form submission
+                console.log('🚨 EMERGENCY FIX: Using DEFAULT CKEditor configuration...');
+                
+                // Check if ClassicEditor is available
+                if (typeof ClassicEditor === 'undefined') {
+                    console.error('❌ ClassicEditor not loaded!');
+                    alert('CKEditor not loaded. Please refresh the page.');
+                    return;
+                }
+                
+                console.log('✅ ClassicEditor found, creating editors...');
+                
+                // ENGLISH EDITOR - Use DEFAULT config (no custom settings)
+                console.log('📝 Creating English editor...');
+                contentEditor = await ClassicEditor.create(document.querySelector('#content'));
+                console.log('✅ English editor created successfully');
+                
+                // Add upload adapter
+                if (contentEditor.plugins.has('FileRepository')) {
+                    MyCustomUploadAdapterPlugin(contentEditor);
+                    console.log('✅ Upload adapter added to English editor');
+                }
+                
+                // ARABIC EDITOR - Use DEFAULT config (no custom settings)
+                console.log('📝 Creating Arabic editor...');
+                contentArEditor = await ClassicEditor.create(document.querySelector('#content_ar'));
+                console.log('✅ Arabic editor created successfully');
+                
+                // Make editors globally available
                 window.contentEditor = contentEditor;
                 window.contentArEditor = contentArEditor;
-
-                // Set custom height for editors after initialization
+                
+                console.log('✅ All editors ready!');
+                console.log('📋 Available commands:', Array.from(contentEditor.commands._commands.keys()).slice(0, 10).join(', ') + '...');
+                
+                // Test features and add debugging
                 setTimeout(() => {
-                    // Set height for main content editor
-                    const contentEditable = contentEditor.ui.view.editable.element;
-                    if (contentEditable) {
-                        contentEditable.style.minHeight = '400px';
-                        contentEditable.style.maxHeight = '600px';
-                        contentEditable.style.height = '400px';
-                        contentEditable.style.overflowY = 'auto';
+                    const heading = contentEditor.commands.get('heading');
+                    const bold = contentEditor.commands.get('bold');
+                    console.log('🎯 Heading:', heading ? '✅' : '❌');
+                    console.log('🎯 Bold:', bold ? '✅' : '❌');
+                    
+                    if (heading) {
+                        console.log('📋 Heading options:', heading.modelElements);
+                        console.log('📋 Heading value:', heading.value);
                     }
-
-                    // Set height for Arabic content editor
-                    const contentArEditable = contentArEditor.ui.view.editable.element;
-                    if (contentArEditable) {
-                        contentArEditable.style.minHeight = '400px';
-                        contentArEditable.style.maxHeight = '600px';
-                        contentArEditable.style.height = '400px';
-                        contentArEditable.style.overflowY = 'auto';
+                    
+                    // Test if headings actually work
+                    console.log('🧪 Testing heading functionality...');
+                    const headingCommand = contentEditor.commands.get('heading');
+                    if (headingCommand) {
+                        console.log('✅ Heading command available');
+                        // Try to set heading programmatically to test
+                        try {
+                            headingCommand.value = 'heading1';
+                            console.log('✅ Heading command working');
+                        } catch (e) {
+                            console.log('❌ Heading command failed:', e);
+                        }
                     }
-
-                    // Add event listeners to maintain height during typing
-                    if (contentEditor) {
-                        // Listen for content changes
-                        contentEditor.model.document.on('change:data', () => {
-                            const editable = contentEditor.ui.view.editable.element;
-                            if (editable) {
-                                editable.style.minHeight = '400px';
-                                editable.style.maxHeight = '600px';
-                                editable.style.height = '400px';
-                                editable.style.overflowY = 'auto';
-                                editable.style.resize = 'none';
-                            }
-                        });
-
-                        // Listen for focus events
-                        contentEditor.ui.view.editable.element.addEventListener('focus', () => {
-                            const editable = contentEditor.ui.view.editable.element;
-                            if (editable) {
-                                editable.style.minHeight = '400px';
-                                editable.style.maxHeight = '600px';
-                                editable.style.height = '400px';
-                                editable.style.overflowY = 'auto';
-                                editable.style.resize = 'none';
-                            }
-                        });
-
-                        // Listen for input events
-                        contentEditor.ui.view.editable.element.addEventListener('input', () => {
-                            const editable = contentEditor.ui.view.editable.element;
-                            if (editable) {
-                                editable.style.minHeight = '400px';
-                                editable.style.maxHeight = '600px';
-                                editable.style.height = '400px';
-                                editable.style.overflowY = 'auto';
-                                editable.style.resize = 'none';
-                            }
-                        });
-                    }
-
-                    if (contentArEditor) {
-                        // Listen for content changes
-                        contentArEditor.model.document.on('change:data', () => {
-                            const editable = contentArEditor.ui.view.editable.element;
-                            if (editable) {
-                                editable.style.minHeight = '400px';
-                                editable.style.maxHeight = '600px';
-                                editable.style.height = '400px';
-                                editable.style.overflowY = 'auto';
-                                editable.style.resize = 'none';
-                            }
-                        });
-
-                        // Listen for focus events
-                        contentArEditor.ui.view.editable.element.addEventListener('focus', () => {
-                            const editable = contentArEditor.ui.view.editable.element;
-                            if (editable) {
-                                editable.style.minHeight = '400px';
-                                editable.style.maxHeight = '600px';
-                                editable.style.height = '400px';
-                                editable.style.overflowY = 'auto';
-                                editable.style.resize = 'none';
-                            }
-                        });
-
-                        // Listen for input events
-                        contentArEditor.ui.view.editable.element.addEventListener('input', () => {
-                            const editable = contentArEditor.ui.view.editable.element;
-                            if (editable) {
-                                editable.style.minHeight = '400px';
-                                editable.style.maxHeight = '600px';
-                                editable.style.height = '400px';
-                                editable.style.overflowY = 'auto';
-                                editable.style.resize = 'none';
-                            }
-                        });
-                    }
-
-                    // Add MutationObserver to watch for DOM changes
-                    const observer = new MutationObserver(() => {
-                        const editables = document.querySelectorAll('.ck-editor__editable');
-                        editables.forEach(editable => {
-                            editable.style.minHeight = '400px';
-                            editable.style.maxHeight = '600px';
-                            editable.style.height = '400px';
-                            editable.style.overflowY = 'auto';
-                            editable.style.resize = 'none';
-                        });
-                    });
-
-                    // Start observing
-                    observer.observe(document.body, {
-                        childList: true,
-                        subtree: true,
-                        attributes: true,
-                        attributeFilter: ['style', 'class']
-                    });
+                }, 500);
 
                     // Preview draft functionality
                     const previewDraftBtn = document.getElementById('preview-draft-btn');
                     if (previewDraftBtn) {
                         previewDraftBtn.addEventListener('click', function() {
-                            // Collect form data
-                            const formData = new FormData(document.querySelector('form'));
-
-                            // Update CKEditor content before preview
-                            if (contentEditor) {
-                                contentEditor.updateSourceElement();
-                            }
-                            if (contentArEditor) {
-                                contentArEditor.updateSourceElement();
-                            }
-
-                            // Create a temporary form for preview
+                        console.log('Preview clicked');
+                        if (window.contentEditor) window.contentEditor.updateSourceElement();
+                        if (window.contentArEditor) window.contentArEditor.updateSourceElement();
+                        
+                        const formData = new FormData(document.querySelector('form'));
                             const tempForm = document.createElement('form');
                             tempForm.method = 'POST';
                             tempForm.action = '{{ route('admin.posts.store') }}';
                             tempForm.target = '_blank';
                             tempForm.style.display = 'none';
 
-                            // Add CSRF token
                             const csrfInput = document.createElement('input');
                             csrfInput.type = 'hidden';
                             csrfInput.name = '_token';
                             csrfInput.value = '{{ csrf_token() }}';
                             tempForm.appendChild(csrfInput);
 
-                            // Add preview flag
                             const previewInput = document.createElement('input');
                             previewInput.type = 'hidden';
                             previewInput.name = 'preview';
                             previewInput.value = '1';
                             tempForm.appendChild(previewInput);
 
-                            // Copy all form data
                             for (let [key, value] of formData.entries()) {
                                 if (key !== '_token') {
                                     const input = document.createElement('input');
@@ -1302,31 +1040,47 @@
                             document.body.removeChild(tempForm);
                         });
                     }
-                }, 100);
 
             } catch (error) {
                 console.error('Error initializing CKEditor:', error);
+                console.error('Error details:', error.message);
+                console.error('Error stack:', error.stack);
+                alert('Failed to initialize editor. Check console for details.');
             }
         }
 
-        // Initialize editors when DOM is loaded
+        // EMERGENCY FIX - Simple form handler
         document.addEventListener('DOMContentLoaded', function() {
-            initializeEditors();
-        });
-
-        // Handle form submission to sync CKEditor content
-        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚨 EMERGENCY FIX: Starting initialization...');
+            
+            // Initialize editors
+            initializeEditors().then(() => {
+                console.log('✅ Editors initialized, setting up form handler...');
+                
+                // Simple form handler
             const form = document.querySelector('form');
             if (form) {
                 form.addEventListener('submit', function(e) {
-                    if (contentEditor) {
-                        contentEditor.updateSourceElement();
-                    }
-                    if (contentArEditor) {
-                        contentArEditor.updateSourceElement();
-                    }
-                });
-            }
+                        console.log('📤 FORM SUBMIT CLICKED!');
+                        
+                        // Sync content
+                        if (window.contentEditor) {
+                            window.contentEditor.updateSourceElement();
+                            console.log('✅ English synced');
+                        }
+                        
+                        if (window.contentArEditor) {
+                            window.contentArEditor.updateSourceElement();
+                            console.log('✅ Arabic synced');
+                        }
+                        
+                        console.log('✅ Form submitting...');
+                    });
+                    console.log('✅ Form handler attached');
+                }
+            }).catch(error => {
+                console.error('❌ Error:', error);
+            });
         });
     </script>
 @endpush

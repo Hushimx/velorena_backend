@@ -386,6 +386,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [OrderController::class, 'index']);
         Route::post('/', [OrderController::class, 'store']);
         Route::get('/{order}', [OrderController::class, 'show']);
+        Route::put('/{order}/shipping-address', [OrderController::class, 'updateShippingAddress']);
         Route::post('/{order}/payment', [OrderController::class, 'initiatePayment']);
         Route::delete('/{order}', [OrderController::class, 'destroy']);
     });

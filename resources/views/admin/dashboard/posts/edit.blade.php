@@ -12,54 +12,137 @@
             line-height: 1.6;
         }
 
-        /* CKEditor height customization - Force height */
+        /* CKEditor container - ensure toolbar is visible */
+        .ck-editor {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* CKEditor toolbar - CRITICAL: ensure it's visible and wraps */
+        .ck.ck-toolbar {
+            position: relative !important;
+            z-index: 10 !important;
+            border: 1px solid #c4c4c4 !important;
+            border-bottom: none !important;
+            background: #f7f7f7 !important;
+            padding: 8px !important;
+            overflow: visible !important;
+            flex-wrap: wrap !important;
+        }
+
+        /* Make toolbar items wrap - CRITICAL FIX */
+        .ck.ck-toolbar > .ck-toolbar__items {
+            flex-wrap: wrap !important;
+            overflow: visible !important;
+        }
+
+        /* Ensure each toolbar item can shrink if needed */
+        .ck.ck-toolbar .ck-toolbar__items > * {
+            flex-shrink: 1;
+        }
+
+        /* CKEditor editable area */
         .ck-editor__editable {
             min-height: 400px !important;
             max-height: 600px !important;
-            height: 400px !important;
             overflow-y: auto !important;
             resize: none !important;
+            border: 1px solid #c4c4c4 !important;
+            padding: 15px !important;
         }
 
-        /* Alternative: Set specific height */
         .ck-editor__editable_inline {
             min-height: 400px !important;
             max-height: 600px !important;
-            height: 400px !important;
-            overflow-y: auto !important;
-            resize: none !important;
-        }
-
-        /* Custom height for specific editors */
-        #content+.ck-editor .ck-editor__editable {
-            min-height: 400px !important;
-            max-height: 600px !important;
-            height: 400px !important;
-            overflow-y: auto !important;
-            resize: none !important;
-        }
-
-        #content_ar+.ck-editor .ck-editor__editable {
-            min-height: 400px !important;
-            max-height: 600px !important;
-            height: 400px !important;
-            overflow-y: auto !important;
-            resize: none !important;
-        }
-
-        .ck-editor__editable:focus {
-            min-height: 400px !important;
-            max-height: 600px !important;
-            height: 400px !important;
             overflow-y: auto !important;
         }
 
-        .ck-content {
-            min-height: 400px !important;
-            max-height: 600px !important;
-            height: 400px !important;
-            overflow-y: auto !important;
-            resize: none !important;
+        /* Ensure dropdowns are visible */
+        .ck-dropdown__panel {
+            z-index: 999 !important;
+        }
+
+        /* Fix for heading dropdown */
+        .ck-heading-dropdown {
+            min-width: 150px !important;
+        }
+
+        /* EMERGENCY FIX - Force heading sizes with maximum specificity */
+        .ck-editor__editable h1, .ck-content h1, .ck.ck-editor__editable h1, .ck.ck-content h1,
+        #content + .ck-editor .ck-editor__editable h1,
+        #content_ar + .ck-editor .ck-editor__editable h1 {
+            font-size: 48px !important;
+            font-weight: bold !important;
+            margin: 20px 0 !important;
+            line-height: 1.2 !important;
+            color: #333 !important;
+            display: block !important;
+        }
+
+        .ck-editor__editable h2, .ck-content h2, .ck.ck-editor__editable h2, .ck.ck-content h2,
+        #content + .ck-editor .ck-editor__editable h2,
+        #content_ar + .ck-editor .ck-editor__editable h2 {
+            font-size: 36px !important;
+            font-weight: bold !important;
+            margin: 18px 0 !important;
+            line-height: 1.3 !important;
+            color: #333 !important;
+            display: block !important;
+        }
+
+        .ck-editor__editable h3, .ck-content h3, .ck.ck-editor__editable h3, .ck.ck-content h3,
+        #content + .ck-editor .ck-editor__editable h3,
+        #content_ar + .ck-editor .ck-editor__editable h3 {
+            font-size: 28px !important;
+            font-weight: bold !important;
+            margin: 16px 0 !important;
+            line-height: 1.4 !important;
+            color: #333 !important;
+            display: block !important;
+        }
+
+        .ck-editor__editable h4, .ck-content h4, .ck.ck-editor__editable h4, .ck.ck-content h4,
+        #content + .ck-editor .ck-editor__editable h4,
+        #content_ar + .ck-editor .ck-editor__editable h4 {
+            font-size: 22px !important;
+            font-weight: bold !important;
+            margin: 14px 0 !important;
+            line-height: 1.4 !important;
+            color: #333 !important;
+            display: block !important;
+        }
+
+        .ck-editor__editable h5, .ck-content h5, .ck.ck-editor__editable h5, .ck.ck-content h5,
+        #content + .ck-editor .ck-editor__editable h5,
+        #content_ar + .ck-editor .ck-editor__editable h5 {
+            font-size: 18px !important;
+            font-weight: bold !important;
+            margin: 12px 0 !important;
+            line-height: 1.4 !important;
+            color: #333 !important;
+            display: block !important;
+        }
+
+        .ck-editor__editable h6, .ck-content h6, .ck.ck-editor__editable h6, .ck.ck-content h6,
+        #content + .ck-editor .ck-editor__editable h6,
+        #content_ar + .ck-editor .ck-editor__editable h6 {
+            font-size: 16px !important;
+            font-weight: bold !important;
+            margin: 10px 0 !important;
+            line-height: 1.4 !important;
+            color: #333 !important;
+            display: block !important;
+        }
+
+        /* EMERGENCY FIX - Force bold to work */
+        .ck-editor__editable strong, .ck-editor__editable b,
+        .ck-content strong, .ck-content b,
+        .ck.ck-editor__editable strong, .ck.ck-editor__editable b,
+        .ck.ck-content strong, .ck.ck-content b,
+        #content + .ck-editor .ck-editor__editable strong,
+        #content_ar + .ck-editor .ck-editor__editable strong {
+            font-weight: 900 !important;
+            color: #000 !important;
         }
     </style>
 @endsection
@@ -787,62 +870,183 @@
     <script>
         let contentEditor, contentArEditor;
 
-        // Initialize CKEditor for content textareas
+        // Custom Upload Adapter
+        class MyUploadAdapter {
+            constructor(loader) {
+                this.loader = loader;
+            }
+
+            upload() {
+                return this.loader.file.then(file => new Promise((resolve, reject) => {
+                    const data = new FormData();
+                    data.append('upload', file);
+
+                    fetch('{{ route("admin.upload.image") }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: data
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.url) {
+                            resolve({ default: result.url });
+                        } else {
+                            reject(result.error?.message || 'Upload failed');
+                        }
+                    })
+                    .catch(error => reject(error));
+                }));
+            }
+
+            abort() {}
+        }
+
+        function MyCustomUploadAdapterPlugin(editor) {
+            editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                return new MyUploadAdapter(loader);
+            };
+        }
+
+        // Initialize CKEditor
         async function initializeEditors() {
             try {
-                // Initialize main content editor
-                contentEditor = await ClassicEditor.create(document.querySelector('#content'), {
-                    language: 'en',
+                console.log('🚀 Initializing CKEditor...');
+                
+                // WORKING Configuration - Full toolbar with proper heading styles
+                const editorConfig = {
                     toolbar: [
                         'heading', '|',
-                        'bold', 'italic', 'underline', 'strikethrough', '|',
-                        'bulletedList', 'numberedList', '|',
-                        'link', 'blockQuote', '|',
+                        'bold', 'italic', 'underline', '|',
+                        'link', 'bulletedList', 'numberedList', '|',
+                        'indent', 'outdent', '|',
+                        'imageUpload', 'blockQuote', 'insertTable', '|',
                         'undo', 'redo'
                     ],
-                    direction: 'ltr' // English content
-                });
+                    heading: {
+                        options: [
+                            { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                            { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                            { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                            { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+                            { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' },
+                            { model: 'heading5', view: 'h5', title: 'Heading 5', class: 'ck-heading_heading5' },
+                            { model: 'heading6', view: 'h6', title: 'Heading 6', class: 'ck-heading_heading6' }
+                        ]
+                    }
+                };
 
-                // Initialize Arabic content editor
-                contentArEditor = await ClassicEditor.create(document.querySelector('#content_ar'), {
-                    language: 'ar',
+                const editorConfigAr = {
                     toolbar: [
                         'heading', '|',
-                        'bold', 'italic', 'underline', 'strikethrough', '|',
-                        'bulletedList', 'numberedList', '|',
-                        'link', 'blockQuote', '|',
+                        'bold', 'italic', 'underline', '|',
+                        'link', 'bulletedList', 'numberedList', '|',
+                        'indent', 'outdent', '|',
+                        'imageUpload', 'blockQuote', 'insertTable', '|',
                         'undo', 'redo'
                     ],
-                    direction: 'rtl' // Arabic content
-                });
+                    heading: {
+                        options: [
+                            { model: 'paragraph', title: 'فقرة', class: 'ck-heading_paragraph' },
+                            { model: 'heading1', view: 'h1', title: 'عنوان 1', class: 'ck-heading_heading1' },
+                            { model: 'heading2', view: 'h2', title: 'عنوان 2', class: 'ck-heading_heading2' },
+                            { model: 'heading3', view: 'h3', title: 'عنوان 3', class: 'ck-heading_heading3' },
+                            { model: 'heading4', view: 'h4', title: 'عنوان 4', class: 'ck-heading_heading4' },
+                            { model: 'heading5', view: 'h5', title: 'عنوان 5', class: 'ck-heading_heading5' },
+                            { model: 'heading6', view: 'h6', title: 'عنوان 6', class: 'ck-heading_heading6' }
+                        ]
+                    }
+                };
+                
+                // English Editor with heading config
+                contentEditor = await ClassicEditor.create(document.querySelector('#content'), editorConfig);
+                console.log('✅ English editor created');
+                
+                // Add upload adapter
+                if (contentEditor.plugins.has('FileRepository')) {
+                    MyCustomUploadAdapterPlugin(contentEditor);
+                    console.log('✅ Upload adapter added to English editor');
+                }
+                
+                // Arabic Editor with heading config
+                contentArEditor = await ClassicEditor.create(document.querySelector('#content_ar'), editorConfigAr);
+                console.log('✅ Arabic editor created');
+                
+                // Add upload adapter
+                if (contentArEditor.plugins.has('FileRepository')) {
+                    MyCustomUploadAdapterPlugin(contentArEditor);
+                    console.log('✅ Upload adapter added to Arabic editor');
+                }
 
-                // Make editors available globally for form submission
+                // Make editors globally available
                 window.contentEditor = contentEditor;
                 window.contentArEditor = contentArEditor;
+                
+                console.log('✅ All editors ready!');
+                console.log('📋 Available commands:', Array.from(contentEditor.commands._commands.keys()).slice(0, 10).join(', ') + '...');
+                
+                // Test features and add debugging
+                setTimeout(() => {
+                    const heading = contentEditor.commands.get('heading');
+                    const bold = contentEditor.commands.get('bold');
+                    console.log('🎯 Heading:', heading ? '✅' : '❌');
+                    console.log('🎯 Bold:', bold ? '✅' : '❌');
+                    
+                    if (heading) {
+                        console.log('📋 Heading options:', heading.modelElements);
+                        console.log('📋 Heading value:', heading.value);
+                    }
+                    
+                    // Add click listener to heading dropdown for debugging
+                    const headingDropdown = document.querySelector('.ck-heading-dropdown button');
+                    if (headingDropdown) {
+                        headingDropdown.addEventListener('click', () => {
+                            console.log('🎯 Heading dropdown clicked');
+                        });
+                    }
+                }, 500);
 
             } catch (error) {
                 console.error('Error initializing CKEditor:', error);
+                console.error('Error details:', error.message);
+                console.error('Error stack:', error.stack);
+                alert('Failed to initialize editor. Check console for details.');
             }
         }
 
-        // Initialize editors when DOM is loaded
+        // EMERGENCY FIX - Simple form handler
         document.addEventListener('DOMContentLoaded', function() {
-            initializeEditors();
-        });
-
-        // Handle form submission to sync CKEditor content
-        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚨 EMERGENCY FIX: Starting initialization...');
+            
+            // Initialize editors
+            initializeEditors().then(() => {
+                console.log('✅ Editors initialized, setting up form handler...');
+                
+                // Simple form handler
             const form = document.querySelector('form');
             if (form) {
                 form.addEventListener('submit', function(e) {
-                    if (contentEditor) {
-                        contentEditor.updateSourceElement();
-                    }
-                    if (contentArEditor) {
-                        contentArEditor.updateSourceElement();
-                    }
-                });
-            }
+                        console.log('📤 FORM SUBMIT CLICKED!');
+                        
+                        // Sync content
+                        if (window.contentEditor) {
+                            window.contentEditor.updateSourceElement();
+                            console.log('✅ English synced');
+                        }
+                        
+                        if (window.contentArEditor) {
+                            window.contentArEditor.updateSourceElement();
+                            console.log('✅ Arabic synced');
+                        }
+                        
+                        console.log('✅ Form submitting...');
+                    });
+                    console.log('✅ Form handler attached');
+                }
+            }).catch(error => {
+                console.error('❌ Error:', error);
+            });
         });
     </script>
 @endpush
