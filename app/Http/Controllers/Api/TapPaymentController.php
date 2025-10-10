@@ -229,17 +229,18 @@ class TapPaymentController extends Controller
                 'gateway_response' => $data
             ]);
 
-            // Update order status
+            // Update order status based on payment status
             if ($status === 'completed') {
+                // Payment successful - move order to processing
                 $payment->order->update(['status' => 'processing']);
             } elseif ($status === 'failed') {
-                // Don't cancel the order, just mark payment as failed
-                // Order stays as 'confirmed' so user can retry payment
+                // Payment failed - keep order confirmed for retry
                 $payment->order->update([
-                    'status' => 'confirmed', // Keep order confirmed
+                    'status' => 'confirmed', // Keep order confirmed for retry
                     'notes' => ($payment->order->notes ? $payment->order->notes . ' | ' : '') . 'Payment failed - can retry'
                 ]);
             }
+            // For pending status, don't change order status
 
             Log::info('Tap webhook processed', [
                 'charge_id' => $chargeId,
@@ -509,6 +510,7 @@ class TapPaymentController extends Controller
     {
         return match ($tapStatus) {
             'CAPTURED' => 'completed',
+            'DECLINED' => 'failed',
             'FAILED' => 'failed',
             'CANCELLED' => 'cancelled',
             'PENDING' => 'pending',

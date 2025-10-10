@@ -1,15 +1,75 @@
 <?php
 $source = request()->get('source', 'web');
 $testMode = request()->get('test_mode', 'false') === 'true';
+$chargeId = request()->get('charge_id') ?? request()->get('tap_id') ?? request()->get('id');
 
 // For mobile apps, return JSON response
 if ($source === 'mobile') {
     header('Content-Type: application/json');
+    
+    // Check actual payment status if charge_id is provided
+    $paymentStatus = 'unknown';
+    $isSuccess = false;
+    $message = 'Payment status unknown';
+    
+    if ($chargeId) {
+        try {
+            // Get payment record from database
+            $payment = \App\Models\Payment::where('charge_id', $chargeId)->first();
+            
+            if ($payment) {
+                $paymentStatus = $payment->status;
+                
+                // Check TAP status from gateway response
+                $gatewayResponse = $payment->gateway_response;
+                if ($gatewayResponse && isset($gatewayResponse['status'])) {
+                    $tapStatus = $gatewayResponse['status'];
+                    
+                    // Only consider it successful if TAP says CAPTURED
+                    if ($tapStatus === 'CAPTURED') {
+                        $isSuccess = true;
+                        $message = 'Payment completed successfully';
+                    } elseif ($tapStatus === 'DECLINED') {
+                        $isSuccess = false;
+                        $message = 'Payment was declined by the bank';
+                    } elseif ($tapStatus === 'FAILED') {
+                        $isSuccess = false;
+                        $message = 'Payment failed';
+                    } else {
+                        $isSuccess = false;
+                        $message = 'Payment status: ' . $tapStatus;
+                    }
+                } else {
+                    // Fallback to local status
+                    if ($paymentStatus === 'completed') {
+                        $isSuccess = true;
+                        $message = 'Payment completed successfully';
+                    } else {
+                        $isSuccess = false;
+                        $message = 'Payment status: ' . $paymentStatus;
+                    }
+                }
+            } else {
+                $isSuccess = false;
+                $message = 'Payment record not found';
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Payment success page error', [
+                'error' => $e->getMessage(),
+                'charge_id' => $chargeId
+            ]);
+            $isSuccess = false;
+            $message = 'Error checking payment status';
+        }
+    }
+    
     echo json_encode([
-        'success' => true,
-        'message' => 'Payment completed successfully',
+        'success' => $isSuccess,
+        'message' => $message,
+        'payment_status' => $paymentStatus,
         'test_mode' => $testMode,
-        'timestamp' => now()->toISOString()
+        'timestamp' => now()->toISOString(),
+        'charge_id' => $chargeId
     ]);
     exit;
 }

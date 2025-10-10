@@ -103,7 +103,9 @@ class OrderController extends Controller
         $user = Auth::user();
 
         $query = Order::where('user_id', $user->id)
-            ->with(['items.product', 'items.product.options.values']);
+            ->with(['items.product', 'items.product.options.values', 'address', 'payments' => function ($query) {
+                $query->latest(); // Ensure payments are ordered by latest first
+            }]);
 
         // Apply filters
         if ($request->has('status') && $request->status) {
@@ -176,7 +178,9 @@ class OrderController extends Controller
             ], 403);
         }
 
-        $order->load(['items.product', 'items.product.options.values']);
+        $order->load(['items.product', 'items.product.options.values', 'address', 'payments' => function ($query) {
+            $query->latest(); // Ensure payments are ordered by latest first
+        }]);
 
         return response()->json([
             'success' => true,
@@ -541,8 +545,10 @@ class OrderController extends Controller
                 'phone' => $address->contact_phone
             ]);
 
-            // Reload order with relationships
-            $order->load(['items.product', 'items.product.options.values', 'address']);
+        // Reload order with relationships
+        $order->load(['items.product', 'items.product.options.values', 'address', 'payments' => function ($query) {
+            $query->latest(); // Ensure payments are ordered by latest first
+        }]);
 
             Log::info('Order shipping address updated', [
                 'order_id' => $order->id,
