@@ -250,6 +250,17 @@
                                             </div>
                                         </a>
                                     </li>
+                                    <li>
+                                        <a class="dropdown-item dropdown-item-enhanced text-danger" href="{{ route('user.account.delete.show') }}">
+                                            <div class="dropdown-item-content">
+                                                <i class="fas fa-trash-alt dropdown-item-icon text-danger"></i>
+                                                <div class="dropdown-item-text">
+                                                    <div class="dropdown-item-title text-danger">{{ trans('Delete Account') }}</div>
+                                                    <div class="dropdown-item-subtitle">{{ trans('Permanently remove your account') }}</div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
                                     
                                     <li><hr class="dropdown-divider"></li>
                                     

@@ -152,6 +152,10 @@ Route::group(
 
         // User routes (authentication required)
         Route::middleware(['auth'])->group(function () {
+            // Account deletion routes
+            Route::get('/delete_account', [App\Http\Controllers\UserAccountController::class, 'showDeleteAccount'])->name('user.account.delete.show');
+            Route::delete('/delete-account', [App\Http\Controllers\UserAccountController::class, 'deleteAccount'])->name('user.account.delete');
+
             // Appointment routes
             Route::get('/appointments', [App\Http\Controllers\AppointmentController::class, 'index'])->name('appointments.index');
             Route::get('/appointments/create', [App\Http\Controllers\AppointmentController::class, 'create'])->name('appointments.create');
