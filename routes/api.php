@@ -330,9 +330,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::put('/profile', [AuthController::class, 'updateProfile']);
 
-    // User notification preferences
-    Route::get('/user/notification-preferences', [AuthController::class, 'getNotificationPreferences']);
-    Route::put('/user/notification-preferences', [AuthController::class, 'updateNotificationPreferences']);
+    // User routes (aliases for profile routes for compatibility)
+    Route::prefix('user')->group(function () {
+        Route::get('/profile', [AuthController::class, 'profile']);
+        Route::put('/update-profile', [AuthController::class, 'updateProfile']);
+        Route::post('/change-password', [AuthController::class, 'changePassword']);
+        
+        // User notification preferences
+        Route::get('/notification-preferences', [AuthController::class, 'getNotificationPreferences']);
+        Route::put('/notification-preferences', [AuthController::class, 'updateNotificationPreferences']);
+    });
 
     // Document routes
     Route::post('/documents/upload', [DocumentController::class, 'uploadDocument']);

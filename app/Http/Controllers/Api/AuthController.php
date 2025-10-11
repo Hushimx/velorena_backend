@@ -1103,6 +1103,121 @@ class AuthController extends Controller
     }
 
     /**
+     * Change user password
+     * 
+     * @OA\Post(
+     *     path="/api/user/change-password",
+     *     operationId="changePassword",
+     *     tags={"User Profile"},
+     *     summary="Change user password",
+     *     description="Change the authenticated user's password",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"current_password","new_password","new_password_confirmation"},
+     *             @OA\Property(
+     *                 property="current_password", 
+     *                 type="string", 
+     *                 format="password", 
+     *                 description="Current password",
+     *                 example="oldpassword123"
+     *             ),
+     *             @OA\Property(
+     *                 property="new_password", 
+     *                 type="string", 
+     *                 format="password", 
+     *                 description="New password (minimum 8 characters)",
+     *                 example="newpassword123"
+     *             ),
+     *             @OA\Property(
+     *                 property="new_password_confirmation", 
+     *                 type="string", 
+     *                 format="password", 
+     *                 description="New password confirmation (must match new_password)",
+     *                 example="newpassword123"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Password changed successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Password changed successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Invalid current password",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Current password is incorrect")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation failed",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     )
+     * )
+     */
+    public function changePassword(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'current_password' => 'required|string',
+                'new_password' => 'required|string|min:8|confirmed',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $user = $request->user();
+
+            // Verify current password
+            if (!Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Current password is incorrect',
+                ], 401);
+            }
+
+            // Update password
+            $user->password = Hash::make($request->new_password);
+            $user->save();
+
+            Log::info('Password changed successfully', ['user_id' => $user->id]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password changed successfully',
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to change password', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to change password',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Link guest tokens to authenticated user
      */
     private function linkGuestTokens($user, Request $request): void
