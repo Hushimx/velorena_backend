@@ -148,15 +148,37 @@ class User extends Authenticatable
      */
     public static function getValidationRules($isUpdate = false): array
     {
+        if ($isUpdate) {
+            // For updates, make everything optional and skip client_type conditional logic
+            $userId = request()->user() ? request()->user()->id : null;
+            return [
+                'client_type' => 'sometimes|in:individual,company',
+                'full_name' => 'sometimes|string|max:255',
+                'company_name' => 'sometimes|string|max:255',
+                'contact_person' => 'sometimes|string|max:255',
+                'email' => 'sometimes|email|unique:users,email,' . $userId,
+                'phone' => 'sometimes|string|max:20|unique:users,phone,' . $userId,
+                'address' => 'nullable|string|max:500',
+                'city' => 'nullable|string|max:100',
+                'country' => 'nullable|string|max:100',
+                'vat_number' => 'nullable|string|max:50',
+                'cr_number' => 'nullable|string|max:50',
+                'notes' => 'nullable|string|max:1000',
+            ];
+        }
+
+        // For registration (not update)
         $rules = [
             'client_type' => 'required|in:individual,company',
-            'email' => 'required|email|unique:users,email' . ($isUpdate ? ',' . request()->user()->id : ''),
-            'phone' => 'required|string|max:20|unique:users,phone' . ($isUpdate ? ',' . request()->user()->id : ''),
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'required|string|max:20|unique:users,phone',
             'address' => 'nullable|string|max:500',
             'city' => 'nullable|string|max:100',
+            'country' => 'nullable|string|max:100',
             'vat_number' => 'nullable|string|max:50',
             'cr_number' => 'nullable|string|max:50',
             'notes' => 'nullable|string|max:1000',
+            'password' => 'required|string|min:8|confirmed',
         ];
 
         // Conditional validation based on client type
@@ -168,10 +190,6 @@ class User extends Authenticatable
             $rules['company_name'] = 'required|string|max:255';
             $rules['contact_person'] = 'required|string|max:255';
             $rules['full_name'] = 'nullable|string|max:255';
-        }
-
-        if (!$isUpdate) {
-            $rules['password'] = 'required|string|min:8|confirmed';
         }
 
         return $rules;
