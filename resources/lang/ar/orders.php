@@ -3,6 +3,7 @@
 return [
     // General
     'orders_list' => 'قائمة الطلبات',
+    'orders' => 'الطلبات',
     'manage_orders' => 'إدارة جميع طلبات العملاء',
     'my_orders' => 'طلباتي',
     'track_manage_orders' => 'تتبع وإدارة الطلبات',
@@ -130,7 +131,7 @@ return [
     'product_added_to_order' => 'تم إضافة المنتج إلى الطلب بنجاح',
     'addresses' => 'العناوين',
     'deleting' => 'جاري الحذف...',
-    
+
     // Product Options
     'selected_options' => 'الخيارات المحددة',
     'product_options' => 'خيارات المنتج',
@@ -139,9 +140,10 @@ return [
     'item_notes' => 'ملاحظات العنصر',
     'required' => 'مطلوب',
     'no_price_change' => 'لا يوجد تغيير في السعر',
-    
+
     // Checkout
     'checkout' => 'الدفع',
+    'order' => 'الطلب',
     'complete_payment_for_order' => 'إتمام الدفع للطلب',
     'choose_existing_address' => 'اختر عنوان موجود',
     'add_new_address' => 'إضافة عنوان جديد',

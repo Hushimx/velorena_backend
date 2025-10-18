@@ -3,6 +3,7 @@
 return [
     // General
     'orders_list' => 'Orders List',
+    'orders' => 'Orders',
     'manage_orders' => 'Manage all customer orders',
     'my_orders' => 'My Orders',
     'track_manage_orders' => 'Track & Manage Orders',
@@ -130,7 +131,7 @@ return [
     'product_added_to_order' => 'Product added to order successfully',
     'addresses' => 'Addresses',
     'deleting' => 'Deleting...',
-    
+
     // Product Options
     'selected_options' => 'Selected Options',
     'product_options' => 'Product Options',
@@ -139,9 +140,10 @@ return [
     'item_notes' => 'Item Notes',
     'required' => 'Required',
     'no_price_change' => 'No price change',
-    
+
     // Checkout
     'checkout' => 'Checkout',
+    'order' => 'Order',
     'complete_payment_for_order' => 'Complete payment for order',
     'choose_existing_address' => 'Choose Existing Address',
     'add_new_address' => 'Add New Address',

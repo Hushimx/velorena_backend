@@ -56,7 +56,7 @@
             <div class="container">
                 <form action="{{ route('user.orders.process-payment', $order) }}" method="POST" id="checkout-form">
                     @csrf
-                    
+
                     <div class="row">
                         <!-- Left Column - Address and Contact Info -->
                         <div class="col-lg-8 mb-4">
@@ -65,7 +65,7 @@
                                 <div class="section-header">
                                     <h3 class="section-title">{{ trans('orders.shipping_address') }}</h3>
                                 </div>
-                                
+
                                 <div class="address-selection">
                                     @if($addresses->count() > 0)
                                         <div class="existing-addresses">
@@ -85,12 +85,12 @@
                                                 </div>
                                             @endforeach
                                         </div>
-                                        
+
                                         <div class="address-divider">
                                             <span>{{ trans('orders.or') }}</span>
                                         </div>
                                     @endif
-                                    
+
                                     <div class="new-address">
                                         <h4 class="subsection-title">{{ trans('orders.add_new_address') }}</h4>
                                         <div class="form-group">
@@ -100,7 +100,7 @@
                                                 <div class="error-message">{{ $message }}</div>
                                             @enderror
                                         </div>
-                                        
+
                                         <div class="form-group">
                                             <label for="billing_address">{{ trans('orders.billing_address') }}</label>
                                             <textarea name="billing_address" id="billing_address" class="form-control" rows="3" placeholder="{{ trans('orders.enter_billing_address') }}">{{ old('billing_address') }}</textarea>
@@ -117,7 +117,7 @@
                                 <div class="section-header">
                                     <h3 class="section-title">{{ trans('orders.contact_information') }}</h3>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label for="phone">{{ trans('orders.phone_number') }} *</label>
                                     <input type="tel" name="phone" id="phone" class="form-control" value="{{ old('phone', $order->phone) }}" placeholder="{{ trans('orders.enter_phone_number') }}" required>
@@ -246,11 +246,8 @@
             align-items: center;
         }
 
-        .breadcrumb-item:not(:last-child)::after {
-            content: '>';
+        .breadcrumb-item+.breadcrumb-item:before {
             margin: 0 0.5rem;
-            color: #FFEBC6;
-            opacity: 0.7;
         }
 
         .breadcrumb-link {
@@ -765,7 +762,7 @@
             // Handle address selection
             const addressRadios = document.querySelectorAll('input[name="address_id"]');
             const newAddressFields = document.querySelectorAll('#shipping_address, #billing_address');
-            
+
             addressRadios.forEach(radio => {
                 radio.addEventListener('change', function() {
                     if (this.checked) {
@@ -776,7 +773,7 @@
                     }
                 });
             });
-            
+
             // Handle new address input
             newAddressFields.forEach(field => {
                 field.addEventListener('input', function() {
@@ -788,13 +785,13 @@
                     }
                 });
             });
-            
+
             // Form validation
             const form = document.getElementById('checkout-form');
             form.addEventListener('submit', function(e) {
                 const hasSelectedAddress = Array.from(addressRadios).some(radio => radio.checked);
                 const hasNewAddress = document.getElementById('shipping_address').value.trim() !== '';
-                
+
                 if (!hasSelectedAddress && !hasNewAddress) {
                     e.preventDefault();
                     alert('{{ trans("orders.please_select_or_add_address") }}');
