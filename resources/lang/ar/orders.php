@@ -3,6 +3,7 @@
 return [
     // General
     'orders_list' => 'قائمة الطلبات',
+    'orders' => 'الطلبات',
     'manage_orders' => 'إدارة جميع طلبات العملاء',
     'my_orders' => 'طلباتي',
     'track_manage_orders' => 'تتبع وإدارة الطلبات',
@@ -130,7 +131,7 @@ return [
     'product_added_to_order' => 'تم إضافة المنتج إلى الطلب بنجاح',
     'addresses' => 'العناوين',
     'deleting' => 'جاري الحذف...',
-    
+
     // Product Options
     'selected_options' => 'الخيارات المحددة',
     'product_options' => 'خيارات المنتج',
@@ -139,11 +140,15 @@ return [
     'item_notes' => 'ملاحظات العنصر',
     'required' => 'مطلوب',
     'no_price_change' => 'لا يوجد تغيير في السعر',
-    
+
     // Checkout
     'checkout' => 'الدفع',
+    'order' => 'الطلب',
     'complete_payment_for_order' => 'إتمام الدفع للطلب',
     'choose_existing_address' => 'اختر عنوان موجود',
+    'select_shipping_address' => 'اختر عنوان الشحن',
+    'choose_address_for_delivery' => 'اختر العنوان الذي تريد تسليم طلبك إليه',
+    'enter_address_manually' => 'أدخل العنوان يدوياً',
     'add_new_address' => 'إضافة عنوان جديد',
     'enter_shipping_address' => 'أدخل عنوان الشحن',
     'enter_billing_address' => 'أدخل عنوان الفواتير',
@@ -153,4 +158,31 @@ return [
     'or' => 'أو',
     'secure_payment_note' => 'سيتم توجيهك إلى صفحة دفع آمنة لاستكمال عملية الدفع',
     'please_select_or_add_address' => 'يرجى اختيار عنوان موجود أو إضافة عنوان جديد',
+    'please_select_address' => 'يرجى اختيار عنوان للتسليم',
+
+    // Address Modal
+    'address_name' => 'اسم العنوان',
+    'enter_address_name' => 'أدخل اسم العنوان (مثل: المنزل، المكتب)',
+    'contact_name' => 'اسم جهة الاتصال',
+    'enter_contact_name' => 'أدخل اسم جهة الاتصال',
+    'contact_phone' => 'هاتف جهة الاتصال',
+    'enter_contact_phone' => 'أدخل هاتف جهة الاتصال',
+    'address_line' => 'عنوان الشارع',
+    'enter_address_line' => 'أدخل عنوان الشارع',
+    'city' => 'المدينة',
+    'enter_city' => 'أدخل المدينة',
+    'district' => 'الحي',
+    'enter_district' => 'أدخل الحي',
+    'postal_code' => 'الرمز البريدي',
+    'enter_postal_code' => 'أدخل الرمز البريدي',
+    'country' => 'البلد',
+    'enter_country' => 'أدخل البلد',
+    'delivery_instruction' => 'تعليمات التسليم',
+    'hand_to_me' => 'تسليم باليد',
+    'leave_at_spot' => 'ترك في المكان',
+    'set_as_default_address' => 'تعيين كعنوان افتراضي',
+    'default_address_description' => 'سيتم اختيار هذا العنوان تلقائياً للطلبات المستقبلية',
+    'cancel' => 'إلغاء',
+    'save_address' => 'حفظ العنوان',
+    'saving' => 'جاري الحفظ',
 ];

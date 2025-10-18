@@ -3,6 +3,7 @@
 return [
     // General
     'orders_list' => 'Orders List',
+    'orders' => 'Orders',
     'manage_orders' => 'Manage all customer orders',
     'my_orders' => 'My Orders',
     'track_manage_orders' => 'Track & Manage Orders',
@@ -130,7 +131,7 @@ return [
     'product_added_to_order' => 'Product added to order successfully',
     'addresses' => 'Addresses',
     'deleting' => 'Deleting...',
-    
+
     // Product Options
     'selected_options' => 'Selected Options',
     'product_options' => 'Product Options',
@@ -139,11 +140,15 @@ return [
     'item_notes' => 'Item Notes',
     'required' => 'Required',
     'no_price_change' => 'No price change',
-    
+
     // Checkout
     'checkout' => 'Checkout',
+    'order' => 'Order',
     'complete_payment_for_order' => 'Complete payment for order',
     'choose_existing_address' => 'Choose Existing Address',
+    'select_shipping_address' => 'Select Shipping Address',
+    'choose_address_for_delivery' => 'Choose the address where you want your order delivered',
+    'enter_address_manually' => 'Enter Address Manually',
     'add_new_address' => 'Add New Address',
     'enter_shipping_address' => 'Enter shipping address',
     'enter_billing_address' => 'Enter billing address',
@@ -153,4 +158,31 @@ return [
     'or' => 'Or',
     'secure_payment_note' => 'Your payment information is secure and encrypted',
     'please_select_or_add_address' => 'Please select an existing address or add a new one',
+    'please_select_address' => 'Please select an address for delivery',
+
+    // Address Modal
+    'address_name' => 'Address Name',
+    'enter_address_name' => 'Enter address name (e.g., Home, Office)',
+    'contact_name' => 'Contact Name',
+    'enter_contact_name' => 'Enter contact name',
+    'contact_phone' => 'Contact Phone',
+    'enter_contact_phone' => 'Enter contact phone',
+    'address_line' => 'Address Line',
+    'enter_address_line' => 'Enter street address',
+    'city' => 'City',
+    'enter_city' => 'Enter city',
+    'district' => 'District',
+    'enter_district' => 'Enter district',
+    'postal_code' => 'Postal Code',
+    'enter_postal_code' => 'Enter postal code',
+    'country' => 'Country',
+    'enter_country' => 'Enter country',
+    'delivery_instruction' => 'Delivery Instruction',
+    'hand_to_me' => 'Hand to me',
+    'leave_at_spot' => 'Leave at spot',
+    'set_as_default_address' => 'Set as default address',
+    'default_address_description' => 'This address will be automatically selected for future orders',
+    'cancel' => 'Cancel',
+    'save_address' => 'Save Address',
+    'saving' => 'Saving',
 ];
