@@ -57,6 +57,37 @@
                 <form action="{{ route('user.orders.process-payment', $order) }}" method="POST" id="checkout-form">
                     @csrf
 
+                    <!-- Error Messages -->
+                    @if ($errors->any())
+                        <div class="alert alert-danger mb-4">
+                            <h4>Errors Found</h4>
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <!-- Success/Error Messages -->
+                    @if (session('success'))
+                        <div class="alert alert-success mb-4">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    @if (session('error'))
+                        <div class="alert alert-danger mb-4">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+                    @if (session('info'))
+                        <div class="alert alert-info mb-4">
+                            {{ session('info') }}
+                        </div>
+                    @endif
+
                     <div class="row">
                         <!-- Left Column - Address and Contact Info -->
                         <div class="col-lg-8 mb-4">
@@ -67,23 +98,41 @@
                                 </div>
 
                                 <div class="address-selection">
+                                    <!-- Address Selection Header -->
+                                    <div class="address-selection-header">
+                                        <h4 class="subsection-title">{{ trans('orders.select_shipping_address') }}</h4>
+                                        <p class="address-selection-description">{{ trans('orders.choose_address_for_delivery') }}</p>
+                                    </div>
+
                                     @if($addresses->count() > 0)
                                         <div class="existing-addresses">
-                                            <h4 class="subsection-title">{{ trans('orders.choose_existing_address') }}</h4>
-                                            @foreach($addresses as $address)
-                                                <div class="address-option">
-                                                    <input type="radio" name="address_id" value="{{ $address->id }}" id="address_{{ $address->id }}" class="address-radio">
-                                                    <label for="address_{{ $address->id }}" class="address-label">
-                                                        <div class="address-info">
-                                                            <div class="address-name">{{ $address->name }}</div>
-                                                            <div class="address-details">{{ $address->full_address }}</div>
-                                                            @if($address->is_default)
-                                                                <span class="default-badge">{{ trans('orders.default') }}</span>
-                                                            @endif
-                                                        </div>
-                                                    </label>
-                                                </div>
-                                            @endforeach
+                                            <div class="addresses-grid">
+                                                @foreach($addresses as $index => $address)
+                                                    <div class="address-card {{ $index === 0 ? 'selected' : '' }}">
+                                                        <input type="radio" name="address_id" value="{{ $address->id }}" id="address_{{ $address->id }}" class="address-radio"
+                                                               {{ $index === 0 ? 'checked' : '' }}>
+                                                        <label for="address_{{ $address->id }}" class="address-card-label">
+                                                            <div class="address-card-header">
+                                                                <div class="address-name">{{ $address->name }}</div>
+                                                                @if($address->is_default)
+                                                                    <span class="default-badge">{{ trans('orders.default') }}</span>
+                                                                @endif
+                                                            </div>
+                                                            <div class="address-details">
+                                                                <div class="address-line">{{ $address->street }}</div>
+                                                                <div class="address-location">{{ $address->city }}, {{ $address->district }}</div>
+                                                                <div class="address-contact">{{ $address->contact_name }} - {{ $address->contact_phone }}</div>
+                                                            </div>
+                                                            <div class="address-card-footer">
+                                                                <span class="delivery-instruction">
+                                                                    <i class="fas fa-truck"></i>
+                                                                    Delivery Address
+                                                                </span>
+                                                            </div>
+                                                        </label>
+                                                    </div>
+                                                @endforeach
+                                            </div>
                                         </div>
 
                                         <div class="address-divider">
@@ -91,23 +140,12 @@
                                         </div>
                                     @endif
 
-                                    <div class="new-address">
-                                        <h4 class="subsection-title">{{ trans('orders.add_new_address') }}</h4>
-                                        <div class="form-group">
-                                            <label for="shipping_address">{{ trans('orders.shipping_address') }} *</label>
-                                            <textarea name="shipping_address" id="shipping_address" class="form-control" rows="3" placeholder="{{ trans('orders.enter_shipping_address') }}">{{ old('shipping_address') }}</textarea>
-                                            @error('shipping_address')
-                                                <div class="error-message">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label for="billing_address">{{ trans('orders.billing_address') }}</label>
-                                            <textarea name="billing_address" id="billing_address" class="form-control" rows="3" placeholder="{{ trans('orders.enter_billing_address') }}">{{ old('billing_address') }}</textarea>
-                                            @error('billing_address')
-                                                <div class="error-message">{{ $message }}</div>
-                                            @enderror
-                                        </div>
+                                    <!-- Add New Address Button - Always visible -->
+                                    <div class="add-address-section">
+                                        <button type="button" onclick="openAddressModal()" class="add-address-btn">
+                                            <i class="fas fa-plus"></i>
+                                            <span>{{ trans('orders.add_new_address') }}</span>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -190,7 +228,19 @@
     <!-- Footer from Welcome Page -->
     <x-footer />
 
+    <!-- Address Modal - Outside of sections for proper positioning -->
+    @livewire('add-address-modal')
+
     <style>
+        /* CSS Variables */
+        :root {
+            --brand-yellow: #ffde9f;
+            --brand-yellow-light: #fff9e6;
+            --brand-yellow-dark: #f4d03f;
+            --brand-brown: #8b4513;
+            --brand-brown-light: #a0522d;
+        }
+
         /* Checkout Page Styles - Professional Theme */
         .checkout-page {
             font-family: 'Cairo', sans-serif;
@@ -380,21 +430,56 @@
             margin-bottom: 1rem;
         }
 
-        /* Address Selection */
-        .address-selection {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
+        /* Address Selection Header */
+        .address-selection-header {
+            margin-bottom: 2rem;
+            text-align: center;
         }
 
-        .existing-addresses {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+        .address-selection-description {
+            color: #666;
+            font-size: 1rem;
+            margin-top: 0.5rem;
         }
 
-        .address-option {
+        /* Address Cards Grid */
+        .addresses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .address-card {
             position: relative;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            background: #ffffff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .address-card:hover {
+            border-color: var(--brand-yellow);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 222, 159, 0.3);
+        }
+
+        .address-card.selected {
+            border-color: var(--brand-yellow);
+            background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+            box-shadow: 0 4px 20px rgba(255, 222, 159, 0.4);
+        }
+
+        .address-card.selected::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--brand-yellow) 0%, var(--brand-brown) 100%);
         }
 
         .address-radio {
@@ -403,48 +488,73 @@
             pointer-events: none;
         }
 
-        .address-label {
+        .address-card-label {
             display: block;
             padding: 1.5rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            background: #ffffff;
         }
 
-        .address-radio:checked + .address-label {
-            border-color: var(--brand-yellow);
-            background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
-            box-shadow: 0 4px 15px rgba(255, 222, 159, 0.3);
+        .address-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
         }
 
-        .address-info {
-            position: relative;
-        }
-
-        .address-name {
-            font-weight: 600;
-            color: #2C2C2C;
+        .address-card .address-name {
+            font-weight: 700;
             font-size: 1.1rem;
-            margin-bottom: 0.5rem;
+            color: #2C2C2C;
         }
 
-        .address-details {
-            color: #666;
-            line-height: 1.6;
-        }
-
-        .default-badge {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .address-card .default-badge {
             background: var(--brand-yellow);
             color: var(--brand-brown);
             padding: 0.25rem 0.75rem;
             border-radius: 12px;
             font-size: 0.8rem;
             font-weight: 600;
+        }
+
+        .address-card .address-details {
+            margin-bottom: 1rem;
+        }
+
+        .address-card .address-line {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .address-card .address-location {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .address-card .address-contact {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .address-card-footer {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 1rem;
+        }
+
+        .delivery-instruction {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .delivery-instruction i {
+            color: var(--brand-yellow);
         }
 
         .address-divider {
@@ -463,11 +573,40 @@
             background: #e5e7eb;
         }
 
-        .address-divider span {
-            background: #ffffff;
-            padding: 0 1rem;
-            color: #666;
-            font-weight: 500;
+        /* Add Address Section */
+        .add-address-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        /* Add Address Button */
+        .add-address-btn {
+            background: linear-gradient(135deg, var(--brand-yellow) 0%, var(--brand-yellow-dark) 100%);
+            color: var(--brand-brown);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-family: 'Cairo', cursive;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(255, 222, 159, 0.3);
+            margin-top: 1rem;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .add-address-btn:hover {
+            background: linear-gradient(135deg, var(--brand-yellow-dark) 0%, var(--brand-yellow) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 222, 159, 0.4);
+            color: var(--brand-brown);
         }
 
         /* Form Styles */
@@ -709,6 +848,47 @@
             }
         }
 
+        /* Alert Messages */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: none;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 500;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+        }
+
+        .alert h4 {
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .alert ul {
+            margin-bottom: 0;
+        }
+
+        .alert li {
+            margin-bottom: 0.25rem;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .checkout-title {
@@ -726,6 +906,21 @@
 
             .order-summary-card {
                 position: static;
+            }
+
+            .addresses-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .address-card-label {
+                padding: 1rem;
+            }
+
+            .address-card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
             }
 
             .address-selection {
@@ -761,44 +956,164 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Handle address selection
             const addressRadios = document.querySelectorAll('input[name="address_id"]');
-            const newAddressFields = document.querySelectorAll('#shipping_address, #billing_address');
+
+            // Auto-select first address if available
+            if (addressRadios.length > 0) {
+                const firstRadio = addressRadios[0];
+                if (firstRadio && !firstRadio.checked) {
+                    firstRadio.checked = true;
+                    // Trigger change event to ensure form state is correct
+                    firstRadio.dispatchEvent(new Event('change'));
+                }
+            }
 
             addressRadios.forEach(radio => {
                 radio.addEventListener('change', function() {
                     if (this.checked) {
-                        newAddressFields.forEach(field => {
-                            field.required = false;
-                            field.value = '';
+                        // Remove selected class from all cards
+                        document.querySelectorAll('.address-card').forEach(card => {
+                            card.classList.remove('selected');
                         });
+
+                        // Add selected class to current card
+                        const currentCard = this.closest('.address-card');
+                        if (currentCard) {
+                            currentCard.classList.add('selected');
+                        }
                     }
                 });
             });
 
-            // Handle new address input
-            newAddressFields.forEach(field => {
-                field.addEventListener('input', function() {
-                    if (this.value.trim() !== '') {
-                        addressRadios.forEach(radio => {
-                            radio.checked = false;
-                        });
-                        this.required = true;
-                    }
+            // Listen for address added event from Livewire
+            window.addEventListener('addressAdded', function(event) {
+                const newAddressId = event.detail;
+
+                // Uncheck all existing radios and remove selected class
+                addressRadios.forEach(radio => {
+                    radio.checked = false;
                 });
+                document.querySelectorAll('.address-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+
+                // Check the new address radio and add selected class
+                const newRadio = document.querySelector(`input[value="${newAddressId}"]`);
+                if (newRadio) {
+                    newRadio.checked = true;
+                    const newCard = newRadio.closest('.address-card');
+                    if (newCard) {
+                        newCard.classList.add('selected');
+                    }
+                    newRadio.dispatchEvent(new Event('change'));
+                }
+
+                // Show success message
+                showNotification('تم إضافة العنوان بنجاح', 'success');
             });
 
             // Form validation
             const form = document.getElementById('checkout-form');
             form.addEventListener('submit', function(e) {
+                console.log('Form submission started');
                 const hasSelectedAddress = Array.from(addressRadios).some(radio => radio.checked);
-                const hasNewAddress = document.getElementById('shipping_address').value.trim() !== '';
+                console.log('Has selected address:', hasSelectedAddress);
 
-                if (!hasSelectedAddress && !hasNewAddress) {
+                if (!hasSelectedAddress) {
                     e.preventDefault();
-                    alert('{{ trans("orders.please_select_or_add_address") }}');
+                    alert('{{ trans("orders.please_select_address") }}');
                     return false;
                 }
+
+                console.log('Form validation passed, submitting...');
             });
+
+            // Notification function
+            function showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.textContent = message;
+
+                // Style the notification
+                Object.assign(notification.style, {
+                    position: 'fixed',
+                    top: '20px',
+                    right: '20px',
+                    padding: '1rem 1.5rem',
+                    borderRadius: '8px',
+                    color: 'white',
+                    fontWeight: '600',
+                    zIndex: '9999',
+                    animation: 'slideInRight 0.3s ease',
+                    maxWidth: '300px',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+                });
+
+                if (type === 'success') {
+                    notification.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+                } else if (type === 'error') {
+                    notification.style.background = 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)';
+                }
+
+                document.body.appendChild(notification);
+
+                // Remove notification after 3 seconds
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+
+            // Handle escape key for modal
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const modal = document.querySelector('.modal-overlay');
+                    if (modal && modal.style.display !== 'none') {
+                        // Trigger Livewire close modal event
+                        const closeEvent = new CustomEvent('livewire:close-modal');
+                        window.dispatchEvent(closeEvent);
+                    }
+                }
+            });
+
+            // Add CSS animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInRight {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+
+                @keyframes slideOutRight {
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
         });
+
+        // Global function to open address modal
+        function openAddressModal() {
+            // Find the hidden Livewire button and click it
+            const livewireButton = document.querySelector('[wire\\:click="openModal"]');
+            if (livewireButton) {
+                livewireButton.click();
+            }
+        }
     </script>
 @endsection
-

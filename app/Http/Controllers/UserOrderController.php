@@ -53,7 +53,7 @@ class UserOrderController extends Controller
         try {
             // Delete order items first (due to foreign key constraints)
             $order->items()->delete();
-            
+
             // Delete the order
             $order->delete();
 
@@ -108,7 +108,7 @@ class UserOrderController extends Controller
         try {
             // Use the existing TapPaymentService
             $tapPaymentService = app(\App\Services\TapPaymentService::class);
-            
+
             $chargeData = [
                 'amount' => $order->total,
                 'currency' => 'SAR',
@@ -182,7 +182,7 @@ class UserOrderController extends Controller
         try {
             // Get the latest payment for this order
             $payment = $order->payments()->latest()->first();
-            
+
             if (!$payment) {
                 return redirect()->back()
                     ->with('error', 'No payment found for this order.');
@@ -195,7 +195,7 @@ class UserOrderController extends Controller
             if ($result['success']) {
                 $chargeData = $result['data'];
                 $status = $this->mapTapStatusToLocal($chargeData['status']);
-                
+
                 // Update payment status
                 $payment->update([
                     'status' => $status,
@@ -254,7 +254,7 @@ class UserOrderController extends Controller
         }
 
         $order->load(['items.product', 'user']);
-        
+
         // Get user addresses
         $addresses = \App\Models\Address::where('user_id', Auth::id())
             ->orderBy('is_default', 'desc')
@@ -269,75 +269,105 @@ class UserOrderController extends Controller
      */
     public function processPayment(Request $request, Order $order)
     {
+        // Log the request for debugging
+        Log::info('Payment processing started', [
+            'order_id' => $order->id,
+            'user_id' => Auth::id(),
+            'request_data' => $request->all(),
+            'order_status' => $order->status
+        ]);
+
         // Ensure the order belongs to the authenticated user
         if ($order->user_id !== Auth::id()) {
+            Log::warning('Unauthorized payment attempt', [
+                'order_id' => $order->id,
+                'user_id' => Auth::id(),
+                'order_user_id' => $order->user_id
+            ]);
             abort(403, 'Unauthorized access to order.');
         }
 
         // Only allow payment for confirmed orders
         if ($order->status !== 'confirmed') {
+            Log::warning('Payment attempt on non-confirmed order', [
+                'order_id' => $order->id,
+                'order_status' => $order->status
+            ]);
             return redirect()->back()
                 ->with('error', 'This order cannot be paid at this time.');
         }
 
         // Check if already paid
         if ($order->isPaid()) {
+            Log::info('Payment attempt on already paid order', [
+                'order_id' => $order->id
+            ]);
             return redirect()->route('user.orders.show', $order)
                 ->with('info', 'This order has already been paid.');
         }
 
         $request->validate([
-            'address_id' => 'nullable|exists:addresses,id',
-            'shipping_address' => 'required_if:address_id,null|string|max:500',
-            'billing_address' => 'nullable|string|max:500',
+            'address_id' => 'required|exists:addresses,id',
             'phone' => 'required|string|max:20'
         ]);
 
+        Log::info('Validation passed, proceeding with payment', [
+            'order_id' => $order->id,
+            'address_id' => $request->address_id,
+            'phone' => $request->phone
+        ]);
+
         try {
+            // Get the selected address
+            $address = \App\Models\Address::where('user_id', Auth::id())
+                ->where('id', $request->address_id)
+                ->first();
+
+            if (!$address) {
+                return redirect()->back()
+                    ->with('error', 'Selected address not found.');
+            }
+
             // Update order with address and phone information
             $updateData = [
-                'phone' => $request->phone
+                'phone' => $request->phone,
+                'address_id' => $address->id,
+                'shipping_address' => $address->full_address,
+                'billing_address' => $address->full_address,
+                'shipping_contact_name' => $address->contact_name,
+                'shipping_contact_phone' => $address->contact_phone,
+                'shipping_city' => $address->city,
+                'shipping_district' => $address->district,
+                'shipping_street' => $address->street,
+                'shipping_house_description' => $address->house_description,
+                'shipping_postal_code' => $address->postal_code
             ];
-
-            if ($request->address_id) {
-                $address = \App\Models\Address::where('user_id', Auth::id())
-                    ->where('id', $request->address_id)
-                    ->first();
-                
-                if ($address) {
-                    $updateData['shipping_address'] = $address->full_address;
-                    $updateData['billing_address'] = $address->full_address;
-                }
-            } else {
-                $updateData['shipping_address'] = $request->shipping_address;
-                $updateData['billing_address'] = $request->billing_address;
-            }
 
             $order->update($updateData);
 
             // Use the existing TapPaymentService
             $tapPaymentService = app(\App\Services\TapPaymentService::class);
-            
+
             // Prepare customer phone number
             $customerPhone = $order->phone ?? $order->user->phone ?? '';
             $cleanPhone = preg_replace('/\D/', '', $customerPhone);
-            
+
             // Ensure we have a valid phone number
             if (empty($cleanPhone) || strlen($cleanPhone) < 9) {
                 $cleanPhone = '123456789'; // Fallback phone number
             }
-            
+
             // Prepare customer name
             $customerName = $order->user->full_name ?? $order->user->company_name ?? 'Customer';
             if (empty($customerName)) {
                 $customerName = 'Customer';
             }
-            
+
             // Split name into first and last name
             $nameParts = explode(' ', trim($customerName), 2);
             $firstName = $nameParts[0];
             $lastName = $nameParts[1] ?? '';
-            
+
             $chargeData = [
                 'amount' => $order->total,
                 'currency' => 'SAR',
@@ -380,6 +410,31 @@ class UserOrderController extends Controller
                 'charge_data' => $chargeData
             ]);
 
+            // Check if Tap API keys are configured
+            $tapConfig = config('services.tap');
+            if (empty($tapConfig['test_secret_key']) && empty($tapConfig['live_secret_key'])) {
+                Log::warning('Tap API keys not configured, creating test payment', [
+                    'order_id' => $order->id
+                ]);
+
+                // Create a test payment record for development
+                $payment = \App\Models\Payment::create([
+                    'order_id' => $order->id,
+                    'charge_id' => 'test_' . time(),
+                    'amount' => $order->total,
+                    'currency' => 'SAR',
+                    'status' => 'completed', // Mark as completed for testing
+                    'payment_method' => 'test',
+                    'gateway_response' => ['test_mode' => true]
+                ]);
+
+                // Update order status
+                $order->update(['status' => 'processing']);
+
+                return redirect()->route('user.orders.show', $order)
+                    ->with('success', 'Test payment completed successfully! (Development mode - Tap API keys not configured)');
+            }
+
             $result = $tapPaymentService->createCharge($chargeData);
 
             if ($result['success']) {
@@ -409,15 +464,31 @@ class UserOrderController extends Controller
                     'result' => $result
                 ]);
 
+                $errorMessage = 'Failed to create payment. ';
+                if (str_contains($result['error'] ?? '', 'API key')) {
+                    $errorMessage .= 'Payment system is not configured. Please contact support.';
+                } else {
+                    $errorMessage .= 'Please try again.';
+                }
+
                 return redirect()->back()
-                    ->with('error', 'Failed to create payment. Please try again.');
+                    ->with('error', $errorMessage);
             }
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Payment validation failed', [
+                'order_id' => $order->id,
+                'errors' => $e->errors()
+            ]);
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
         } catch (\Exception $e) {
             Log::error('Payment processing failed', [
                 'order_id' => $order->id,
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
 
             return redirect()->back()
@@ -452,7 +523,7 @@ class UserOrderController extends Controller
     {
         $baseUrl = config('app.url');
         $isTestMode = config('services.tap.test_mode', true);
-        
+
         // For web checkout, redirect to order details page
         return $baseUrl . '/payment/success?source=web&test_mode=' . ($isTestMode ? 'true' : 'false');
     }
